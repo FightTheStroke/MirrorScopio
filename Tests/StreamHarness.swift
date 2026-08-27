@@ -6,13 +6,23 @@ import Speech
 /// voce con il sintetizzatore e la inietta nell'analizzatore come farebbe il
 /// microfono. Se qui i risultati arrivano, la catena è sana e il problema sta
 /// nell'audio in ingresso; se non arrivano, è la catena.
+/// I registri vanno in `build/tests/`, non in `/tmp`: `/tmp` è scrivibile da
+/// chiunque usi il Mac, e un collegamento piazzato lì dirotterebbe altrove
+/// quello che scriviamo.
+fileprivate func logPath(_ nome: String) -> String {
+  let dir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    .appendingPathComponent("build/tests", isDirectory: true)
+  try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+  return dir.appendingPathComponent("mirrorscopio-" + nome).path
+}
+
 @main
 struct StreamHarness {
   nonisolated(unsafe) static var log = ""
   static func say(_ s: String) {
     Swift.print(s)
     log += s + "\n"
-    try? log.write(toFile: "/tmp/mirrorscopio-stream.log", atomically: true, encoding: .utf8)
+    try? log.write(toFile: logPath("stream.log"), atomically: true, encoding: .utf8)
   }
 
   @MainActor

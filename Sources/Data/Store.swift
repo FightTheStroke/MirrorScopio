@@ -41,7 +41,11 @@ struct SessionRecord: Codable, Identifiable {
   }
 }
 
-/// Chi usa l'app. Un Mac può ospitarne più d'uno (fratelli, più pazienti).
+/// Chi usa l'app. Il modello dei dati regge più persone sullo stesso Mac
+/// (fratelli, più pazienti di un logopedista), ma **oggi l'interfaccia ne
+/// mostra una sola**: `addLearner` esiste e funziona, non è ancora collegata a
+/// nessun pulsante. Detto qui perché un commento che promette una funzione
+/// inesistente è un piccolo inganno a chi legge il codice.
 struct Learner: Codable, Identifiable, Equatable {
   var id = UUID()
   var name: String = ""
@@ -78,7 +82,12 @@ final class Store: ObservableObject {
     self.folder = base
     self.learnersURL = base.appendingPathComponent("learners.json")
     self.historyURL = base.appendingPathComponent("history.json")
-    try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+    // 0o700: solo l'utente che ha creato la cartella può entrarci. Qui dentro
+    // c'è il nome di un bambino e ogni suo errore di lettura.
+    try? FileManager.default.createDirectory(
+      at: base,
+      withIntermediateDirectories: true,
+      attributes: [.posixPermissions: 0o700])
     load()
   }
 
@@ -110,6 +119,7 @@ final class Store: ObservableObject {
     history.filter { $0.learnerID == currentID }.sorted { $0.date > $1.date }
   }
 
+  /// Non ancora raggiungibile dall'interfaccia: vedi la nota su `Learner`.
   func addLearner(name: String) {
     var l = Learner(name: name)
     l.a11y = A11ySettings()
@@ -141,6 +151,18 @@ final class Store: ObservableObject {
     save()
   }
 
+  /// Cancella una persona **e tutto ciò che la riguarda**.
+  ///
+  /// Il diritto alla cancellazione deve essere un pulsante. Un genitore non
+  /// aprirà mai `~/Library` per svuotare un file JSON a mano.
+  func deleteLearner(_ id: UUID) {
+    history.removeAll { $0.learnerID == id }
+    learners.removeAll { $0.id == id }
+    if learners.isEmpty { learners = [Learner(name: "")] }
+    if currentID == id { currentID = learners.first?.id }
+    save()
+  }
+
   // MARK: - Lettura e scrittura
 
   private func load() {
@@ -164,8 +186,13 @@ final class Store: ObservableObject {
     let enc = JSONEncoder()
     enc.outputFormatting = [.prettyPrinted, .sortedKeys]
     enc.dateEncodingStrategy = .iso8601
-    try? enc.encode(learners).write(to: learnersURL, options: .atomic)
-    try? enc.encode(history).write(to: historyURL, options: .atomic)
+    try? enc.encode(learners).write(to: learnersURL, options: [.atomic, .completeFileProtection])
+    try? enc.encode(history).write(to: historyURL, options: [.atomic, .completeFileProtection])
+    // `.atomic` sostituisce il file: i permessi vanno riapplicati ogni volta.
+    for url in [learnersURL, historyURL] {
+      try? FileManager.default.setAttributes([.posixPermissions: 0o600],
+                                             ofItemAtPath: url.path)
+    }
   }
 
   var storageFolder: URL { folder }

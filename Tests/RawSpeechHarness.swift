@@ -5,13 +5,23 @@ import Speech
 /// Sonda grezza della catena di riconoscimento: niente SpeechListener di mezzo,
 /// solo motore audio → convertitore → analizzatore, con tutto stampato.
 /// Serve a capire *dove* si perde la voce quando l'app "non riconosce niente".
+/// I registri vanno in `build/tests/`, non in `/tmp`: `/tmp` è scrivibile da
+/// chiunque usi il Mac, e un collegamento piazzato lì dirotterebbe altrove
+/// quello che scriviamo.
+fileprivate func logPath(_ nome: String) -> String {
+  let dir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    .appendingPathComponent("build/tests", isDirectory: true)
+  try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+  return dir.appendingPathComponent("mirrorscopio-" + nome).path
+}
+
 @main
 struct RawSpeechHarness {
   nonisolated(unsafe) static var log = ""
   static func say(_ s: String) {
     Swift.print(s)
     log += s + "\n"
-    try? log.write(toFile: "/tmp/mirrorscopio-raw.log", atomically: true, encoding: .utf8)
+    try? log.write(toFile: logPath("raw.log"), atomically: true, encoding: .utf8)
   }
 
   @MainActor

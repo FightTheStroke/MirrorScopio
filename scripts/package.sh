@@ -50,7 +50,9 @@ if [[ $NOTARIZE -eq 1 ]]; then
   # Sul Mac di casa le credenziali stanno nel portachiavi; su GitHub arrivano
   # dalle variabili segrete. Stessa strada, due modi di autenticarsi.
   if [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
-    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD"
+    # @env: tiene la password fuori da `ps aux`.
+    export APPLE_APP_PASSWORD
+    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "@env:APPLE_APP_PASSWORD"
                  --team-id "${APPLE_TEAM_ID:-93T3LG4NPG}")
   else
     NOTARY_ARGS=(--keychain-profile "$PROFILE")

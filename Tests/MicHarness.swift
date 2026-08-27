@@ -5,6 +5,16 @@ import Speech
 /// Sonda del giro completo col microfono vero: apre l'ascolto, pronuncia una
 /// parola dagli altoparlanti e guarda se il riconoscitore la sente.
 /// Serve a capire dove si rompe la catena quando "non riconosce niente".
+/// I registri vanno in `build/tests/`, non in `/tmp`: `/tmp` è scrivibile da
+/// chiunque usi il Mac, e un collegamento piazzato lì dirotterebbe altrove
+/// quello che scriviamo.
+fileprivate func logPath(_ nome: String) -> String {
+  let dir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    .appendingPathComponent("build/tests", isDirectory: true)
+  try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+  return dir.appendingPathComponent("mirrorscopio-" + nome).path
+}
+
 @main
 struct MicHarness {
   /// Scrive anche su file: dentro un bundle lanciato da LaunchServices lo
@@ -13,7 +23,7 @@ struct MicHarness {
   static func say(_ s: String) {
     Swift.print(s)
     log += s + "\n"
-    try? log.write(toFile: "/tmp/mirrorscopio-microfono.log", atomically: true, encoding: .utf8)
+    try? log.write(toFile: logPath("microfono.log"), atomically: true, encoding: .utf8)
   }
 
   @MainActor

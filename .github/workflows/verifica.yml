@@ -23,6 +23,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: La promessa — niente rete in Sources/
+        run: |
+          set -euo pipefail
+          # AGENTS.md, regola 2: "una URLSession in questo codice è un bug".
+          # Finché era solo una frase, bastava una distrazione a tradirla.
+          # Adesso è un cancello: se rientra la rete, la build si ferma.
+          TROVATO="$(grep -rnE 'URLSession|URLRequest|NWConnection|CFReadStream|import Network' Sources/ || true)"
+          if [ -n "$TROVATO" ]; then
+            echo "$TROVATO"
+            echo "::error::I dati del bambino non escono da quel Mac. Qui c'è del codice di rete."
+            exit 1
+          fi
+          echo "Nessuna rete in Sources/ — la promessa regge."
+
       - name: Compilo
         run: ./build.sh
 

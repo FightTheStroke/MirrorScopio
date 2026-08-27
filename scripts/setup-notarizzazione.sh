@@ -45,6 +45,7 @@ read -r -s -p "Password per app: " APP_PASSWORD
 echo
 # Gli spazi in coda arrivano spesso dal copia-incolla e fanno fallire tutto.
 APP_PASSWORD="$(echo "$APP_PASSWORD" | tr -d '[:space:]')"
+export APP_PASSWORD
 if [[ -z "$APP_PASSWORD" ]]; then
   echo "✗ Password vuota. Rilancia quando ce l'hai."
   exit 1
@@ -65,7 +66,7 @@ fi
 echo
 echo "→ Verifico con Apple e salvo nel portachiavi…"
 xcrun notarytool store-credentials "$PROFILE" \
-  --apple-id "$APPLE_ID" --team-id "$TEAM_ID" --password "$APP_PASSWORD" >/dev/null 2>&1 || true
+  --apple-id "$APPLE_ID" --team-id "$TEAM_ID" --password "@env:APP_PASSWORD" >/dev/null 2>&1 || true
 
 # Salvare non basta: la volta scorsa la credenziale era salvata *e* sbagliata.
 # Si chiede ad Apple una cosa vera prima di dire che ha funzionato.

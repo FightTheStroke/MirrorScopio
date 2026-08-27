@@ -107,7 +107,10 @@ struct RootView: View {
       }
 
     case .instructions:
-      InstructionsView(engine: engine, a11y: a11y)
+      InstructionsView(engine: engine, a11y: a11y, onFixMic: {
+        engine.abort()
+        screen = .audio
+      })
 
     case .typing:
       TypingView(engine: engine, a11y: a11y)

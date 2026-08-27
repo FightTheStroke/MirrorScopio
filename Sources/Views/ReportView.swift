@@ -304,6 +304,7 @@ struct ReportView: View {
           }
         }
         .font(a11y.typeface.font(size: a11y.size(15)))
+        Explain(text: "Il file contiene il nome e gli errori di lettura: trattalo come un documento clinico.", a11y: a11y, size: 14)
       }
       .padding(.top, 14)
     } label: {

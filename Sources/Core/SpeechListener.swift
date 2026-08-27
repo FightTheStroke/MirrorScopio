@@ -18,6 +18,7 @@ enum ListenerError: LocalizedError {
   case noInputDevice
   case noAudioFormat
   case localeUnavailable(String)
+  case modelNotInstalled
 
   var errorDescription: String? {
     switch self {
@@ -29,6 +30,8 @@ enum ListenerError: LocalizedError {
       "Nessun formato audio compatibile con il riconoscitore on-device."
     case .localeUnavailable(let l):
       "Il modello vocale on-device per \(l) non è disponibile."
+    case .modelNotInstalled:
+      "Manca il modello vocale italiano. Aprilo da «Prepara il Mac»: si scarica una volta sola, e lì vedi quanto manca."
     }
   }
 }
@@ -85,9 +88,11 @@ final class SpeechListener: @unchecked Sendable {
       reportingOptions: [.volatileResults],
       attributeOptions: [.transcriptionConfidence])
 
-    if await AssetInventory.status(forModules: [tr]) != .installed,
-       let request = try? await AssetInventory.assetInstallationRequest(supporting: [tr]) {
-      try await request.downloadAndInstall()
+    // Nessun download a sorpresa qui: sono ~1 GB, e partirebbero mentre un
+    // bambino ha appena premuto «Via!», senza avanzamento e senza spiegazione.
+    // Il modello si installa dalla schermata «Prepara il Mac», dove si vede.
+    if await AssetInventory.status(forModules: [tr]) != .installed {
+      throw ListenerError.modelNotInstalled
     }
     _ = try? await AssetInventory.reserve(locale: supported)
 

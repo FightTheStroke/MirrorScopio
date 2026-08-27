@@ -8,7 +8,13 @@ struct SettingsView: View {
   @Environment(\.palette) private var palette
   var onClose: () -> Void
 
+  @State private var chiedeCancellazione = false
+
   private var a11y: A11ySettings { store.current.a11y }
+
+  private var nomeCorrente: String {
+    store.current.name.isEmpty ? "questa persona" : store.current.name
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -210,6 +216,24 @@ struct SettingsView: View {
         NSWorkspace.shared.open(store.storageFolder)
       }
       .font(a11y.typeface.font(size: a11y.size(15)))
+
+      Button("Cancella tutti i dati di \(nomeCorrente)", role: .destructive) {
+        chiedeCancellazione = true
+      }
+      .font(a11y.typeface.font(size: a11y.size(15)))
+      .confirmationDialog(
+        "Cancellare tutti i dati di \(nomeCorrente)?",
+        isPresented: $chiedeCancellazione,
+        titleVisibility: .visible
+      ) {
+        Button("Cancella tutto", role: .destructive) {
+          store.deleteLearner(store.current.id)
+        }
+        Button("Lascia stare", role: .cancel) {}
+      } message: {
+        Text("Spariscono il nome, i progressi, gli obiettivi e ogni sessione registrata. Non si torna indietro.")
+      }
+      Explain(text: "Serve a esercitare il diritto alla cancellazione senza dover frugare nelle cartelle di sistema.", a11y: a11y, size: 14)
 
       Divider().padding(.vertical, 4)
 

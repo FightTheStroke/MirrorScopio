@@ -68,7 +68,9 @@ if [ -z "$P12_PASSWORD" ]; then
 fi
 # Controllo subito che la coppia file+password funzioni: meglio scoprirlo qui
 # che dentro un workflow che fallisce fra dieci minuti.
-if ! openssl pkcs12 -in "$P12_PATH" -passin "pass:$P12_PASSWORD" -noout 2>/dev/null; then
+# `env:` invece di `pass:`: gli argomenti di un processo si leggono con `ps aux`.
+export P12_PASSWORD
+if ! openssl pkcs12 -in "$P12_PATH" -passin env:P12_PASSWORD -noout 2>/dev/null; then
   echo "✗ Il file e la password non vanno d'accordo. Riprova."
   exit 1
 fi
@@ -86,6 +88,7 @@ echo "              È la stessa di ./scripts/setup-notarizzazione.sh."
 read -r -s -p "Password per app: " APPLE_APP_PASSWORD
 echo
 APPLE_APP_PASSWORD="$(echo "$APPLE_APP_PASSWORD" | tr -d '[:space:]')"
+export APPLE_APP_PASSWORD
 if [[ ! "$APPLE_APP_PASSWORD" =~ ^[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}$ ]]; then
   echo "✗ Non ha la forma  abcd-efgh-ijkl-mnop . Riprova."
   exit 1
@@ -94,7 +97,7 @@ fi
 echo
 echo "→ Controllo che Apple accetti queste credenziali…"
 if ! xcrun notarytool history --apple-id "$APPLE_ID" \
-       --password "$APPLE_APP_PASSWORD" --team-id "$TEAM_ID" >/dev/null 2>&1; then
+       --password "@env:APPLE_APP_PASSWORD" --team-id "$TEAM_ID" >/dev/null 2>&1; then
   echo "✗ Apple le rifiuta. Controlla l'email e la password per app."
   exit 1
 fi
@@ -114,7 +117,19 @@ echo "✓ Fatto. GitHub ora sa firmare e far timbrare l'app."
 gh secret list --repo "$REPO"
 
 echo
-echo "Adesso cancella il file .p12 dalla Scrivania: contiene la chiave privata."
+# Il consiglio stampato a schermo non viene seguito. Lo facciamo noi.
+echo "Resta una cosa: il file .p12 contiene la chiave privata di firma della"
+echo "fondazione. Su GitHub c'è gia': sulla Scrivania non serve piu' a niente."
+echo ""
+read -r -p "Lo cancello adesso? [S/n] " RISPOSTA
+if [[ ! "$RISPOSTA" =~ ^[nN] ]]; then
+  rm -P "$P12_PATH" 2>/dev/null || rm -f "$P12_PATH"
+  echo "✓ Cancellato: ${P12_PATH}"
+else
+  chmod 600 "$P12_PATH"
+  echo "! Lasciato dov'e', leggibile solo da te. Cancellalo appena puoi:"
+  echo "    rm -P \"${P12_PATH}\""
+fi
 echo "    rm \"$P12_PATH\""
 echo
 echo "Da ora in poi, per pubblicare una versione basta:"

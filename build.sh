@@ -83,12 +83,16 @@ if security find-identity -v -p codesigning | grep -q "93T3LG4NPG"; then
   # rallenta ogni build: si attiva solo quando si prepara un pacchetto.
   TS_FLAG="--timestamp=none"
   [[ "${TIMESTAMP:-0}" == "1" ]] && TS_FLAG="--timestamp"
-  codesign --force --deep --options runtime $TS_FLAG \
+  # Niente --deep: Apple lo sconsiglia e propagherebbe gli entitlements al
+  # contenuto annidato. Qui dentro non c'è codice annidato, solo font.
+  codesign --force --options runtime $TS_FLAG \
     --entitlements build/entitlements.plist \
     --sign "$TEAM_IDENTITY" "$APP"
 else
   echo "Fight The Stroke identity not found — signing ad-hoc."
-  codesign --force --entitlements build/entitlements.plist \
+  # Stesso hardened runtime del ramo firmato: se una restrizione rompe
+  # qualcosa, deve rompersi qui, non sul Mac di una famiglia.
+  codesign --force --options runtime --entitlements build/entitlements.plist \
     --sign - --identifier "$BUNDLE_ID" "$APP"
 fi
 

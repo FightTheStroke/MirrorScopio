@@ -6,7 +6,14 @@ struct InstructionsView: View {
   @ObservedObject var engine: SessionEngine
   var a11y: A11ySettings
   @Environment(\.palette) private var palette
+  /// Che fare quando dal microfono non arriva proprio niente: portare la
+  /// persona dove si sceglie l'ingresso, invece di lasciarla davanti a una
+  /// barra ferma senza spiegazioni.
+  var onFixMic: () -> Void = {}
+
   @State private var heardOnce = false
+  @State private var silenzioDa: Date?
+  @State private var silenzioLungo = false
 
   private var isWriting: Bool { engine.config.mode == .scrittura }
 
@@ -41,8 +48,26 @@ struct InstructionsView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding(36)
     .onChange(of: engine.micLevel) { _, level in
-      if level > 0.02 { heardOnce = true }
+      if level > 0.02 {
+        heardOnce = true
+        silenzioLungo = false
+        silenzioDa = nil
+      }
     }
+    .onAppear { silenzioDa = Date() }
+    .task {
+      // Sei secondi di silenzio assoluto non sono timidezza: è un microfono
+      // che non arriva. Meglio dirlo che lasciar credere di aver parlato piano.
+      guard !isWriting else { return }
+      try? await Task.sleep(for: .seconds(6))
+      if !heardOnce { silenzioLungo = true }
+    }
+  }
+
+  private var messaggioMicrofono: String {
+    if heardOnce { return "Ti sento. Puoi cominciare." }
+    if silenzioLungo { return "Non arriva niente dal microfono." }
+    return "Di' “ciao”, così controlliamo il microfono."
   }
 
   private var readyTitle: String {
@@ -95,10 +120,20 @@ struct InstructionsView: View {
         .tint(heardOnce ? palette.ok : palette.accent)
         .accessibilityLabel("quanto ti sente il microfono")
 
-      Text(heardOnce ? "Ti sento. Puoi cominciare." : "Di' “ciao”, così controlliamo il microfono.")
+      Text(messaggioMicrofono)
         .font(a11y.typeface.font(size: a11y.size(20)))
-        .foregroundStyle(heardOnce ? palette.ok : palette.muted)
+        .foregroundStyle(heardOnce ? palette.ok : (silenzioLungo ? palette.wrong : palette.muted))
         .multilineTextAlignment(.center)
+        .frame(maxWidth: 520)
+
+      if silenzioLungo && !heardOnce {
+        Button("Scegli il microfono") { onFixMic() }
+          .buttonStyle(.borderedProminent)
+          .controlSize(.large)
+          .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+        Explain(text: "Succede spesso: il Mac sta ascoltando da un altro ingresso — le cuffie spente, una webcam, un'interfaccia collegata e muta.", a11y: a11y, size: 15)
+          .frame(maxWidth: 520)
+      }
     }
     .padding(.vertical, 6)
   }
