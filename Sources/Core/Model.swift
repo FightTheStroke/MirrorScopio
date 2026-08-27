@@ -43,13 +43,31 @@ enum Level: String, CaseIterable, Identifiable, Codable {
     }
   }
 
-  var subtitle: String {
-    switch self {
-    case .inizio: "Sillabe, quasi un secondo"
-    case .base: "Parole corte, mezzo secondo"
-    case .intermedio: "Parole medie, un lampo"
-    case .avanzato: "Parole lunghe, lampo brevissimo"
-    case .personalizzato: "Deciso dall'adulto"
+  var subtitle: String { subtitle(for: .lettura) }
+
+  /// Il livello regola due cose insieme: **quanto durano** le parole sullo
+  /// schermo e **quanto sono difficili**. In modalità Scrivi la parola non si
+  /// vede — il Mac la dice — quindi metà di quella descrizione sarebbe falsa:
+  /// resta la difficoltà, sparisce il tempo. Un'app che promette millesimi di
+  /// secondo dove non ce ne sono insegna a non fidarsi di quello che scrive.
+  func subtitle(for mode: SessionMode) -> String {
+    switch mode {
+    case .lettura:
+      switch self {
+      case .inizio: "Sillabe, quasi un secondo"
+      case .base: "Parole corte, mezzo secondo"
+      case .intermedio: "Parole medie, un lampo"
+      case .avanzato: "Parole lunghe, lampo brevissimo"
+      case .personalizzato: "Deciso dall'adulto"
+      }
+    case .scrittura:
+      switch self {
+      case .inizio: "Sillabe semplici"
+      case .base: "Parole corte, due sillabe"
+      case .intermedio: "Parole medie, tre sillabe"
+      case .avanzato: "Parole lunghe, quattro sillabe"
+      case .personalizzato: "Deciso dall'adulto"
+      }
     }
   }
 

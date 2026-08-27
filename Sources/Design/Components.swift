@@ -140,3 +140,56 @@ struct Verdict: View {
     .accessibilityLabel(correct ? "risposta giusta" : "risposta sbagliata")
   }
 }
+
+/// Il pulsante per fermarsi.
+///
+/// Prima era una scritta grigia di 16 punti in un angolo: per chi ha ipovisione
+/// era invisibile, per chi ha difficoltà di controllo del movimento era un
+/// bersaglio troppo piccolo da colpire. Fermarsi deve essere la cosa più facile
+/// dello schermo, non la più difficile: se l'unica via d'uscita è nascosta, chi
+/// è in difficoltà resta intrappolato in un esercizio che non regge più.
+///
+/// Ha la forma del comando di registrazione che si trova ovunque — cerchio
+/// pieno, quadrato dentro — perché quella forma si riconosce senza leggere e
+/// senza distinguere i colori. Il rosso è **suo**, diverso dal rosso delle
+/// risposte sbagliate: smettere non è sbagliare, e i due gesti non devono
+/// somigliarsi.
+struct StopButton: View {
+  @Environment(\.palette) private var palette
+  var a11y: A11ySettings
+  var titolo = "Basta"
+  let action: () -> Void
+
+  private var rosso: Color {
+    palette.isDark
+      ? Color(red: 1.0, green: 0.36, blue: 0.36)
+      : Color(red: 0.85, green: 0.13, blue: 0.16)
+  }
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: a11y.size(10)) {
+        ZStack {
+          Circle().fill(rosso)
+          RoundedRectangle(cornerRadius: 3)
+            .fill(Color.white)
+            .frame(width: a11y.size(16), height: a11y.size(16))
+        }
+        .frame(width: a11y.size(38), height: a11y.size(38))
+
+        Text(titolo)
+          .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+      }
+      .padding(.horizontal, a11y.size(16))
+      .padding(.vertical, a11y.size(8))
+      // 60 punti: la soglia dei 44 di Apple è il minimo per una mano ferma.
+      .frame(minHeight: max(60, a11y.size(56)))
+      .contentShape(Capsule())
+    }
+    .buttonStyle(.plain)
+    .foregroundStyle(palette.foreground)
+    .background(Capsule().fill(palette.surface))
+    .overlay(Capsule().stroke(rosso.opacity(0.55), lineWidth: 2))
+    .accessibilityLabel("interrompi la sessione")
+  }
+}

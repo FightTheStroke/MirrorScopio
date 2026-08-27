@@ -32,7 +32,11 @@ struct InstructionsView: View {
         micCheck
       }
 
-      BigButton(title: readyTitle, symbol: "play.fill", a11y: a11y) {
+      // Finché il microfono non ha sentito niente, il pulsante per partire non
+      // deve essere la cosa più vistosa dello schermo: lo era, e infatti si
+      // partiva sempre senza fare la prova, per poi non essere sentiti.
+      BigButton(title: readyTitle, symbol: "play.fill", a11y: a11y,
+                prominent: isWriting || heardOnce) {
         engine.beginTrials()
       }
       .frame(maxWidth: 420)
@@ -120,11 +124,34 @@ struct InstructionsView: View {
         .tint(heardOnce ? palette.ok : palette.accent)
         .accessibilityLabel("quanto ti sente il microfono")
 
-      Text(messaggioMicrofono)
-        .font(a11y.typeface.font(size: a11y.size(20)))
-        .foregroundStyle(heardOnce ? palette.ok : (silenzioLungo ? palette.wrong : palette.muted))
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: 520)
+      // Era una didascalia grigia sotto una barra, e nessuno capiva che
+      // toccasse a lui parlare. Adesso è una richiesta, con la parola da dire
+      // scritta grande: si legge e si esegue, senza doverci pensare.
+      Group {
+        if heardOnce {
+          Text("Ti sento. Puoi cominciare.")
+            .font(a11y.typeface.font(size: a11y.size(26), weight: .semibold))
+            .foregroundStyle(palette.ok)
+        } else if silenzioLungo {
+          Text("Non arriva niente dal microfono.")
+            .font(a11y.typeface.font(size: a11y.size(26), weight: .semibold))
+            .foregroundStyle(palette.wrong)
+        } else {
+          VStack(spacing: a11y.size(6)) {
+            Text("Adesso di'")
+              .font(a11y.typeface.font(size: a11y.size(24)))
+              .foregroundStyle(palette.foreground)
+            Text("“ciao”")
+              .font(a11y.typeface.font(size: a11y.size(44), weight: .bold))
+              .foregroundStyle(palette.accent)
+            Text("così vediamo se il Mac ti sente")
+              .font(a11y.typeface.font(size: a11y.size(18)))
+              .foregroundStyle(palette.muted)
+          }
+        }
+      }
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: 520)
 
       if silenzioLungo && !heardOnce {
         Button("Scegli il microfono") { onFixMic() }

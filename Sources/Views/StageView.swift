@@ -33,8 +33,9 @@ struct StageView: View {
       case .feedback(let ok):
         feedback(ok)
 
-      case .listening, .flushing, .scoring:
-        listening
+      case .listening, .flushing, .scoring, .fixation, .preMask, .stimulus,
+           .postMask, .interTrial:
+        palcoscenico
 
       default:
         stimulus
@@ -93,6 +94,67 @@ struct StageView: View {
     return engine.trials[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
   }
 
+  // MARK: - Il palcoscenico
+
+  /// Una scena sola, che non cambia mai.
+  ///
+  /// Prima ogni momento aveva il suo schermo: il `+`, la parola, la maschera,
+  /// poi di colpo un'altra pagina con scritto "Leggi ad alta voce". Il salto
+  /// costringeva l'occhio a ricercare ogni volta dove guardare — e l'occhio è
+  /// esattamente ciò che stiamo misurando. Adesso il riquadro centrale sta
+  /// fermo e cambia solo il suo contenuto; la fascia dell'ascolto occupa
+  /// sempre il suo spazio, anche quando è invisibile, così niente scivola.
+  private var palcoscenico: some View {
+    VStack(spacing: a11y.size(28)) {
+      Spacer(minLength: 0)
+
+      ZStack {
+        Color.clear
+        switch engine.phase {
+        case .preMask, .postMask: maschera
+        default: stimulus
+        }
+      }
+      .frame(height: CGFloat(a11y.stimulusSize) * 1.6)
+
+      ascolto
+        .frame(height: a11y.size(120))
+        .opacity(mostraAscolto ? 1 : 0)
+        // Invisibile non basta: se restasse leggibile da VoiceOver mentre la
+        // parola è sullo schermo, la direbbe ad alta voce.
+        .accessibilityHidden(!mostraAscolto)
+
+      Spacer(minLength: 0)
+    }
+    .padding(.horizontal, 36)
+  }
+
+  private var mostraAscolto: Bool {
+    switch engine.phase {
+    case .listening, .flushing, .scoring: true
+    default: false
+    }
+  }
+
+  /// La maschera non è più una fila di cancelletti.
+  ///
+  /// Serve a interrompere l'immagine che resta nell'occhio dopo la parola:
+  /// senza, l'esposizione dura più dei millesimi che dichiariamo e la misura
+  /// non vale. Ma `####` è fatto di caratteri, e a un ragazzo che sta faticando
+  /// a decifrare viene naturale provare a leggerli. Delle barre non si leggono:
+  /// fanno lo stesso lavoro senza chiedere niente.
+  private var maschera: some View {
+    HStack(spacing: CGFloat(a11y.letterSpacing) + 4) {
+      ForEach(0..<max(3, engine.displayText.count), id: \.self) { _ in
+        RoundedRectangle(cornerRadius: 2)
+          .fill(palette.foreground.opacity(0.55))
+          .frame(width: CGFloat(a11y.stimulusSize) * 0.42,
+                 height: CGFloat(a11y.stimulusSize) * 0.72)
+      }
+    }
+    .accessibilityHidden(true)
+  }
+
   // MARK: - Lo stimolo
 
   private var stimulus: some View {
@@ -104,10 +166,10 @@ struct StageView: View {
       .accessibilityHidden(true)
   }
 
-  private var listening: some View {
-    VStack(spacing: a11y.size(20)) {
+  private var ascolto: some View {
+    VStack(spacing: a11y.size(12)) {
       Text("Leggi ad alta voce")
-        .font(a11y.typeface.font(size: a11y.size(36), weight: .semibold))
+        .font(a11y.typeface.font(size: a11y.size(30), weight: .semibold))
         .foregroundStyle(palette.foreground)
 
       Image(systemName: "waveform")
@@ -156,17 +218,8 @@ struct StageView: View {
   private var overlay: some View {
     VStack {
       HStack {
-        Button { engine.abort() } label: {
-          Label("Basta", systemImage: "stop.circle")
-            .font(a11y.typeface.font(size: a11y.size(16)))
-            .padding(.horizontal, 10)
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(palette.muted)
-        .keyboardShortcut(.escape, modifiers: [])
-        .accessibilityLabel("interrompi la sessione")
+        StopButton(a11y: a11y) { engine.abort() }
+          .keyboardShortcut(.escape, modifiers: [])
 
         if engine.isWarmup && engine.totalTrials > 0 {
           Text("riscaldamento")

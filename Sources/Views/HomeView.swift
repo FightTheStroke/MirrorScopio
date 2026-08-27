@@ -114,7 +114,9 @@ struct HomeView: View {
       SectionTitle(text: engine.config.mode == .lettura ? "Quanto veloce?" : "Quanto difficile?", a11y: a11y)
       HStack(spacing: 10) {
         ForEach(Level.allCases.filter { $0 != .personalizzato }) { level in
-          ChoiceCard(title: level.title, subtitle: level.subtitle, symbol: level.symbol,
+          ChoiceCard(title: level.title,
+                     subtitle: level.subtitle(for: engine.config.mode),
+                     symbol: level.symbol,
                      selected: engine.config.level == level, a11y: a11y) {
             engine.config.level = level
             level.apply(to: &engine.config)

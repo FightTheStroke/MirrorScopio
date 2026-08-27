@@ -64,16 +64,8 @@ struct TypingView: View {
 
   private var header: some View {
     HStack {
-      Button { engine.abort() } label: {
-        Label("Basta", systemImage: "stop.circle")
-          .font(a11y.typeface.font(size: a11y.size(16)))
-          .padding(.horizontal, 10)
-          .frame(minHeight: 44)
-          .contentShape(Rectangle())
-      }
-      .buttonStyle(.plain)
-      .foregroundStyle(palette.muted)
-      .keyboardShortcut(.escape, modifiers: [])
+      StopButton(a11y: a11y) { engine.abort() }
+        .keyboardShortcut(.escape, modifiers: [])
 
       Spacer()
 
