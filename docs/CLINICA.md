@@ -102,6 +102,38 @@ vocabolario, quindi il riconoscitore le storpia verso la parola vera più vicina
 L'app lo dichiara apertamente e suggerisce la **modalità Scrivi**, dove non c'è
 riconoscimento vocale di mezzo e il confronto è esatto.
 
+## La scala di Scrivi: complessità, non velocità
+
+In lettura cresce la fretta; scrivendo cresce la complessità. In modalità Scrivi la parola
+si **sente**, non si vede: i millesimi di esposizione non hanno alcun significato, e infatti
+l'app non li mostra più lì — prometteva una precisione che in quella modalità non esiste.
+
+La scala è quattro gradini, ed è la progressione usata nella riabilitazione della
+disortografia (la stessa impostazione dei software clinici italiani del settore, RIDInet
+compreso): **parola → frase → brano**.
+
+| Gradino | Che cosa si detta | Che cosa mette alla prova |
+|---|---|---|
+| **Parole** | Bisillabe piane, ortografia trasparente | Conversione suono → lettera |
+| **Parole difficili** | gn, gl, sc, doppie, gruppi consonantici | Le regole che l'italiano non scrive come si sente |
+| **Frasi brevi** | Tre o quattro parole | Tenere in memoria una sequenza mentre si scrive |
+| **Frasi intere** | Frasi di senso compiuto | Significato, ordine e ortografia insieme |
+
+Scrivere una frase non è scrivere più parole di seguito: è reggere insieme tre carichi che
+sulla parola singola non si sommano mai.
+
+### Il controllo parola per parola
+
+Sulle frasi, «ripeti tutto» non serve: chi sta imparando non sbaglia la frase, sbaglia *una*
+parola dentro la frase, e per accorgersene deve poter sentire quella e basta. Ogni parola
+scritta diventa una pastiglia che si tocca per risentire **solo quella**, più un pulsante
+che rilegge tutta la frase.
+
+Il Mac rilegge **quello che c'è scritto davvero**, non quello che avrebbe dovuto esserci:
+il punto è sentire con le proprie orecchie la differenza fra le due cose, che è esattamente
+il controllo che chi scrive bene fa in automatico e chi ha disortografia deve imparare a
+fare a voce alta.
+
 ## Sicurezza
 
 - **Epilessia fotosensibile.** La sequenza comporta cambi rapidi di luminanza. Non usare in

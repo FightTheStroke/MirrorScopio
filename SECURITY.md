@@ -77,8 +77,15 @@ Nulla che riguardi chi usa l'app. Ma per non nascondere niente:
   solo se lo chiedi tu. Dopo, l'app funziona senza internet. Se il modello
   manca, la sessione non parte e l'app te lo dice: non scarica mai un giga
   alle spalle di chi sta usando l'app.
-- **Aggiornamenti**: nessun controllo automatico. L'app non contatta nessun
-  server, mai.
+- **Aggiornamenti**: l'app può chiedere a GitHub qual è l'ultima versione
+  pubblicata, non più di una volta al giorno. È **spenta finché non la accendi**
+  tu — nell'avvio guidato o in Impostazioni › Aggiornamenti — e si spegne quando
+  vuoi. La richiesta non porta con sé niente: nessun identificativo, nessun
+  dato di chi usa l'app, nessun contenuto delle sessioni. GitHub vede quello che
+  vede qualunque sito: che un computer ha chiesto una pagina pubblica. Tutto il
+  codice che tocca la rete sta in un file solo, `Sources/Core/Updates.swift`, e
+  il controllo automatico in `.github/workflows/verifica.yml` fa fallire la
+  build se qualcuno ne aggiunge altrove.
 - **In fase di sviluppo**, chi compila e pubblica una versione manda l'app ad
   Apple per la firma di sicurezza (notarizzazione). Riguarda il programma, non
   i dati.

@@ -10,6 +10,8 @@ struct ReportView: View {
   @State private var saved = false
   @State private var unlocked: [Achievement] = []
   @State private var showDetail = false
+  /// Il premio è opzionale: chi non lo vuole non lo vede aprirsi da solo.
+  @State private var showStaffetta = false
 
   private var a11y: A11ySettings { store.current.a11y }
   private var record: SessionRecord { engine.finishedRecord ?? SessionRecord() }
@@ -25,6 +27,7 @@ struct ReportView: View {
           difficultyProposal
         }
         actions
+        if !engine.isCalibration, record.total > 0 { premioStaffetta }
         if !engine.isCalibration { adultDetail }
       }
       .padding(32)
@@ -40,6 +43,29 @@ struct ReportView: View {
       }
     }
     .onAppear(perform: saveOnce)
+    // Il premio si apre a schermo intero e si chiude quando si vuole: non
+    // trattiene, non tiene il punteggio, non ha nulla da vincere.
+    .sheet(isPresented: $showStaffetta) {
+      StaffettaView(a11y: a11y, onClose: { showStaffetta = false })
+        .frame(minWidth: 720, minHeight: 560)
+        .environment(\.palette, palette)
+    }
+  }
+
+  // MARK: - Il premio opzionale
+
+  /// Un pulsante discreto, non il protagonista della schermata: chi vuole il
+  /// premio lo trova, chi ha già avuto abbastanza per oggi lo ignora e chiude.
+  private var premioStaffetta: some View {
+    VStack(spacing: 8) {
+      SmallButton(title: "Il premio: la staffetta del Fight Camp",
+                  symbol: "figure.run", a11y: a11y) {
+        showStaffetta = true
+      }
+      Explain(text: "Un piccolo gioco con un tasto solo. Non c'è fretta e non si può perdere.",
+              a11y: a11y, size: 14)
+      .multilineTextAlignment(.center)
+    }
   }
 
   // MARK: - Salvataggio

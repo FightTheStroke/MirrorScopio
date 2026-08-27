@@ -9,6 +9,9 @@ struct VoiceWindowSnapshot {
   var isFinal = false
   var lastUpdate: CFTimeInterval?
   var voiceOnset: CFTimeInterval?
+  /// Ultimo istante in cui il microfono ha sentito qualcosa sopra il rumore di
+  /// fondo. Serve per non chiudere il turno a chi sta ancora parlando.
+  var lastVoice: CFTimeInterval?
   var confidence: Double?
   var level: Float = 0
 }
@@ -86,7 +89,7 @@ final class SpeechListener: @unchecked Sendable {
       locale: supported,
       transcriptionOptions: [],
       reportingOptions: [.volatileResults],
-      attributeOptions: [.transcriptionConfidence])
+      attributeOptions: [.transcriptionConfidence, .audioTimeRange])
 
     // Nessun download a sorpresa qui: sono ~1 GB, e partirebbero mentre un
     // bambino ha appena premuto «Via!», senza avanzamento e senza spiegazione.
@@ -148,11 +151,29 @@ final class SpeechListener: @unchecked Sendable {
   /// risposta di una prova scade prima. È il guasto che rendeva l'app sorda.
   /// Provato in `Tests/StreamHarness.swift`: i risultati arrivano in circa 40 ms.
   func flush() async {
+    let punto = puntoAttuale()
+    do {
+      try await analyzer?.finalize(through: punto)
+    } catch {
+      // Non si puo interrompere la sessione per questo: il microfono resta
+      // aperto e la parola dopo va comunque tentata. Ma il silenzio totale era
+      // peggio — se questa chiamata smettesse di funzionare l'app tornerebbe
+      // sorda come prima, e nessuno saprebbe perche.
+      Log.warn("La chiusura della trascrizione non è riuscita: \(error.localizedDescription)")
+    }
+  }
+
+  /// Legge sotto lucchetto fin dove l'audio è stato consegnato.
+  ///
+  /// Sta in una funzione a parte, e sincrona, di proposito: `NSLock` non si può
+  /// prendere dentro una funzione `async` — fra `lock()` e `unlock()` il
+  /// compito può cambiare thread, e un lucchetto rilasciato da un thread
+  /// diverso da quello che l'ha preso è un blocco che non si scioglie più.
+  private func puntoAttuale() -> CMTime {
     lock.lock()
-    let frames = framesFed
-    let rate = analyzerFormat?.sampleRate ?? 16000
-    lock.unlock()
-    try? await analyzer?.finalize(through: CMTime(value: frames, timescale: CMTimeScale(rate)))
+    defer { lock.unlock() }
+    return CMTime(value: framesFed,
+                  timescale: CMTimeScale(analyzerFormat?.sampleRate ?? 16000))
   }
 
   func stop() async {
@@ -247,26 +268,79 @@ final class SpeechListener: @unchecked Sendable {
         noiseFloor = max(0.002, median * 4 + 0.002)
         calibrating = false
       }
-    } else if windowActive, snapshot.voiceOnset == nil, rms > noiseFloor {
-      snapshot.voiceOnset = now
+    } else if windowActive, rms > noiseFloor {
+      if snapshot.voiceOnset == nil { snapshot.voiceOnset = now }
+      snapshot.lastVoice = now
     }
     lock.unlock()
   }
 
+  /// Tiene solo cio che e stato detto **dopo** la comparsa della parola in corso.
+  ///
+  /// Qui c'era il difetto che faceva giudicare una prova con la parola di
+  /// prima. Il riconoscitore non consegna una parola per volta: consegna un
+  /// pezzo di trascrizione che scorre e che puo coprire anche l'attesa
+  /// precedente. Scartare il risultato intero quando finisce prima della
+  /// finestra non basta — un risultato che *attraversa* l'inizio della finestra
+  /// passava il controllo e portava dentro le parole vecchie, e allora si
+  /// confrontava "casa mare" con `mare`: "Ancora" a chi aveva detto giusto, e
+  /// ogni tanto il contrario, che e anche peggio.
+  ///
+  /// Adesso il taglio e sul testo, non sul risultato: ogni pezzo di
+  /// trascrizione porta con se il tratto di audio da cui viene
+  /// (`audioTimeRange`), e teniamo i pezzi che cominciano dentro la finestra.
   private func ingest(_ result: SpeechTranscriber.Result) {
     lock.lock()
     defer { lock.unlock() }
     guard windowActive else { return }
     guard result.range.end > windowStart else { return }
 
-    let text = String(result.text.characters).trimmingCharacters(in: .whitespacesAndNewlines)
+    let (text, confidence) = testoDentroLaFinestra(result)
     guard !text.isEmpty else { return }
 
     snapshot.text = text
     snapshot.isFinal = result.isFinal
     snapshot.lastUpdate = CACurrentMediaTime()
-    snapshot.confidence = result.text.runs
-      .compactMap { $0.transcriptionConfidence }
-      .max()
+    snapshot.confidence = confidence
+  }
+
+  /// Da chiamare col lucchetto gia preso.
+  private func testoDentroLaFinestra(_ result: SpeechTranscriber.Result)
+    -> (String, Double?) {
+    var pezzi: [String] = []
+    var confidenze: [Double] = []
+    var senzaTempo = false
+
+    for run in result.text.runs {
+      let frammento = String(result.text.characters[run.range])
+      guard let tratto = run.audioTimeRange else {
+        // Senza il tratto di audio non si puo collocare nel tempo: lo si tiene,
+        // perche buttarlo renderebbe sorda l'app se un giorno l'attributo non
+        // arrivasse piu, ma si annota che il taglio non e affidabile.
+        senzaTempo = true
+        pezzi.append(frammento)
+        if let c = run.transcriptionConfidence { confidenze.append(c) }
+        continue
+      }
+      // Una tolleranza serve: il tratto di audio di una parola comincia qualche
+      // centesimo prima del suono vero, e chi risponde di scatto verrebbe
+      // tagliato fuori proprio perche e stato veloce.
+      guard tratto.end > windowStart,
+            tratto.start >= windowStart - CMTime(value: 25, timescale: 1000) else { continue }
+      pezzi.append(frammento)
+      if let c = run.transcriptionConfidence { confidenze.append(c) }
+    }
+
+    if senzaTempo, pezzi.count == result.text.runs.count {
+      // Nessun pezzo era collocabile: si torna al comportamento di prima,
+      // cioe il testo intero, che e impreciso ma non muto.
+      let intero = String(result.text.characters)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+      return (intero, confidenze.max())
+    }
+
+    let testo = pezzi.joined()
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    return (testo, confidenze.max())
   }
 }

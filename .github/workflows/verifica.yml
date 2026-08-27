@@ -33,7 +33,14 @@ jobs:
           # l'ultima versione. È una domanda su di noi, non su chi usa l'app.
           # Ovunque altro la rete resta vietata, e questo cancello lo dimostra
           # a ogni push senza che nessuno debba fidarsi della nostra parola.
-          TROVATO="$(grep -rnE 'URLSession|URLRequest|NWConnection|CFReadStream|import Network' Sources/ \
+          # L'elenco copre anche le vie di servizio: scaricare un URL con
+          # Data(contentsOf:) o lanciare curl da un Process non passa da
+          # URLSession, ma porta i dati fuori esattamente allo stesso modo.
+          # Un cancello che dimentica le porte sul retro non e una prova.
+          VIETATI='URLSession|URLRequest|NWConnection|CFReadStream|import Network'
+          VIETATI="$VIETATI"'|Data\(contentsOf:|String\(contentsOf:|Data\(contentsOfURL'
+          VIETATI="$VIETATI"'|Process\(|NSTask|/usr/bin/curl|CFURLCreateData'
+          TROVATO="$(grep -rnE "$VIETATI" Sources/ \
             | grep -v '^Sources/Core/Updates.swift:' || true)"
           if [ -n "$TROVATO" ]; then
             echo "$TROVATO"

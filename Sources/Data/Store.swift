@@ -58,6 +58,8 @@ struct Learner: Codable, Identifiable, Equatable {
   var streakCurrent: Int = 0
   var streakLongest: Int = 0
   var lastSessionDay: String?
+  /// Quante sessioni sono state portate a termine, in tutto.
+  var sessionsCompleted: Int = 0
   var unlockedAchievements: [String] = []
 }
 
@@ -165,14 +167,25 @@ final class Store: ObservableObject {
 
   // MARK: - Lettura e scrittura
 
+  /// Legge un file dalla cartella dell'app, e nient'altro.
+  ///
+  /// Passa dal percorso invece che dall'URL di proposito: le funzioni che
+  /// leggono un URL accettano anche un indirizzo di rete, e il controllo
+  /// automatico che tiene fuori la rete da questo programma non puo
+  /// distinguere i due casi guardando il codice. Questa forma non ha quel
+  /// doppio uso — la promessa resta dimostrabile senza eccezioni da spiegare.
+  private func contenuto(di url: URL) -> Data? {
+    FileManager.default.contents(atPath: url.path)
+  }
+
   private func load() {
     let dec = JSONDecoder()
     dec.dateDecodingStrategy = .iso8601
-    if let d = try? Data(contentsOf: learnersURL),
+    if let d = contenuto(di: learnersURL),
        let l = try? dec.decode([Learner].self, from: d) {
       learners = l
     }
-    if let d = try? Data(contentsOf: historyURL),
+    if let d = contenuto(di: historyURL),
        let h = try? dec.decode([SessionRecord].self, from: d) {
       history = h
     }

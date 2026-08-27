@@ -46,7 +46,7 @@ settimana, mentre l'esercizio darebbe il meglio se fatto pochi minuti al giorno.
 | **Valuta da solo** | Il riconoscimento vocale gira interamente sul Mac. Nessuno deve premere niente: la parola lampeggia, il bambino la legge, l'app decide. |
 | **Si adatta** | La velocità sale e scende inseguendo la soglia di chi legge. A fine sessione propone di cambiare livello se è stato troppo facile o troppo difficile. |
 | **Non fa sentire nessuno stupido** | Difficile quanto basta per valere qualcosa, facile abbastanza da riuscirci. Punteggi nascondibili, festeggiamenti spegnibili. |
-| **Non esce mai dal Mac** | Nessun account, nessuna rete, nessun servizio. Nemmeno un controllo aggiornamenti. |
+| **Non esce mai dal Mac** | Nessun account, nessun servizio, nessuna telemetria. L'unica cosa che passa dalla rete è il controllo della versione, che puoi tenere spento. |
 
 ### Due modalità
 
@@ -80,7 +80,7 @@ Un **profilo** imposta tutto in un colpo solo; poi ogni singola manopola resta r
   di sistema. Spaziatura fra le lettere regolabile.
 - **Temi** — chiaro, scuro, altissimo contrasto, carta color crema.
 - **Daltonismo** — palette per deuteranopia, protanopia, tritanopia, monocromia. Giusto e
-  sbagliato **non si distinguono mai solo dal colore**: c'è sempre anche un simbolo e una
+  «ancora» **non si distinguono mai solo dal colore**: c'è sempre anche un simbolo e una
   parola scritta.
 - **Voce** — tutte le voci italiane del Mac in elenco, con anteprima all'ascolto e
   velocità regolabile.
@@ -97,7 +97,7 @@ Il perché di ogni scelta: [`docs/ACCESSIBILITA.md`](docs/ACCESSIBILITA.md).
 ## Privacy: la promessa, e come la manteniamo
 
 **Niente che riguardi chi usa l'app esce da questo Mac.** Nessun account, nessuna
-telemetria, nessun controllo aggiornamenti.
+telemetria, nessun profilo, niente che si possa ricondurre a una persona.
 
 - La voce viene trascritta dal **modello on-device** di macOS.
 - L'analisi del tipo di errore usa i **Foundation Models di Apple**, che girano in locale.
@@ -105,9 +105,17 @@ telemetria, nessun controllo aggiornamenti.
 - I dati stanno in file JSON leggibili in `~/Library/Application Support/MirrorScopio/`.
   Per cancellare tutto, si butta quella cartella.
 
-Per onestà, le uniche due cose che passano dalla rete: al primo avvio macOS **scarica** da
-Apple il modello di riconoscimento italiano (non contiene dati tuoi, e succede una volta
-sola), e chi *pubblica* una versione manda l'app ad Apple per la firma di sicurezza.
+Per onestà, le uniche tre cose che passano dalla rete:
+
+1. Al primo avvio macOS **scarica** da Apple il modello di riconoscimento italiano — è un
+   download del sistema operativo, non contiene dati tuoi, e succede una volta sola.
+2. Il **controllo della versione**: una volta al giorno l'app può chiedere a GitHub qual è
+   l'ultima versione pubblicata. Non manda niente, chiede e basta. Lo si accende
+   nell'avvio guidato o dalle Impostazioni, ed è **spento finché non lo scegli**. Tutto il
+   codice che tocca la rete sta in un file solo, [`Sources/Core/Updates.swift`](Sources/Core/Updates.swift),
+   e un controllo automatico impedisce che ne compaia altrove.
+3. Chi *pubblica* una versione manda l'app ad Apple per la firma di sicurezza.
+
 Dettagli in [`SECURITY.md`](SECURITY.md).
 
 ---

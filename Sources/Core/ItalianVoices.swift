@@ -44,14 +44,15 @@ enum ItalianVoices {
   /// Quelle del catalogo che su questo Mac non ci sono. Il confronto e sul
   /// nome perche gli identificativi cambiano fra versioni di macOS.
   static func mancanti() -> [Nota] {
-    let presenti = installate().map { $0.name.lowercased() }
+    let voci = installate()
+    let presenti = voci.map { $0.name.lowercased() }
     return catalogo.filter { nota in
       let n = nota.nome.lowercased()
       // "Alice (migliorata)" in elenco e "Alice" con qualita enhanced qui.
       if let base = n.split(separator: " ").first.map(String.init),
          n.contains("(") {
         let qualita: AVSpeechSynthesisVoiceQuality = n.contains("premium") ? .premium : .enhanced
-        return !installate().contains { $0.name.lowercased().hasPrefix(base) && $0.quality == qualita }
+        return !voci.contains { $0.name.lowercased().hasPrefix(base) && $0.quality == qualita }
       }
       return !presenti.contains { $0.hasPrefix(n) }
     }

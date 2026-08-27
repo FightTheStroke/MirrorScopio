@@ -1,7 +1,7 @@
 # Accessibilità
 
 MirrorScopio parte da un'idea presa da MirrorBuddy: **la disabilità non è un caso limite da
-gestire in fondo, è il caso normale da cui si progetta.** Chi usa questa app ha spesso
+gestire in fondo, è il caso da cui si progetta.** Chi usa questa app ha spesso
 dislessia, autismo, ADHD, ipovisione o paralisi cerebrale — a volte più di una insieme.
 
 ## Il vincolo che ha riscritto tutto
@@ -33,7 +33,7 @@ profilo se non lo sono più.
 | Profilo | Che cosa cambia |
 |---|---|
 | **Dislessia** | OpenDyslexic, lettere più distanziate, righe più larghe, testo più grande |
-| **Autismo** | Niente animazioni, niente distrazioni, niente esclamazioni, pause frequenti. **Contrasto normale, non alto** |
+| **Autismo** | Niente animazioni, niente distrazioni, niente esclamazioni, pause frequenti. **Contrasto medio, non alto** |
 | **ADHD** | Sessioni brevi, pause automatiche, schermo pulito, feedback immediato |
 | **Ipovisione** | Testo molto grande, altissimo contrasto, Atkinson Hyperlegible |
 | **Paralisi cerebrale** | Tempi di risposta lunghi, bersagli grandi, nessuna fretta |
@@ -78,9 +78,21 @@ visione.
 
 ## Tono
 
-Ereditato da MirrorBuddy: caldo, breve, mai giudicante. Mai *"No, sbagliato"*. Un errore si
-dice nominando la parola giusta e andando avanti. La sintesi finale parla di quello che è
-migliorato prima di quello che manca.
+Ereditato da MirrorBuddy: caldo, breve, mai giudicante.
+
+**Non si sbaglia mai: "Ancora".** Non è venuta *ancora*. È la stessa parola che i bambini
+imparano al Fight Camp — non "non so farlo", ma "non so ancora farlo" — e vale ovunque:
+nel feedback, nei referti, nelle esportazioni e nei simboli. Dove c'era una croce adesso
+c'è una freccia che torna indietro, perché a un ragazzo che sbaglia da anni quella croce è
+già arrivata abbastanza volte.
+
+**Nessuna parola definisce una persona per ciò che le manca.** "Normale" dice a tutti gli
+altri che cosa sono. Le opzioni descrivono che cosa succede guardando lo schermo, non che
+cosa manca a chi guarda: *"Il verde e il rosso si somigliano"*, non *"Non distinguo il
+verde"*.
+
+Una parola che non è venuta si dice nominando quella giusta e andando avanti. La sintesi
+finale parla di quello che è migliorato prima di quello che manca.
 
 ## Fondamenta tecniche
 

@@ -24,6 +24,65 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - `scripts/setup-github-secrets.sh`: mette certificato e credenziali nella
   cassaforte di GitHub, guidando passo passo.
 
+## [0.3.0] — 2026-08-27
+
+### Aggiunto
+- **Scrivi ha la sua scala**, e non parla più di millesimi di secondo: lì la
+  parola si sente, non si vede. Cresce la complessità — parole semplici, parole
+  con le trappole ortografiche (gn, gl, sc, doppie), frasi brevi, frasi intere
+  di senso compiuto. È la progressione usata nella riabilitazione della
+  disortografia: scrivere una frase non è scrivere più parole, è reggere
+  insieme significato, ordine e ortografia.
+- **Riascolto parola per parola** sulle frasi: ogni parola scritta diventa una
+  pastiglia che si tocca per risentire solo quella, più «Rileggimi tutta la
+  frase che ho scritto». Il Mac rilegge quello che c'è scritto davvero, non
+  quello che avrebbe dovuto esserci — il punto è sentire la differenza.
+- **I progressi in home**, sempre: livello, barra, giorni di fila, obiettivi.
+  Anche a zero punti, dove dicono come si comincia.
+- **Coriandoli a fine sessione**, mai proporzionati solo al punteggio: chi
+  prende quattro parole su venti ha fatto la fatica più grande. Si spengono da
+  soli con «meno animazioni» e in modalità calma.
+- **Microfono e altoparlanti nella barra in alto**, con scritto quale è attivo
+  adesso: le cuffie si mettono e si tolgono a metà sessione.
+- **Le voci italiane che mancano** sono elencate con i nomi esatti che compaiono
+  in Impostazioni di Sistema, e al rientro nell'app la voce appena scaricata
+  compare da sola. macOS non permette a nessuna app di scaricarle: quello che si
+  poteva fare era smettere di lasciare la persona davanti a un elenco muto.
+- **Controllo aggiornamenti** via GitHub, spento finché non lo si sceglie. È
+  l'unica cosa che esce dal Mac, sta in un file solo, e non installa niente.
+- **Un'icona**: un occhio, nella stessa famiglia del logo di MirrorBuddy.
+
+### Cambiato
+- **«Ancora» al posto di «sbagliato»**, ovunque: nel feedback, nel referto,
+  nelle esportazioni. La croce è diventata una freccia che torna indietro.
+- **La parola «normale» non c'è più.** Le opzioni descrivono cosa succede
+  guardando lo schermo, non cosa manca a chi guarda.
+- **Le Impostazioni sono otto pagine corte** con l'elenco sempre visibile,
+  invece di una pagina sola lunghissima.
+- **I parametri clinici** non stanno più in home accanto a «Via!», dove il
+  ragazzo li trovava prima del logopedista: sono l'ultima pagina delle
+  Impostazioni.
+- **La prova di velocità** è l'ultimo passo dell'onboarding, non un riquadro in
+  fondo alla home che nessuno leggeva. Si rifà dalle Impostazioni.
+- **La schermata Scrivi ricalca quella di Leggi**: stesso pulsante per smettere,
+  stesso riquadro fermo, stessa fila di pallini. Compito diverso, interfaccia
+  uguale.
+- **I bottoni hanno tutti la stessa forma**: prima alcuni sembravano link, e un
+  link e un bottone chiedono due gesti diversi.
+- **Il controllo aggiornamenti distingue i casi**: repository non ancora
+  pubblico, troppe richieste, oppure la rete. Un messaggio unico faceva sembrare
+  rotta un'app che non lo era.
+
+### Sicurezza
+- Chiusa un'iniezione di comandi nel workflow di rilascio, dove il tag arrivava
+  in uno script di shell nel job con il portachiavi di firma aperto.
+- **Cancellazione dei dati di una persona** dalle Impostazioni, senza frugare
+  nelle cartelle di sistema.
+- Cartella dei dati `0700`, file `0600`. Password mai negli argomenti dei
+  comandi. Il `.p12` viene cancellato davvero.
+- Niente più download silenzioso del modello vocale (~1 GB) all'avvio di una
+  sessione: adesso rimanda a «Prepara il Mac».
+
 ## [0.2.0] — 2026-08-27
 
 ### Aggiunto

@@ -79,7 +79,7 @@ enum Gamification {
                 symbol: "keyboard.fill") { s, _ in s.mode == .scrittura && s.total > 0 },
     Achievement(id: "dieci-sessioni", title: "Dieci sessioni",
                 hint: "Hai completato dieci sessioni in tutto.",
-                symbol: "square.stack.3d.up.fill") { _, l in l.xp >= 10 * 120 },
+                symbol: "square.stack.3d.up.fill") { _, l in l.sessionsCompleted >= 10 },
   ]
 
   /// Aggiorna serie, punti e obiettivi dopo una sessione. Restituisce gli
@@ -95,6 +95,7 @@ enum Gamification {
     }
     learner.streakLongest = max(learner.streakLongest, learner.streakCurrent)
     learner.lastSessionDay = today
+    learner.sessionsCompleted += 1
     learner.xp += xp(for: session, streak: learner.streakCurrent)
 
     var unlocked: [Achievement] = []

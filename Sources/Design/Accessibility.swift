@@ -107,6 +107,14 @@ struct A11ySettings: Codable, Equatable {
   var calmMode = false
   /// Toglie tutto ciò che non serve dai bordi dello schermo durante la prova.
   var distractionFree = false
+  /// Mostra da quanto dura la sessione, in alto, durante l'allenamento.
+  ///
+  /// Spento di proposito: un tempo che scorre sotto gli occhi mette fretta, e
+  /// qui la fretta non serve a nessuno. Ma c'è chi lo chiede — chi ha venti
+  /// minuti fra una cosa e l'altra, e chi si tranquillizza sapendo quanto
+  /// manca invece di immaginarlo. Conta il tempo passato, non quello che resta:
+  /// non è un conto alla rovescia.
+  var showTimer = false
   var soundsEnabled = false
   /// Voce di sistema scelta per dettare le parole. `nil` = la migliore trovata.
   var voiceIdentifier: String? = nil

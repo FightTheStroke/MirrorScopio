@@ -9,7 +9,14 @@ import AVFoundation
 struct AudioMenu: View {
   var a11y: A11ySettings
   var palette: Palette
-  var openAudioCheck: () -> Void
+  /// Come cambiare microfono. Durante un allenamento non basta cambiare
+  /// l'ingresso del Mac: l'ascolto va rifatto, e ci pensa chi ci passa questa
+  /// funzione.
+  var scegliIngresso: (AudioDeviceID) -> Void = { AudioDevices.setDefaultInput($0) }
+  /// Assente durante l'allenamento: li non si esce per fare una prova.
+  var openAudioCheck: (() -> Void)? = nil
+  /// Vero mentre l'ascolto si sta riavviando su un altro microfono.
+  var inAttesa = false
 
   @State private var ingressi: [AudioDevice] = []
   @State private var uscite: [AudioDevice] = []
@@ -25,7 +32,7 @@ struct AudioMenu: View {
       Section("Microfono — da dove ti sento") {
         ForEach(ingressi) { d in
           Button {
-            _ = AudioDevices.setDefaultInput(d.id)
+            scegliIngresso(d.id)
             leggi()
           } label: {
             Label(d.name, systemImage: d.id == ingressoAttivo ? "checkmark" : "")
@@ -42,12 +49,14 @@ struct AudioMenu: View {
           }
         }
       }
-      Divider()
-      Button("Prova microfono e voce…", systemImage: "waveform.badge.mic", action: openAudioCheck)
+      if let openAudioCheck {
+        Divider()
+        Button("Prova microfono e voce…", systemImage: "waveform.badge.mic", action: openAudioCheck)
+      }
     } label: {
       HStack(spacing: 7) {
-        Image(systemName: "headphones")
-        Text(etichetta)
+        Image(systemName: inAttesa ? "hourglass" : "headphones")
+        Text(inAttesa ? "cambio microfono…" : etichetta)
           .font(a11y.typeface.font(size: a11y.size(15)))
           .lineLimit(1)
       }
@@ -57,7 +66,9 @@ struct AudioMenu: View {
     .fixedSize()
     .foregroundStyle(palette.muted)
     .help("Scegli microfono e altoparlanti, o fai una prova")
-    .accessibilityLabel("Audio. Adesso ti sento da \(etichetta)")
+    .accessibilityLabel(inAttesa
+      ? "Sto passando all'altro microfono"
+      : "Audio. Adesso ti sento da \(etichetta)")
     .onAppear(perform: leggi)
     // Le cuffie si attaccano mentre l'app e aperta: l'elenco va riletto,
     // altrimenti mostra un mondo che non esiste piu.

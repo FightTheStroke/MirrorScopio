@@ -7,7 +7,7 @@ Istruzioni per chi lavora su questo repository, umano o agente.
 Un tachistoscopio che si usa **da solo**, per ragazzi con disturbi della lettura, che gira
 **interamente in locale** su un Mac.
 
-## Le tre regole che non si negoziano
+## Le quattro regole che non si negoziano
 
 1. **L'utente primario è il ragazzo, non il clinico.** Se una schermata richiede di sapere
    che cos'è una staircase, è progettata male. Tutto ciò che il ragazzo non deve decidere
@@ -19,6 +19,14 @@ Un tachistoscopio che si usa **da solo**, per ragazzi con disturbi della lettura
    un errore, mai deciderlo. Se un giorno la tentazione di far arbitrare il modello torna,
    rileggere la sezione apposita di [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md): è già
    stato provato e ha dichiarato "volato" corretto per "tavolo".
+4. **Nessuna parola definisce una persona per ciò che le manca.** "Normale" dice a tutti gli
+   altri che cosa sono, e chi apre questa app ha già sentito abbastanza spesso di essere
+   l'eccezione: le opzioni descrivono che cosa succede guardando lo schermo, non che cosa
+   manca a chi guarda ("Il verde e il rosso si somigliano", non "Non distinguo il verde").
+   E non si sbaglia mai: **"Ancora"**. Non è venuta *ancora*. È la stessa parola che i
+   bambini imparano al Fight Camp — non "non so farlo", ma "non so ancora farlo" — e vale
+   nel feedback, nei referti, nelle esportazioni e nei simboli (una freccia che torna
+   indietro, non una croce).
 
 ## Prima di dire che una cosa funziona
 
@@ -37,7 +45,11 @@ verifica la versione sbagliata. È già successo.
 
 - **Italiano**, sempre, anche nei commenti e nei messaggi di commit.
 - Parole di uso comune. Se un termine tecnico è inevitabile, si spiega nella stessa frase.
-- Tono caldo, breve, mai giudicante. Mai *"No, sbagliato"*.
+- Tono caldo, breve, mai giudicante. Mai *"No, sbagliato"*: si dice **"Ancora"**.
+- **Se l'app sa qualcosa, lo dice.** È il difetto che è tornato più volte: microfono muto e
+  barra ferma senza spiegazione, salvataggio fallito in silenzio, un giga scaricato di
+  nascosto, un livello che prometteva millesimi inesistenti. Uno stato conosciuto e taciuto
+  è un bug, anche quando il codice è corretto.
 - **"Non capisco" è un difetto di chi ha scritto**, non di chi legge: si risponde
   semplificando e cambiando le parole, mai ripetendo più forte.
 

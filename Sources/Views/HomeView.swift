@@ -171,7 +171,7 @@ struct HomeView: View {
   private var strisciaProgressi: some View {
     let l = store.current
     let iniziato = l.xp > 0
-    return Button(action: openProgress) {
+    Button(action: openProgress) {
         HStack(spacing: a11y.size(18)) {
           medaglia(livello: Gamification.level(xp: l.xp))
 

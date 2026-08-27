@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import QuartzCore
 import AppKit
+import CoreAudio
 
 enum Phase: Equatable {
   case idle
@@ -50,6 +51,29 @@ final class SessionEngine: ObservableObject {
   @Published var difficultySuggestion: Difficulty.Suggestion = .resta
   @Published private(set) var phase: Phase = .idle
   @Published private(set) var displayText = ""
+
+  /// Perche il turno e finito senza una parola. Vuoto quando non c'e niente da
+  /// dire. Un turno andato a vuoto ha due cause opposte — un microfono che non
+  /// arriva e una parola che non si e capita — e per chi sta davanti allo
+  /// schermo sono due situazioni diversissime: nella prima non c'e niente da
+  /// riprovare finche non si sistema l'audio.
+  @Published private(set) var ascoltoAvviso: String?
+
+  /// Quando e cominciato l'allenamento. Serve solo all'orologio in alto, che si
+  /// vede se lo si e chiesto.
+  @Published private(set) var sessionStartedAt: Date?
+
+  /// Vero quando il microfono sta ricevendo una voce **adesso**, misurata sul
+  /// rumore di fondo di questa stanza e non su una soglia decisa a tavolino.
+  /// Serve a non scrivere "ti sento" nel silenzio: se lo dice sempre, quella
+  /// scritta smette di essere un'informazione e diventa un ornamento.
+  @Published private(set) var voceInCorso = false
+
+  /// L'ultimo microfono scelto a mano durante l'allenamento, e se il cambio ha
+  /// gia avuto effetto. Cambiare cuffie a meta sessione e normale; scoprire
+  /// dopo tre parole andate a vuoto che il Mac stava ancora ascoltando dal
+  /// microfono di prima, no.
+  @Published private(set) var cambioMicrofonoInCorso = false
   @Published private(set) var trials: [Trial] = []
   @Published private(set) var trialIndex = 0
   @Published private(set) var totalTrials = 0
@@ -170,6 +194,33 @@ final class SessionEngine: ObservableObject {
     guard case .instructions = phase else { return }
     phase = .countdown(3)
     deadline = 0
+    sessionStartedAt = Date()
+  }
+
+  /// Passa a un altro microfono senza uscire dall'allenamento.
+  ///
+  /// Il motore audio si lega al microfono che trova quando nasce: non basta
+  /// cambiare l'ingresso del Mac, va rifatto tutto l'ascolto. Dura meno di un
+  /// secondo, ma va detto — durante quel secondo l'app non sente, e restare in
+  /// silenzio qui vorrebbe dire far parlare qualcuno nel vuoto.
+  func cambiaMicrofono(_ id: AudioDeviceID) {
+    guard config.mode == .lettura else {
+      AudioDevices.setDefaultInput(id)
+      return
+    }
+    guard !cambioMicrofonoInCorso else { return }
+    cambioMicrofonoInCorso = true
+    Task {
+      await listener.stop()
+      do {
+        try await listener.start(locale: Locale(identifier: "it_IT"),
+                                 vocabulary: items,
+                                 preferredInput: id)
+      } catch {
+        phase = .failed(error.localizedDescription)
+      }
+      cambioMicrofonoInCorso = false
+    }
   }
 
   // MARK: - Orologio
@@ -226,10 +277,21 @@ final class SessionEngine: ObservableObject {
 
     case .listening:
       liveTranscript = snap.text
+      voceInCorso = snap.lastVoice.map { now - $0 < 0.4 } ?? false
       let elapsed = now - listeningStart
       let silent = snap.lastUpdate.map { now - $0 >= config.endpointSilenceMs / 1000 } ?? false
       let heard = !snap.text.isEmpty && silent
-      let timedOut = elapsed >= responseTimeout / 1000
+      // Il tempo non scade mentre qualcuno sta ancora parlando.
+      //
+      // Chiudere il turno a meta di una parola e la seconda ragione per cui
+      // l'app sembrava sorda: chi comincia a parlare in ritardo — ed e la
+      // norma per chi stiamo aiutando — si vedeva tagliare la voce a meta e
+      // trovava "Ancora" senza capire perche. Il tetto esiste lo stesso,
+      // altrimenti un rumore continuo terrebbe aperto il turno per sempre.
+      let staParlando = snap.lastVoice.map { now - $0 < 0.4 } ?? false
+      let scaduto = elapsed >= responseTimeout / 1000
+      let oltreOgniAttesa = elapsed >= (responseTimeout / 1000) * 2.5
+      let timedOut = (scaduto && !staParlando) || oltreOgniAttesa
       if heard || timedOut {
         // Prima di giudicare bisogna chiedere all'analizzatore quello che ha
         // sentito: da solo, a parola singola, non lo dice.
@@ -240,7 +302,12 @@ final class SessionEngine: ObservableObject {
       // Si aspetta il testo definitivo, ma non all'infinito: mezzo secondo è
       // il triplo di quanto serve in pratica.
       let waited = now - flushStart
-      if snap.isFinal || waited > 0.5 {
+      // Se il microfono ha sentito una voce ma non e ancora arrivato nessun
+      // testo, val la pena aspettare di piu: dichiarare "non hai detto niente"
+      // a chi ha appena parlato e il modo piu rapido per far smettere qualcuno
+      // di provarci.
+      let attesaMassima = (snap.voiceOnset != nil && snap.text.isEmpty) ? 1.2 : 0.5
+      if snap.isFinal || waited > attesaMassima {
         closeListening(snapshot: listener.read())
       }
 
@@ -305,6 +372,13 @@ final class SessionEngine: ObservableObject {
     displayText = current?.stimulus ?? ""
     stimulusOnset = now
     deadline = now + effectiveExposureMs / 1000
+    // Il microfono comincia a contare da qui, non dopo la maschera.
+    //
+    // Prima la finestra si apriva alla fine della maschera, e chi rispondeva di
+    // scatto — cioe chi aveva letto benissimo — parlava dentro un intervallo
+    // che nessuno stava guardando: la parola andava persa e l'app sembrava
+    // sorda proprio con chi era piu veloce.
+    listener.beginWindow()
   }
 
   /// Modalità Scrivi: si consegna quello che si è digitato.
@@ -326,6 +400,21 @@ final class SessionEngine: ObservableObject {
     speaker.say(t.stimulus)
   }
 
+  /// Rilegge ad alta voce una singola parola: o una del dettato, o una di
+  /// quelle appena scritte.
+  ///
+  /// Su una frase intera "ripeti tutto" non basta. Chi sta imparando a
+  /// scrivere non sbaglia la frase: sbaglia una parola dentro la frase, e per
+  /// trovarla deve poter sentire quella e solo quella. E il modo in cui si
+  /// lavora nella riabilitazione della disortografia — si isola il pezzo, non
+  /// si ricomincia da capo.
+  ///
+  /// Piu lenta del dettato, perche qui non si sta piu misurando: si sta
+  /// controllando.
+  func sayWord(_ word: String) {
+    speaker.say(word, rate: max(0.26, Float(a11y.voiceRate) - 0.08))
+  }
+
   /// Chiede la trascrizione definitiva della parola appena letta e passa in
   /// attesa: la risposta arriva in poche decine di millesimi.
   private func requestFinalTranscript() {
@@ -336,19 +425,34 @@ final class SessionEngine: ObservableObject {
   }
 
   private func enterListening(at now: CFTimeInterval) {
-    displayText = ""
+    // La parola non sparisce: resta coperta dov'era.
+    //
+    // Prima lo schermo si svuotava e comparivano altrove le istruzioni per
+    // parlare: tre scene diverse per una cosa sola, e chi guardava perdeva il
+    // filo — parlava mentre la parola era ancora li, o taceva perche non aveva
+    // capito che toccava a lui. Adesso il riquadro centrale non cambia mai
+    // posizione e le barre restano: quello che cambia e solo l'invito sotto.
+    displayText = mask()
     phase = .listening
     listeningStart = now
-    listener.beginWindow()
   }
 
   private func closeListening(snapshot snap: VoiceWindowSnapshot) {
     listener.endWindow()
+    voceInCorso = false
     phase = .scoring
     guard var trial = current else { return }
 
     trial.response = snap.text
     trial.confidence = snap.confidence
+
+    if snap.text.isEmpty {
+      ascoltoAvviso = snap.voiceOnset == nil
+        ? "Non ho sentito niente. Controlla il microfono qui in alto."
+        : "Ti ho sentito, ma non sono riuscita a capire le parole."
+    } else {
+      ascoltoAvviso = nil
+    }
     if let onset = snap.voiceOnset {
       trial.vocalLatencyMs = max(0, (onset - stimulusOffset) * 1000)
     }
@@ -447,8 +551,17 @@ final class SessionEngine: ObservableObject {
     r.mode = config.mode
     r.level = config.level
     r.setLabel = config.set.label
-    r.total = trials.count
-    r.correct = trials.filter(\.correct).count
+    // Il riscaldamento non entra nel punteggio.
+    //
+    // Sono parole facili mostrate molto piu a lungo, fatte apposta per prendere
+    // la mano: contarle gonfiava la percentuale mostrata a fine sessione e
+    // spingeva in su il livello suggerito. Un numero che si abbellisce da solo
+    // e peggio di un numero severo — toglie senso anche ai miglioramenti veri.
+    // Erano gia escluse dalla scala adattiva e dalle parole da riprendere: qui
+    // mancava.
+    let contate = trials.filter { $0.id > config.warmupTrials }
+    r.total = contate.count
+    r.correct = contate.filter(\.correct).count
     r.thresholdMs = thresholdMs
     let lat = trials.compactMap(\.vocalLatencyMs)
     r.meanLatencyMs = lat.isEmpty ? nil : lat.reduce(0, +) / Double(lat.count)

@@ -327,6 +327,9 @@ struct SettingsView: View {
              "Niente esclamazioni, niente festeggiamenti, tono sempre uguale.")
       toggle("Schermo pulito durante la prova", bindBool(\.distractionFree),
              "Toglie contatori e pulsanti dai bordi mentre lampeggiano le parole.")
+      toggle("Mostra il tempo", bindBool(\.showTimer),
+             "Un orologio in alto dice da quanto stai andando. Conta il tempo passato: "
+             + "non è un conto alla rovescia e non scade mai.")
       slider("Più tempo per rispondere", value: bind(\.extraResponseTime), range: 1.0...3.0,
              format: { String(format: "×%.1f", $0) })
       Stepper(value: Binding(

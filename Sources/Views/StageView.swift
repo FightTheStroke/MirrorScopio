@@ -112,6 +112,7 @@ struct StageView: View {
         Color.clear
         switch engine.phase {
         case .preMask, .postMask: maschera
+        case .listening, .flushing, .scoring: maschera.opacity(0.35)
         default: stimulus
         }
       }
@@ -119,7 +120,6 @@ struct StageView: View {
 
       ascolto
         .frame(height: a11y.size(120))
-        .opacity(mostraAscolto ? 1 : 0)
         // Invisibile non basta: se restasse leggibile da VoiceOver mentre la
         // parola è sullo schermo, la direbbe ad alta voce.
         .accessibilityHidden(!mostraAscolto)
@@ -166,22 +166,42 @@ struct StageView: View {
       .accessibilityHidden(true)
   }
 
+  /// L'invito a parlare: sempre nello stesso punto, dall'inizio alla fine.
+  ///
+  /// Non compare e non scompare — si accende. Prima era un blocco che spuntava
+  /// dal nulla a parola finita, e il salto costringeva a ricercare ogni volta
+  /// dove guardare. Adesso occupa il suo spazio anche mentre la parola e sullo
+  /// schermo, spento e immobile, cosi niente si sposta e niente distrae.
   private var ascolto: some View {
     VStack(spacing: a11y.size(12)) {
-      Text("Leggi ad alta voce")
+      Text(mostraAscolto ? "Leggi ad alta voce" : "Guarda qui sopra")
         .font(a11y.typeface.font(size: a11y.size(30), weight: .semibold))
-        .foregroundStyle(palette.foreground)
+        .foregroundStyle(mostraAscolto ? palette.foreground : palette.muted.opacity(0.45))
 
       Image(systemName: "waveform")
         .font(.system(size: a11y.size(44)))
-        .foregroundStyle(palette.accent)
-        .scaleEffect(a11y.reducedMotion ? 1 : 1 + min(CGFloat(engine.micLevel) * 6, 0.6))
+        .foregroundStyle(mostraAscolto ? palette.accent : palette.muted.opacity(0.3))
+        // Il livello del microfono muove l'onda solo quando tocca parlare:
+        // mentre la parola e sullo schermo qualsiasi movimento ruba lo sguardo,
+        // ed e lo sguardo che stiamo misurando.
+        .scaleEffect(a11y.reducedMotion || !mostraAscolto
+                     ? 1 : 1 + min(CGFloat(engine.micLevel) * 6, 0.6))
         .animation(a11y.animation(0.08), value: engine.micLevel)
 
-      Text(engine.liveTranscript.isEmpty ? "ti ascolto…" : engine.liveTranscript)
+      Text(sottotitoloAscolto)
         .font(a11y.typeface.font(size: a11y.size(24)))
-        .foregroundStyle(palette.muted)
+        .foregroundStyle(palette.muted.opacity(mostraAscolto ? 1 : 0.4))
+        .lineLimit(1)
     }
+  }
+
+  private var sottotitoloAscolto: String {
+    guard mostraAscolto else { return " " }
+    if !engine.liveTranscript.isEmpty { return engine.liveTranscript }
+    // Dire "ti ascolto" mentre il microfono non riceve niente e una bugia
+    // gentile, e le bugie gentili fanno perdere mezz'ora a cercare un guasto
+    // che non c'e — o peggio, fanno credere a un ragazzo di non essere capace.
+    return engine.voceInCorso ? "ti sento…" : "parla pure"
   }
 
   private func feedback(_ ok: Bool) -> some View {
@@ -196,6 +216,16 @@ struct StageView: View {
         Text(ok ? (a11y.calmMode ? "Giusta" : "Giusta!") : "Ancora")
           .font(a11y.typeface.font(size: a11y.size(28), weight: .semibold))
           .foregroundStyle(palette.foreground)
+      }
+      // Un turno vuoto ha due cause opposte, e confonderle e crudele: se il
+      // microfono non ha ricevuto niente, non c'e nessuna parola da riprovare
+      // e nessuna colpa da attribuire a chi sta leggendo.
+      if let avviso = engine.ascoltoAvviso {
+        Text(avviso)
+          .font(a11y.typeface.font(size: a11y.size(18)))
+          .foregroundStyle(palette.muted)
+          .multilineTextAlignment(.center)
+          .frame(maxWidth: 460)
       }
     }
     .transition(a11y.reducedMotion ? .identity : .opacity)
@@ -220,29 +250,16 @@ struct StageView: View {
 
   private var overlay: some View {
     VStack {
-      HStack {
-        StopButton(a11y: a11y) { engine.abort() }
-          .keyboardShortcut(.escape, modifiers: [])
-
-        if engine.isWarmup && engine.totalTrials > 0 {
-          Text("riscaldamento")
-            .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
-            .padding(.horizontal, 12).padding(.vertical, 5)
-            .background(Capsule().fill(palette.accent.opacity(0.22)))
-            .foregroundStyle(palette.foreground)
-        }
-
-        Spacer()
-
-        if engine.totalTrials > 0 {
-          Text("parola \(engine.trialIndex) di \(engine.totalTrials)")
-            .font(a11y.typeface.font(size: a11y.size(16)))
-            .foregroundStyle(palette.muted)
-            .monospacedDigit()
-        }
-      }
-      .padding(.horizontal, 22)
-      .padding(.top, 16)
+      TrainingBar(
+        a11y: a11y,
+        palette: palette,
+        contatore: engine.totalTrials > 0
+          ? "parola \(engine.trialIndex) di \(engine.totalTrials)" : "",
+        inizio: engine.sessionStartedAt,
+        mostraRiscaldamento: engine.isWarmup && engine.totalTrials > 0,
+        cambioMicrofonoInCorso: engine.cambioMicrofonoInCorso,
+        scegliIngresso: { engine.cambiaMicrofono($0) },
+        onStop: { engine.abort() })
       Spacer()
     }
   }

@@ -148,9 +148,25 @@ enum AudioDevices {
     var address = AudioObjectPropertyAddress(mSelector: selector,
                                              mScope: kAudioObjectPropertyScopeGlobal,
                                              mElement: kAudioObjectPropertyElementMain)
-    var value: CFString = "" as CFString
-    var size = UInt32(MemoryLayout<CFString>.size)
-    guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, &value) == noErr else { return nil }
-    return value as String
+    // CoreAudio scrive qui un riferimento a un oggetto, e passargli
+    // direttamente l'indirizzo di una variabile `CFString` fa saltare le
+    // regole di gestione della memoria di Swift: il compilatore lo segnala, e
+    // ha ragione — nei casi peggiori si legge un oggetto gia liberato.
+    // Passiamo un blocco di memoria grezza e prendiamo possesso del
+    // riferimento una volta sola, esplicitamente.
+    var size = UInt32(MemoryLayout<CFString?>.size)
+    let buffer = UnsafeMutableRawPointer.allocate(byteCount: Int(size),
+                                                  alignment: MemoryLayout<CFString?>.alignment)
+    defer { buffer.deallocate() }
+    guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, buffer) == noErr else {
+      return nil
+    }
+    guard let grezzo = buffer.load(as: UnsafeRawPointer?.self) else { return nil }
+    // CoreAudio consegna la stringa gia trattenuta per noi (regola *Create*):
+    // va rilasciata una volta sola, ed e questo che dice `takeRetainedValue`.
+    // Con un semplice `load(as: CFString?.self)` quel conteggio restava
+    // sbilanciato e ogni lettura perdeva un pezzo di memoria — e qui si legge
+    // ogni tre secondi, per ogni dispositivo audio collegato.
+    return Unmanaged<CFString>.fromOpaque(grezzo).takeRetainedValue() as String
   }
 }
