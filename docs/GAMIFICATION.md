@@ -12,9 +12,11 @@ Niente classifiche fra persone, niente punti che si perdono, niente penalità.
 | Azione | Punti |
 |---|---|
 | Ogni parola presa | 10 |
-| Sessione completata | 50 |
-| Ogni parola presa oltre l'80% di accuratezza | 5 in più |
-| Prima sessione del giorno | 25 |
+| Sessione completata (almeno una parola) | 20 |
+
+Sorgente di verità: `Gamification.xp(for:streak:)` in
+[`Sources/Data/Gamification.swift`](../Sources/Data/Gamification.swift). Se questa tabella
+e il codice divergono, ha ragione il codice — e la tabella va corretta.
 
 I punti **non si tolgono mai**. Una brutta giornata vale meno, non vale in negativo.
 
@@ -27,10 +29,10 @@ Giorni consecutivi con almeno una sessione. La serie moltiplica i punti:
 
 | Giorni | Moltiplicatore |
 |---|---|
-| 1–2 | ×1,0 |
-| 3–6 | ×1,1 |
-| 7–13 | ×1,25 |
-| 14+ | ×1,5 |
+| 0 (prima sessione in assoluto) | ×1,0 |
+| 1–2 | ×1,1 |
+| 3–6 | ×1,25 |
+| 7 e oltre | ×1,5 |
 
 La serie si interrompe saltando un giorno, e quando si interrompe l'app **non lo rinfaccia**:
 riparte e basta. Trasformare una serie persa in un rimprovero è il modo più rapido per far
@@ -43,15 +45,15 @@ l'esserci — che per molti ragazzi è la parte difficile.
 
 | Obiettivo | Come si prende |
 |---|---|
-| Primo passo | Prima sessione completata |
-| Tre di fila | Serie di 3 giorni |
-| Una settimana | Serie di 7 giorni |
-| Occhio veloce | Una parola presa sotto i 200 ms |
-| Fulmine | Una parola presa sotto i 100 ms |
-| Senza sbagli | Una sessione intera senza errori |
-| Costante | Dieci sessioni completate |
-| In crescita | Livello aumentato dopo una proposta dell'app |
-| Anche a mano | Prima sessione in modalità Scrivi |
+| Si comincia | Prima sessione completata |
+| En plein | Una sessione intera senza errori |
+| Dieci in fila | Dieci parole giuste nella stessa sessione |
+| Tre giorni di fila | Serie di 3 giorni |
+| Una settimana intera | Serie di 7 giorni |
+| Occhio da falco | Una parola letta sotto i 200 ms |
+| Più veloce del lampo | Una parola letta sotto i 100 ms |
+| So anche scriverle | Prima sessione in modalità Scrivi |
+| Dieci sessioni | Dieci sessioni completate |
 
 ## Cosa non c'è, di proposito
 

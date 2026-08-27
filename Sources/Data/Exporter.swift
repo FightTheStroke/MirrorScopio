@@ -191,12 +191,29 @@ enum Exporter {
 
   // MARK: - Salvataggio
 
+  /// Salva e, se non riesce, **lo dice**.
+  ///
+  /// Prima l'errore veniva ingoiato da un `try?`: il logopedista credeva di
+  /// avere il referto e non ce l'aveva. Un salvataggio che fallisce in silenzio
+  /// è peggio di un salvataggio che non c'è.
   static func save(data: Data, suggested: String) {
     let panel = NSSavePanel()
     panel.nameFieldStringValue = suggested
     panel.canCreateDirectories = true
-    if panel.runModal() == .OK, let url = panel.url {
-      try? data.write(to: url)
+    guard panel.runModal() == .OK, let url = panel.url else { return }
+    do {
+      try data.write(to: url, options: .atomic)
+    } catch {
+      let avviso = NSAlert()
+      avviso.alertStyle = .warning
+      avviso.messageText = "Non sono riuscito a salvare il file"
+      avviso.informativeText = """
+        \(error.localizedDescription)
+
+        Prova a salvarlo in un'altra cartella, per esempio sulla Scrivania.
+        """
+      avviso.addButton(withTitle: "Ho capito")
+      avviso.runModal()
     }
   }
 

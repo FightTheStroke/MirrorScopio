@@ -33,10 +33,11 @@ run_harness() {
 
   echo ""
   echo "── $name ──"
-  if ! swiftc -O -target arm64-apple-macos26.0 -parse-as-library \
-      $FRAMEWORKS -o "$OUT/$name" $CORE "$file" 2>&1 | grep -E "error:" ; then
-    :
-  fi
+  # Si mostrano solo gli errori: il rumore dei warning nasconderebbe il resto.
+  # L'esito vero è l'esistenza del binario, controllata subito sotto.
+  rm -f "$OUT/$name"
+  swiftc -O -target arm64-apple-macos26.0 -parse-as-library \
+    $FRAMEWORKS -o "$OUT/$name" $CORE "$file" 2>&1 | grep -E "error:" || true
   if [ ! -x "$OUT/$name" ]; then
     echo "✗ $name non compila"
     FAILED=1

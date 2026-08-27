@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Prendo il codice
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # Il numero di build è il conteggio dei commit: serve la storia intera.
           fetch-depth: 0
@@ -80,7 +80,7 @@ jobs:
           gh release upload "$TAG" "build/MirrorScopio-$VERSION.dmg" --clobber
 
       - name: Tengo da parte il pacchetto anche qui
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: MirrorScopio-dmg
           path: build/*.dmg

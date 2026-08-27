@@ -3,6 +3,10 @@ name: Verifica
 # A ogni push si controlla che l'app compili ancora. Non serve nessun
 # certificato: qui si firma alla buona, tanto il pacchetto vero lo fa il
 # workflow di rilascio.
+# Serve solo leggere il codice: nessun permesso di scrittura.
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -15,7 +19,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
