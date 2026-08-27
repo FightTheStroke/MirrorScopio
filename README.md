@@ -108,7 +108,14 @@ Un **profilo** imposta tutto in un colpo solo; poi ogni singola manopola resta r
 - **Calma** — modalità senza esclamazioni né festeggiamenti, per chi li vive come rumore.
 - **Ansia da prestazione** — punteggi e percentuali nascondibili del tutto.
 - **Pause automatiche** ogni N parole, senza conto alla rovescia.
+- **Promemoria giornalieri** — un invito gentile all'ora che scegli, tutti i
+  giorni o solo feriali, spegnibile. Tutto locale, mai un rimprovero, e niente
+  se hai già letto le tue parole quel giorno.
 - Tutto è grande, e ogni dimensione si moltiplica fino a ×2.
+
+Le principali di queste scelte si incontrano **già al primo avvio**, con
+un'anteprima dal vivo della parola, così chi accompagna il ragazzo capisce
+subito se riuscirà a leggere — senza dover cercare nelle impostazioni.
 
 Il perché di ogni scelta: [`docs/ACCESSIBILITA.md`](docs/ACCESSIBILITA.md).
 
@@ -124,6 +131,8 @@ telemetria, nessun profilo, niente che si possa ricondurre a una persona.
   È facoltativa: senza Apple Intelligence l'app funziona uguale.
 - I dati stanno in file JSON leggibili in `~/Library/Application Support/MirrorScopio/`.
   Per cancellare tutto, si butta quella cartella.
+- I **promemoria giornalieri**, se li accendi, sono avvisi locali di macOS:
+  compaiono su questo Mac e non mandano niente a nessuno.
 
 Per onestà, le uniche tre cose che passano dalla rete:
 

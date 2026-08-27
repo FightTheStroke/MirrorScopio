@@ -61,8 +61,10 @@ di questa app: è come funziona un Mac. Se sul computer gira software di cui non
 ti fidi, quel software vede anche questi dati.
 
 L'app chiede **solo due permessi**, e li usa entrambi: il microfono, e la
-scrittura dei file che scegli tu con la finestra «Salva». Nessun permesso di
-rete: non è che non lo usiamo — non ce l'ha proprio.
+scrittura dei file che scegli tu con la finestra «Salva». Se accendi i
+promemoria giornalieri ne chiede un terzo — mostrare notifiche — **solo in quel
+momento**, mai all'avvio, e serve a far comparire un avviso su questo stesso
+Mac. Nessun permesso di rete: non è che non lo usiamo — non ce l'ha proprio.
 
 I referti PDF e i file CSV finiscono dove li salvi tu e contengono il nome del
 profilo: trattali come un documento clinico.
@@ -89,6 +91,12 @@ Nulla che riguardi chi usa l'app. Ma per non nascondere niente:
 - **In fase di sviluppo**, chi compila e pubblica una versione manda l'app ad
   Apple per la firma di sicurezza (notarizzazione). Riguarda il programma, non
   i dati.
+
+E una cosa che **non** esce, anche se potrebbe sembrare di sì: i **promemoria
+giornalieri** sono notifiche locali di macOS. L'app chiede al sistema di
+mostrare un avviso su questo Mac a un'ora scelta; nessun testo, nessun orario,
+nessun dato viene inviato da nessuna parte. Restano avvisi che nascono e
+muoiono su questo computer, e si spengono quando vuoi.
 
 ## Versioni supportate
 

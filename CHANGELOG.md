@@ -39,6 +39,18 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   Occhio veloce, Lampo, Maestro dei lampi, Leggenda — ha ora il suo simbolo e un
   anello che si riempie salendo, in home e nella pagina dei progressi. Con la
   modalità calma i distintivi restano sobri, senza ori accesi né animazioni.
+- **L'accessibilità si sceglie già al primo avvio.** Nell'avvio guidato ci sono
+  due nuovi passi: quanto grande deve essere la parola (con un'anteprima dal
+  vivo, che cambia mentre sposti il cursore, uguale a come apparirà davvero
+  durante l'esercizio), quale carattere, colori e luce; e poi modalità calma,
+  meno animazioni e come vedi i colori. Non sei obbligato a decidere: i valori
+  vanno bene per molti e si cambiano quando vuoi dalle Impostazioni.
+- **Un promemoria gentile ogni giorno.** In Impostazioni › I dati e l'app puoi
+  chiedere al Mac di ricordarti l'allenamento all'ora che scegli, tutti i
+  giorni o solo dal lunedì al venerdì. Il permesso si chiede solo quando accendi
+  l'interruttore; se lo neghi, l'app te lo dice e ti porta dove si rimedia. Non
+  arriva niente se hai già letto le tue parole quel giorno, e il testo è sempre
+  un invito, mai un rimprovero. È tutto locale: nessun avviso esce dal Mac.
 - **GitHub costruisce il pacchetto da solo**: ogni tag `v*` fa partire il
   workflow «Rilascio», che compila su macOS 26, firma, notarizza, verifica
   Gatekeeper e allega il DMG alla release.
