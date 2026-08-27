@@ -533,6 +533,7 @@ struct SettingsView: View {
       HStack(spacing: 8) {
         Image(systemName: "bell.slash.fill")
           .foregroundStyle(palette.wrong)
+          .accessibilityHidden(true)
         Text("Le notifiche sono spente per MirrorScopio")
           .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
           .foregroundStyle(palette.foreground)
@@ -597,6 +598,8 @@ struct SettingsView: View {
       }
       Slider(value: value, in: range)
         .frame(maxWidth: 460)
+        .accessibilityLabel(title)
+        .accessibilityValue(format(value.wrappedValue))
     }
   }
 }

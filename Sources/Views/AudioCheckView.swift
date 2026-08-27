@@ -304,6 +304,7 @@ struct AudioCheckView: View {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: a11y.size(20)))
         .foregroundStyle(pal.wrong)
+        .accessibilityHidden(true)
       Text(text)
         .font(a11y.typeface.font(size: a11y.size(16)))
         .fixedSize(horizontal: false, vertical: true)

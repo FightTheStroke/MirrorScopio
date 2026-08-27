@@ -90,6 +90,10 @@ struct AdvancedControls: View {
         Text("\(Int(value.wrappedValue)) \(unit)").monospacedDigit().foregroundStyle(.secondary)
       }
       Slider(value: value, in: range)
+        // Senza nome VoiceOver legge "cursore, 50 per cento": non dice di che
+        // cosa, e la percentuale non e' il numero che l'app mostra accanto.
+        .accessibilityLabel(title)
+        .accessibilityValue("\(Int(value.wrappedValue)) \(unit)")
     }
   }
 }

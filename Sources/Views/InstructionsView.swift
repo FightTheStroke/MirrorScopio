@@ -112,6 +112,7 @@ struct InstructionsView: View {
         .font(.system(size: a11y.size(8)))
         .foregroundStyle(palette.accent)
         .padding(.top, a11y.size(9))
+        .accessibilityHidden(true)
       Text(.init(markdown))
         .font(a11y.typeface.font(size: a11y.size(21)))
         .foregroundStyle(palette.foreground)
@@ -126,6 +127,7 @@ struct InstructionsView: View {
         .foregroundStyle(heardOnce ? palette.ok : palette.accent)
         .scaleEffect(a11y.reducedMotion ? 1 : 1 + min(CGFloat(engine.micLevel) * 5, 0.5))
         .animation(a11y.animation(0.1), value: engine.micLevel)
+        .accessibilityHidden(true)
 
       ProgressView(value: Double(min(engine.micLevel * 12, 1)))
         .progressViewStyle(.linear)

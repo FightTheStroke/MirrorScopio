@@ -259,6 +259,8 @@ struct OnboardingView: View {
           .monospacedDigit()
       }
       Slider(value: value, in: range).frame(maxWidth: 460)
+        .accessibilityLabel(title)
+        .accessibilityValue(format(value.wrappedValue))
     }
   }
 

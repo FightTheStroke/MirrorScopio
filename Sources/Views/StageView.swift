@@ -176,6 +176,7 @@ struct StageView: View {
         .scaleEffect(a11y.reducedMotion || !mostraAscolto
                      ? 1 : 1 + min(CGFloat(engine.micLevel) * 6, 0.6))
         .animation(a11y.animation(0.08), value: engine.micLevel)
+        .accessibilityHidden(true)
 
       Text(sottotitoloAscolto)
         .font(a11y.typeface.font(size: a11y.size(24)))
@@ -198,6 +199,8 @@ struct StageView: View {
       Image(systemName: ok ? ColorVision.okSymbol : ColorVision.wrongSymbol)
         .font(.system(size: a11y.size(100)))
         .foregroundStyle(ok ? palette.ok : palette.wrong)
+        .accessibilityHidden(!a11y.hideScore)
+        .accessibilityLabel(ok ? "Giusta" : "Ancora")
       if !a11y.hideScore {
         // "Ancora" e non "sbagliato": la parola non è venuta *ancora*, e la
         // differenza fra le due parole è tutta la differenza fra un difetto e
@@ -225,6 +228,7 @@ struct StageView: View {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: a11y.size(48)))
         .foregroundStyle(palette.wrong)
+        .accessibilityHidden(true)
       Text(message)
         .font(a11y.typeface.font(size: a11y.size(19)))
         .multilineTextAlignment(.center)
