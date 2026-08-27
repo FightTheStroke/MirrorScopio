@@ -222,6 +222,8 @@ struct AudioCheckView: View {
       .buttonStyle(.plain)
       .background(pal.surface, in: .rect(cornerRadius: 12))
       .frame(minWidth: 44, minHeight: 44)
+      .keyboardShortcut(.escape, modifiers: [])
+      .accessibilityLabel("Chiudi la prova del microfono")
     }
   }
 
