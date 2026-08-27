@@ -15,6 +15,15 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Aggiunto
+- **GitHub costruisce il pacchetto da solo**: ogni tag `v*` fa partire il
+  workflow «Rilascio», che compila su macOS 26, firma, notarizza, verifica
+  Gatekeeper e allega il DMG alla release.
+- Workflow «Verifica» a ogni push: l'app deve compilare e la versione deve
+  corrispondere al changelog.
+- `scripts/setup-github-secrets.sh`: mette certificato e credenziali nella
+  cassaforte di GitHub, guidando passo passo.
+
 ## [0.2.0] — 2026-08-27
 
 ### Aggiunto

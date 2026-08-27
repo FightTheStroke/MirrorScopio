@@ -73,12 +73,22 @@ NOTES="$(awk -v v="$NEW" '$0 ~ "^## \\["v"\\]"{f=1;next} /^## \[/{f=0} f' CHANGE
 
 # Il pacchetto notarizzato viaggia insieme alla release: chi lo scarica deve
 # poter fare doppio clic, non compilare.
-DMG="build/MirrorScopio-$NEW.dmg"
-if ./scripts/package.sh --notarize; then
-  echo "Pacchetto pronto: $DMG"
+#
+# Di norma lo costruisce GitHub, che ha le chiavi nella sua cassaforte: il tag
+# appena spinto fa partire il workflow «Rilascio». Qui lo si fa in locale solo
+# se GitHub non può, così una release non resta mai senza pacchetto.
+DMG=""
+if [ -n "${PACCHETTO_LOCALE:-}" ] || ! gh secret list --repo FightTheStroke/MirrorScopio 2>/dev/null | grep -q MACOS_CERT_P12; then
+  echo "→ Costruisco il pacchetto qui (GitHub non ha ancora le chiavi)"
+  DMG="build/MirrorScopio-$NEW.dmg"
+  if ./scripts/package.sh --notarize; then
+    echo "Pacchetto pronto: $DMG"
+  else
+    echo "⚠︎ Pacchetto non creato: la release avrà solo il codice sorgente."
+    DMG=""
+  fi
 else
-  echo "⚠︎ Pacchetto non creato: la release avrà solo il codice sorgente."
-  DMG=""
+  echo "→ Il pacchetto lo costruisce GitHub: guarda la scheda Actions."
 fi
 
 if command -v gh >/dev/null 2>&1; then

@@ -1,0 +1,87 @@
+name: Rilascio
+
+# Quando si pubblica un tag `v*`, GitHub compila, firma, fa timbrare l'app da
+# Apple e allega il pacchetto alla release. Chi lo scarica fa doppio clic:
+# niente Xcode, niente terminale, niente avvisi di sicurezza.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag già esistente da ri-pacchettizzare (es. v0.2.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  pacchetto:
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - name: Prendo il codice
+        uses: actions/checkout@v4
+        with:
+          # Il numero di build è il conteggio dei commit: serve la storia intera.
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Metto il certificato in un portachiavi usa-e-getta
+        env:
+          CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CERT_P12" ]; then
+            echo "::error::Manca il segreto MACOS_CERT_P12. Lancia ./scripts/setup-github-secrets.sh"
+            exit 1
+          fi
+          KEYCHAIN="$RUNNER_TEMP/firma.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s \
+            -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: Compilo, firmo, faccio timbrare da Apple
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: ./scripts/package.sh --notarize
+
+      - name: Verifico che si aprirebbe davvero su un Mac qualsiasi
+        run: |
+          set -euo pipefail
+          VERSION="$(cat VERSION)"
+          hdiutil attach -nobrowse -quiet "build/MirrorScopio-$VERSION.dmg"
+          spctl -a -vvv -t install "/Volumes/MirrorScopio $VERSION/MirrorScopio.app" 2>&1 | tee /tmp/spctl.txt
+          hdiutil detach "/Volumes/MirrorScopio $VERSION" -quiet
+          grep -q "source=Notarized Developer ID" /tmp/spctl.txt
+
+      - name: Allego il pacchetto alla release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="$(cat VERSION)"
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --title "MirrorScopio $VERSION" --generate-notes
+          gh release upload "$TAG" "build/MirrorScopio-$VERSION.dmg" --clobber
+
+      - name: Tengo da parte il pacchetto anche qui
+        uses: actions/upload-artifact@v4
+        with:
+          name: MirrorScopio-dmg
+          path: build/*.dmg
+          retention-days: 30

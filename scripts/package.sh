@@ -42,12 +42,20 @@ hdiutil create -volname "MirrorScopio $VERSION" -srcfolder "$STAGE" \
   -ov -format UDZO "$DMG" >/dev/null
 rm -rf "$STAGE"
 
-codesign --force --sign "Developer ID Application: Fight The Stroke Foundation (93T3LG4NPG)" \
-  --timestamp "$DMG"
+IDENTITY="${SIGN_IDENTITY:-Developer ID Application: Fight The Stroke Foundation (93T3LG4NPG)}"
+codesign --force --sign "$IDENTITY" --timestamp "$DMG"
 
 if [[ $NOTARIZE -eq 1 ]]; then
   echo "→ Mando ad Apple per la notarizzazione (qualche minuto)"
-  if ! xcrun notarytool submit "$DMG" --keychain-profile "$PROFILE" --wait; then
+  # Sul Mac di casa le credenziali stanno nel portachiavi; su GitHub arrivano
+  # dalle variabili segrete. Stessa strada, due modi di autenticarsi.
+  if [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
+    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD"
+                 --team-id "${APPLE_TEAM_ID:-93T3LG4NPG}")
+  else
+    NOTARY_ARGS=(--keychain-profile "$PROFILE")
+  fi
+  if ! xcrun notarytool submit "$DMG" "${NOTARY_ARGS[@]}" --wait; then
     echo "✗ Notarizzazione fallita. Credenziali mancanti? Vedi l'intestazione di questo file."
     exit 1
   fi

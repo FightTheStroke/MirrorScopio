@@ -1,6 +1,29 @@
 # Portare MirrorScopio su un altro Mac
 
-## In breve
+## In automatico, su GitHub (consigliato)
+
+Una volta sola, per insegnare a GitHub a firmare:
+
+```bash
+./scripts/setup-github-secrets.sh
+```
+
+Da quel momento ogni tag `v*` fa partire il workflow **Rilascio**: GitHub
+compila su un Mac vero (macOS 26), firma con il certificato di Fight The Stroke,
+manda l'app ad Apple per la notarizzazione, attacca il timbro, controlla che
+Gatekeeper la accetti e **allega il DMG alla release**. Chi lo vuole lo scarica
+dalla pagina delle release e fa doppio clic.
+
+Pubblicare una versione diventa:
+
+```bash
+./scripts/release.sh 0.3.0
+```
+
+Il workflow **Verifica** gira invece a ogni push: controlla solo che l'app
+compili e che versione e changelog siano allineati. Non serve nessun segreto.
+
+## A mano, da questo Mac
 
 ```bash
 ./scripts/package.sh --notarize     # → build/MirrorScopio-<versione>.dmg

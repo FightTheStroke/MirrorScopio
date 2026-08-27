@@ -1,0 +1,43 @@
+name: Verifica
+
+# A ogni push si controlla che l'app compili ancora. Non serve nessun
+# certificato: qui si firma alla buona, tanto il pacchetto vero lo fa il
+# workflow di rilascio.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  compila:
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compilo
+        run: ./build.sh
+
+      - name: Controllo che l'app sia davvero un'app
+        run: |
+          set -euo pipefail
+          test -x build/MirrorScopio.app/Contents/MacOS/MirrorScopio
+          /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" \
+            build/MirrorScopio.app/Contents/Info.plist
+          codesign --verify --verbose=1 build/MirrorScopio.app
+
+      - name: Controllo che la versione e il changelog siano allineati
+        run: |
+          set -euo pipefail
+          VERSION="$(cat VERSION)"
+          PLIST_VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' \
+            build/MirrorScopio.app/Contents/Info.plist)"
+          if [ "$VERSION" != "$PLIST_VERSION" ]; then
+            echo "::error::VERSION dice $VERSION ma l'app dice $PLIST_VERSION"
+            exit 1
+          fi
+          grep -q "## \[$VERSION\]\|## \[Non ancora rilasciato\]" CHANGELOG.md
