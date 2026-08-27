@@ -5,6 +5,7 @@ struct MirrorScopioApp: App {
   @StateObject private var store = Store()
   @StateObject private var engine = SessionEngine()
   @StateObject private var readiness = Readiness()
+  @StateObject private var nav = Navigazione()
 
   init() {
     FontLoader.registerBundledFonts()
@@ -12,12 +13,12 @@ struct MirrorScopioApp: App {
 
   var body: some Scene {
     WindowGroup("MirrorScopio") {
-      RootView(store: store, engine: engine, readiness: readiness)
+      RootView(store: store, engine: engine, readiness: readiness, nav: nav)
         .frame(minWidth: 900, minHeight: 700)
     }
     .defaultSize(width: 1100, height: 850)
     .commands {
-      CommandGroup(replacing: .newItem) {}
+      ComandiMenu(nav: nav, engine: engine)
     }
   }
 }
@@ -28,11 +29,8 @@ struct RootView: View {
   @ObservedObject var store: Store
   @ObservedObject var engine: SessionEngine
   @ObservedObject var readiness: Readiness
+  @ObservedObject var nav: Navigazione
   @Environment(\.colorScheme) private var systemScheme
-
-  @State private var screen: Screen = .casa
-
-  enum Screen: Equatable { case casa, impostazioni, progressi, obiettivi, audio, preparazione, benvenuto }
 
   private var a11y: A11ySettings { store.current.a11y }
 
@@ -61,9 +59,9 @@ struct RootView: View {
         // Il primo avvio è una guida passo passo; dopo, si interviene solo se
         // manca qualcosa di necessario.
         if !UserDefaults.standard.bool(forKey: "onboardingFatto") {
-          screen = .benvenuto
-        } else if !readiness.puoIniziare, screen == .casa {
-          screen = .preparazione
+          nav.schermata = .benvenuto
+        } else if !readiness.puoIniziare, nav.schermata == .casa {
+          nav.schermata = .preparazione
         }
       }
     }
@@ -80,42 +78,46 @@ struct RootView: View {
     case .idle, .finished:
       if case .finished = engine.phase, engine.finishedRecord != nil {
         ReportView(engine: engine, store: store)
+      } else if nav.mostraAiuto {
+        // L'aiuto compare solo a riposo: sopra una lettura in corso
+        // nasconderebbe la parola che lampeggia.
+        AiutoView(store: store, onClose: { nav.mostraAiuto = false })
       } else {
-        switch screen {
+        switch nav.schermata {
         case .casa:
           HomeView(engine: engine, store: store,
-                   openSettings: { screen = .impostazioni },
-                   openProgress: { screen = .progressi },
-                   openAudioCheck: { screen = .audio },
-                   openReadiness: { screen = .preparazione })
+                   openSettings: { nav.schermata = .impostazioni },
+                   openProgress: { nav.schermata = .progressi },
+                   openAudioCheck: { nav.schermata = .audio },
+                   openReadiness: { nav.schermata = .preparazione })
         case .impostazioni:
-          SettingsView(store: store, engine: engine, onClose: { screen = .casa },
+          SettingsView(store: store, engine: engine, onClose: { nav.schermata = .casa },
                        onCalibrate: { engine.startCalibration() },
-                       onReadiness: { screen = .preparazione })
+                       onReadiness: { nav.schermata = .preparazione })
         case .progressi, .obiettivi:
-          DashboardView(store: store, onClose: { screen = .casa })
+          DashboardView(store: store, onClose: { nav.schermata = .casa })
         case .audio:
-          AudioCheckView(store: store, onClose: { screen = .casa })
+          AudioCheckView(store: store, onClose: { nav.schermata = .casa })
         case .benvenuto:
           OnboardingView(readiness: readiness, store: store, onFinish: {
             UserDefaults.standard.set(true, forKey: "onboardingFatto")
-            screen = .casa
+            nav.schermata = .casa
           }, onCalibrate: {
             UserDefaults.standard.set(true, forKey: "onboardingFatto")
-            screen = .casa
+            nav.schermata = .casa
             engine.startCalibration()
           })
         case .preparazione:
           ReadinessView(readiness: readiness, a11y: a11y,
-                        onClose: { screen = .casa },
-                        onContinue: { screen = .casa })
+                        onClose: { nav.schermata = .casa },
+                        onContinue: { nav.schermata = .casa })
         }
       }
 
     case .instructions:
       InstructionsView(engine: engine, a11y: a11y, onFixMic: {
         engine.abort()
-        screen = .audio
+        nav.schermata = .audio
       })
 
     case .typing:
