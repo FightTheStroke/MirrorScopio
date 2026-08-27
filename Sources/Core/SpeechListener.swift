@@ -14,6 +14,12 @@ struct VoiceWindowSnapshot {
   var lastVoice: CFTimeInterval?
   var confidence: Double?
   var level: Float = 0
+  /// Vero quando il riconoscitore ha già consegnato qualcosa almeno una volta
+  /// da quando è stato acceso: prima di allora sta ancora caricando il modello.
+  var caldo = false
+  /// Quanto ha impiegato la prima parola a comparire, in secondi. L'app lo sa,
+  /// quindi lo dice invece di lasciar credere che sia colpa di chi parla.
+  var primaRispostaSec: Double?
 }
 
 enum ListenerError: LocalizedError {
@@ -57,6 +63,9 @@ final class SpeechListener: @unchecked Sendable {
   private var continuation: AsyncStream<AnalyzerInput>.Continuation?
   private var resultsTask: Task<Void, Never>?
   private var analyzerFormat: AVAudioFormat?
+  /// Istante di accensione del riconoscitore: serve a misurare quanto ci mette
+  /// a svegliarsi la prima volta.
+  private var accesoDa: CFTimeInterval?
 
   /// Soglia RMS per rilevare l'inizio della voce; calibrata sul rumore di fondo all'avvio.
   private var noiseFloor: Float = 0.004
@@ -131,6 +140,8 @@ final class SpeechListener: @unchecked Sendable {
     engine.prepare()
     try engine.start()
 
+    segnaAccensione()
+
     resultsTask = Task { [weak self] in
       guard let self else { return }
       do {
@@ -140,6 +151,17 @@ final class SpeechListener: @unchecked Sendable {
       } catch {
         // La chiusura dell'analizzatore termina la sequenza: non è una condizione di errore.
       }
+    }
+
+    // Il modello si sveglia solo quando gli si chiede qualcosa, e la prima
+    // volta ci mette secondi: viene caricato in memoria mentre qualcuno sta
+    // già parlando. Il risultato è che la prima parola di ogni sessione
+    // sembrava non arrivare mai — e chi legge, non vedendo niente, la ripeteva.
+    // Qui gli si dà da masticare un po' di silenzio subito, così il carico
+    // avviene mentre sullo schermo c'è ancora il conto alla rovescia.
+    Task { [weak self] in
+      try? await Task.sleep(for: .milliseconds(300))
+      await self?.flush()
     }
   }
 
@@ -161,6 +183,17 @@ final class SpeechListener: @unchecked Sendable {
       // sorda come prima, e nessuno saprebbe perche.
       Log.warn("La chiusura della trascrizione non è riuscita: \(error.localizedDescription)")
     }
+  }
+
+  /// Sincrona di proposito, come `puntoAttuale()`: il lucchetto non si prende
+  /// dentro una funzione `async`, o si rischia di rilasciarlo da un thread
+  /// diverso da quello che l'ha preso e di non scioglierlo più.
+  private func segnaAccensione() {
+    lock.lock()
+    defer { lock.unlock() }
+    accesoDa = CACurrentMediaTime()
+    snapshot.caldo = false
+    snapshot.primaRispostaSec = nil
   }
 
   /// Legge sotto lucchetto fin dove l'audio è stato consegnato.
@@ -292,6 +325,15 @@ final class SpeechListener: @unchecked Sendable {
   private func ingest(_ result: SpeechTranscriber.Result) {
     lock.lock()
     defer { lock.unlock() }
+
+    // Il primo risultato che arriva, qualunque sia, dice che il modello è
+    // sveglio: si registra prima di ogni altro controllo, perché il
+    // riscaldamento avviene apposta a finestra chiusa.
+    if !snapshot.caldo {
+      snapshot.caldo = true
+      if let accesoDa { snapshot.primaRispostaSec = CACurrentMediaTime() - accesoDa }
+    }
+
     guard windowActive else { return }
     guard result.range.end > windowStart else { return }
 

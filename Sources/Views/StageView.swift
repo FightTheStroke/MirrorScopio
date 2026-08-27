@@ -111,6 +111,7 @@ struct StageView: View {
       ZStack {
         Color.clear
         switch engine.phase {
+        case .fixation: puntoDiPartenza
         case .preMask, .postMask: maschera
         case .listening, .flushing, .scoring: maschera.opacity(0.35)
         default: stimulus
@@ -134,6 +135,22 @@ struct StageView: View {
     case .listening, .flushing, .scoring: true
     default: false
     }
+  }
+
+  /// Il punto dove guardare, prima che la parola arrivi.
+  ///
+  /// Era un `+`, ed era un errore che nessuno vedeva perché a noi il `+` non
+  /// sembra una lettera. A chi sta imparando a leggere sì: è un segno nero al
+  /// centro dello schermo, nel punto esatto in cui gli abbiamo appena detto di
+  /// aspettarsi qualcosa da leggere, e più d'uno provava a dirlo. La funzione
+  /// clinica — portare l'occhio al centro prima dello stimolo — resta
+  /// identica, ma un cerchietto non si legge e non si pronuncia.
+  private var puntoDiPartenza: some View {
+    Circle()
+      .fill(palette.muted.opacity(0.55))
+      .frame(width: CGFloat(a11y.stimulusSize) * 0.14,
+             height: CGFloat(a11y.stimulusSize) * 0.14)
+      .accessibilityHidden(true)
   }
 
   /// La maschera non è più una fila di cancelletti.

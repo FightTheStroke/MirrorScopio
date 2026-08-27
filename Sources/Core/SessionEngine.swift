@@ -245,7 +245,10 @@ final class SessionEngine: ObservableObject {
       }
 
     case .fixation:
-      displayText = "+"
+      // Il segno di partenza lo disegna la scena (un cerchietto, non un
+      // carattere): qui il testo resta vuoto apposta, perché qualunque cosa ci
+      // mettessimo qualcuno proverebbe a leggerla.
+      displayText = ""
       guard now >= deadline else { return }
       if config.maskMode == .both, config.maskMs > 0 {
         phase = .preMask
@@ -281,6 +284,35 @@ final class SessionEngine: ObservableObject {
       let elapsed = now - listeningStart
       let silent = snap.lastUpdate.map { now - $0 >= config.endpointSilenceMs / 1000 } ?? false
       let heard = !snap.text.isEmpty && silent
+
+      // La voce si è fermata: è il momento di chiedere la trascrizione.
+      //
+      // Qui c'era il cane che si mordeva la coda, ed è la vera ragione per cui
+      // ogni parola sembrava impiegare un'eternità. Si chiedeva la consegna
+      // solo quando c'era già del testo — ma il testo, a parola singola, non
+      // arriva finché non lo si chiede. Le due condizioni si aspettavano a
+      // vicenda, e l'unica via d'uscita restava il tempo scaduto: quattro
+      // secondi buoni dopo l'ultima sillaba, ogni volta, anche quando la
+      // parola era stata detta perfettamente al primo colpo.
+      //
+      // Adesso basta il silenzio del microfono, che si misura senza bisogno di
+      // nessuna trascrizione: uno smette di parlare, e in mezzo secondo sa.
+      let vocePoiSilenzio = snap.voiceOnset != nil
+        && (snap.lastVoice.map { now - $0 >= config.endpointSilenceMs / 1000 } ?? false)
+      // Quando la parola è già quella giusta, non c'è niente da aspettare.
+      //
+      // È il motivo per cui l'app sembrava lenta: uno leggeva "casa", e poi
+      // restava mezzo secondo di silenzio più l'attesa del testo definitivo
+      // prima di vedere qualcosa. Un secondo e mezzo di niente, con la parola
+      // ancora coperta davanti: chi non è sicuro di sé lo legge come "non mi
+      // ha sentito" e ripete — e la ripetizione, quella sì, rovinava la
+      // risposta. Se il testo provvisorio combacia già con lo stimolo il
+      // verdetto non può cambiare, quindi si chiude subito.
+      if !snap.text.isEmpty, let stimolo = current?.stimulus,
+         Scoring.combaciaGia(stimolo: stimolo, testo: snap.text) {
+        closeListening(snapshot: snap)
+        return
+      }
       // Il tempo non scade mentre qualcuno sta ancora parlando.
       //
       // Chiudere il turno a meta di una parola e la seconda ragione per cui
@@ -292,7 +324,7 @@ final class SessionEngine: ObservableObject {
       let scaduto = elapsed >= responseTimeout / 1000
       let oltreOgniAttesa = elapsed >= (responseTimeout / 1000) * 2.5
       let timedOut = (scaduto && !staParlando) || oltreOgniAttesa
-      if heard || timedOut {
+      if heard || vocePoiSilenzio || timedOut {
         // Prima di giudicare bisogna chiedere all'analizzatore quello che ha
         // sentito: da solo, a parola singola, non lo dice.
         requestFinalTranscript()
@@ -360,7 +392,7 @@ final class SessionEngine: ObservableObject {
 
     if config.fixationMs > 0 {
       phase = .fixation
-      displayText = "+"
+      displayText = ""
       deadline = now + config.fixationMs / 1000
     } else {
       enterStimulus(at: now)

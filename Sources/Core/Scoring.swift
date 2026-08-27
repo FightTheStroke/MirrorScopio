@@ -13,8 +13,24 @@ enum Scoring {
       .joined(separator: " ")
   }
 
-  static func editDistance(_ a: [Character], _ b: [Character]) -> Int {
-    if a.isEmpty { return b.count }
+  /// Vero quando la trascrizione ancora provvisoria dice già lo stimolo, e
+  /// quindi non ha più senso aspettare il silenzio di fine risposta.
+  ///
+  /// Il confronto è volutamente più severo di `classify`: qui non si perdona
+  /// nulla di dubbio, perché una chiusura anticipata sbagliata taglierebbe la
+  /// voce a metà a chi si stava correggendo. L'unica indulgenza è quella sulla
+  /// segmentazione — «far falla» per *farfalla* è come il riconoscitore divide
+  /// le parole, non come una persona legge.
+  static func combaciaGia(stimolo: String, testo: String) -> Bool {
+    let atteso = normalize(stimolo)
+    let detto = normalize(testo)
+    guard !atteso.isEmpty, !detto.isEmpty else { return false }
+    if atteso == detto { return true }
+    return atteso.replacingOccurrences(of: " ", with: "")
+      == detto.replacingOccurrences(of: " ", with: "")
+  }
+
+  static func editDistance(_ a: [Character], _ b: [Character]) -> Int {    if a.isEmpty { return b.count }
     if b.isEmpty { return a.count }
     var prev = Array(0...b.count)
     var cur = [Int](repeating: 0, count: b.count + 1)

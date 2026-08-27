@@ -12,6 +12,12 @@ final class AudioCheck: ObservableObject {
   @Published var level: Float = 0
   @Published var peak: Float = 0
   @Published var transcript = ""
+  /// Il riconoscitore ha già consegnato qualcosa almeno una volta.
+  @Published var caldo = false
+  @Published var primaRispostaSec: Double?
+  /// Ultimo istante di voce per cui è già stata chiesta la consegna: evita di
+  /// richiederla cinquanta volte al secondo sullo stesso silenzio.
+  private var voceGiaChiesta: CFTimeInterval?
   @Published var heardWords: [String] = []
   @Published var running = false
   @Published var error: String?
@@ -56,6 +62,8 @@ final class AudioCheck: ObservableObject {
     error = nil
     transcript = ""
     heardWords = []
+    caldo = false
+    primaRispostaSec = nil
     peak = 0
     refreshDevices()
 
@@ -101,7 +109,28 @@ final class AudioCheck: ObservableObject {
         guard let self, self.running else { continue }
         let snap = self.listener.read()
         self.level = snap.level
+        self.caldo = snap.caldo
+        self.primaRispostaSec = snap.primaRispostaSec
         self.peak = max(self.peak, snap.level)
+
+        // Qui stava la lentezza di «Mi senti?».
+        //
+        // L'analizzatore non consegna niente finché non gli si chiede: da solo
+        // aspetta molto più audio prima di dire la sua, ed è il guasto che
+        // rendeva l'app sorda, già risolto dentro la sessione ma mai qui. In
+        // questa schermata nessuno glielo chiedeva mai, quindi le parole
+        // comparivano dopo un'attesa lunghissima — e chi provava il microfono
+        // concludeva che era il proprio modo di parlare a non andare bene.
+        // Adesso si chiede la consegna appena la voce si ferma, come nella
+        // sessione vera: ~250 ms di silenzio dopo aver parlato.
+        if let ultimaVoce = snap.lastVoice {
+          let fermo = CACurrentMediaTime() - ultimaVoce
+          if fermo >= 0.25, ultimaVoce != self.voceGiaChiesta {
+            self.voceGiaChiesta = ultimaVoce
+            await self.listener.flush()
+          }
+        }
+
         let text = snap.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !text.isEmpty, text != self.transcript {
           self.transcript = text
@@ -117,15 +146,30 @@ final class AudioCheck: ObservableObject {
   }
 
   /// Il giudizio in una frase, senza gergo.
+  ///
+  /// L'ordine dei casi non è casuale. Finché il modello vocale non si è
+  /// caricato, l'app non è in grado di capire niente e deve dirlo: prima
+  /// scriveva "ti sento ma non ho capito nessuna parola" anche in quei
+  /// secondi, cioè dava la colpa a chi stava parlando di un ritardo tutto suo.
   var verdict: (text: String, symbol: String, good: Bool)? {
     guard running else { return nil }
     if !transcript.isEmpty {
       return ("Ti sento e ti capisco.", "checkmark.circle.fill", true)
     }
+    if !caldo {
+      return ("Sto ancora preparando l'ascolto. Ci vuole qualche secondo la prima volta.", "hourglass", false)
+    }
     if peak > 0.02 {
       return ("Ti sento, ma non ho ancora capito nessuna parola. Prova a dire «ciao».", "ear", false)
     }
     return ("Non sento ancora niente. Parla vicino al Mac.", "waveform", false)
+  }
+
+  /// Quanto ci ha messo il modello a svegliarsi, detto solo quando è tanto:
+  /// sotto il secondo è un dato da tecnici e non interessa nessuno.
+  var notaLentezza: String? {
+    guard let t = primaRispostaSec, t >= 1.5 else { return nil }
+    return String(format: "L'ascolto si è preparato in %.1f secondi. È il caricamento del modello vocale: succede una volta per sessione, poi le risposte sono immediate.", t)
   }
 }
 
@@ -212,6 +256,13 @@ struct AudioCheckView: View {
             .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
             .fixedSize(horizontal: false, vertical: true)
         }
+      }
+
+      if let nota = check.notaLentezza {
+        Text(nota)
+          .font(a11y.typeface.font(size: a11y.size(15)))
+          .foregroundStyle(pal.muted)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
   }

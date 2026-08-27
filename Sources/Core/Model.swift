@@ -215,7 +215,14 @@ struct SessionConfig: Codable, Equatable {
   /// Tempo massimo di attesa della risposta vocale prima di registrare "nessuna risposta".
   var responseTimeoutMs: Double = 4000
   /// Silenzio necessario dopo l'ultima parola per considerare conclusa la risposta.
-  var endpointSilenceMs: Double = 700
+  ///
+  /// Sette decimi erano troppi: sommati all'attesa del testo definitivo
+  /// facevano passare più di un secondo fra la parola detta e qualsiasi segno
+  /// sullo schermo, e in quel vuoto chi legge ripete — rovinando la risposta
+  /// che aveva già dato giusta. Quattro decimi e mezzo restano sopra la pausa
+  /// che si fa naturalmente in mezzo a una frase, quindi non tagliano chi sta
+  /// ancora parlando.
+  var endpointSilenceMs: Double = 450
 
 
   /// Analisi qualitativa degli errori con il modello Apple on-device.
