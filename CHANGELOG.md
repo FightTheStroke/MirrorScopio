@@ -24,6 +24,44 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - `scripts/setup-github-secrets.sh`: mette certificato e credenziali nella
   cassaforte di GitHub, guidando passo passo.
 
+## [0.3.1] — 2026-08-27
+
+### Corretto
+- **Il controllo delle parole confrontava anche quella di prima.** Il
+  riconoscitore consegna trascrizioni che scorrono e possono contenere la
+  parola precedente: veniva presa tutta, e si finiva per confrontare «casa
+  mare» con `mare`. Ancora ingiusti a chi aveva detto giusto — e ogni tanto il
+  contrario, che è peggio. Ora si tiene solo quello che è stato detto dopo la
+  comparsa della parola.
+- **L'app non sentiva chi rispondeva subito**: il microfono cominciava a
+  contare dopo la maschera, e una risposta veloce finiva in un intervallo che
+  nessuno stava guardando. Adesso conta dalla comparsa della parola.
+- **Il tempo scadeva mentre si stava ancora parlando.** Chi comincia a parlare
+  in ritardo — cioè la norma, per chi stiamo aiutando — si vedeva tagliare la
+  voce a metà e trovava «Ancora» senza capire perché.
+- **Le parole di riscaldamento non contano più nella percentuale finale**: sono
+  facili e restano il triplo del tempo, e gonfiavano il risultato.
+- L'obiettivo «Dieci sessioni» conta le sessioni; prima guardava i punti.
+- `README.md` e `SECURITY.md` dicevano «nessun controllo aggiornamenti» mentre
+  l'app ce l'ha, opzionale e spento. Ora è descritto per quello che è.
+
+### Aggiunto
+- **Una scena sola durante la lettura**: la parola non sparisce più lasciando lo
+  schermo vuoto, resta lì coperta dalle barre, e l'invito a parlare non compare
+  dal nulla — si accende dov'era già. Prima erano tre scene diverse per una
+  parola sola.
+- **L'app dice perché non ha capito**: «non ho sentito niente» (ed è l'audio) o
+  «ti ho sentito ma non ho capito le parole» (e allora si riprova). Sono due
+  situazioni opposte e confonderle fa cercare guasti che non ci sono, o peggio
+  fa credere a un ragazzo di non esserne capace.
+- **Microfono e altoparlanti in barra anche durante l'allenamento**, in Leggi e
+  in Scrivi: le cuffie si staccano a metà sessione, e prima bisognava uscire.
+  Cambiare microfono rifà l'ascolto da solo, dicendolo.
+- **Il tempo, se lo vuoi**: un orologio in alto che conta da quanto stai
+  andando. Spento di default, e non è un conto alla rovescia — non scade mai.
+- **I progressi sono organizzati come le Impostazioni**: cinque pagine corte con
+  l'elenco a lato, invece di una colonna sola lunghissima da attraversare tutta.
+
 ## [0.3.0] — 2026-08-27
 
 ### Aggiunto

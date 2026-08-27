@@ -16,6 +16,7 @@ struct DashboardView: View {
     @State private var sessioneEspansa: UUID?
     /// Mostra il dialogo di conferma prima di cancellare lo storico.
     @State private var mostraConfermaReset = false
+    @State private var pagina: Pagina = .adesso
 
     private var a11y: A11ySettings { store.current.a11y }
     private var bambino: Learner { store.current }
@@ -36,25 +37,78 @@ struct DashboardView: View {
         }
     }
 
+    /// Le pagine dei progressi, con lo stesso elenco a sinistra delle
+    /// Impostazioni.
+    ///
+    /// Era una colonna sola lunghissima: livello, serie, numeri, due grafici,
+    /// venti obiettivi e lo storico, tutto di fila. Per arrivare a una cosa
+    /// bisognava attraversare tutte le altre, e chi fatica a tenere insieme
+    /// molte informazioni si perdeva molto prima della fine — proprio nella
+    /// schermata che dovrebbe far vedere quanto si e migliorati.
+    private enum Pagina: String, PaginaLaterale {
+        case adesso, andamento, obiettivi, sessioni, dati
+
+        var id: String { rawValue }
+
+        var titolo: String {
+            switch self {
+            case .adesso: "A che punto sei"
+            case .andamento: "Come sta andando"
+            case .obiettivi: "Obiettivi"
+            case .sessioni: "Le ultime volte"
+            case .dati: "Porta via i dati"
+            }
+        }
+
+        var simbolo: String {
+            switch self {
+            case .adesso: "star.fill"
+            case .andamento: "chart.line.uptrend.xyaxis"
+            case .obiettivi: "trophy.fill"
+            case .sessioni: "calendar"
+            case .dati: "square.and.arrow.up.fill"
+            }
+        }
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: a11y.size(20)) {
-                intestazione
-                    .padding(.top, a11y.size(10))
+        VStack(spacing: 0) {
+            intestazione
+                .padding(.horizontal, a11y.size(28))
+                .padding(.vertical, a11y.size(16))
+            Divider()
+            HStack(spacing: 0) {
+                ElencoPagine(scelta: $pagina, a11y: a11y, palette: palette)
+                Divider()
+                ScrollView {
+                    paginaCorrente
+                        .padding(a11y.size(28))
+                        .frame(maxWidth: 860, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .background(palette.background.ignoresSafeArea())
+    }
+
+    @ViewBuilder
+    private var paginaCorrente: some View {
+        VStack(alignment: .leading, spacing: a11y.size(20)) {
+            switch pagina {
+            case .adesso:
                 sezionelivello
                 sezioneSerie
                 rigaRiassuntiva
+            case .andamento:
                 sezioneGrafici
+            case .obiettivi:
                 sezioneObiettivi
+            case .sessioni:
                 sezioneSessioniRecenti
+            case .dati:
                 piedePiePage
-                    .padding(.bottom, a11y.size(28))
             }
-            .padding(.horizontal, a11y.size(28))
-            .frame(maxWidth: 1000)
-            .frame(maxWidth: .infinity)
         }
-        .background(palette.background.ignoresSafeArea())
     }
 
     // MARK: - Intestazione

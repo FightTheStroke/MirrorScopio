@@ -63,7 +63,7 @@ struct SettingsView: View {
 
   // MARK: - L'elenco delle pagine
 
-  private enum Pagina: String, CaseIterable, Identifiable {
+  private enum Pagina: String, PaginaLaterale {
     case inizio, lettura, colori, ritmo, voce, risposte, dati, clinico
 
     var id: String { rawValue }
@@ -96,38 +96,7 @@ struct SettingsView: View {
   }
 
   private var elenco: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 4) {
-        ForEach(Pagina.allCases) { p in
-          Button { pagina = p } label: {
-            HStack(spacing: 12) {
-              Image(systemName: p.simbolo)
-                .font(.system(size: a11y.size(17)))
-                .frame(width: a11y.size(26))
-              Text(p.titolo)
-                .font(a11y.typeface.font(size: a11y.size(17),
-                                         weight: pagina == p ? .semibold : .regular))
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-              Spacer(minLength: 0)
-            }
-            .foregroundStyle(pagina == p ? palette.accent : palette.foreground)
-            .padding(.horizontal, 14)
-            .padding(.vertical, a11y.size(12))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: 48)
-            .background(
-              RoundedRectangle(cornerRadius: 12)
-                .fill(pagina == p ? palette.accent.opacity(0.15) : .clear))
-            .contentShape(RoundedRectangle(cornerRadius: 12))
-          }
-          .buttonStyle(.plain)
-          .accessibilityAddTraits(pagina == p ? [.isSelected] : [])
-        }
-      }
-      .padding(10)
-    }
-    .frame(width: a11y.size(260))
+    ElencoPagine(scelta: $pagina, a11y: a11y, palette: palette)
   }
 
   @ViewBuilder
