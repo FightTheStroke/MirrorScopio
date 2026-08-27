@@ -85,6 +85,7 @@ final class SessionEngine: ObservableObject {
 
   private let listener = SpeechListener()
   let speaker = Speaker()
+  let suoni = Suoni()
   private var wordsSincePause = 0
   private var items: [String] = []
   private var staircase: StaircaseState?
@@ -411,6 +412,9 @@ final class SessionEngine: ObservableObject {
     // che nessuno stava guardando: la parola andava persa e l'app sembrava
     // sorda proprio con chi era piu veloce.
     listener.beginWindow()
+    // Finché il microfono ascolta l'app resta zitta: altrimenti si sente da
+    // sola e giudica il proprio suono come se fosse una parola letta.
+    suoni.microfonoInAscolto = true
   }
 
   /// Modalità Scrivi: si consegna quello che si è digitato.
@@ -471,6 +475,7 @@ final class SessionEngine: ObservableObject {
 
   private func closeListening(snapshot snap: VoiceWindowSnapshot) {
     listener.endWindow()
+    suoni.microfonoInAscolto = false
     voceInCorso = false
     phase = .scoring
     guard var trial = current else { return }
@@ -526,6 +531,10 @@ final class SessionEngine: ObservableObject {
 
     wordsSincePause += 1
     let now = CACurrentMediaTime()
+    // Un riscontro anche per le orecchie: serve a chi lo schermo fatica a
+    // guardarlo. «Ancora» non suona mai come un errore, sono due tocchi alla
+    // stessa altezza.
+    suoni.suona(trial.correct ? .giusta : .ancora, a11y: a11y)
     if a11y.showFeedbackPerWord {
       phase = .feedback(trial.correct)
       displayText = ""
@@ -561,6 +570,12 @@ final class SessionEngine: ObservableObject {
     statusMessage = interrupted ? "Sessione interrotta." : ""
 
     let record = makeRecord()
+    if !interrupted {
+      suoni.suona(
+        .fine,
+        quota: record.total > 0 ? Double(record.correct) / Double(record.total) : 1,
+        a11y: a11y)
+    }
     finishedRecord = record
     if !isCalibration {
       difficultySuggestion = Difficulty.suggestion(for: record, current: config.level)

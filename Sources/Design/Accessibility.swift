@@ -115,7 +115,10 @@ struct A11ySettings: Codable, Equatable {
   /// manca invece di immaginarlo. Conta il tempo passato, non quello che resta:
   /// non è un conto alla rovescia.
   var showTimer = false
-  var soundsEnabled = false
+  /// Acceso di serie: il suono è l'unico riscontro che arriva a chi lo schermo
+  /// non riesce a guardarlo mentre legge, ed è breve e morbido di proposito.
+  /// Il profilo Autismo lo spegne, e si spegne comunque dalle Impostazioni.
+  var soundsEnabled = true
   /// Voce di sistema scelta per dettare le parole. `nil` = la migliore trovata.
   var voiceIdentifier: String? = nil
   /// Velocità della voce. 0.4 è già più lenta del normale.
@@ -133,6 +136,14 @@ struct A11ySettings: Codable, Equatable {
   var hideScore = false
   /// A fine parola il Mac pronuncia la parola giusta.
   var speakCorrectWord = false
+
+  // Suoni di conferma (aggiunta: motore in `Sources/Core/Suoni.swift`).
+  // `soundsEnabled` qui sopra è già l'interruttore generale — lo riuso invece
+  // di aggiungerne un secondo, così il profilo Autismo che lo spegne continua a
+  // valere anche per i suoni nuovi. Qui serve solo il volume.
+  /// Volume dei suoni di conferma, da 0 (muti) a 1. Lavora sotto un tetto
+  /// prudente: anche a 1 il suono non satura.
+  var volumeSuoni: Double = 0.7
 
   /// Dimensione di un testo dell'interfaccia, già scalata.
   func size(_ base: Double) -> CGFloat { CGFloat(base * textScale) }
