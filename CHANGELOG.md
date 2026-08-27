@@ -16,6 +16,12 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Corretto
+- **«Ti ho sentito, ma pianissimo»**: quando il microfono prende troppo piano,
+  il Mac non capisce nessuna parola — e l'app rispondeva «non sono riuscita a
+  capire», che suona come «hai letto male». Non è vero: la voce c'era, era il
+  volume. Misurato con la prova del microfono: con il picco a 0,02 non arriva
+  una sola parola, con 0,075 arriva in mezzo secondo e con confidenza 0,83.
+  Ora l'app dice quale delle due cose è successa e dove si rimedia.
 - **VoiceOver adesso dice i nomi giusti**: i quattro cursori (impostazioni,
   primo avvio, controlli avanzati, velocità della voce) si annunciavano come
   «cursore, 50 per cento», senza dire di che cosa e con una percentuale che

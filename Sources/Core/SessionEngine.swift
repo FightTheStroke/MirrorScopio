@@ -506,8 +506,18 @@ final class SessionEngine: ObservableObject {
     trial.confidence = snap.confidence
 
     if snap.text.isEmpty {
+      // Tre cause diverse, e confonderle e' il modo piu rapido per far
+      // credere a un ragazzo di aver letto male quando ha letto benissimo.
+      //
+      // Misurato con la prova del microfono: con il picco a 0,02 il
+      // riconoscitore non consegna una sola parola, con 0,075 la consegna in
+      // mezzo secondo e con confidenza 0,83. In mezzo non c'e' niente da
+      // capire meglio: c'e' un volume da alzare. L'app il livello ce l'ha,
+      // quindi lo dice invece di far ripetere.
       ascoltoAvviso = snap.voiceOnset == nil
         ? "Non ho sentito niente. Controlla il microfono qui in alto."
+        : snap.picco < 0.04
+        ? "Ti ho sentito, ma pianissimo: il Mac non arriva a capire le parole. Parla più vicino al microfono, o provalo dal menu qui in alto."
         : "Ti ho sentito, ma non sono riuscita a capire le parole."
     } else {
       ascoltoAvviso = nil
