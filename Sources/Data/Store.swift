@@ -138,6 +138,10 @@ final class Store: ObservableObject {
     Gamification.apply(session: s, to: &l)
     current = l
     save()
+    // Allenamento fatto: i promemoria di oggi si tolgono di mezzo. Nessuno
+    // deve ricevere un invito a fare una cosa che ha appena finito.
+    let serie = l.streakCurrent
+    Task { await Promemoria().ripianifica(giaFattoOggi: true, serieGiorni: serie) }
   }
 
   /// Usata quando punti e obiettivi sono già stati calcolati altrove:

@@ -30,6 +30,7 @@ struct RootView: View {
   @ObservedObject var engine: SessionEngine
   @ObservedObject var readiness: Readiness
   @ObservedObject var nav: Navigazione
+  @StateObject private var promemoria = Promemoria()
   @Environment(\.colorScheme) private var systemScheme
 
   private var a11y: A11ySettings { store.current.a11y }
@@ -63,6 +64,12 @@ struct RootView: View {
         } else if !readiness.puoIniziare, nav.schermata == .casa {
           nav.schermata = .preparazione
         }
+        // I promemoria si riprogrammano a ogni avvio: così la giornata in cui
+        // ci si è già allenati viene saltata invece di ricevere un invito
+        // inutile.
+        await promemoria.ripianifica(
+          giaFattoOggi: store.current.lastSessionDay == Gamification.dayKey(Date()),
+          serieGiorni: store.current.streakCurrent)
       }
     }
     .onChange(of: store.currentID) { _, _ in syncEngine() }
