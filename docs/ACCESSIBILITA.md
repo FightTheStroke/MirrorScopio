@@ -76,6 +76,38 @@ visione.
 - Le **pause automatiche** arrivano ogni N parole e non hanno conto alla rovescia. Si
   riparte quando si è pronti, non quando scade qualcosa.
 
+## Suoni
+
+L'app era muta, e chi non riesce a guardare bene lo schermo — spesso proprio chi usa questo
+tachistoscopio — non aveva modo di sapere se il Mac aveva registrato la sua risposta. I
+suoni di conferma sono quel modo: brevissimi, morbidi, spegnibili, e generati in codice (non
+file audio) proprio per poterli plasmare. Sono quattro.
+
+| Momento | Che suono | Perché così |
+|---|---|---|
+| **La parola è comparsa** | Un tocco solo, brevissimo | Discreto: dice «tocca a te» senza distrarre. |
+| **È giusta** | Due note che salgono | La salita si legge come «sì» anche a occhi chiusi. |
+| **Ancora** | Due tocchi *alla stessa altezza* | **Mai** una discesa, mai un buzz, mai un tono cupo. Due colpi uguali dicono «riproviamo», non «hai sbagliato»: il suono di un errore su un bambino che ci sta provando fa più danno di dieci parole giuste. |
+| **Fine sessione** | Una piccola cadenza che sale | Adeguata al risultato ma sempre incoraggiante: mai triste, mai una fanfara. |
+
+Ogni suono ha un inviluppo morbido — entra da zero e torna a zero — perché un'onda che parte
+di scatto fa un «tac» che fa sobbalzare chi ha ipersensibilità uditiva. Che il primo e
+l'ultimo campione siano davvero a zero, e che non ci siano salti, lo verifica un test che
+conta i campioni invece di fidarsi dell'orecchio.
+
+I suoni non suonano mai mentre il microfono sta valutando una risposta: altrimenti il Mac
+sentirebbe sé stesso. E si adattano all'accessibilità, non si limitano a spegnersi:
+
+| Impostazione | Che cosa succede ai suoni | Perché |
+|---|---|---|
+| **Modalità calma** (autismo, ipersensibilità) | Più bassi, più corti, più morbidi; la fine si riduce a due note gentili | Il festeggiamento può essere rumore, non premio. Mai fanfare. |
+| **Riduci movimento** | Un po' più bassi e più corti | Chi chiede meno movimento spesso chiede anche meno stimoli. |
+| **Colori che si somigliano / altissimo contrasto** | Più netti e ben distinti, con un volume minimo garantito | Qui il suono prende il posto del colore: deve dire chiaramente «giusta» e «ancora». |
+| **VoiceOver acceso** | Ancora più brevi e un filo più bassi | Non si parla sopra il sintetizzatore: il suono cede il passo alla voce. |
+
+Il volume è regolabile, e ogni suono si può ascoltare in anteprima nelle impostazioni: chi
+prepara l'app per un ragazzo sente prima cosa sentirà lui.
+
 ## Tono
 
 Ereditato da MirrorBuddy: caldo, breve, mai giudicante.

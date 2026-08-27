@@ -51,6 +51,14 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   l'interruttore; se lo neghi, l'app te lo dice e ti porta dove si rimedia. Non
   arriva niente se hai già letto le tue parole quel giorno, e il testo è sempre
   un invito, mai un rimprovero. È tutto locale: nessun avviso esce dal Mac.
+- **L'app adesso suona**: quattro suoni di conferma, spegnibili, per chi fa
+  fatica a guardare lo schermo — un tocco quando la parola compare, due note che
+  salgono quando è giusta, un tocco piatto e neutro quando è «ancora» (mai un
+  suono da errore), e una piccola cadenza incoraggiante alla fine. Si accendono,
+  si regola il volume e si ascolta ciascuno in anteprima nella nuova pagina «I
+  suoni» delle impostazioni. Si adattano da soli: più discreti in modalità calma
+  e con VoiceOver, più netti per chi distingue male i colori, perché lì il suono
+  fa il lavoro del colore. Non suonano mentre il microfono ascolta.
 - **GitHub costruisce il pacchetto da solo**: ogni tag `v*` fa partire il
   workflow «Rilascio», che compila su macOS 26, firma, notarizza, verifica
   Gatekeeper e allega il DMG alla release.
