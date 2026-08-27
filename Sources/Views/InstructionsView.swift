@@ -51,6 +51,15 @@ struct InstructionsView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding(36)
+    // L'app scrive «se vuoi fermarti premi Esc» già in questa schermata: se lo
+    // dice, deve funzionare già qui, non solo dopo la prima parola.
+    .background {
+      Button("", action: { engine.reset() })
+        .keyboardShortcut(.escape, modifiers: [])
+        .frame(width: 0, height: 0)
+        .opacity(0)
+        .accessibilityHidden(true)
+    }
     .onChange(of: engine.micLevel) { _, level in
       if level > 0.02 {
         heardOnce = true
@@ -81,7 +90,7 @@ struct InstructionsView: View {
 
   private var readingSteps: some View {
     VStack(alignment: .leading, spacing: a11y.size(14)) {
-      step("Guarda il **+** in mezzo allo schermo.")
+      step("Guarda il puntino in mezzo allo schermo: ti tiene l'occhio nel punto giusto.")
       step("Compare una parola. Le prime \(engine.config.warmupTrials) restano tanto, poi sempre meno.")
       step("Dilla subito ad alta voce, anche se non sei sicuro.")
     }

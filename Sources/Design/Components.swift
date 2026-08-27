@@ -127,10 +127,15 @@ struct ChoiceCard: View {
           .font(.system(size: a11y.size(18)))
           .foregroundStyle(palette.accent)
           .padding(8)
+          // Il segno di spunta è un disegno, non un comando: senza questo
+          // VoiceOver annunciava un secondo pulsante chiamato «Selezionato»
+          // che non faceva niente, subito prima della carta vera.
+          .accessibilityHidden(true)
       }
     }
     .frame(minHeight: 64)
     .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+    .accessibilityValue(selected ? "scelto" : "")
   }
 }
 
