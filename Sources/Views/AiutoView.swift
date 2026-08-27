@@ -21,6 +21,7 @@ struct AiutoView: View {
   private var a11y: A11ySettings { store.current.a11y }
 
   private let repoURL = "https://github.com/FightTheStroke/MirrorScopio"
+  private let sostieniURL = "https://www.fightthestroke.org/donorbox"
 
   var body: some View {
     VStack(spacing: 0) {
@@ -186,6 +187,17 @@ struct AiutoView: View {
       SmallButton(title: "Apri il progetto su GitHub", symbol: "arrow.up.forward.app", a11y: a11y) {
         if let u = URL(string: repoURL) { NSWorkspace.shared.open(u) }
       }
+
+      Divider().padding(.vertical, 4)
+
+      testo("MirrorScopio è gratuito e senza pubblicità. Se vuoi, puoi sostenere Fight The Stroke.")
+      SmallButton(title: "Sostieni Fight The Stroke", symbol: "heart", a11y: a11y) {
+        if let u = URL(string: sostieniURL) { NSWorkspace.shared.open(u) }
+      }
+      .accessibilityLabel("Sostieni Fight The Stroke: apre un sito web esterno nel browser")
+      // L'onestà prima del gesto: fino a questo pulsante l'app non è mai uscita
+      // dal Mac, e chi preme ha il diritto di saperlo prima, non dopo.
+      testo("Il pulsante apre il sito di Fight The Stroke nel browser: è la prima volta che l'app esce da questo Mac.")
     }
   }
 
