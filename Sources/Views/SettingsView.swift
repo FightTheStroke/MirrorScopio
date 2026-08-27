@@ -16,6 +16,9 @@ struct SettingsView: View {
   @State private var aggiornamentiAccesi = Updates.enabled
   @State private var controlloInCorso = false
   @State private var esitoControllo: String?
+  /// Un motore dei suoni tutto per le impostazioni: serve solo al pulsante
+  /// «Ascolta», e sente le impostazioni correnti così l'anteprima è fedele.
+  @StateObject private var suoni = Suoni()
 
   private var a11y: A11ySettings { store.current.a11y }
 
@@ -65,7 +68,7 @@ struct SettingsView: View {
   // MARK: - L'elenco delle pagine
 
   private enum Pagina: String, PaginaLaterale {
-    case inizio, lettura, colori, ritmo, voce, risposte, dati, clinico
+    case inizio, lettura, colori, ritmo, voce, risposte, dati, clinico, suoni
 
     var id: String { rawValue }
 
@@ -79,6 +82,7 @@ struct SettingsView: View {
       case .risposte: "Dopo ogni parola"
       case .dati: "I dati e l'app"
       case .clinico: "Parametri clinici"
+      case .suoni: "I suoni"
       }
     }
 
@@ -92,6 +96,7 @@ struct SettingsView: View {
       case .risposte: "hand.thumbsup.fill"
       case .dati: "lock.fill"
       case .clinico: "slider.horizontal.3"
+      case .suoni: "bell.fill"
       }
     }
   }
@@ -120,6 +125,8 @@ struct SettingsView: View {
         feedback
       case .dati:
         privacy
+      case .suoni:
+        suoniPagina
       case .clinico:
         VStack(alignment: .leading, spacing: 10) {
           Text("Millesimi di secondo, maschera, scala adattiva. Servono a chi\nimposta la riabilitazione; per leggere non serve toccare niente.")
@@ -330,6 +337,57 @@ struct SettingsView: View {
   }
 
   // MARK: - Dati
+
+  // MARK: - Suoni
+
+  /// I suoni di conferma: l'app finora era muta, e chi non guarda lo schermo
+  /// non sapeva se il Mac aveva registrato la sua risposta. Qui si accendono, si
+  /// regola il volume e — soprattutto — si provano prima di lasciarli a un
+  /// ragazzo: chi imposta l'app deve sentire esattamente ciò che sentirà lui.
+  private var suoniPagina: some View {
+    VStack(alignment: .leading, spacing: 16) {
+      SectionTitle(text: "I suoni di conferma", a11y: a11y)
+      Explain(text: "Un tocco quando la parola compare, due note che salgono quando è giusta, "
+              + "un tocco piatto e neutro quando è «ancora» — mai un suono da errore — e una "
+              + "piccola cadenza alla fine. Servono a chi fa fatica a guardare lo schermo.",
+              a11y: a11y, size: 15)
+
+      toggle("Accendi i suoni", bindBool(\.soundsEnabled),
+             "Da spenti l'app resta muta. Il profilo Autismo li lascia spenti di proposito.")
+
+      slider("Volume", value: bind(\.volumeSuoni), range: 0...1,
+             format: { "\(Int($0 * 100))%" })
+
+      VStack(alignment: .leading, spacing: 8) {
+        SectionTitle(text: "Ascolta ciascun suono", a11y: a11y)
+        Explain(text: "Si sentono anche a suoni spenti, così puoi decidere. Suonano come li "
+                + "sentirà chi usa l'app: volume e profilo di accessibilità inclusi.",
+                a11y: a11y, size: 14)
+        ForEach(Suoni.Momento.allCases) { momento in
+          HStack(alignment: .top, spacing: 12) {
+            SmallButton(title: "Ascolta", symbol: "play.circle.fill", a11y: a11y) {
+              // Alla fine passo una quota alta: in anteprima si sente la
+              // cadenza piena, quella di una sessione andata bene.
+              suoni.anteprima(momento, quota: momento == .fine ? 0.85 : 1, a11y: a11y)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+              Text(momento.titolo)
+                .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+                .foregroundStyle(palette.foreground)
+              Explain(text: momento.spiega, a11y: a11y, size: 14)
+            }
+            Spacer(minLength: 0)
+          }
+          .padding(.vertical, 2)
+        }
+      }
+
+      Explain(text: "I suoni si adattano da soli: in modalità calma sono più bassi, corti e "
+              + "morbidi; con VoiceOver acceso si accorciano per non parlare sopra la voce; se hai "
+              + "detto che certi colori si somigliano, diventano più netti, perché lì il suono fa "
+              + "il lavoro che il colore non riesce a fare.", a11y: a11y, size: 14)
+    }
+  }
 
   private var privacy: some View {
     VStack(alignment: .leading, spacing: 10) {
