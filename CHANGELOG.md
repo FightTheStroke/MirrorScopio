@@ -16,6 +16,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Aggiunto
+- **Onboarding guidato al primo avvio**: un passo alla volta, solo ciò che
+  manca. Permesso del microfono e modello vocale italiano si concedono e si
+  scaricano dall'app, senza mai aprire le Impostazioni di Sistema.
+- **Scelta della voce dentro l'app**, con anteprima all'ascolto e regolazione
+  della velocità. La voce scelta viene salvata nel profilo.
 - Schermata **"Prepara il Mac"**: controlla permesso del microfono, microfono
   collegato, modello di riconoscimento italiano, voce italiana di sistema e
   Apple Intelligence. Il modello vocale si scarica dall'app con avanzamento;
@@ -31,6 +36,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - La scelta del microfono passa dall'ingresso predefinito del sistema e avviene
   prima di creare il motore audio: impostarlo sull'unità audio lo lasciava vivo
   ma muto.
+
+### Corretto (voci)
+- L'app diceva «c'è solo Alice, di qualità base» pur avendo Federica Premium
+  installata: l'elenco delle voci era calcolato una volta sola all'avvio. Ora è
+  sempre fresco, e la qualità di serie non è più segnalata come un problema.
 
 ### Rimosso
 - La richiesta del permesso di *riconoscimento vocale*, che mostrava l'avviso di

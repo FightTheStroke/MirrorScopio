@@ -34,7 +34,12 @@ final class SessionEngine: ObservableObject {
 
   @Published var config = SessionConfig()
   /// Preferenze di aspetto e ritmo di chi sta usando l'app adesso.
-  @Published var a11y = A11ySettings()
+  @Published var a11y = A11ySettings() {
+    didSet {
+      speaker.voiceIdentifier = a11y.voiceIdentifier
+      speaker.rate = Float(a11y.voiceRate)
+    }
+  }
   /// Testo digitato in modalità Scrivi.
   @Published var typedAnswer = ""
   /// Vero durante il test iniziale che misura la velocità di partenza.

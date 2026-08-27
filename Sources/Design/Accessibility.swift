@@ -108,6 +108,10 @@ struct A11ySettings: Codable, Equatable {
   /// Toglie tutto ciò che non serve dai bordi dello schermo durante la prova.
   var distractionFree = false
   var soundsEnabled = false
+  /// Voce di sistema scelta per dettare le parole. `nil` = la migliore trovata.
+  var voiceIdentifier: String? = nil
+  /// Velocità della voce. 0.4 è già più lenta del normale.
+  var voiceRate: Double = 0.42
   /// Ogni quante parole proporre una pausa. 0 = mai.
   var pauseEveryNWords = 0
   /// Sessioni più corte (usato dal profilo ADHD).

@@ -20,6 +20,7 @@ struct SettingsView: View {
           fonts
           colors
           rhythm
+          voce
           feedback
           privacy
         }
@@ -27,6 +28,21 @@ struct SettingsView: View {
         .frame(maxWidth: 860)
         .frame(maxWidth: .infinity)
       }
+    }
+  }
+
+  // MARK: - Voce
+
+  private var voce: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      VoiceChooser(store: store)
+      Button("Altre voci (Impostazioni di Sistema)") {
+        if let u = URL(string: Readiness.urlImpostazioniVoci) { NSWorkspace.shared.open(u) }
+      }
+      .font(a11y.typeface.font(size: a11y.size(15)))
+      .buttonStyle(.plain)
+      .foregroundStyle(palette.muted)
+      Explain(text: "macOS non permette a nessuna app di scaricare le voci: quelle in elenco sono tutte quelle installate.", a11y: a11y, size: 14)
     }
   }
 

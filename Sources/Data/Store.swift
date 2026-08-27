@@ -98,6 +98,13 @@ final class Store: ObservableObject {
     }
   }
 
+  /// Modifica chi sta usando l'app adesso e salva.
+  func update(_ change: (inout Learner) -> Void) {
+    var l = current
+    change(&l)
+    current = l
+  }
+
   /// Le sessioni di chi sta usando l'app adesso, dalla più recente.
   var currentHistory: [SessionRecord] {
     history.filter { $0.learnerID == currentID }.sorted { $0.date > $1.date }

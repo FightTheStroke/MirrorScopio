@@ -32,7 +32,7 @@ struct RootView: View {
 
   @State private var screen: Screen = .casa
 
-  enum Screen: Equatable { case casa, impostazioni, progressi, obiettivi, audio, preparazione }
+  enum Screen: Equatable { case casa, impostazioni, progressi, obiettivi, audio, preparazione, benvenuto }
 
   private var a11y: A11ySettings { store.current.a11y }
 
@@ -55,13 +55,23 @@ struct RootView: View {
       syncEngine()
       // Al primo avvio si controlla da soli che il Mac abbia microfono, modello
       // vocale italiano e voce: meglio scoprirlo ora che a metà lettura.
+      readiness.voceScelta = store.current.a11y.voiceIdentifier
       Task {
         await readiness.controlla()
-        if readiness.qualcosaManca, screen == .casa { screen = .preparazione }
+        // Il primo avvio è una guida passo passo; dopo, si interviene solo se
+        // manca qualcosa di necessario.
+        if !UserDefaults.standard.bool(forKey: "onboardingFatto") {
+          screen = .benvenuto
+        } else if !readiness.puoIniziare, screen == .casa {
+          screen = .preparazione
+        }
       }
     }
     .onChange(of: store.currentID) { _, _ in syncEngine() }
-    .onChange(of: store.current.a11y) { _, new in engine.a11y = new }
+    .onChange(of: store.current.a11y) { _, new in
+      engine.a11y = new
+      readiness.voceScelta = new.voiceIdentifier
+    }
   }
 
   @ViewBuilder
@@ -84,6 +94,11 @@ struct RootView: View {
           DashboardView(store: store, onClose: { screen = .casa })
         case .audio:
           AudioCheckView(store: store, onClose: { screen = .casa })
+        case .benvenuto:
+          OnboardingView(readiness: readiness, store: store) {
+            UserDefaults.standard.set(true, forKey: "onboardingFatto")
+            screen = .casa
+          }
         case .preparazione:
           ReadinessView(readiness: readiness, a11y: a11y,
                         onClose: { screen = .casa },

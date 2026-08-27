@@ -10,6 +10,9 @@ final class Speaker: NSObject, ObservableObject {
   /// Velocità di lettura più bassa del normale: le parole vanno capite, non ascoltate di corsa.
   var rate: Float = 0.42
 
+  /// Voce scelta dall'utente. Se vuota si usa la migliore italiana trovata.
+  var voiceIdentifier: String?
+
   override init() {
     super.init()
     synth.delegate = self
@@ -19,7 +22,7 @@ final class Speaker: NSObject, ObservableObject {
     guard !text.isEmpty else { return }
     stop()
     let u = AVSpeechUtterance(string: text)
-    u.voice = Speaker.italianVoice
+    u.voice = chosenVoice
     u.rate = customRate ?? rate
     u.postUtteranceDelay = 0.1
     isSpeaking = true
@@ -31,15 +34,38 @@ final class Speaker: NSObject, ObservableObject {
     isSpeaking = false
   }
 
-  /// Si preferisce una voce italiana di qualità migliorata quando l'utente
-  /// l'ha scaricata; altrimenti va bene quella di serie.
-  static let italianVoice: AVSpeechSynthesisVoice? = {
-    let italian = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix("it") }
-    return italian.first { $0.quality == .premium }
-      ?? italian.first { $0.quality == .enhanced }
-      ?? italian.first
-      ?? AVSpeechSynthesisVoice(language: "it-IT")
-  }()
+  var chosenVoice: AVSpeechSynthesisVoice? {
+    if let voiceIdentifier, let v = AVSpeechSynthesisVoice(identifier: voiceIdentifier) { return v }
+    return Speaker.bestItalianVoice
+  }
+
+  /// Le voci italiane installate, dalla migliore alla più semplice.
+  ///
+  /// Deliberatamente **non** in cache: le voci si scaricano mentre l'app è
+  /// aperta, e una lista calcolata una volta sola al lancio mostrava soltanto
+  /// «Alice» anche a chi aveva Federica Premium installata.
+  static func italianVoices() -> [AVSpeechSynthesisVoice] {
+    AVSpeechSynthesisVoice.speechVoices()
+      .filter { $0.language.hasPrefix("it") }
+      .sorted { a, b in
+        if a.quality.rawValue != b.quality.rawValue { return a.quality.rawValue > b.quality.rawValue }
+        return a.name.localizedCompare(b.name) == .orderedAscending
+      }
+  }
+
+  /// Si preferisce una voce italiana di qualità migliore quando c'è.
+  static var bestItalianVoice: AVSpeechSynthesisVoice? {
+    italianVoices().first ?? AVSpeechSynthesisVoice(language: "it-IT")
+  }
+
+  /// Nome leggibile della qualità, per l'elenco delle voci.
+  static func qualityLabel(_ v: AVSpeechSynthesisVoice) -> String {
+    switch v.quality {
+    case .premium: return "la più naturale"
+    case .enhanced: return "migliorata"
+    default: return "di serie"
+    }
+  }
 }
 
 extension Speaker: AVSpeechSynthesizerDelegate {

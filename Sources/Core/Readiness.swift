@@ -58,6 +58,9 @@ final class Readiness: ObservableObject {
 
   // MARK: - Controllo
 
+  /// Identificatore della voce scelta dall'utente, per mostrarla nell'elenco.
+  var voceScelta: String?
+
   func controlla() async {
     staControllando = true
     defer { staControllando = false }
@@ -66,7 +69,7 @@ final class Readiness: ObservableObject {
     nuove.append(vocieMicrofono())
     nuove.append(voceIngresso())
     nuove.append(await voceModelloVocale())
-    nuove.append(voceVoceItaliana())
+    nuove.append(voceVoceItaliana(scelta: voceScelta))
     nuove.append(voceAppleIntelligence())
     voci = nuove
   }
@@ -119,22 +122,32 @@ final class Readiness: ObservableObject {
                 necessaria: true, rimedio: .scaricaModello)
   }
 
-  private func voceVoceItaliana() -> Voce {
-    let italiane = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix("it") }
-    guard let migliore = Speaker.italianVoice, !italiane.isEmpty else {
+  /// La voce di serie va benissimo: non è un problema da segnalare.
+  ///
+  /// Prima qui compariva un avviso perché la voce era «solo di qualità base».
+  /// Era due volte sbagliato: allarmava per una cosa che funziona, e la lista
+  /// delle voci veniva letta una volta sola all'avvio, quindi non vedeva quelle
+  /// migliori pur installate. Ora si guarda solo se una voce italiana c'è, e la
+  /// scelta si fa dentro l'app, ascoltandole.
+  private func voceVoceItaliana(scelta: String?) -> Voce {
+    let italiane = Speaker.italianVoices()
+    guard !italiane.isEmpty else {
       return Voce(id: "voce", titolo: "Voce italiana del Mac",
-                  stato: .manca("Nessuna voce italiana installata. Serve per dettare le parole."),
+                  stato: .manca("Nessuna voce italiana su questo Mac. Serve per dettare le parole."),
                   necessaria: true,
-                  rimedio: .apriImpostazioni("x-apple.systempreferences:com.apple.Accessibility-Settings.extension?SpokenContent"))
+                  rimedio: .apriImpostazioni(Readiness.urlImpostazioniVoci))
     }
-    if migliore.quality == .default {
-      return Voce(id: "voce", titolo: "Voce italiana del Mac",
-                  stato: .manca("C'è solo «\(migliore.name)», di qualità base. Una voce migliorata si capisce molto meglio."),
-                  necessaria: false,
-                  rimedio: .apriImpostazioni("x-apple.systempreferences:com.apple.Accessibility-Settings.extension?SpokenContent"))
-    }
-    return Voce(id: "voce", titolo: "Voce italiana del Mac",
-                stato: .ok("\(migliore.name), qualità alta."), necessaria: false, rimedio: .nessuno)
+    let usata = italiane.first { $0.identifier == scelta } ?? italiane[0]
+    return Voce(id: "voce", titolo: "Voce che legge le parole",
+                stato: .ok("\(usata.name), \(Speaker.qualityLabel(usata)). \(italiane.count) voci italiane disponibili: puoi cambiarla e ascoltarla nelle impostazioni."),
+                necessaria: false, rimedio: .nessuno)
+  }
+
+  static let urlImpostazioniVoci = "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?SpokenContent"
+
+  /// Apre la pagina delle voci: l'unica cosa che macOS non lascia fare a un'app.
+  func apriImpostazioniVoci() {
+    if let u = URL(string: Readiness.urlImpostazioniVoci) { NSWorkspace.shared.open(u) }
   }
 
   private func voceAppleIntelligence() -> Voce {
