@@ -134,6 +134,14 @@ struct A11ySettings: Codable, Equatable {
   /// A fine parola il Mac pronuncia la parola giusta.
   var speakCorrectWord = false
 
+  // Suoni di conferma (aggiunta: motore in `Sources/Core/Suoni.swift`).
+  // `soundsEnabled` qui sopra è già l'interruttore generale — lo riuso invece
+  // di aggiungerne un secondo, così il profilo Autismo che lo spegne continua a
+  // valere anche per i suoni nuovi. Qui serve solo il volume.
+  /// Volume dei suoni di conferma, da 0 (muti) a 1. Lavora sotto un tetto
+  /// prudente: anche a 1 il suono non satura.
+  var volumeSuoni: Double = 0.7
+
   /// Dimensione di un testo dell'interfaccia, già scalata.
   func size(_ base: Double) -> CGFloat { CGFloat(base * textScale) }
 

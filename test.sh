@@ -102,6 +102,7 @@ ENT
 }
 
 run_harness staircase   Tests/StaircaseHarness.swift    fast
+run_harness suoni       Tests/SuoniHarness.swift         fast
 run_harness microfono   Tests/MicHarness.swift          slow
 run_harness punteggio   Tests/ScoringHarness.swift      slow
 run_harness intelligenza Tests/IntelligenceHarness.swift slow
