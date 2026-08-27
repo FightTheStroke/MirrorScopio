@@ -41,6 +41,7 @@ struct ReadinessView: View {
           if let onClose {
             BigButton(title: "Chiudi", symbol: "xmark", a11y: a11y, prominent: false, action: onClose)
               .frame(maxWidth: 200)
+              .keyboardShortcut(.escape, modifiers: [])
           }
         }
         .padding(.top, 6)

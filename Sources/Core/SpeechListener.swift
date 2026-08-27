@@ -14,6 +14,13 @@ struct VoiceWindowSnapshot {
   var lastVoice: CFTimeInterval?
   var confidence: Double?
   var level: Float = 0
+  /// Il livello piu alto raggiunto dentro questa finestra di risposta.
+  ///
+  /// Serve a distinguere due cose che si assomigliano e che non vanno
+  /// confuse mai: chi non ha detto niente, e chi ha detto tutto ma troppo
+  /// piano perche il Mac lo capisca. Misurato: sotto 0,04 il riconoscitore
+  /// non consegna nessun testo pur sentendo benissimo che c'e' una voce.
+  var picco: Float = 0
   /// Vero quando il riconoscitore ha già consegnato qualcosa almeno una volta
   /// da quando è stato acceso: prima di allora sta ancora caricando il modello.
   var caldo = false
@@ -330,9 +337,12 @@ final class SpeechListener: @unchecked Sendable {
         noiseFloor = max(0.002, median * 4 + 0.002)
         calibrating = false
       }
-    } else if windowActive, rms > noiseFloor {
-      if snapshot.voiceOnset == nil { snapshot.voiceOnset = now }
-      snapshot.lastVoice = now
+    } else if windowActive {
+      if rms > snapshot.picco { snapshot.picco = rms }
+      if rms > noiseFloor {
+        if snapshot.voiceOnset == nil { snapshot.voiceOnset = now }
+        snapshot.lastVoice = now
+      }
     }
     lock.unlock()
   }

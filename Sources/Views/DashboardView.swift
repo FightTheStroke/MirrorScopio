@@ -137,7 +137,11 @@ struct DashboardView: View {
             }
             .buttonStyle(.plain)
             .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Chiudi la dashboard")
+            // Le altre schermate si chiudono con Esc. Una che non lo fa
+            // obbliga a cercare il mouse, e chi il mouse non lo usa resta
+            // dentro.
+            .keyboardShortcut(.escape, modifiers: [])
+            .accessibilityLabel("Chiudi i tuoi progressi")
         }
     }
 

@@ -99,15 +99,29 @@ struct StaffettaView: View {
       scena
         .allowsHitTesting(false)
 
-      // Fermarsi resta la cosa più facile dello schermo, come nel resto dell'app.
+      // Chiudere resta la cosa più facile dello schermo. Ma qui non è un
+      // «interrompi»: è un premio, e il rosso di allarme del resto dell'app
+      // sopra a una festa suonava come uno sgridamento. Sta in alto a destra,
+      // dove nessun titolo lo tampona, e resta discreto.
       VStack {
         HStack {
-          StopButton(a11y: a11y, titolo: "Chiudi") { onClose() }
-            .keyboardShortcut(.escape, modifiers: [])
           Spacer()
+          Button(action: onClose) {
+            HStack(spacing: 7) {
+              Image(systemName: "xmark.circle.fill")
+              Text("Chiudi").font(a11y.typeface.font(size: a11y.size(15)))
+            }
+            .padding(.horizontal, 14)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+          }
+          .buttonStyle(.plain)
+          .foregroundStyle(palette.muted)
+          .keyboardShortcut(.escape, modifiers: [])
+          .accessibilityLabel("chiudi il gioco e torna al riepilogo")
         }
-        .padding(.horizontal, 22)
-        .padding(.top, 16)
+        .padding(.horizontal, 18)
+        .padding(.top, 12)
         Spacer()
       }
 

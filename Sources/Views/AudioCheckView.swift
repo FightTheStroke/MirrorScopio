@@ -191,6 +191,12 @@ struct AudioCheckView: View {
         heard
         if let e = check.error { problem(e) }
         if let w = check.outputWarning { problem(w) }
+        // Questa e' la schermata dove uno viene a capire perche' l'app non lo
+        // capisce. Se il picco resta sotto la soglia in cui il riconoscitore
+        // consegna qualcosa, dirlo qui evita mezz'ora di prove.
+        if check.peak > 0.004, check.peak < 0.04, check.transcript.isEmpty {
+          problem("Ti sento, ma pianissimo: a questo volume il Mac non arriva a capire le parole. Avvicinati al microfono, o scegline un altro qui sopra.")
+        }
         speakerTest
         adultSection
       }
@@ -222,6 +228,8 @@ struct AudioCheckView: View {
       .buttonStyle(.plain)
       .background(pal.surface, in: .rect(cornerRadius: 12))
       .frame(minWidth: 44, minHeight: 44)
+      .keyboardShortcut(.escape, modifiers: [])
+      .accessibilityLabel("Chiudi la prova del microfono")
     }
   }
 
@@ -304,6 +312,7 @@ struct AudioCheckView: View {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: a11y.size(20)))
         .foregroundStyle(pal.wrong)
+        .accessibilityHidden(true)
       Text(text)
         .font(a11y.typeface.font(size: a11y.size(16)))
         .fixedSize(horizontal: false, vertical: true)

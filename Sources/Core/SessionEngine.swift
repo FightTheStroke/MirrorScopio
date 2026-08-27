@@ -226,10 +226,32 @@ final class SessionEngine: ObservableObject {
 
   // MARK: - Orologio
 
+  /// Se adesso serve il battito del display.
+  ///
+  /// A riposo non serve a niente: non c'è niente da cronometrare e il livello
+  /// del microfono non lo guarda nessuno. Tenerlo acceso costava un ridisegno
+  /// per fotogramma a schermo fermo.
+  var serveIlBattito: Bool {
+    switch phase {
+    case .idle, .finished, .failed: false
+    default: true
+    }
+  }
+
+
   /// Chiamato una volta per frame dal display link della finestra di presentazione.
   func tick(_ now: CFTimeInterval) {
     let snap = listener.read()
-    micLevel = snap.level
+    // Solo se è cambiato davvero.
+    //
+    // `@Published` avvisa a ogni assegnazione, anche quando il valore è
+    // identico. Assegnando il livello sessanta volte al secondo, tutta l'app
+    // che osserva il motore si ridisegnava sessanta volte al secondo — anche
+    // ferma in home, con il microfono spento e il livello inchiodato a zero.
+    // Costava un terzo di un core e batteria per non mostrare niente, e con
+    // quel ritmo l'albero di accessibilità non riusciva più a essere letto:
+    // chi usa VoiceOver rischiava di trovare una schermata muta.
+    if abs(micLevel - snap.level) > 0.002 { micLevel = snap.level }
 
     switch phase {
     case .idle, .preparing, .instructions, .typing, .pausa, .scoring, .finished, .failed:
@@ -484,8 +506,18 @@ final class SessionEngine: ObservableObject {
     trial.confidence = snap.confidence
 
     if snap.text.isEmpty {
+      // Tre cause diverse, e confonderle e' il modo piu rapido per far
+      // credere a un ragazzo di aver letto male quando ha letto benissimo.
+      //
+      // Misurato con la prova del microfono: con il picco a 0,02 il
+      // riconoscitore non consegna una sola parola, con 0,075 la consegna in
+      // mezzo secondo e con confidenza 0,83. In mezzo non c'e' niente da
+      // capire meglio: c'e' un volume da alzare. L'app il livello ce l'ha,
+      // quindi lo dice invece di far ripetere.
       ascoltoAvviso = snap.voiceOnset == nil
         ? "Non ho sentito niente. Controlla il microfono qui in alto."
+        : snap.picco < 0.04
+        ? "Ti ho sentito, ma pianissimo: il Mac non arriva a capire le parole. Parla più vicino al microfono, o provalo dal menu qui in alto."
         : "Ti ho sentito, ma non sono riuscita a capire le parole."
     } else {
       ascoltoAvviso = nil

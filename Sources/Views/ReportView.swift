@@ -47,11 +47,20 @@ struct ReportView: View {
       }
     }
     .onAppear(perform: saveOnce)
+    // Esc chiude il riepilogo e torna a casa, come chiude tutto il resto
+    // dell'app: non si impara una scorciatoia diversa per ogni schermata.
+    .background {
+      Button("", action: { engine.reset() })
+        .keyboardShortcut(.escape, modifiers: [])
+        .frame(width: 0, height: 0)
+        .opacity(0)
+        .accessibilityHidden(true)
+    }
     // Il premio si apre a schermo intero e si chiude quando si vuole: non
     // trattiene, non tiene il punteggio, non ha nulla da vincere.
     .sheet(isPresented: $showStaffetta) {
       StaffettaView(a11y: a11y, onClose: { showStaffetta = false })
-        .frame(minWidth: 720, minHeight: 560)
+        .frame(minWidth: 860, minHeight: 660)
         .environment(\.palette, palette)
     }
   }
@@ -118,6 +127,14 @@ struct ReportView: View {
       if a11y.hideScore {
         Explain(text: "Sessione finita. Hai letto tutte le parole fino in fondo.", a11y: a11y, size: 21)
           .multilineTextAlignment(.center)
+      } else if record.total == 0 {
+        // Ci si è fermati durante il riscaldamento, che di proposito non conta.
+        // «Hai preso 0 parole su 0» è vero e non vuol dire niente: se l'app sa
+        // che non c'è ancora niente da contare, lo dice con parole sue.
+        Explain(text: "Ti sei fermato durante il riscaldamento, quindi non c'è ancora niente da contare. Va benissimo: il riscaldamento serve proprio a capire se è il momento giusto.",
+                a11y: a11y, size: 21)
+          .multilineTextAlignment(.center)
+          .frame(maxWidth: 560)
       } else {
         Text("Hai preso **\(record.correct)** parole su **\(record.total)**.")
           .font(a11y.typeface.font(size: a11y.size(24)))
@@ -170,6 +187,9 @@ struct ReportView: View {
   }
 
   private var headline: String {
+    // Chi si è fermato al riscaldamento non è «arrivato in fondo»: dirglielo
+    // sarebbe una pacca sulla spalla per una cosa che non è successa.
+    if record.total == 0 { return a11y.calmMode ? "Sessione finita" : "Ci hai provato" }
     if a11y.calmMode { return "Sessione finita" }
     return switch record.accuracy {
     case 0.9...: "Che sessione!"

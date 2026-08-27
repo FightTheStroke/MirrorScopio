@@ -90,10 +90,15 @@ struct VoiceChooser: View {
             .foregroundStyle(palette.foreground)
           HStack(spacing: 12) {
             Image(systemName: "tortoise.fill").foregroundStyle(palette.muted)
+              .accessibilityHidden(true)
             Slider(value: Binding(get: { a11y.voiceRate },
                                   set: { v in store.update { $0.a11y.voiceRate = v } }),
                    in: 0.30...0.60)
+              .accessibilityLabel("Velocita' della voce")
+              .accessibilityValue(a11y.voiceRate < 0.40 ? "lenta"
+                                  : a11y.voiceRate < 0.50 ? "normale" : "veloce")
             Image(systemName: "hare.fill").foregroundStyle(palette.muted)
+              .accessibilityHidden(true)
           }
           Explain(text: "Più a sinistra, più lenta. Per chi legge con fatica, lenta è meglio.",
                   a11y: a11y, size: 16)
