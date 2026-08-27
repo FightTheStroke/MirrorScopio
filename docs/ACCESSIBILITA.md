@@ -133,3 +133,24 @@ finale parla di quello che è migliorato prima di quello che manca.
 - Focus da tastiera sempre visibile; ogni schermata è percorribile senza mouse.
 - Etichette VoiceOver su ogni controllo; le decorazioni sono nascoste allo screen reader.
 - Le dimensioni si moltiplicano fino a ×2 sopra il valore già grande di partenza.
+
+## Tastiera e VoiceOver: che cosa è stato verificato
+
+Queste righe raccontano prove fatte, non intenzioni.
+
+- **Una sessione intera senza mouse.** Modalità «Scrivi», venti parole, dal
+  pulsante «Via!» fino al riepilogo e dentro il minigioco, solo da tastiera.
+- **Esc chiude tutto.** Impostazioni, aiuto, «I tuoi progressi», la prova del
+  microfono, «Prepara il Mac», il premio di fine sessione e la schermata
+  «Pronti?». Prima tre di queste si chiudevano solo col mouse, e una prometteva
+  Esc senza rispondere.
+- **Le etichette si leggono con una sonda diretta**, non a occhio: SwiftUI
+  scrive `.accessibilityLabel` dentro `AXDescription`, non dentro `AXTitle`, e
+  un albero letto male fa «correggere» problemi che non esistono.
+- **Ogni cursore dice il proprio nome e il proprio valore** con le stesse
+  parole scritte accanto — non una percentuale.
+- **Le decorazioni tacciono.** Un `Image` dentro un `.overlay` su un `Button`
+  diventa un pulsante a sé: nella schermata iniziale ce n'era uno, chiamato
+  «Selezionato», che non faceva niente.
+- **Quello che conta parla.** Il segno di esito resta leggibile a voce quando
+  il punteggio è nascosto: lì è l'unica cosa che dice «Giusta» o «Ancora».
