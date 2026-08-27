@@ -9,9 +9,17 @@
 Un tachistoscopio per logopedia che non ha bisogno di un adulto che segni le risposte.
 
 [![Verifica](https://github.com/FightTheStroke/MirrorScopio/actions/workflows/verifica.yml/badge.svg)](https://github.com/FightTheStroke/MirrorScopio/actions/workflows/verifica.yml)
+[![Ultima versione](https://img.shields.io/github/v/release/FightTheStroke/MirrorScopio?label=versione&color=blue)](https://github.com/FightTheStroke/MirrorScopio/releases/latest)
 [![Licenza Apache 2.0](https://img.shields.io/badge/licenza-Apache%202.0-blue)](LICENSE)
+
+[![Solo per Mac](https://img.shields.io/badge/solo%20per-Mac-000000?logo=apple&logoColor=white)](#requisiti)
 [![macOS 26+](https://img.shields.io/badge/macOS-26%2B-lightgrey)](#requisiti)
+[![Firmata e notarizzata da Apple](https://img.shields.io/badge/firmata%20e%20notarizzata-da%20Apple-success)](#scaricare-e-usare)
+[![Windows · Linux · web: non ancora](https://img.shields.io/badge/Windows%20%C2%B7%20Linux%20%C2%B7%20web-non%20ancora-lightgrey)](#windows-linux-web)
+
 [![Tutto in locale](https://img.shields.io/badge/dati-mai%20fuori%20dal%20Mac-brightgreen)](#privacy-la-promessa-e-come-la-manteniamo)
+[![Gratuita e senza pubblicità](https://img.shields.io/badge/gratuita-e%20senza%20pubblicit%C3%A0-brightgreen)](#licenza)
+[![Sostieni Fight The Stroke](https://img.shields.io/badge/sostieni-Fight%20The%20Stroke-e4405f)](https://www.fightthestroke.org/donorbox)
 
 Un progetto della **[Fight The Stroke Foundation](https://www.fightthestroke.org)**,
 sorella di **[MirrorBuddy](https://github.com/FightTheStroke/MirrorBuddy)**.
@@ -134,6 +142,28 @@ un doppio clic, senza avvisi e senza tasto destro.
 - Un microfono, anche quello incorporato
 - Circa 1 GB liberi per il modello vocale italiano, scaricato una volta sola dall'app
 - Apple Intelligence **facoltativo**: senza, cambia solo il commento clinico sugli errori
+
+<a id="windows-linux-web"></a>
+### Windows, Linux, web?
+
+**Non ancora.** MirrorScopio oggi esiste **solo per Mac**, e non per pigrizia: la parte
+difficile — la parola che compare per 80 millesimi di secondo senza tremare, e il
+riconoscimento vocale in italiano che gira **dentro il Mac** senza mandare la voce di un
+bambino su un server — è costruita sopra cose che oggi sono solo di Apple. Rifarla
+altrove è possibile, ma è un lavoro vero, non un adattamento.
+
+Se ti serve su Windows, su Linux o dentro un browser, **scrivicelo**: sapere quante
+persone aspettano è l'unica cosa che ci fa decidere da dove cominciare.
+
+📬 **[Scrivi a info@fightthestroke.org](mailto:info@fightthestroke.org?subject=MirrorScopio%20su%20un%27altra%20piattaforma&body=Ciao%2C%0A%0AVorrei%20usare%20MirrorScopio%20su%3A%20(Windows%20%2F%20Linux%20%2F%20browser)%0A%0APer%20chi%3A%20(a%20casa%2C%20in%20studio%2C%20a%20scuola%2C%20altro)%0A%0AQuante%20persone%20lo%20userebbero%3A%0A%0AAltro%20che%20ci%20serve%20sapere%3A%0A)**
+
+Il messaggio si apre già scritto: basta completarlo e inviarlo. Nessun modulo, nessun
+registro di iscrizioni, nessuno strumento che conta chi apre le email — ci arriva
+un'email normale, come quella di chiunque. Non ti scriveremo per altro.
+
+Chi sviluppa e vuole provarci davvero: apri una *issue*, il codice è Apache 2.0 e la
+logica clinica è deliberatamente separata dall'interfaccia proprio per questo
+(vedi [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md)).
 
 ---
 
