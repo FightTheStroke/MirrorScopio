@@ -161,26 +161,37 @@ struct HomeView: View {
   /// domani. Compare solo quando c'è qualcosa da mostrare: una striscia vuota
   /// al primo avvio direbbe soltanto "sei a zero".
   @ViewBuilder
+  /// I progressi stanno in home, sempre — anche quando non c'e ancora niente
+  /// da mostrare.
+  ///
+  /// Prima comparivano solo dopo la prima sessione: chi apriva l'app per la
+  /// prima volta non sapeva nemmeno che esistessero, e proprio a lui serve
+  /// sapere che quello che fa lascia un segno da qualche parte. A zero punti
+  /// la striscia dice come si comincia, invece di sparire.
   private var strisciaProgressi: some View {
     let l = store.current
-    if l.xp > 0 {
-      Button(action: openProgress) {
+    let iniziato = l.xp > 0
+    return Button(action: openProgress) {
         HStack(spacing: a11y.size(18)) {
           medaglia(livello: Gamification.level(xp: l.xp))
 
           VStack(alignment: .leading, spacing: 6) {
-            Text(Gamification.levelName(Gamification.level(xp: l.xp)))
+            Text(iniziato ? Gamification.levelName(Gamification.level(xp: l.xp))
+                          : "Si comincia da qui")
               .font(a11y.typeface.font(size: a11y.size(22), weight: .bold))
               .foregroundStyle(palette.foreground)
 
-            ProgressView(value: Gamification.progressInLevel(l.xp))
+            ProgressView(value: iniziato ? Gamification.progressInLevel(l.xp) : 0)
               .progressViewStyle(.linear)
               .tint(palette.accent)
               .frame(maxWidth: 260)
 
-            Text("\(Gamification.xpInLevel(l.xp)) punti verso il prossimo livello")
+            Text(iniziato
+                 ? "\(Gamification.xpInLevel(l.xp)) punti verso il prossimo livello"
+                 : "I primi punti arrivano con la prima sessione. Non serve indovinare tutto: basta arrivare in fondo.")
               .font(a11y.typeface.font(size: a11y.size(14)))
               .foregroundStyle(palette.muted)
+              .fixedSize(horizontal: false, vertical: true)
           }
 
           Spacer(minLength: 0)
@@ -201,9 +212,10 @@ struct HomeView: View {
         .background(RoundedRectangle(cornerRadius: 18).fill(palette.surface))
         .contentShape(RoundedRectangle(cornerRadius: 18))
       }
-      .buttonStyle(.plain)
-      .accessibilityLabel("i tuoi progressi: \(Gamification.levelName(Gamification.level(xp: l.xp))), \(l.xp) punti in tutto")
-    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(iniziato
+      ? "i tuoi progressi: \(Gamification.levelName(Gamification.level(xp: l.xp))), \(l.xp) punti in tutto"
+      : "i tuoi progressi: non hai ancora cominciato")
   }
 
   private func medaglia(livello: Int) -> some View {
