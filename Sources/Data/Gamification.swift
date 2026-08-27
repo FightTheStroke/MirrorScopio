@@ -53,6 +53,38 @@ enum Gamification {
     }
   }
 
+  /// Quante fasce di livello esistono in tutto. Serve ai distintivi per
+  /// disegnare la progressione: quanta parte dell'anello è già stata conquistata.
+  static let numeroFasce = 6
+
+  /// A quale fascia appartiene un livello, da 0 (Esploratore) a 5 (Leggenda).
+  /// I distintivi lo usano per far vedere a colpo d'occhio — e in bianco e nero —
+  /// che Leggenda viene dopo Esploratore, senza affidarsi al colore.
+  /// Deve restare allineato agli intervalli di `levelName`.
+  static func levelRank(_ level: Int) -> Int {
+    switch level {
+    case 1...2: 0
+    case 3...5: 1
+    case 6...9: 2
+    case 10...14: 3
+    case 15...20: 4
+    default: 5
+    }
+  }
+
+  /// Il simbolo della fascia di livello. Cambia di grado insieme al nome, così
+  /// ogni fascia ha una sua faccia riconoscibile e non solo un numero più grosso.
+  static func levelSymbol(_ level: Int) -> String {
+    switch levelRank(level) {
+    case 0: "binoculars.fill"   // Esploratore: si guarda intorno, si comincia
+    case 1: "book.fill"         // Lettore curioso: legge per il gusto di leggere
+    case 2: "eye.fill"          // Occhio veloce: coglie la parola in un lampo
+    case 3: "bolt.fill"         // Lampo: veloce davvero
+    case 4: "flame.fill"        // Maestro dei lampi: costante, non solo veloce
+    default: "crown.fill"       // Leggenda
+    }
+  }
+
   static let all: [Achievement] = [
     Achievement(id: "prima-sessione", title: "Si comincia",
                 hint: "Hai finito la tua prima sessione.", symbol: "flag.fill") { _, _ in true },

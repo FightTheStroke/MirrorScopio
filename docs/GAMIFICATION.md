@@ -55,6 +55,38 @@ l'esserci — che per molti ragazzi è la parte difficile.
 | So anche scriverle | Prima sessione in modalità Scrivi |
 | Dieci sessioni | Dieci sessioni completate |
 
+Ogni obiettivo ha il suo simbolo (`Achievement.symbol`), e quel simbolo si vede
+**sempre**: pieno, con una medaglia e un segno di spunta, quando è conquistato;
+tenue, dentro un cerchio tratteggiato con un piccolo lucchetto in un angolo,
+finché è ancora da prendere. Non più un lucchetto uguale per tutti: si capisce
+sempre *che cosa* si può conquistare. La differenza fra i due stati non è
+affidata al colore — cambiano la forma del bordo e il segnale nell'angolo — così
+si legge anche in bianco e nero e da chi i colori non li distingue.
+
+## Livelli e distintivi
+
+Un livello ogni 500 punti (vedi sopra). I livelli sono raccolti in sei fasce, e
+ogni fascia ha un nome e un suo distintivo. Sorgente di verità:
+`Gamification.levelName(_:)` e `Gamification.levelSymbol(_:)`.
+
+| Livelli | Fascia | Simbolo del distintivo |
+|---|---|---|
+| 1–2 | Esploratore | binocolo |
+| 3–5 | Lettore curioso | libro |
+| 6–9 | Occhio veloce | occhio |
+| 10–14 | Lampo | fulmine |
+| 15–20 | Maestro dei lampi | fiamma |
+| 21 e oltre | Leggenda | corona |
+
+Il distintivo del livello ha un anello diviso in sei spicchi, uno per fascia:
+sono pieni gli spicchi già raggiunti. Più anello pieno vuol dire fascia più alta,
+e questo si vede anche in bianco e nero — si capisce che Leggenda viene dopo
+Esploratore senza dover leggere il numero.
+
+Con la **modalità calma** i distintivi restano, ma sobri: niente oro acceso,
+nessun luccichio, nessuna animazione. La forma continua a distinguere gli stati
+anche senza colore.
+
 ## Cosa non c'è, di proposito
 
 - **Nessuna classifica.** I dati non escono dal Mac e non c'è nessuno con cui confrontarsi.
