@@ -69,6 +69,15 @@ settimana, mentre l'esercizio darebbe il meglio se fatto pochi minuti al giorno.
    dettaglio clinico (soglia, latenza vocale, tipo di errore, referto PDF) resta chiuso
    sotto *"Dettaglio per l'adulto"*.
 
+### Se ti serve una mano
+
+Dentro l'app, dal menu **Aiuto → «Aiuto di MirrorScopio»** (o con ⌘?), c'è una guida in
+parole semplici: come funziona, le due modalità, che cosa fare se il Mac non sente, e una
+pagina per chi accompagna. Dal menu si aprono anche le **Impostazioni** (⌘,), **I tuoi
+progressi** (⌘P), la prova del microfono e la schermata «Prepara il Mac» — le stesse cose
+che trovi con i pulsanti, per chi preferisce la tastiera. Durante una lettura queste voci
+si spengono da sole, così nessuno esce da una sessione per sbaglio.
+
 ---
 
 ## Accessibilità: non un'aggiunta, il punto di partenza

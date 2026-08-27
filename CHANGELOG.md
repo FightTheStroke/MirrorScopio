@@ -16,6 +16,13 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Aggiunto
+- **Un aiuto dentro l'app**: dal menu «Aiuto» (o con ⌘?) si apre una guida in
+  parole semplici — come funziona, le modalità Leggi e Scrivi, che fare se il
+  Mac non sente, una pagina per genitori e logopedisti, i tasti e chi siamo.
+- **Menu dell'applicazione**: si aprono dal menu (e da tastiera) le
+  Impostazioni (⌘,), «I tuoi progressi» (⌘P), la prova del microfono e
+  «Prepara il Mac». Durante una lettura queste voci restano spente, così
+  nessuno esce da una sessione per sbaglio.
 - **GitHub costruisce il pacchetto da solo**: ogni tag `v*` fa partire il
   workflow «Rilascio», che compila su macOS 26, firma, notarizza, verifica
   Gatekeeper e allega il DMG alla release.
