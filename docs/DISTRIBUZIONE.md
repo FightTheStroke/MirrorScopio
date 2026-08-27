@@ -26,16 +26,12 @@ Per una famiglia è un muro. Perciò: si notarizza.
 
 ## La credenziale, una volta sola
 
-1. Su [appleid.apple.com](https://appleid.apple.com) › Accesso e sicurezza ›
-   **Password per app**, creane una e chiamala `MirrorScopio`.
-2. Salvala nel portachiavi:
-
 ```bash
-xcrun notarytool store-credentials mirrorscopio \
-  --apple-id <la-tua-apple-id> \
-  --team-id 93T3LG4NPG \
-  --password <la-password-per-app>
+./scripts/setup-notarizzazione.sh
 ```
+
+Lo script apre la pagina di Apple, spiega dove premere e chiede l'Apple ID e la
+password per app. Fa tutto lui: apre il browser, verifica con Apple e salva.
 
 Da quel momento `./scripts/package.sh --notarize` funziona da solo. La
 credenziale resta nel portachiavi di questo Mac: non entra mai nel repository.
