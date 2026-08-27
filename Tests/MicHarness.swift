@@ -65,6 +65,26 @@ struct MicHarness {
       if let previousOutput { _ = AudioDevices.setDefaultOutput(previousOutput) }
     }
 
+    // Il modello vocale si installa per applicazione, non per Mac.
+    //
+    // Sul disco l'italiano c'era, ma questa verifica falliva lo stesso dicendo
+    // «manca il modello»: ogni applicazione deve chiedersi la propria copia in
+    // uso, e l'harness non è l'app. È lo stesso passo che l'app fa dalla
+    // schermata «Prepara il Mac»; qui va fatto in silenzio, o le tre verifiche
+    // che contano restano rosse per sempre e nessuno le guarda più.
+    if let sup = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "it_IT")) {
+      let modulo = SpeechTranscriber(locale: sup, transcriptionOptions: [],
+                                     reportingOptions: [.volatileResults],
+                                     attributeOptions: [.transcriptionConfidence, .audioTimeRange])
+      if await AssetInventory.status(forModules: [modulo]) != .installed {
+        say("il modello italiano non è ancora in uso per questa verifica: lo richiedo…")
+        if let richiesta = try? await AssetInventory.assetInstallationRequest(supporting: [modulo]) {
+          try? await richiesta.downloadAndInstall()
+        }
+        say("stato del modello: \(String(describing: await AssetInventory.status(forModules: [modulo])))")
+      }
+    }
+
     let listener = SpeechListener()
     let words = ["farfalla", "cane", "tavolo", "montagna"]
     do {
@@ -89,11 +109,35 @@ struct MicHarness {
     say("pronuncio «farfalla» dagli altoparlanti…")
     synth.speak(u)
 
+    // Si misura la cosa di cui la gente si lamenta: quanto passa fra la fine
+    // della parola e il momento in cui l'app sa che cosa è stato detto.
+    //
+    // Questa verifica prima aspettava solo che arrivasse una trascrizione
+    // definitiva, senza mai chiederla — cioè riproduceva fedelmente il difetto
+    // dell'app invece di scoprirlo, e concludeva che «il riconoscitore non
+    // produce testo». Adesso fa quello che fa la sessione vera: appena la voce
+    // tace, chiede la consegna.
     var peak: Float = 0
-    for _ in 0..<60 {
-      try? await Task.sleep(for: .milliseconds(100))
+    var fineVoce: CFAbsoluteTime?
+    var chiesto = false
+    var latenza: Double?
+
+    for _ in 0..<80 {
+      try? await Task.sleep(for: .milliseconds(50))
       peak = max(peak, listener.read().level)
-      if listener.read().isFinal { break }
+
+      if !synth.isSpeaking, fineVoce == nil { fineVoce = CFAbsoluteTimeGetCurrent() }
+
+      if let fine = fineVoce, !chiesto, CFAbsoluteTimeGetCurrent() - fine >= 0.45 {
+        chiesto = true
+        await listener.flush()
+      }
+
+      let ora = listener.read()
+      if !ora.text.isEmpty, latenza == nil, let fine = fineVoce {
+        latenza = CFAbsoluteTimeGetCurrent() - fine
+      }
+      if ora.isFinal, !ora.text.isEmpty { break }
     }
 
     let snap = listener.read()
@@ -103,6 +147,9 @@ struct MicHarness {
     say("picco di livello durante la prova: \(String(format: "%.5f", peak))")
     say("trascrizione: «\(snap.text)»")
     say("definitiva: \(snap.isFinal)  ·  confidenza: \(snap.confidence.map { String(format: "%.2f", $0) } ?? "—")")
+    if let latenza {
+      say(String(format: "attesa fra la fine della parola e la risposta: %.2f secondi", latenza))
+    }
 
     if peak < 0.01 {
       say("\n✗ Il microfono non sente quasi niente. Volume degli altoparlanti a zero, oppure l'ingresso selezionato non è quello giusto.")

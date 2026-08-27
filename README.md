@@ -27,7 +27,7 @@ Un tachistoscopio per logopedia che non ha bisogno di un adulto che segni le ris
 Un progetto della **[Fight The Stroke Foundation](https://www.fightthestroke.org)**,
 sorella di **[MirrorBuddy](https://github.com/FightTheStroke/MirrorBuddy)**.
 
-[Scarica](#scaricare-e-usare) · [Com'è fatta](docs/ARCHITETTURA.md) · [Accessibilità](docs/ACCESSIBILITA.md) · [Parte clinica](docs/CLINICA.md) · [Contribuire](CONTRIBUTING.md)
+[Scarica](#scaricare-e-usare) · [Com'è fatta](docs/ARCHITETTURA.md) · [Accessibilità](docs/ACCESSIBILITA.md) · [Parte clinica](docs/CLINICA.md) · [Roadmap mobile e store](roadmap.md) · [Contribuire](CONTRIBUTING.md)
 
 </div>
 
@@ -216,6 +216,7 @@ Come si insegnano le chiavi a GitHub: [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIO
 | [`docs/CLINICA.md`](docs/CLINICA.md) | Scala adattiva, soglia, latenza vocale, tipi di errore |
 | [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) | Punti, serie, obiettivi — e perché si possono spegnere |
 | [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md) | Firma, notarizzazione, pacchetto, automazione su GitHub |
+| [`roadmap.md`](roadmap.md) | Piano tracciabile per iPhone, iPad, TestFlight e App Store |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Come si lavora qui e cosa non è negoziabile |
 | [`SECURITY.md`](SECURITY.md) | Dove stanno i dati, come segnalare un problema |
 | [`AGENTS.md`](AGENTS.md) | Istruzioni per chi ci lavora, umano o agente |

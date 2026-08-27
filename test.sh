@@ -43,7 +43,57 @@ run_harness() {
     FAILED=1
     return
   fi
-  if "$OUT/$name"; then
+  # Gli harness che parlano col microfono e col modello vocale devono girare
+  # dentro un'applicazione firmata, come l'app vera.
+  #
+  # Un binario nudo non ha un identificatore stabile, e il sistema si rifiuta
+  # di dargli in uso il modello vocale italiano: il risultato era che le tre
+  # verifiche più importanti fallivano dicendo «manca il modello» su un Mac
+  # dove il modello c'era. Una verifica che fallisce sempre smette di essere
+  # letta, e allora tanto vale non averla.
+  local eseguibile="$OUT/$name"
+  if [ "$slow" = "slow" ]; then
+    local bundle="$OUT/$name.app"
+    rm -rf "$bundle"
+    mkdir -p "$bundle/Contents/MacOS"
+    cp "$OUT/$name" "$bundle/Contents/MacOS/$name"
+    cat > "$bundle/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>$name</string>
+  <key>CFBundleExecutable</key><string>$name</string>
+  <key>CFBundleIdentifier</key><string>org.fightthestroke.mirrorscopio.verifica.$name</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>LSMinimumSystemVersion</key><string>26.0</string>
+  <key>LSBackgroundOnly</key><true/>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Serve a verificare che il riconoscimento vocale funzioni. L'audio resta su questo Mac.</string>
+</dict>
+</plist>
+PLIST
+    cat > "$OUT/entitlements.plist" <<ENT
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>com.apple.security.device.audio-input</key><true/>
+</dict>
+</plist>
+ENT
+    local identita="${MIRRORSCOPIO_IDENTITY:-Developer ID Application: Fight The Stroke Foundation (93T3LG4NPG)}"
+    if security find-identity -v -p codesigning 2>/dev/null | grep -q "93T3LG4NPG"; then
+      codesign --force --options runtime --entitlements "$OUT/entitlements.plist" \
+        --sign "$identita" "$bundle" >/dev/null 2>&1
+    else
+      codesign --force --entitlements "$OUT/entitlements.plist" -s - "$bundle" >/dev/null 2>&1
+    fi
+    eseguibile="$bundle/Contents/MacOS/$name"
+  fi
+
+  if "$eseguibile"; then
     echo "✓ $name"
   else
     echo "✗ $name"
