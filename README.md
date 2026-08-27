@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/logo-256.png" width="180" alt="MirrorScopio">
+
 # MirrorScopio
 
 **Una parola compare per un lampo. Chi legge la dice ad alta voce. Il Mac ascolta e capisce da sé se è giusta.**
