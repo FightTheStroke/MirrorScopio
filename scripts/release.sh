@@ -70,9 +70,23 @@ git tag -a "v$NEW" -m "MirrorScopio $NEW"
 git push -q origin HEAD --follow-tags
 
 NOTES="$(awk -v v="$NEW" '$0 ~ "^## \\["v"\\]"{f=1;next} /^## \[/{f=0} f' CHANGELOG.md)"
+
+# Il pacchetto notarizzato viaggia insieme alla release: chi lo scarica deve
+# poter fare doppio clic, non compilare.
+DMG="build/MirrorScopio-$NEW.dmg"
+if ./scripts/package.sh --notarize; then
+  echo "Pacchetto pronto: $DMG"
+else
+  echo "⚠︎ Pacchetto non creato: la release avrà solo il codice sorgente."
+  DMG=""
+fi
+
 if command -v gh >/dev/null 2>&1; then
-  gh release create "v$NEW" --title "MirrorScopio $NEW" --notes "$NOTES" || \
-    echo "Release GitHub non creata: crea il tag a mano se serve."
+  if [ -n "$DMG" ] && [ -f "$DMG" ]; then
+    gh release create "v$NEW" --title "MirrorScopio $NEW" --notes "$NOTES" "$DMG"
+  else
+    gh release create "v$NEW" --title "MirrorScopio $NEW" --notes "$NOTES"
+  fi || echo "Release GitHub non creata: crea il tag a mano se serve."
 fi
 
 echo "Fatto: v$NEW"
