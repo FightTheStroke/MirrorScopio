@@ -150,15 +150,21 @@ struct DashboardView: View {
         let xpInLv  = Gamification.xpInLevel(bambino.xp)
 
         return VStack(alignment: .leading, spacing: a11y.size(10)) {
-            HStack(alignment: .firstTextBaseline, spacing: a11y.size(8)) {
-                Text("Livello \(lv)")
-                    .font(a11y.typeface.font(size: a11y.size(44), weight: .heavy))
-                    .foregroundStyle(palette.accent)
-                    .accessibilityHidden(true)
-                Text(nome)
-                    .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
-                    .foregroundStyle(palette.foreground)
-                    .accessibilityHidden(true)
+            HStack(alignment: .center, spacing: a11y.size(14)) {
+                // Il distintivo dà una faccia alla fascia di livello: non più
+                // solo un numero, ma un simbolo che cresce di grado salendo.
+                DistintivoLivello(livello: lv, diametro: 60, a11y: a11y, palette: palette)
+
+                VStack(alignment: .leading, spacing: a11y.size(2)) {
+                    Text("Livello \(lv)")
+                        .font(a11y.typeface.font(size: a11y.size(40), weight: .heavy))
+                        .foregroundStyle(palette.accent)
+                        .accessibilityHidden(true)
+                    Text(nome)
+                        .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
+                        .foregroundStyle(palette.foreground)
+                        .accessibilityHidden(true)
+                }
             }
             // La barra mostra visivamente quanto manca al prossimo livello.
             ProgressView(value: prog)
@@ -603,17 +609,17 @@ private struct _CellaObiettivo: View {
     let a11y: A11ySettings
     let palette: Palette
 
-    // Oro per gli obiettivi sbloccati: il colore è accompagnato dal simbolo
-    // e dal testo così il significato arriva anche senza distinguere le tinte.
-    private let oro = Color(red: 0.88, green: 0.68, blue: 0.10)
-
     var body: some View {
         VStack(spacing: a11y.size(8)) {
-            Image(systemName: sbloccato ? obiettivo.symbol : "lock.fill")
-                .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
-                .foregroundStyle(sbloccato ? oro : palette.muted)
-                .frame(width: a11y.size(44), height: a11y.size(44))
-                .accessibilityHidden(true)
+            // Il distintivo mostra sempre il simbolo dell'obiettivo — tenue
+            // finché è da conquistare, pieno quando è tuo — invece del vecchio
+            // lucchetto uguale per tutti.
+            DistintivoObiettivo(
+                simbolo: obiettivo.symbol,
+                conquistato: sbloccato,
+                a11y: a11y,
+                palette: palette
+            )
 
             Text(obiettivo.title)
                 .font(a11y.typeface.font(size: a11y.size(13), weight: .semibold))
@@ -633,9 +639,14 @@ private struct _CellaObiettivo: View {
         .background(palette.surface.opacity(sbloccato ? 1.0 : 0.65))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay {
+            // La cornice della cella conquistata resta leggibile anche senza
+            // colore grazie allo spessore: in modalità calma niente oro acceso.
             if sbloccato {
+                let cornice = a11y.calmMode
+                    ? palette.foreground.opacity(0.5)
+                    : Color(red: 0.85, green: 0.63, blue: 0.10).opacity(0.55)
                 RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(oro.opacity(0.55), lineWidth: 1.5)
+                    .strokeBorder(cornice, lineWidth: 2)
             }
         }
         .accessibilityElement(children: .ignore)

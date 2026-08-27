@@ -219,14 +219,11 @@ struct HomeView: View {
   }
 
   private func medaglia(livello: Int) -> some View {
-    ZStack {
-      Circle().fill(palette.accent.opacity(0.18))
-      Text("\(livello)")
-        .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
-        .foregroundStyle(palette.accent)
-    }
-    .frame(width: a11y.size(66), height: a11y.size(66))
-    .accessibilityHidden(true)
+    // Lo stesso distintivo di fascia della pagina dei progressi, così la home
+    // e la dashboard raccontano la stessa salita. Il numero resta nel gettone
+    // perché in home non è scritto da nessun'altra parte.
+    DistintivoLivello(livello: livello, diametro: 66, numero: livello, a11y: a11y, palette: palette)
+      .accessibilityHidden(true)
   }
 
   private func datoBreve(numero: String, etichetta: String, simbolo: String) -> some View {
