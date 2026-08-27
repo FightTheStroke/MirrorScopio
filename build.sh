@@ -12,7 +12,13 @@ APP="build/MirrorScopio.app"
 BIN="$APP/Contents/MacOS/MirrorScopio"
 BUNDLE_ID="org.fightthestroke.mirrorscopio"
 TEAM_IDENTITY="${MIRRORSCOPIO_IDENTITY:-Developer ID Application: Fight The Stroke Foundation (93T3LG4NPG)}"
-VERSION="1.0"
+# Unica fonte di verità per la versione: il file VERSION alla radice.
+VERSION="$(tr -d ' \n' < VERSION)"
+# Il numero di build è il conto dei commit: cresce da solo e non si scorda mai.
+BUILD_NUMBER="$(git rev-list --count HEAD 2>/dev/null || echo 0)"
+GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo sconosciuto)"
+if [ -n "$(git status --porcelain 2>/dev/null)" ]; then GIT_DIRTY="si"; else GIT_DIRTY="no"; fi
+BUILD_DATE="$(date '+%d/%m/%Y %H:%M')"
 
 rm -rf build
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
@@ -28,7 +34,10 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
-  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleVersion</key><string>$BUILD_NUMBER</string>
+  <key>FTSGitCommit</key><string>$GIT_COMMIT</string>
+  <key>FTSGitDirty</key><string>$GIT_DIRTY</string>
+  <key>FTSBuildDate</key><string>$BUILD_DATE</string>
   <key>LSMinimumSystemVersion</key><string>26.0</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.education</string>
   <key>NSHumanReadableCopyright</key><string>© Fight The Stroke Foundation</string>
@@ -58,7 +67,8 @@ if [ -d Resources/Fonts ]; then
   cp Resources/Fonts/*.otf Resources/Fonts/*.ttf "$APP/Contents/Resources/Fonts/" 2>/dev/null || true
 fi
 
-echo "Compiling…"
+echo "MirrorScopio $VERSION (build $BUILD_NUMBER, commit $GIT_COMMIT$([ "$GIT_DIRTY" = si ] && echo ", con modifiche locali"))"
+echo "Compilo…"
 swiftc \
   -O \
   -target arm64-apple-macos26.0 \
@@ -81,5 +91,5 @@ fi
 
 codesign --verify --verbose=1 "$APP" 2>&1 | tail -2
 
-echo "Done: $APP"
-echo "Run with:  open $APP"
+echo "Fatto: $APP  —  $VERSION ($BUILD_NUMBER)"
+echo "Avvia con:  open $APP"

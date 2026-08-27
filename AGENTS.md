@@ -60,3 +60,14 @@ SwiftUI, `Design` non sa niente di sessioni, `Views` non fa calcoli.
 Nessuna, e va tenuta così. Niente SwiftPM, niente CocoaPods, niente progetto Xcode. Solo
 `swiftc` e i framework di sistema. Aggiungere una dipendenza è una decisione da discutere,
 non da fare di passaggio.
+
+## Versioni
+
+`VERSION` alla radice è l'unica fonte di verità. `build.sh` la scrive nell'Info.plist
+insieme al numero di build (il conto dei commit) e al commit da cui è nato il binario;
+`AppVersion` la rilegge dal bundle e la mostra nelle impostazioni. **Non scrivere mai un
+numero di versione dentro il codice Swift.**
+
+Per rilasciare: scrivi che cosa cambia sotto `## [Non ancora rilasciato]` nel
+[CHANGELOG](CHANGELOG.md), poi `./scripts/release.sh 0.2.0`. Lo script rifiuta di partire
+con modifiche non salvate o con la sezione vuota.

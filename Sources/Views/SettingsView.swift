@@ -194,6 +194,19 @@ struct SettingsView: View {
         NSWorkspace.shared.open(store.storageFolder)
       }
       .font(a11y.typeface.font(size: a11y.size(15)))
+
+      Divider().padding(.vertical, 4)
+
+      Text(AppVersion.display)
+        .font(a11y.typeface.font(size: a11y.size(14), weight: .semibold))
+      Text(AppVersion.detail)
+        .font(.system(size: a11y.size(12)))
+        .foregroundStyle(palette.muted)
+        .textSelection(.enabled)
+        .fixedSize(horizontal: false, vertical: true)
+      Text("Fight The Stroke Foundation")
+        .font(.system(size: a11y.size(12)))
+        .foregroundStyle(palette.muted)
     }
   }
 

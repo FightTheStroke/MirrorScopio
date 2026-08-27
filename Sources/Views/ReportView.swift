@@ -98,7 +98,7 @@ struct ReportView: View {
 
   private var headline: String {
     if a11y.calmMode { return "Sessione finita" }
-    switch record.accuracy {
+    return switch record.accuracy {
     case 0.9...: "Bravissimo!"
     case 0.7..<0.9: "Bravo!"
     case 0.5..<0.7: "Bene!"
@@ -296,11 +296,11 @@ struct ReportView: View {
         HStack(spacing: 10) {
           Button("Esporta PDF") {
             Exporter.save(data: Exporter.pdf(record, learner: store.current),
-                          suggestedName: "mirrorscopio-\(Gamification.dayKey(record.date)).pdf")
+                          suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).pdf")
           }
           Button("Esporta CSV") {
             Exporter.save(text: Exporter.csv(record, learner: store.current),
-                          suggestedName: "mirrorscopio-\(Gamification.dayKey(record.date)).csv")
+                          suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).csv")
           }
         }
         .font(a11y.typeface.font(size: a11y.size(15)))
