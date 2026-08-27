@@ -12,6 +12,7 @@ struct OnboardingView: View {
   @ObservedObject var readiness: Readiness
   @ObservedObject var store: Store
   var onFinish: () -> Void
+  var onCalibrate: () -> Void
 
   @State private var passo = 0
 
@@ -138,12 +139,12 @@ struct OnboardingView: View {
 
     case .pronti:
       VStack(alignment: .leading, spacing: a11y.size(16)) {
-        titolo("Tutto pronto")
+        titolo(readiness.puoIniziare ? "Facciamo una prova insieme" : "Manca ancora qualcosa")
         Explain(text: readiness.puoIniziare
-                ? "Il Mac ha quel che serve. Se qualcosa non si sentisse, c'è **Mi senti?** nella schermata iniziale per provare microfono e altoparlanti."
+                ? "Otto parole, meno di un minuto. Servono al Mac per capire da che velocità partire con te: né troppo facile da annoiarti, né troppo difficile da scoraggiarti. Non è un esame e non viene contata: se una parola non viene ancora, si tira dritto."
                 : "Manca ancora qualcosa di necessario: torna indietro e sistemalo, altrimenti l'app non riesce ad ascoltarti.",
                 a11y: a11y, size: 21)
-        Explain(text: "Puoi rivedere tutto quando vuoi da **Prepara il Mac**.", a11y: a11y, size: 19)
+        Explain(text: "Il microfono e gli altoparlanti si cambiano quando vuoi dalla barra in alto, anche a metà: se attacchi le cuffie, lo dici lì.", a11y: a11y, size: 17)
       }
     }
   }
@@ -171,8 +172,17 @@ struct OnboardingView: View {
         .frame(maxWidth: 220)
       }
       if passoCorrente == .pronti {
-        BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
-          .frame(maxWidth: 320)
+        if readiness.puoIniziare {
+          BigButton(title: "Facciamo la prova", symbol: "wand.and.stars", a11y: a11y,
+                    action: onCalibrate)
+            .frame(maxWidth: 320)
+          BigButton(title: "Salta, comincio e basta", symbol: "play.fill", a11y: a11y,
+                    prominent: false, action: onFinish)
+            .frame(maxWidth: 300)
+        } else {
+          BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
+            .frame(maxWidth: 320)
+        }
       } else {
         BigButton(title: "Avanti", symbol: "chevron.right", a11y: a11y) {
           Task { await readiness.controlla() }

@@ -1,4 +1,5 @@
 import AVFoundation
+import AppKit
 import SwiftUI
 
 /// Scelta della voce, dentro l'app e con l'orecchio.
@@ -23,6 +24,50 @@ struct VoiceChooser: View {
     a11y.voiceIdentifier ?? Speaker.bestItalianVoice?.identifier
   }
 
+  /// L'elenco delle voci italiane che su questo Mac non ci sono.
+  ///
+  /// Un elenco corto non dice se e corto perche il Mac ne ha poche o perche
+  /// l'app ne mostra poche. Qui si vede l'una e l'altra cosa, con i nomi
+  /// esatti che compaiono in Impostazioni di Sistema: senza, aggiungere una
+  /// voce vuol dire cercare a tentoni in una lista di duecento nomi.
+  @ViewBuilder
+  private var vociMancanti: some View {
+    let mancanti = ItalianVoices.mancanti()
+    if !mancanti.isEmpty {
+      VStack(alignment: .leading, spacing: 10) {
+        Divider().padding(.vertical, 4)
+        Text(ItalianVoices.haUnaVoceBuona
+             ? "Su questo Mac si possono aggiungere anche queste"
+             : "Le voci di serie vanno bene. Queste si capiscono meglio")
+          .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+          .foregroundStyle(palette.foreground)
+
+        ForEach(mancanti.prefix(4), id: \.nome) { v in
+          HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: "arrow.down.circle")
+              .foregroundStyle(palette.muted)
+            VStack(alignment: .leading, spacing: 2) {
+              Text(v.nome)
+                .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+                .foregroundStyle(palette.foreground)
+              Text(v.descrizione)
+                .font(a11y.typeface.font(size: a11y.size(15)))
+                .foregroundStyle(palette.muted)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+          }
+        }
+
+        Explain(text: "macOS non lascia a nessuna app il permesso di scaricarle: una voce pesa centinaia di megabyte e la scelta resta di chi possiede il Mac. Il pulsante qui sotto apre la pagina esatta — **Voce di sistema › Gestisci voci › Italiano** — e quando torni la voce nuova compare qui da sola.", a11y: a11y, size: 15)
+
+        SmallButton(title: "Apri la pagina delle voci", symbol: "arrow.up.forward.app",
+                    a11y: a11y) {
+          if let u = URL(string: Readiness.urlImpostazioniVoci) { NSWorkspace.shared.open(u) }
+        }
+      }
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: a11y.size(14)) {
       SectionTitle(text: "La voce che legge", a11y: a11y)
@@ -35,6 +80,8 @@ struct VoiceChooser: View {
       ForEach(voci, id: \.identifier) { voce in
         riga(voce)
       }
+
+      vociMancanti
 
       if showsRate {
         VStack(alignment: .leading, spacing: 6) {
@@ -57,6 +104,10 @@ struct VoiceChooser: View {
     // Ricaricate a ogni comparsa: una voce può essere stata scaricata mentre
     // l'app era già aperta.
     .onAppear { carica() }
+    // Si esce dall'app per aggiungere una voce e si rientra: se l'elenco non
+    // si rilegge, la voce appena scaricata sembra non essere arrivata.
+    .onReceive(NotificationCenter.default.publisher(
+      for: NSApplication.didBecomeActiveNotification)) { _ in carica() }
   }
 
   @ViewBuilder

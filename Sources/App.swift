@@ -89,16 +89,22 @@ struct RootView: View {
                    openAudioCheck: { screen = .audio },
                    openReadiness: { screen = .preparazione })
         case .impostazioni:
-          SettingsView(store: store, engine: engine, onClose: { screen = .casa })
+          SettingsView(store: store, engine: engine, onClose: { screen = .casa },
+                       onCalibrate: { engine.startCalibration() },
+                       onReadiness: { screen = .preparazione })
         case .progressi, .obiettivi:
           DashboardView(store: store, onClose: { screen = .casa })
         case .audio:
           AudioCheckView(store: store, onClose: { screen = .casa })
         case .benvenuto:
-          OnboardingView(readiness: readiness, store: store) {
+          OnboardingView(readiness: readiness, store: store, onFinish: {
             UserDefaults.standard.set(true, forKey: "onboardingFatto")
             screen = .casa
-          }
+          }, onCalibrate: {
+            UserDefaults.standard.set(true, forKey: "onboardingFatto")
+            screen = .casa
+            engine.startCalibration()
+          })
         case .preparazione:
           ReadinessView(readiness: readiness, a11y: a11y,
                         onClose: { screen = .casa },

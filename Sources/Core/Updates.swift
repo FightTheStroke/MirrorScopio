@@ -61,14 +61,20 @@ enum Updates {
 
   enum CheckError: LocalizedError {
     case spento
+    case nonPubblicato
+    case tropppeRichieste
     case rispostaIllegibile
 
     var errorDescription: String? {
       switch self {
       case .spento:
         "Il controllo degli aggiornamenti è spento. Puoi accenderlo dalle impostazioni."
+      case .nonPubblicato:
+        "Non c'è ancora nessuna versione pubblica di MirrorScopio. Finché il progetto resta privato non c'è niente da controllare — non è un guasto."
+      case .tropppeRichieste:
+        "GitHub sta rispondendo a troppe richieste da questa rete. Riprova fra un'ora."
       case .rispostaIllegibile:
-        "GitHub ha risposto in un modo che non ho capito. Riprova più tardi."
+        "Non sono riuscito a chiedere a GitHub. Può essere la rete: riprova più tardi."
       }
     }
   }
@@ -104,7 +110,15 @@ enum Updates {
     let (data, response) = try await session.data(for: request)
     lastCheck = Date()
 
-    guard let http = response as? HTTPURLResponse, http.statusCode == 200,
+    // I casi vanno distinti, altrimenti "non ho capito" diventa la risposta a
+    // tutto — e chi legge non sa se e colpa sua, della rete, o di niente.
+    // 404 sul repository privato e la situazione normale finche non lo si
+    // pubblica: dirlo e piu onesto che far sembrare l'app rotta.
+    guard let http = response as? HTTPURLResponse else { throw CheckError.rispostaIllegibile }
+    if http.statusCode == 404 { throw CheckError.nonPubblicato }
+    if http.statusCode == 403 || http.statusCode == 429 { throw CheckError.tropppeRichieste }
+
+    guard http.statusCode == 200,
           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
           let tag = json["tag_name"] as? String,
           let link = json["html_url"] as? String,

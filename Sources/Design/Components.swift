@@ -4,6 +4,47 @@ import SwiftUI
 
 /// Il pulsante principale di una schermata: enorme, con un'icona e una parola sola.
 /// Grande davvero, non "grande per un'app per adulti".
+/// Il bottone di servizio: quello che apre una cartella, rifà una prova,
+/// cancella dei dati.
+///
+/// Prima ce n'erano tre stili diversi nella stessa schermata — `.bordered`,
+/// `.plain`, e il blu di sistema che sembrava un link. Un link e un bottone
+/// chiedono due gesti diversi, e chi fa fatica a interpretare l'interfaccia
+/// non deve indovinare quale dei due sia: qui hanno tutti la stessa forma,
+/// lo stesso peso, la stessa altezza minima di 44 punti, e si distinguono
+/// solo per quello che dicono. `distruttivo` colora il testo di rosso: e
+/// l'unica variante, perche cancellare e l'unica cosa che non si annulla.
+struct SmallButton: View {
+  @Environment(\.palette) private var palette
+  let title: String
+  var symbol: String? = nil
+  var a11y: A11ySettings
+  var distruttivo = false
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 9) {
+        if let symbol { Image(systemName: symbol) }
+        Text(title)
+      }
+      .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+      .padding(.horizontal, a11y.size(18))
+      .padding(.vertical, a11y.size(11))
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .foregroundStyle(distruttivo ? palette.wrong : palette.foreground)
+    .background(RoundedRectangle(cornerRadius: 11).fill(palette.surface))
+    .overlay(
+      RoundedRectangle(cornerRadius: 11)
+        .stroke(distruttivo ? palette.wrong.opacity(0.5) : palette.muted.opacity(0.35),
+                lineWidth: 1.5))
+    .frame(minHeight: 44)
+    .fixedSize(horizontal: true, vertical: false)
+  }
+}
+
 struct BigButton: View {
   @Environment(\.palette) private var palette
   let title: String

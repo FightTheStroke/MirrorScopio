@@ -12,7 +12,6 @@ struct HomeView: View {
   var openAudioCheck: () -> Void
   var openReadiness: () -> Void
 
-  @State private var showAdvanced = false
   @State private var showCalibrationIntro = false
   @State private var aggiornamento: Updates.Release?
 
@@ -29,7 +28,6 @@ struct HomeView: View {
           modePicker
           levels
           startArea
-          if !calibrated { calibrationInvite }
           warning
         }
         .padding(.horizontal, 40)
@@ -37,9 +35,6 @@ struct HomeView: View {
         .frame(maxWidth: 860)
         .frame(maxWidth: .infinity)
       }
-    }
-    .sheet(isPresented: $showAdvanced) {
-      AdvancedSheet(store: store, engine: engine)
     }
     .task {
       // In silenzio e senza fretta: se non c'è niente di nuovo, o il controllo
@@ -58,8 +53,7 @@ struct HomeView: View {
           .foregroundStyle(palette.foreground)
       }
       Spacer()
-      iconButton("waveform.badge.mic", "Mi senti?", action: openAudioCheck)
-      iconButton("checklist", "Prepara il Mac", action: openReadiness)
+      AudioMenu(a11y: a11y, palette: palette, openAudioCheck: openAudioCheck)
       iconButton("chart.line.uptrend.xyaxis", "I tuoi progressi", action: openProgress)
       iconButton("gearshape.fill", "Impostazioni", action: openSettings)
     }
@@ -296,7 +290,6 @@ struct HomeView: View {
       .keyboardShortcut(.return, modifiers: [])
 
       HStack(spacing: 12) {
-        secondary("Impostazioni avanzate", "slider.horizontal.3") { showAdvanced = true }
         if let last = store.currentHistory.first, !last.missedWords.isEmpty {
           secondary("Riprendi le \(last.missedWords.count) rimaste", "arrow.counterclockwise") {
             persist()
@@ -327,23 +320,6 @@ struct HomeView: View {
   }
 
   // MARK: - Prova iniziale
-
-  private var calibrated: Bool { store.current.calibratedExposureMs != nil }
-
-  private var calibrationInvite: some View {
-    VStack(alignment: .leading, spacing: 10) {
-      Label("Prima volta? Facciamo una prova veloce", systemImage: "wand.and.stars")
-        .font(a11y.typeface.font(size: a11y.size(19), weight: .semibold))
-        .foregroundStyle(palette.foreground)
-      Explain(text: "Otto parole, meno di un minuto. Serve al Mac per capire da che velocità partire con te: né troppo facile da annoiarti, né troppo difficile da scoraggiarti.", a11y: a11y, size: 15)
-      BigButton(title: "Fai la prova", symbol: "checkmark.seal.fill", a11y: a11y, prominent: false) {
-        persist()
-        engine.startCalibration()
-      }
-    }
-    .padding(18)
-    .background(RoundedRectangle(cornerRadius: 14).fill(palette.surface))
-  }
 
   private var warning: some View {
     Explain(text: engine.config.mode == .lettura

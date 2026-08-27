@@ -7,6 +7,8 @@ struct SettingsView: View {
   @ObservedObject var engine: SessionEngine
   @Environment(\.palette) private var palette
   var onClose: () -> Void
+  var onCalibrate: () -> Void = {}
+  var onReadiness: () -> Void = {}
 
   @State private var pagina: Pagina = .inizio
   @State private var chiedeCancellazione = false
@@ -62,7 +64,7 @@ struct SettingsView: View {
   // MARK: - L'elenco delle pagine
 
   private enum Pagina: String, CaseIterable, Identifiable {
-    case inizio, lettura, colori, ritmo, voce, risposte, dati
+    case inizio, lettura, colori, ritmo, voce, risposte, dati, clinico
 
     var id: String { rawValue }
 
@@ -75,6 +77,7 @@ struct SettingsView: View {
       case .voce: "La voce che legge"
       case .risposte: "Dopo ogni parola"
       case .dati: "I dati e l'app"
+      case .clinico: "Parametri clinici"
       }
     }
 
@@ -87,6 +90,7 @@ struct SettingsView: View {
       case .voce: "speaker.wave.2.fill"
       case .risposte: "hand.thumbsup.fill"
       case .dati: "lock.fill"
+      case .clinico: "slider.horizontal.3"
       }
     }
   }
@@ -133,6 +137,7 @@ struct SettingsView: View {
       case .inizio:
         who
         profiles
+        prova
       case .lettura:
         fonts
       case .colori:
@@ -145,6 +150,41 @@ struct SettingsView: View {
         feedback
       case .dati:
         privacy
+      case .clinico:
+        VStack(alignment: .leading, spacing: 10) {
+          Text("Millesimi di secondo, maschera, scala adattiva. Servono a chi\nimposta la riabilitazione; per leggere non serve toccare niente.")
+            .font(a11y.typeface.font(size: a11y.size(15)))
+            .foregroundStyle(palette.muted)
+            .fixedSize(horizontal: false, vertical: true)
+          AdvancedControls(store: store, engine: engine)
+        }
+      }
+    }
+  }
+
+  // MARK: - La prova di velocità e lo stato del Mac
+
+  /// La prova sta nell'onboarding, dove capita a tutti la prima volta. Ma un
+  /// ragazzo cambia nel giro di mesi, e la velocita di partenza va rifatta:
+  /// qui, insieme al nome, e dove si torna quando si vuole ricominciare.
+  private var prova: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      SectionTitle(text: "La prova di velocità", a11y: a11y)
+      Explain(text: store.current.calibratedExposureMs == nil
+              ? "Non l'hai ancora fatta. Otto parole, meno di un minuto: servono al Mac per capire da che velocità partire."
+              : "Fatta: si parte da \(Int(store.current.calibratedExposureMs ?? 0)) millesimi di secondo. Rifalla ogni tanto — quello che era difficile a settembre può non esserlo più a marzo.",
+              a11y: a11y, size: 15)
+      HStack(spacing: 12) {
+        SmallButton(title: store.current.calibratedExposureMs == nil ? "Fai la prova" : "Rifai la prova",
+                    symbol: "wand.and.stars", a11y: a11y) {
+          onClose()
+          onCalibrate()
+        }
+        SmallButton(title: "Controlla che il Mac abbia tutto",
+                    symbol: "checklist", a11y: a11y) {
+          onClose()
+          onReadiness()
+        }
       }
     }
   }
@@ -154,12 +194,10 @@ struct SettingsView: View {
   private var voce: some View {
     VStack(alignment: .leading, spacing: 10) {
       VoiceChooser(store: store)
-      Button("Altre voci (Impostazioni di Sistema)") {
+      SmallButton(title: "Altre voci (Impostazioni di Sistema)",
+                  symbol: "arrow.up.forward.app", a11y: a11y) {
         if let u = URL(string: Readiness.urlImpostazioniVoci) { NSWorkspace.shared.open(u) }
       }
-      .font(a11y.typeface.font(size: a11y.size(15)))
-      .buttonStyle(.plain)
-      .foregroundStyle(palette.muted)
       Explain(text: "macOS non permette a nessuna app di scaricare le voci: quelle in elenco sono tutte quelle installate.", a11y: a11y, size: 14)
     }
   }
@@ -324,10 +362,9 @@ struct SettingsView: View {
     VStack(alignment: .leading, spacing: 10) {
       SectionTitle(text: "I dati", a11y: a11y)
       Explain(text: "Voce, risposte e progressi non escono mai da questo Mac: niente account, niente rete, niente servizi esterni. I file stanno in una cartella che puoi aprire, leggere o cancellare a mano.", a11y: a11y, size: 15)
-      Button("Apri la cartella dei dati") {
+      SmallButton(title: "Apri la cartella dei dati", symbol: "folder", a11y: a11y) {
         NSWorkspace.shared.open(store.storageFolder)
       }
-      .font(a11y.typeface.font(size: a11y.size(15)))
 
       Divider().padding(.vertical, 4)
 
@@ -341,8 +378,8 @@ struct SettingsView: View {
 
       if aggiornamentiAccesi {
         HStack(spacing: 12) {
-          Button("Controlla adesso") { controllaAdesso() }
-            .font(a11y.typeface.font(size: a11y.size(15)))
+          SmallButton(title: "Controlla adesso", symbol: "arrow.clockwise",
+                      a11y: a11y) { controllaAdesso() }
             .disabled(controlloInCorso)
           if controlloInCorso { ProgressView().controlSize(.small) }
           if let esito = esitoControllo {
@@ -353,10 +390,10 @@ struct SettingsView: View {
         }
       }
 
-      Button("Cancella tutti i dati di \(nomeCorrente)", role: .destructive) {
+      SmallButton(title: "Cancella tutti i dati di \(nomeCorrente)", symbol: "trash",
+                  a11y: a11y, distruttivo: true) {
         chiedeCancellazione = true
       }
-      .font(a11y.typeface.font(size: a11y.size(15)))
       .confirmationDialog(
         "Cancellare tutti i dati di \(nomeCorrente)?",
         isPresented: $chiedeCancellazione,

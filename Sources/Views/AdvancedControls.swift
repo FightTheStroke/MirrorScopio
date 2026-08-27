@@ -1,29 +1,17 @@
 import SwiftUI
 
-/// I parametri clinici. Stanno dietro un pulsante perché al ragazzo non servono
-/// e al logopedista servono tutti.
-struct AdvancedSheet: View {
+/// I parametri clinici: millesimi di secondo, maschera, scala adattiva.
+///
+/// Stavano dietro un pulsante in home, accanto a "Via!", dove il ragazzo li
+/// trovava prima del logopedista. Adesso sono l'ultima pagina delle
+/// Impostazioni, insieme a tutto il resto che si regola una volta e non si
+/// tocca piu: due porte diverse per la stessa cosa erano solo un modo per
+/// perdersi.
+struct AdvancedControls: View {
   @ObservedObject var store: Store
   @ObservedObject var engine: SessionEngine
-  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    VStack(spacing: 0) {
-      HStack {
-        Text("Parametri clinici").font(.headline)
-        Spacer()
-        Button("Fine") {
-          var l = store.current
-          l.config = engine.config
-          store.current = l
-          dismiss()
-        }
-        .keyboardShortcut(.defaultAction)
-      }
-      .padding()
-
-      Divider()
-
       Form {
         Section("Stimoli") {
           Picker("Lista", selection: $engine.config.set) {
@@ -78,8 +66,12 @@ struct AdvancedSheet: View {
         }
       }
       .formStyle(.grouped)
-    }
-    .frame(width: 640, height: 660)
+      .frame(minHeight: 620)
+      .onDisappear {
+        var l = store.current
+        l.config = engine.config
+        store.current = l
+      }
   }
 
   private func note(_ text: String) -> some View {

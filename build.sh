@@ -45,6 +45,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>NSMicrophoneUsageDescription</key>
   <string>Il microfono serve a sentire la lettura ad alta voce e capire da solo se la parola è giusta. L'audio resta su questo Mac.</string>
 
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>ATSApplicationFontsPath</key><string>Fonts</string>
 </dict>
 </plist>
@@ -60,6 +61,14 @@ cat > build/entitlements.plist <<ENT
 </dict>
 </plist>
 ENT
+
+# L'icona: un file solo, gia pronto. Si rigenera con `swift scripts/icona.swift`
+# quando il segno cambia, non a ogni build.
+if [ -f Resources/AppIcon.icns ]; then
+  cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+else
+  echo "Attenzione: manca Resources/AppIcon.icns — l'app userà l'icona di serie."
+fi
 
 if [ -d Resources/Fonts ]; then
   mkdir -p "$APP/Contents/Resources/Fonts"
