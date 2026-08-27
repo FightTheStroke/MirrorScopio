@@ -21,7 +21,7 @@ struct OnboardingView: View {
   /// I passi da mostrare: benvenuto, poi solo quelli non ancora a posto,
   /// poi la voce, poi il saluto finale.
   private var passi: [Passo] {
-    var out: [Passo] = [.benvenuto]
+    var out: [Passo] = [.benvenuto, .aspetto, .calma]
     for voce in readiness.voci where !voce.isOK && voce.necessaria {
       out.append(.sistema(voce.id))
     }
@@ -33,11 +33,16 @@ struct OnboardingView: View {
 
   private enum Passo: Equatable {
     case benvenuto
+    case aspetto
+    case calma
     case sistema(String)
     case voce
     case aggiornamenti
     case pronti
   }
+
+  /// La parola dell'anteprima dal vivo: corta, comune, facile da riconoscere.
+  private let parolaEsempio = "gatto"
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -83,7 +88,56 @@ struct OnboardingView: View {
         titolo("Ciao!")
         Explain(text: "MirrorScopio fa vedere una parola per un istante e ascolta come la leggi. Serve per allenare la lettura, un pezzetto alla volta.", a11y: a11y, size: 21)
         Explain(text: "**Tutto resta su questo Mac.** La tua voce non viene inviata a nessuno: il riconoscimento funziona anche senza internet.", a11y: a11y, size: 21)
-        Explain(text: "Prepariamo insieme quel che serve: sono \(max(passi.count - 2, 1)) cose e ci vuole un minuto.", a11y: a11y, size: 21)
+        Explain(text: "Sistemiamo insieme come si vede l'app e quel che le serve per ascoltarti: ci vuole un minuto.", a11y: a11y, size: 21)
+      }
+
+    case .aspetto:
+      VStack(alignment: .leading, spacing: a11y.size(16)) {
+        titolo("Si legge bene?")
+        Explain(text: "Se chi userà l'app vede poco, o le lettere gli si accavallano, qui si sistema in un attimo. Prova subito: la parola qui sotto cambia mentre scegli.", a11y: a11y, size: 21)
+        anteprimaParola
+        sliderOnb("Quanto grande", bindDouble(\.stimulusSize), 48...220) { "\(Int($0)) punti" }
+        SectionTitle(text: "Il carattere", a11y: a11y)
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+          ForEach(TypefaceChoice.allCases.filter(\.isAvailable)) { t in
+            ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.typeface == t, a11y: a11y) {
+              aggiorna { $0.typeface = t }
+            }
+          }
+        }
+        SectionTitle(text: "Colori e luce", a11y: a11y)
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+          ForEach(ThemeChoice.allCases) { t in
+            ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
+              aggiorna { $0.theme = t }
+            }
+          }
+        }
+        notaSiCambia
+      }
+
+    case .calma:
+      VStack(alignment: .leading, spacing: a11y.size(16)) {
+        titolo("Quante cose intorno?")
+        Explain(text: "C'è chi legge meglio con lo schermo tranquillo: senza colori accesi e senza cose che si muovono. Se serve, si toglie tutto qui.", a11y: a11y, size: 21)
+        toggleOnb("Modalità calma", bindBool(\.calmMode),
+                  "Niente esclamazioni né festeggiamenti: tono sempre uguale, colori più quieti.")
+        toggleOnb("Meno animazioni", bindBool(\.reducedMotion),
+                  "Tutto compare e sparisce senza movimento.")
+        SectionTitle(text: "Come vedi i colori", a11y: a11y)
+        Explain(text: "«Giusta» e «ancora» non si distinguono mai solo dal colore: c'è sempre anche un simbolo e una parola. Qui scegli i colori che si distinguono meglio.", a11y: a11y, size: 16)
+        HStack(spacing: 20) {
+          Verdict(correct: true, a11y: a11y)
+          Verdict(correct: false, a11y: a11y)
+        }
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+          ForEach(ColorVision.allCases) { v in
+            ChoiceCard(title: v.label, selected: a11y.colorVision == v, a11y: a11y) {
+              aggiorna { $0.colorVision = v }
+            }
+          }
+        }
+        notaSiCambia
       }
 
     case .sistema(let id):
@@ -161,6 +215,79 @@ struct OnboardingView: View {
       .buttonStyle(.bordered)
     }
     .padding(.top, 4)
+  }
+
+  // MARK: - Accessibilità nell'avvio guidato
+
+  /// L'anteprima dal vivo: la parola resa **esattamente** come durante
+  /// l'esercizio — stesso carattere, stessa spaziatura, stessi colori — così
+  /// chi sceglie non sta configurando un'app, sta capendo se il proprio figlio
+  /// riuscirà a leggere.
+  private var anteprimaParola: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Explain(text: "Così apparirà una parola durante l'esercizio:", a11y: a11y, size: 16)
+      Text(parolaEsempio)
+        .font(a11y.typeface.font(size: CGFloat(a11y.stimulusSize), weight: .semibold))
+        .tracking(CGFloat(a11y.letterSpacing))
+        .foregroundStyle(palette.foreground)
+        .frame(maxWidth: .infinity)
+        .frame(height: CGFloat(a11y.stimulusSize) * 1.4)
+        .background(RoundedRectangle(cornerRadius: 16).fill(palette.background))
+        .overlay(RoundedRectangle(cornerRadius: 16)
+          .stroke(palette.muted.opacity(0.3), lineWidth: 1.5))
+        .animation(a11y.animation(0.15), value: a11y.stimulusSize)
+        .accessibilityLabel("Parola di esempio, grande \(Int(a11y.stimulusSize)) punti")
+    }
+  }
+
+  private var notaSiCambia: some View {
+    Explain(text: "Non devi decidere adesso: questi valori vanno bene per molti, e si cambiano quando vuoi dalle Impostazioni (l'ingranaggio in alto).", a11y: a11y, size: 16)
+  }
+
+  private func sliderOnb(_ title: String, _ value: Binding<Double>,
+                         _ range: ClosedRange<Double>,
+                         _ format: (Double) -> String) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      HStack {
+        Text(title)
+          .font(a11y.typeface.font(size: a11y.size(17)))
+          .foregroundStyle(palette.foreground)
+        Spacer()
+        Text(format(value.wrappedValue))
+          .font(a11y.typeface.font(size: a11y.size(15)))
+          .foregroundStyle(palette.muted)
+          .monospacedDigit()
+      }
+      Slider(value: value, in: range).frame(maxWidth: 460)
+    }
+  }
+
+  private func toggleOnb(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
+    VStack(alignment: .leading, spacing: 2) {
+      Toggle(title, isOn: value)
+        .font(a11y.typeface.font(size: a11y.size(19)))
+        .foregroundStyle(palette.foreground)
+      Explain(text: hint, a11y: a11y, size: 15)
+    }
+  }
+
+  /// Le scelte finiscono negli stessi `A11ySettings` che usa tutto il resto
+  /// dell'app: non una copia. App.swift tiene in riga il motore da solo quando
+  /// `store.current.a11y` cambia.
+  private func aggiorna(_ change: (inout A11ySettings) -> Void) {
+    var l = store.current
+    change(&l.a11y)
+    store.current = l
+  }
+
+  private func bindDouble(_ key: WritableKeyPath<A11ySettings, Double>) -> Binding<Double> {
+    Binding(get: { store.current.a11y[keyPath: key] },
+            set: { v in aggiorna { $0[keyPath: key] = v } })
+  }
+
+  private func bindBool(_ key: WritableKeyPath<A11ySettings, Bool>) -> Binding<Bool> {
+    Binding(get: { store.current.a11y[keyPath: key] },
+            set: { v in aggiorna { $0[keyPath: key] = v } })
   }
 
   private var pulsanti: some View {

@@ -10,6 +10,7 @@ struct SettingsView: View {
   var onCalibrate: () -> Void = {}
   var onReadiness: () -> Void = {}
 
+  @StateObject private var promemoria = Promemoria()
   @State private var pagina: Pagina = .inizio
   @State private var chiedeCancellazione = false
   @State private var aggiornamentiAccesi = Updates.enabled
@@ -362,6 +363,12 @@ struct SettingsView: View {
         }
       }
 
+      Divider().padding(.vertical, 4)
+
+      promemoriaSezione
+
+      Divider().padding(.vertical, 4)
+
       SmallButton(title: "Cancella tutti i dati di \(nomeCorrente)", symbol: "trash",
                   a11y: a11y, distruttivo: true) {
         chiedeCancellazione = true
@@ -393,6 +400,97 @@ struct SettingsView: View {
         .font(.system(size: a11y.size(12)))
         .foregroundStyle(palette.muted)
     }
+  }
+
+  // MARK: - Promemoria
+
+  private var giaFattoOggi: Bool {
+    store.current.lastSessionDay == Gamification.dayKey(Date())
+  }
+
+  private func ripianificaPromemoria() {
+    Task { await promemoria.ripianifica(giaFattoOggi: giaFattoOggi,
+                                        serieGiorni: store.current.streakCurrent) }
+  }
+
+  private var promemoriaSezione: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      SectionTitle(text: "Un promemoria ogni giorno", a11y: a11y)
+      Explain(text: "L'esercizio rende se si fa un pochino ogni giorno, e la cosa più difficile è ricordarsene. Se vuoi, il Mac manda un invito gentile all'ora che scegli. **È tutto qui sul Mac**: non esce niente, è solo un avviso che compare sullo schermo.", a11y: a11y, size: 15)
+
+      Toggle(isOn: Binding(
+        get: { promemoria.acceso },
+        set: { acceso in
+          if acceso {
+            Task { await promemoria.accendi(giaFattoOggi: giaFattoOggi,
+                                            serieGiorni: store.current.streakCurrent) }
+          } else {
+            promemoria.spegni()
+          }
+        })) {
+        Text("Ricordami di allenarmi")
+          .font(a11y.typeface.font(size: a11y.size(17)))
+      }
+      .toggleStyle(.switch)
+
+      if promemoria.acceso {
+        if promemoria.permessoNegato {
+          promemoriaAvvisoNegato
+        } else {
+          DatePicker(selection: Binding(
+            get: { promemoria.orario },
+            set: { data in promemoria.impostaOrario(da: data); ripianificaPromemoria() }
+          ), displayedComponents: .hourAndMinute) {
+            Text("A che ora")
+              .font(a11y.typeface.font(size: a11y.size(17)))
+          }
+          .datePickerStyle(.field)
+
+          Picker(selection: Binding(
+            get: { promemoria.giorni },
+            set: { g in promemoria.impostaGiorni(g); ripianificaPromemoria() }
+          )) {
+            ForEach(Promemoria.Giorni.allCases) { g in Text(g.label).tag(g) }
+          } label: {
+            Text("Quali giorni")
+              .font(a11y.typeface.font(size: a11y.size(17)))
+          }
+          .pickerStyle(.segmented)
+          .frame(maxWidth: 420, alignment: .leading)
+
+          Explain(text: "Ti mando un invito alle \(promemoria.orarioTesto), "
+                  + (promemoria.giorni == .tutti ? "tutti i giorni" : "dal lunedì al venerdì")
+                  + ". Mai se hai già letto le tue parole quel giorno, e mai un rimprovero: lo puoi ignorare senza problemi.",
+                  a11y: a11y, size: 14)
+        }
+      }
+    }
+    .task { await promemoria.aggiornaPermesso() }
+  }
+
+  /// Un interruttore acceso che non fa arrivare niente sarebbe una bugia: se il
+  /// permesso è negato lo diciamo, e mostriamo dove si rimedia.
+  private var promemoriaAvvisoNegato: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack(spacing: 8) {
+        Image(systemName: "bell.slash.fill")
+          .foregroundStyle(palette.wrong)
+        Text("Le notifiche sono spente per MirrorScopio")
+          .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+          .foregroundStyle(palette.foreground)
+      }
+      Explain(text: "L'interruttore è acceso, ma il Mac non mi lascia mostrare l'avviso, quindi non arriverà niente. Si riattiva in Impostazioni di Sistema › Notifiche › MirrorScopio.", a11y: a11y, size: 14)
+      SmallButton(title: "Apri le Impostazioni di Sistema", symbol: "arrow.up.forward.app",
+                  a11y: a11y) {
+        if let u = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
+          NSWorkspace.shared.open(u)
+        }
+      }
+    }
+    .padding(14)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(RoundedRectangle(cornerRadius: 12).fill(palette.wrong.opacity(0.10)))
+    .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.wrong.opacity(0.4), lineWidth: 1.5))
   }
 
   // MARK: - Utilità
