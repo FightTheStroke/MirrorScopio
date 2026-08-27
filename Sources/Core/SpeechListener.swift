@@ -54,6 +54,8 @@ final class SpeechListener: @unchecked Sendable {
   private var windowActive = false
   private var windowStart: CMTime = .zero
   private var framesFed: Int64 = 0
+  /// Vedi `senzaLeParoleGiaDette`.
+  private var paroleGiaDette = ""
 
   /// Creato solo al momento di ascoltare: il motore si lega al microfono che
   /// trova alla nascita, quindi la scelta del dispositivo deve venire prima.
@@ -223,7 +225,14 @@ final class SpeechListener: @unchecked Sendable {
 
   func beginWindow() {
     lock.lock()
+    // Quello che è stato consegnato fin qui non appartiene alla prova che sta
+    // per cominciare: si mette da parte per poterlo togliere.
+    if !snapshot.text.isEmpty { paroleGiaDette = (paroleGiaDette + " " + snapshot.text).trimmed() }
+    let caldoPrima = snapshot.caldo
+    let primaPrima = snapshot.primaRispostaSec
     snapshot = VoiceWindowSnapshot()
+    snapshot.caldo = caldoPrima
+    snapshot.primaRispostaSec = primaPrima
     windowStart = CMTime(value: framesFed, timescale: CMTimeScale(analyzerFormat?.sampleRate ?? 16000))
     windowActive = true
     lock.unlock()
@@ -231,6 +240,26 @@ final class SpeechListener: @unchecked Sendable {
 
   func endWindow() {
     lock.lock(); windowActive = false; lock.unlock()
+  }
+
+  /// Testo consegnato nelle prove precedenti, da non riportare dentro questa.
+  ///
+  /// Il taglio sui tempi non basta da solo: il riconoscitore accumula e ogni
+  /// consegna ripete tutto quello che ha capito dall'inizio. Senza questo,
+  /// alla terza parola si sarebbe confrontato «cane tavolo mare» con `mare` —
+  /// che è il difetto per cui una risposta giusta risultava "Ancora".
+  private func senzaLeParoleGiaDette(_ testo: String) -> String {
+    guard !paroleGiaDette.isEmpty else { return testo }
+    let confronto = Scoring.normalize(testo)
+    let vecchio = Scoring.normalize(paroleGiaDette)
+    guard confronto.hasPrefix(vecchio) else { return testo }
+
+    // Si tolgono tante parole quante ne conteneva il già detto: si lavora a
+    // parole intere, perché tagliare per numero di caratteri sposterebbe il
+    // taglio ogni volta che il riconoscitore cambia una maiuscola o un accento.
+    let quante = vecchio.split(separator: " ").count
+    let rimaste = testo.split(separator: " ").dropFirst(quante)
+    return rimaste.joined(separator: " ").trimmed()
   }
 
   func read() -> VoiceWindowSnapshot {
@@ -337,7 +366,8 @@ final class SpeechListener: @unchecked Sendable {
     guard windowActive else { return }
     guard result.range.end > windowStart else { return }
 
-    let (text, confidence) = testoDentroLaFinestra(result)
+    let (grezzo, confidence) = testoDentroLaFinestra(result)
+    let text = senzaLeParoleGiaDette(grezzo)
     guard !text.isEmpty else { return }
 
     snapshot.text = text
@@ -364,11 +394,20 @@ final class SpeechListener: @unchecked Sendable {
         if let c = run.transcriptionConfidence { confidenze.append(c) }
         continue
       }
-      // Una tolleranza serve: il tratto di audio di una parola comincia qualche
-      // centesimo prima del suono vero, e chi risponde di scatto verrebbe
-      // tagliato fuori proprio perche e stato veloce.
-      guard tratto.end > windowStart,
-            tratto.start >= windowStart - CMTime(value: 25, timescale: 1000) else { continue }
+      // Conta dove il pezzo **finisce**, non dove comincia.
+      //
+      // Pretendere che cominciasse dentro la finestra sembrava ovvio ed era il
+      // guasto che rendeva l'app muta: il riconoscitore non data i pezzi
+      // parola per parola, li data dall'inizio dell'ascolto. Misurato sul
+      // vero: leggendo «farfalla» dopo un secondo di silenzio, il pezzo
+      // arrivava marcato 0,00–3,96 secondi. Cominciava prima della finestra,
+      // quindi veniva buttato, quindi la trascrizione restava vuota, quindi
+      // l'app diceva «non ho sentito niente» a chi aveva appena letto giusto.
+      //
+      // Le parole delle prove precedenti non tornano dentro lo stesso: le
+      // toglie `senzaLeParoleGiaDette`, che lavora sul testo consegnato invece
+      // che sui tempi.
+      guard tratto.end > windowStart else { continue }
       pezzi.append(frammento)
       if let c = run.transcriptionConfidence { confidenze.append(c) }
     }

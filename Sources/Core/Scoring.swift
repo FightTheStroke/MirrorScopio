@@ -69,3 +69,11 @@ enum Scoring {
     return (false, .altroErrore, d)
   }
 }
+
+extension String {
+  /// Spazi e a capo tolti da entrambi i lati. Sta qui perché serve nel
+  /// riconoscimento, dove la stessa riga si ripeteva in cinque punti.
+  func trimmed() -> String {
+    trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+}
