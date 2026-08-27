@@ -15,6 +15,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.2.0] — 2026-08-27
+
 ### Aggiunto
 - **Onboarding guidato al primo avvio**: un passo alla volta, solo ciò che
   manca. Permesso del microfono e modello vocale italiano si concedono e si
@@ -108,5 +110,6 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.1.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.2.0...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
+[0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
