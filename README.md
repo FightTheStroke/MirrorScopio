@@ -98,12 +98,23 @@ La firma usa il certificato **Developer ID Application: Fight The Stroke Foundat
 presente nel portachiavi; altrimenti ripiega su una firma ad-hoc, così un clone fresco
 compila su qualunque Mac.
 
+## Portarla su un altro Mac
+
+```bash
+./scripts/package.sh --notarize     # → build/MirrorScopio-<versione>.dmg
+```
+
+Firmata Developer ID di Fight The Stroke e notarizzata da Apple: si apre senza
+avvisi e senza Xcode. Il perché di ogni passaggio, e la credenziale da salvare
+una volta sola, sono in [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md).
+
 ## Documentazione
 
 - [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md) — com'è fatta dentro
 - [`docs/ACCESSIBILITA.md`](docs/ACCESSIBILITA.md) — scelte inclusive e perché
 - [`docs/CLINICA.md`](docs/CLINICA.md) — scala adattiva, soglia, tipi di errore
 - [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) — punti, serie, obiettivi
+- [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md) — firmare, notarizzare, portarla su un altro Mac
 - [`AGENTS.md`](AGENTS.md) — istruzioni per chi ci lavora, umano o agente
 
 ## Licenza

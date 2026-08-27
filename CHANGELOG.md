@@ -37,6 +37,12 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   prima di creare il motore audio: impostarlo sull'unità audio lo lasciava vivo
   ma muto.
 
+### Distribuzione
+- `scripts/package.sh`: DMG firmato Developer ID e, con `--notarize`,
+  notarizzato e stapled — apribile su qualunque Mac senza avvisi.
+- `TIMESTAMP=1 ./build.sh` aggiunge la marca temporale richiesta da Apple.
+- `docs/DISTRIBUZIONE.md`: che cosa serve, perché, e come verificarlo.
+
 ### Corretto (voci)
 - L'app diceva «c'è solo Alice, di qualità base» pur avendo Federica Premium
   installata: l'elenco delle voci era calcolato una volta sola all'avvio. Ora è
