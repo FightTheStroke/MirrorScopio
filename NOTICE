@@ -1,0 +1,35 @@
+MirrorScopio
+Copyright 2026 Fight The Stroke Foundation
+
+Questo prodotto include software sviluppato dalla Fight The Stroke Foundation
+(https://www.fightthestroke.org).
+
+Licenza del codice: Apache License 2.0 — vedi il file LICENSE.
+
+--------------------------------------------------------------------------------
+Caratteri tipografici inclusi in Resources/Fonts/
+--------------------------------------------------------------------------------
+
+I caratteri sono distribuiti sotto la SIL Open Font License 1.1, che è una
+licenza distinta e indipendente dalla Apache 2.0 che copre il codice. Il testo
+integrale di ciascuna licenza è nella stessa cartella.
+
+- OpenDyslexic — Abbie Gonzalez
+  SIL Open Font License 1.1 — Resources/Fonts/OFL-OpenDyslexic.txt
+
+- Atkinson Hyperlegible — Braille Institute of America
+  SIL Open Font License 1.1 — Resources/Fonts/OFL-AtkinsonHyperlegible.txt
+
+- Lexend — Bonnie Shaver-Troup, Thomas Jockin
+  SIL Open Font License 1.1 — Resources/Fonts/OFL-Lexend.txt
+
+Dettagli e attribuzioni complete: Resources/Fonts/LICENSES.md
+
+--------------------------------------------------------------------------------
+Tecnologie Apple
+--------------------------------------------------------------------------------
+
+MirrorScopio usa framework di sistema di Apple (Speech, FoundationModels,
+AVFoundation, SwiftUI, CoreAudio) senza incorporarne il codice. I modelli di
+riconoscimento vocale e i modelli linguistici on-device appartengono ad Apple e
+vengono installati dal sistema operativo, non distribuiti con questa app.

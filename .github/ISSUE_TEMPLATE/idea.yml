@@ -1,0 +1,25 @@
+name: Un'idea per migliorarla
+description: Una funzione o un cambiamento che aiuterebbe chi usa l'app.
+labels: [idea]
+body:
+  - type: textarea
+    id: chi
+    attributes:
+      label: Chi ne ha bisogno, e perché
+      description: >
+        Descrivi il problema dal punto di vista di chi legge — il ragazzo o la
+        ragazza — non della soluzione tecnica.
+      placeholder: I bambini con ADHD perdono il filo dopo la decima parola e si scoraggiano.
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes:
+      label: Che cosa proponi
+  - type: checkboxes
+    id: regole
+    attributes:
+      label: Compatibilità con i principi del progetto
+      description: Vedi CONTRIBUTING.md.
+      options:
+        - label: Non richiede che dati escano dal Mac.
+        - label: Non rende l'app più complicata per chi legge.

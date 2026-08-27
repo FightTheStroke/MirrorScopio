@@ -1,0 +1,41 @@
+name: Qualcosa non funziona
+description: L'app fa una cosa che non dovrebbe fare, o non fa una cosa che dovrebbe.
+labels: [problema]
+body:
+  - type: textarea
+    id: cosa
+    attributes:
+      label: Che cosa è successo
+      description: Racconta come a un amico. Non serve linguaggio tecnico.
+      placeholder: Ho premuto Vai, è comparsa la parola, ma l'app non ha sentito niente.
+    validations: { required: true }
+  - type: textarea
+    id: atteso
+    attributes:
+      label: Che cosa ti aspettavi
+    validations: { required: true }
+  - type: textarea
+    id: passi
+    attributes:
+      label: Come farlo succedere di nuovo
+      placeholder: |
+        1. Apro l'app
+        2. …
+  - type: input
+    id: versione
+    attributes:
+      label: Versione dell'app
+      description: La trovi in fondo alle Impostazioni.
+      placeholder: 0.2.0
+  - type: input
+    id: macos
+    attributes:
+      label: Versione di macOS
+      placeholder: macOS 26.1
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Prima di inviare
+      options:
+        - label: Non ho incluso il nome di un bambino né dati di una persona reale.
+          required: true

@@ -2,3 +2,13 @@ build/
 .DS_Store
 *.xcuserstate
 .playwright-mcp/
+
+# Mai nel repository: chiavi private, pacchetti, dati di chi usa l'app
+*.p12
+*.pem
+*.cer
+*.mobileprovision
+*.dmg
+learners.json
+history.json
+*.log
