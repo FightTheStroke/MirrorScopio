@@ -1,0 +1,104 @@
+import SwiftUI
+import AppKit
+import CoreText
+
+// MARK: - Caratteri
+
+/// I caratteri disponibili. Quelli "per la dislessia" sono inclusi nell'app
+/// con licenza SIL Open Font License (vedi Resources/Fonts/LICENSES.md).
+enum TypefaceChoice: String, CaseIterable, Identifiable, Codable {
+  case sistema, arrotondato, monospaziato, openDyslexic, atkinson, lexend
+
+  var id: String { rawValue }
+
+  var label: String {
+    switch self {
+    case .sistema: "Sistema"
+    case .arrotondato: "Arrotondato"
+    case .monospaziato: "Monospaziato"
+    case .openDyslexic: "OpenDyslexic"
+    case .atkinson: "Atkinson Hyperlegible"
+    case .lexend: "Lexend"
+    }
+  }
+
+  var hint: String {
+    switch self {
+    case .sistema: "Il carattere normale del Mac."
+    case .arrotondato: "Lettere più tonde, piacevoli per i più piccoli."
+    case .monospaziato: "Tutte le lettere larghe uguali: aiuta a contarle."
+    case .openDyslexic: "Lettere appesantite in basso, pensate per la dislessia."
+    case .atkinson: "Disegnato per l'ipovisione: lettere simili molto diverse fra loro."
+    case .lexend: "Studiato per leggere più in fretta con meno fatica."
+    }
+  }
+
+  /// Il nome della famiglia installata, quando il carattere è incluso nell'app.
+  var bundledFamily: String? {
+    switch self {
+    case .openDyslexic: "OpenDyslexic"
+    case .atkinson: "Atkinson Hyperlegible"
+    case .lexend: "Lexend"
+    default: nil
+    }
+  }
+
+  /// Vero se il file del carattere è davvero disponibile su questo Mac.
+  var isAvailable: Bool {
+    guard let family = bundledFamily else { return true }
+    return FontLoader.availableFamilies.contains(family)
+  }
+
+  var design: Font.Design {
+    switch self {
+    case .arrotondato: .rounded
+    case .monospaziato: .monospaced
+    default: .default
+    }
+  }
+
+  /// Il font concreto da usare, con ritorno al carattere di sistema se il file manca.
+  func font(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    if let family = bundledFamily, FontLoader.availableFamilies.contains(family) {
+      let bold = [Font.Weight.semibold, .bold, .heavy, .black].contains(weight)
+      return .custom(FontLoader.postScriptName(for: family, bold: bold) ?? family, size: size)
+    }
+    return .system(size: size, weight: weight, design: design)
+  }
+}
+
+/// Registra i caratteri inclusi nell'app all'avvio e tiene traccia di quali
+/// sono davvero disponibili, così l'interfaccia non offre scelte che non funzionano.
+enum FontLoader {
+  private(set) static var availableFamilies: Set<String> = []
+  private static var postScriptNames: [String: String] = [:]
+
+  static func registerBundledFonts() {
+    guard let dir = Bundle.main.resourceURL?.appendingPathComponent("Fonts"),
+          let files = try? FileManager.default.contentsOfDirectory(at: dir,
+                                                                   includingPropertiesForKeys: nil)
+    else { return }
+
+    for url in files where ["otf", "ttf"].contains(url.pathExtension.lowercased()) {
+      var error: Unmanaged<CFError>?
+      CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
+      // Un errore qui di solito significa "già registrato": non è fatale.
+      if let descriptors = CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [CTFontDescriptor] {
+        for d in descriptors {
+          let family = CTFontDescriptorCopyAttribute(d, kCTFontFamilyNameAttribute) as? String
+          let psName = CTFontDescriptorCopyAttribute(d, kCTFontNameAttribute) as? String
+          if let family { availableFamilies.insert(family) }
+          if let family, let psName {
+            let bold = psName.lowercased().contains("bold")
+            postScriptNames["\(family)|\(bold)"] = psName
+            if postScriptNames["\(family)|false"] == nil { postScriptNames["\(family)|false"] = psName }
+          }
+        }
+      }
+    }
+  }
+
+  static func postScriptName(for family: String, bold: Bool) -> String? {
+    postScriptNames["\(family)|\(bold)"] ?? postScriptNames["\(family)|false"]
+  }
+}
