@@ -16,6 +16,15 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Corretto
+- **VoiceOver adesso dice i nomi giusti**: i quattro cursori (impostazioni,
+  primo avvio, controlli avanzati, velocità della voce) si annunciavano come
+  «cursore, 50 per cento», senza dire di che cosa e con una percentuale che
+  non è il numero scritto accanto. Ora ognuno dice il proprio nome e il
+  proprio valore con le stesse parole che si leggono a schermo. Dodici icone
+  di contorno smettono di ripetere a voce quello che il testo diceva già.
+- **Esc chiude tutto**: «I tuoi progressi», la prova del microfono e «Prepara
+  il Mac» si chiudevano solo col mouse, mentre impostazioni e aiuto no. Chi
+  usa solo la tastiera restava dentro.
 - **L'app non consuma più batteria stando ferma**: il battito che scandisce i
   centesimi di secondo di una lettura restava acceso anche in home, con lo
   schermo fermo. L'app ridisegnava tutto sessanta volte al secondo per non
