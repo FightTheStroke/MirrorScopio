@@ -29,6 +29,10 @@ struct ReportView: View {
         actions
         if !engine.isCalibration, record.total > 0 { premioStaffetta }
         if !engine.isCalibration { adultDetail }
+        // In fondo a tutto, e l'ultima cosa: qui c'è un ragazzo che ha appena
+        // finito un esercizio, non un donatore. In modalità calma sparisce del
+        // tutto — non è il momento di chiedere niente a nessuno.
+        if !engine.isCalibration, record.total > 0, !a11y.calmMode { sostieni }
       }
       .padding(32)
       .frame(maxWidth: 820)
@@ -66,6 +70,26 @@ struct ReportView: View {
               a11y: a11y, size: 14)
       .multilineTextAlignment(.center)
     }
+  }
+
+  // MARK: - Sostieni, senza chiedere
+
+  /// Discreto, mai il pulsante più grosso della pagina: chi vuole sostenere
+  /// Fight The Stroke lo trova, chi ha già dato abbastanza oggi lo ignora. E si
+  /// dice che apre il browser, perché fin qui l'app non è mai uscita dal Mac.
+  private var sostieni: some View {
+    VStack(spacing: 8) {
+      SmallButton(title: "Sostieni Fight The Stroke", symbol: "heart", a11y: a11y) {
+        if let u = URL(string: "https://www.fightthestroke.org/donorbox") {
+          NSWorkspace.shared.open(u)
+        }
+      }
+      .accessibilityLabel("Sostieni Fight The Stroke: apre un sito web esterno nel browser")
+      Explain(text: "MirrorScopio è gratuito e senza pubblicità. Se vuoi, puoi sostenere Fight The Stroke: il pulsante apre il loro sito nel browser.",
+              a11y: a11y, size: 13)
+      .multilineTextAlignment(.center)
+    }
+    .padding(.top, 8)
   }
 
   // MARK: - Salvataggio
