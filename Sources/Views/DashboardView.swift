@@ -1,288 +1,701 @@
 import SwiftUI
+import Charts
 
-/// I progressi. Prima quello che il ragazzo capisce a colpo d'occhio
-/// (livello, serie, obiettivi), poi — chiuso — il dettaglio per l'adulto.
+// MARK: - Dashboard dei progressi
+
+/// La schermata che il bambino (e l'adulto) apre per capire come sta andando.
+/// Regola progettuale: mostrare il percorso, mai il giudizio.
+/// Ogni numero negativo è nascosto o ammorbidito; ogni traguardo è celebrato.
 struct DashboardView: View {
-  @ObservedObject var store: Store
-  var onClose: () -> Void
+    @ObservedObject var store: Store
+    var onClose: () -> Void
 
-  @Environment(\.palette) private var pal
-  @State private var showAdultDetail = false
+    @Environment(\.palette) private var palette
 
-  private var a11y: A11ySettings { store.current.a11y }
-  private var sessions: [SessionRecord] { store.currentHistory }
-  private var recent: [SessionRecord] { Array(sessions.prefix(10).reversed()) }
+    /// Quale riga delle sessioni recenti espone le parole da ripassare.
+    @State private var sessioneEspansa: UUID?
+    /// Mostra il dialogo di conferma prima di cancellare lo storico.
+    @State private var mostraConfermaReset = false
 
-  var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 28) {
-        header
+    private var a11y: A11ySettings { store.current.a11y }
+    private var bambino: Learner { store.current }
+    private var sessioni: [SessionRecord] { store.currentHistory }
 
-        if sessions.isEmpty {
-          empty
-        } else {
-          if !a11y.hideScore { levelCard }
-          tiles
-          if !a11y.reducedMotion || true { trend }
-          achievements
-          adultSection
+    // Le ultime 20 sessioni in ordine cronologico: nei grafici il tempo
+    // scorre da sinistra (passato) a destra (oggi), non al contrario.
+    private var sessioniGrafico: [SessionRecord] {
+        Array(sessioni.prefix(20).reversed())
+    }
+
+    // Punti dati precalcolati per evitare ricalcoli ripetuti nei due grafici.
+    private var puntiGrafico: [_PuntoGrafico] {
+        sessioniGrafico.enumerated().map { i, s in
+            _PuntoGrafico(id: i + 1,
+                          accuratezza: s.accuracy * 100,
+                          sogliaMs: s.thresholdMs)
         }
-      }
-      .padding(36)
-      .frame(maxWidth: 900)
-      .frame(maxWidth: .infinity)
     }
-    .background(pal.background)
-    .foregroundStyle(pal.foreground)
-  }
 
-  // MARK: - Pezzi
-
-  private var header: some View {
-    HStack {
-      VStack(alignment: .leading, spacing: 4) {
-        Text("I tuoi progressi")
-          .font(a11y.typeface.font(size: a11y.size(38), weight: .bold))
-        if !store.current.name.isEmpty {
-          Text(store.current.name)
-            .font(a11y.typeface.font(size: a11y.size(18)))
-            .foregroundStyle(pal.muted)
-        }
-      }
-      Spacer()
-      Button(action: onClose) {
-        Label("Chiudi", systemImage: "xmark")
-          .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
-          .padding(.horizontal, 18).padding(.vertical, 12)
-      }
-      .buttonStyle(.plain)
-      .background(pal.surface, in: .rect(cornerRadius: 12))
-      .frame(minWidth: 44, minHeight: 44)
-    }
-  }
-
-  private var empty: some View {
-    VStack(spacing: 16) {
-      Image(systemName: "sparkles")
-        .font(.system(size: a11y.size(54)))
-        .foregroundStyle(pal.accent)
-      Text("Qui compariranno i tuoi progressi")
-        .font(a11y.typeface.font(size: a11y.size(26), weight: .semibold))
-      Text("Fai la prima sessione e torna a vedere.")
-        .font(a11y.typeface.font(size: a11y.size(18)))
-        .foregroundStyle(pal.muted)
-    }
-    .frame(maxWidth: .infinity)
-    .padding(.vertical, 60)
-  }
-
-  private var levelCard: some View {
-    let xp = store.current.xp
-    let level = Gamification.level(xp: xp)
-    return VStack(alignment: .leading, spacing: 12) {
-      HStack(alignment: .firstTextBaseline) {
-        Text("Livello \(level)")
-          .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
-        Text(Gamification.levelName(level))
-          .font(a11y.typeface.font(size: a11y.size(18)))
-          .foregroundStyle(pal.accent)
-        Spacer()
-        Text("\(xp) punti")
-          .font(a11y.typeface.font(size: a11y.size(18)))
-          .foregroundStyle(pal.muted)
-          .monospacedDigit()
-      }
-      ProgressView(value: Gamification.progressInLevel(xp))
-        .tint(pal.accent)
-        .scaleEffect(x: 1, y: 2.4, anchor: .center)
-        .padding(.vertical, 6)
-      Text("Mancano \(Gamification.xpPerLevel - Gamification.xpInLevel(xp)) punti al livello \(level + 1).")
-        .font(a11y.typeface.font(size: a11y.size(15)))
-        .foregroundStyle(pal.muted)
-    }
-    .padding(24)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(pal.surface, in: .rect(cornerRadius: 18))
-  }
-
-  private var tiles: some View {
-    let best = sessions.compactMap(\.thresholdMs).min()
-    let words = sessions.reduce(0) { $0 + $1.correct }
-    return HStack(spacing: 16) {
-      tile("Giorni di fila", "\(store.current.streakCurrent)", "flame.fill",
-           note: store.current.streakLongest > store.current.streakCurrent
-             ? "record: \(store.current.streakLongest)" : nil)
-      tile("Sessioni", "\(sessions.count)", "checkmark.circle.fill", note: nil)
-      tile("Parole prese", "\(words)", "text.book.closed.fill", note: nil)
-      if let best {
-        tile("La più veloce", "\(Int(best))", "bolt.fill", note: "millesimi di secondo")
-      }
-    }
-  }
-
-  private func tile(_ title: String, _ value: String, _ symbol: String, note: String?) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Image(systemName: symbol)
-        .font(.system(size: a11y.size(22)))
-        .foregroundStyle(pal.accent)
-      Text(value)
-        .font(a11y.typeface.font(size: a11y.size(34), weight: .bold))
-        .monospacedDigit()
-      Text(title)
-        .font(a11y.typeface.font(size: a11y.size(14)))
-        .foregroundStyle(pal.muted)
-      if let note {
-        Text(note)
-          .font(a11y.typeface.font(size: a11y.size(12)))
-          .foregroundStyle(pal.muted)
-      }
-    }
-    .padding(20)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(pal.surface, in: .rect(cornerRadius: 18))
-    .accessibilityElement(children: .combine)
-    .accessibilityLabel("\(title): \(value)")
-  }
-
-  /// Un grafico a barre disegnato a mano: niente Swift Charts, così l'app
-  /// resta senza dipendenze e il rendering è prevedibile.
-  private var trend: some View {
-    VStack(alignment: .leading, spacing: 14) {
-      Text("Come è andata, sessione per sessione")
-        .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
-      HStack(alignment: .bottom, spacing: 10) {
-        ForEach(Array(recent.enumerated()), id: \.element.id) { _, s in
-          VStack(spacing: 6) {
-            Text("\(Int(s.accuracy * 100))")
-              .font(a11y.typeface.font(size: a11y.size(12)))
-              .foregroundStyle(pal.muted)
-              .monospacedDigit()
-            RoundedRectangle(cornerRadius: 6)
-              .fill(s.accuracy >= Difficulty.comfortableLow ? pal.ok : pal.accent)
-              .frame(height: max(6, 150 * s.accuracy))
-            Text(shortDate(s.date))
-              .font(a11y.typeface.font(size: a11y.size(11)))
-              .foregroundStyle(pal.muted)
-          }
-          .accessibilityElement(children: .ignore)
-          .accessibilityLabel("\(shortDate(s.date)): \(Int(s.accuracy * 100)) per cento")
-        }
-      }
-      .frame(height: 200, alignment: .bottom)
-      Text("La fascia buona è fra il 60 e il 90 per cento: lì si impara di più.")
-        .font(a11y.typeface.font(size: a11y.size(14)))
-        .foregroundStyle(pal.muted)
-    }
-    .padding(24)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(pal.surface, in: .rect(cornerRadius: 18))
-  }
-
-  private var achievements: some View {
-    let unlocked = Set(store.current.unlockedAchievements)
-    return VStack(alignment: .leading, spacing: 14) {
-      Text("Obiettivi")
-        .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: 14)], spacing: 14) {
-        ForEach(Gamification.all) { a in
-          let got = unlocked.contains(a.id)
-          HStack(spacing: 12) {
-            Image(systemName: got ? a.symbol : "lock.fill")
-              .font(.system(size: a11y.size(20)))
-              .foregroundStyle(got ? pal.accent : pal.muted)
-              .frame(width: 34)
-            VStack(alignment: .leading, spacing: 2) {
-              Text(a.title)
-                .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
-              Text(a.hint)
-                .font(a11y.typeface.font(size: a11y.size(12)))
-                .foregroundStyle(pal.muted)
-                .fixedSize(horizontal: false, vertical: true)
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: a11y.size(20)) {
+                intestazione
+                    .padding(.top, a11y.size(10))
+                sezionelivello
+                sezioneSerie
+                rigaRiassuntiva
+                sezioneGrafici
+                sezioneObiettivi
+                sezioneSessioniRecenti
+                piedePiePage
+                    .padding(.bottom, a11y.size(28))
             }
-            Spacer(minLength: 0)
-          }
-          .padding(14)
-          .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-          .background(pal.background, in: .rect(cornerRadius: 14))
-          .overlay(RoundedRectangle(cornerRadius: 14)
-            .stroke(got ? pal.accent.opacity(0.5) : Color.gray.opacity(0.25), lineWidth: 1.5))
-          .opacity(got ? 1 : 0.6)
-          .accessibilityElement(children: .combine)
-          .accessibilityLabel("\(a.title). \(got ? "Ottenuto" : "Ancora da ottenere"). \(a.hint)")
+            .padding(.horizontal, a11y.size(28))
+            .frame(maxWidth: 1000)
+            .frame(maxWidth: .infinity)
         }
-      }
+        .background(palette.background.ignoresSafeArea())
     }
-    .padding(24)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(pal.surface, in: .rect(cornerRadius: 18))
-  }
 
-  private var adultSection: some View {
-    DisclosureGroup(isExpanded: $showAdultDetail) {
-      VStack(alignment: .leading, spacing: 12) {
-        ForEach(sessions.prefix(20)) { s in
-          HStack(spacing: 14) {
-            Text(fullDate(s.date))
-              .font(.system(size: a11y.size(13)))
-              .frame(width: 170, alignment: .leading)
-            Text(s.mode == .lettura ? "Leggi" : "Scrivi")
-              .font(.system(size: a11y.size(13)))
-              .frame(width: 60, alignment: .leading)
-              .foregroundStyle(pal.muted)
-            Text(s.level.title)
-              .font(.system(size: a11y.size(13)))
-              .frame(width: 100, alignment: .leading)
-              .foregroundStyle(pal.muted)
-            Text("\(s.correct)/\(s.total)")
-              .font(.system(size: a11y.size(13))).monospacedDigit()
-              .frame(width: 60, alignment: .leading)
-            Text(s.thresholdMs.map { "soglia \(Int($0)) ms" } ?? "—")
-              .font(.system(size: a11y.size(13))).monospacedDigit()
-              .foregroundStyle(pal.muted)
-            Spacer(minLength: 0)
-          }
+    // MARK: - Intestazione
+
+    private var intestazione: some View {
+        HStack(alignment: .center, spacing: a11y.size(12)) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("I tuoi progressi")
+                    .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
+                    .foregroundStyle(palette.foreground)
+                if !bambino.name.isEmpty {
+                    Text(bambino.name)
+                        .font(a11y.typeface.font(size: a11y.size(16), weight: .regular))
+                        .foregroundStyle(palette.muted)
+                }
+            }
+            Spacer()
+            Button(action: onClose) {
+                Text("Chiudi")
+                    .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
+                    .foregroundStyle(palette.foreground)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 10)
+                    .background(palette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("Chiudi la dashboard")
         }
-
-        Divider().padding(.vertical, 6)
-
-        HStack(spacing: 12) {
-          Button("Esporta lo storico in PDF") {
-            Exporter.save(data: Exporter.pdf(sessions: sessions, learner: store.current),
-                          suggested: "MirrorScopio-storico.pdf")
-          }
-          Button("Esporta lo storico in CSV") {
-            let text = sessions.map { Exporter.csv($0, learner: store.current) }
-              .joined(separator: "\n")
-            Exporter.save(text: text, suggested: "MirrorScopio-storico.csv")
-          }
-          Spacer()
-        }
-
-        Text("I dati non lasciano mai questo Mac. Stanno in file leggibili in \(store.storageFolder.path).")
-          .font(.system(size: a11y.size(12)))
-          .foregroundStyle(pal.muted)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-      .padding(.top, 14)
-    } label: {
-      Label("Dettaglio per l'adulto", systemImage: "person.fill")
-        .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
     }
-    .padding(24)
-    .background(pal.surface, in: .rect(cornerRadius: 18))
-  }
 
-  private func shortDate(_ d: Date) -> String {
-    let f = DateFormatter()
-    f.locale = Locale(identifier: "it_IT")
-    f.dateFormat = "d MMM"
-    return f.string(from: d)
-  }
+    // MARK: - Livello e XP
 
-  private func fullDate(_ d: Date) -> String {
-    let f = DateFormatter()
-    f.locale = Locale(identifier: "it_IT")
-    f.dateFormat = "d MMMM yyyy, HH:mm"
-    return f.string(from: d)
-  }
+    private var sezionelivello: some View {
+        let lv      = Gamification.level(xp: bambino.xp)
+        let nome    = Gamification.levelName(lv)
+        let prog    = Gamification.progressInLevel(bambino.xp)
+        let xpInLv  = Gamification.xpInLevel(bambino.xp)
+
+        return VStack(alignment: .leading, spacing: a11y.size(10)) {
+            HStack(alignment: .firstTextBaseline, spacing: a11y.size(8)) {
+                Text("Livello \(lv)")
+                    .font(a11y.typeface.font(size: a11y.size(44), weight: .heavy))
+                    .foregroundStyle(palette.accent)
+                    .accessibilityHidden(true)
+                Text(nome)
+                    .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
+                    .foregroundStyle(palette.foreground)
+                    .accessibilityHidden(true)
+            }
+            // La barra mostra visivamente quanto manca al prossimo livello.
+            ProgressView(value: prog)
+                .tint(palette.accent)
+            if !a11y.hideScore {
+                Text("\(xpInLv) / \(Gamification.xpPerLevel) XP verso il livello \(lv + 1)")
+                    .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                    .foregroundStyle(palette.muted)
+            }
+        }
+        .padding(a11y.size(20))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        // Un unico elemento VoiceOver che legge tutto d'un fiato.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Livello \(lv), \(nome)")
+        .accessibilityValue(
+            a11y.hideScore
+                ? "Stai avanzando"
+                : "\(xpInLv) su \(Gamification.xpPerLevel) punti, \(Int(prog * 100)) percento verso il livello successivo"
+        )
+    }
+
+    // MARK: - Serie di giorni
+
+    private var sezioneSerie: some View {
+        let streak = bambino.streakCurrent
+        let rec    = bambino.streakLongest
+
+        return HStack(spacing: a11y.size(14)) {
+            // La fiamma arancione indica la serie attiva; il significato è
+            // ribadito dal testo così chi non distingue i colori capisce lo stesso.
+            Image(systemName: streak > 0 ? "flame.fill" : "calendar")
+                .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
+                .foregroundStyle(streak > 0 ? Color.orange : palette.accent)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                if streak == 0 {
+                    Text("Comincia oggi la tua serie")
+                        .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+                        .foregroundStyle(palette.foreground)
+                    Text("Ogni giorno conta")
+                        .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                        .foregroundStyle(palette.muted)
+                } else {
+                    Text("\(streak) \(streak == 1 ? "giorno di fila" : "giorni di fila")")
+                        .font(a11y.typeface.font(size: a11y.size(20), weight: .bold))
+                        .foregroundStyle(palette.foreground)
+                    if rec > 0 {
+                        Text("Record: \(rec) \(rec == 1 ? "giorno" : "giorni")")
+                            .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                            .foregroundStyle(palette.muted)
+                    }
+                }
+            }
+            Spacer()
+        }
+        .padding(a11y.size(18))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(etichettaVoiceOverSerie)
+    }
+
+    private var etichettaVoiceOverSerie: String {
+        let s  = bambino.streakCurrent
+        let pl = s == 1 ? "giorno di fila" : "giorni di fila"
+        guard s > 0 else {
+            return "Serie: nessun giorno consecutivo ancora. Puoi cominciare oggi."
+        }
+        let rec   = bambino.streakLongest
+        let recPl = rec == 1 ? "giorno" : "giorni"
+        return "Serie attiva: \(s) \(pl). Record personale: \(rec) \(recPl)."
+    }
+
+    // MARK: - Riquadri riassuntivi
+
+    private var rigaRiassuntiva: some View {
+        let count   = sessioni.count
+        let correct = sessioni.reduce(0) { $0 + $1.correct }
+        let bestMs  = sessioni.compactMap(\.thresholdMs).min()
+
+        return HStack(spacing: a11y.size(10)) {
+            _RiquadroRiassuntivo(
+                simbolo: "checkmark.seal.fill",
+                coloreSimbolo: palette.ok,
+                etichetta: "Sessioni",
+                valore: a11y.hideScore ? conteggioQualitativo(count, .sessioni) : "\(count)",
+                sottotitolo: nil,
+                a11y: a11y, palette: palette
+            )
+            .accessibilityLabel(
+                "Sessioni completate: \(a11y.hideScore ? conteggioQualitativo(count, .sessioni) : String(count))"
+            )
+
+            _RiquadroRiassuntivo(
+                simbolo: "text.word.spacing",
+                coloreSimbolo: palette.accent,
+                etichetta: "Parole giuste",
+                valore: a11y.hideScore ? conteggioQualitativo(correct, .parole) : "\(correct)",
+                sottotitolo: nil,
+                a11y: a11y, palette: palette
+            )
+            .accessibilityLabel(
+                "Parole lette correttamente: \(a11y.hideScore ? conteggioQualitativo(correct, .parole) : String(correct))"
+            )
+
+            if let ms = bestMs {
+                _RiquadroRiassuntivo(
+                    simbolo: "timer",
+                    coloreSimbolo: palette.accent,
+                    etichetta: "Il tuo record",
+                    valore: a11y.hideScore ? "fulmine" : "\(Int(ms))",
+                    sottotitolo: a11y.hideScore ? nil : "millesimi di secondo",
+                    a11y: a11y, palette: palette
+                )
+                .accessibilityLabel(
+                    a11y.hideScore
+                        ? "Record di velocità: velocissimo"
+                        : "Record di velocità: \(Int(ms)) millesimi di secondo"
+                )
+            }
+        }
+    }
+
+    // MARK: - Grafici
+
+    @ViewBuilder
+    private var sezioneGrafici: some View {
+        if sessioniGrafico.count < 2 {
+            // Stato vuoto invitante: non un errore, ma un'opportunità.
+            HStack(spacing: a11y.size(14)) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(a11y.typeface.font(size: a11y.size(30), weight: .light))
+                    .foregroundStyle(palette.muted)
+                    .accessibilityHidden(true)
+                Text("Fai un'altra sessione e qui comparirà il tuo andamento")
+                    .font(a11y.typeface.font(size: a11y.size(15), weight: .regular))
+                    .foregroundStyle(palette.muted)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(a11y.size(24))
+            .background(palette.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        } else {
+            VStack(alignment: .leading, spacing: a11y.size(12)) {
+                graficoAccuratezza
+                graficoSoglia
+            }
+        }
+    }
+
+    private var graficoAccuratezza: some View {
+        VStack(alignment: .leading, spacing: a11y.size(8)) {
+            Text("Precisione nel tempo")
+                .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+                .foregroundStyle(palette.foreground)
+
+            Chart(puntiGrafico) { p in
+                LineMark(
+                    x: .value("Sessione", p.id),
+                    y: .value("Precisione %", p.accuratezza)
+                )
+                .foregroundStyle(palette.ok)
+                PointMark(
+                    x: .value("Sessione", p.id),
+                    y: .value("Precisione %", p.accuratezza)
+                )
+                .foregroundStyle(palette.ok)
+            }
+            .chartYScale(domain: 0...100)
+            .chartYAxisLabel("Parole giuste %")
+            .frame(minHeight: 160)
+        }
+        .padding(a11y.size(18))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Grafico della precisione nel tempo. Le sessioni più recenti sono a destra.")
+    }
+
+    private var graficoSoglia: some View {
+        let conSoglia = puntiGrafico.filter { $0.sogliaMs != nil }
+
+        return VStack(alignment: .leading, spacing: a11y.size(8)) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Soglia di velocità nel tempo")
+                    .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+                    .foregroundStyle(palette.foreground)
+                // Nota obbligatoria: il grafico migliora verso il basso, non verso l'alto.
+                Text("↓  più in basso = più bravo (meno millisecondi = più veloce)")
+                    .font(a11y.typeface.font(size: a11y.size(12), weight: .regular))
+                    .foregroundStyle(palette.muted)
+            }
+
+            if conSoglia.isEmpty {
+                Text("Nessun dato di soglia ancora. La modalità adattiva li raccoglie in automatico.")
+                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                    .foregroundStyle(palette.muted)
+                    .padding(.vertical, a11y.size(14))
+            } else {
+                Chart(conSoglia) { p in
+                    LineMark(
+                        x: .value("Sessione", p.id),
+                        y: .value("ms", p.sogliaMs ?? 0)
+                    )
+                    .foregroundStyle(palette.accent)
+                    PointMark(
+                        x: .value("Sessione", p.id),
+                        y: .value("ms", p.sogliaMs ?? 0)
+                    )
+                    .foregroundStyle(palette.accent)
+                }
+                .chartYAxisLabel("Millisecondi")
+                .frame(minHeight: 160)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    "Grafico della soglia di velocità. Valori più bassi indicano lettura più rapida."
+                )
+            }
+        }
+        .padding(a11y.size(18))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Obiettivi
+
+    private let colonneObiettivi = [GridItem(.adaptive(minimum: 144, maximum: 220))]
+
+    private var sezioneObiettivi: some View {
+        VStack(alignment: .leading, spacing: a11y.size(12)) {
+            Text("Obiettivi")
+                .font(a11y.typeface.font(size: a11y.size(20), weight: .bold))
+                .foregroundStyle(palette.foreground)
+
+            LazyVGrid(columns: colonneObiettivi, spacing: a11y.size(10)) {
+                ForEach(Gamification.all) { a in
+                    _CellaObiettivo(
+                        obiettivo: a,
+                        sbloccato: bambino.unlockedAchievements.contains(a.id),
+                        a11y: a11y,
+                        palette: palette
+                    )
+                }
+            }
+        }
+        .padding(a11y.size(18))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Sessioni recenti
+
+    private var sezioneSessioniRecenti: some View {
+        VStack(alignment: .leading, spacing: a11y.size(6)) {
+            Text("Sessioni recenti")
+                .font(a11y.typeface.font(size: a11y.size(20), weight: .bold))
+                .foregroundStyle(palette.foreground)
+                .padding(.bottom, a11y.size(4))
+
+            if sessioni.isEmpty {
+                Text("Ancora nessuna sessione completata. La prima è quella che conta di più.")
+                    .font(a11y.typeface.font(size: a11y.size(15), weight: .regular))
+                    .foregroundStyle(palette.muted)
+                    .padding(.vertical, a11y.size(12))
+            } else {
+                ForEach(Array(sessioni.prefix(10))) { sessione in
+                    VStack(spacing: 0) {
+                        _RigaSessione(
+                            sessione: sessione,
+                            aperta: sessioneEspansa == sessione.id,
+                            a11y: a11y,
+                            palette: palette
+                        ) {
+                            // Toggla l'espansione; rispetta reducedMotion.
+                            let prossimo: UUID? =
+                                sessioneEspansa == sessione.id ? nil : sessione.id
+                            if a11y.reducedMotion {
+                                sessioneEspansa = prossimo
+                            } else {
+                                withAnimation(.easeInOut(duration: 0.18)) {
+                                    sessioneEspansa = prossimo
+                                }
+                            }
+                        }
+                        Divider().opacity(0.35)
+                    }
+                }
+            }
+        }
+        .padding(a11y.size(18))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Piede adulto
+
+    private var piedePiePage: some View {
+        HStack(spacing: a11y.size(10)) {
+            Button {
+                let data = Exporter.pdf(sessions: store.currentHistory, learner: store.current)
+                let nome = bambino.name.isEmpty ? "bambino" : bambino.name
+                Exporter.save(data: data, suggested: "progressi-\(nome).pdf")
+            } label: {
+                Label("Esporta PDF", systemImage: "doc.fill")
+                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                    .foregroundStyle(palette.foreground)
+            }
+            .buttonStyle(.plain)
+            .frame(minHeight: 44)
+            .padding(.horizontal, 12)
+            .background(palette.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Button {
+                guard let ultima = sessioni.first else { return }
+                let csv  = Exporter.csv(ultima, learner: store.current)
+                let nome = bambino.name.isEmpty ? "sessione" : bambino.name
+                Exporter.save(text: csv, suggested: "sessione-\(nome).csv")
+            } label: {
+                Label("Esporta CSV", systemImage: "tablecells")
+                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                    .foregroundStyle(palette.foreground)
+            }
+            .buttonStyle(.plain)
+            .frame(minHeight: 44)
+            .padding(.horizontal, 12)
+            .background(palette.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Spacer()
+
+            Button {
+                mostraConfermaReset = true
+            } label: {
+                Label("Cancella lo storico", systemImage: "trash")
+                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                    .foregroundStyle(palette.wrong)
+            }
+            .buttonStyle(.plain)
+            .frame(minHeight: 44)
+            .padding(.horizontal, 12)
+        }
+        .padding(a11y.size(14))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .confirmationDialog(
+            "Cancellare tutto lo storico\(bambino.name.isEmpty ? "" : " di \(bambino.name)")?",
+            isPresented: $mostraConfermaReset,
+            titleVisibility: .visible
+        ) {
+            Button("Sì, cancella tutto", role: .destructive) {
+                store.deleteHistory()
+            }
+            Button("Annulla", role: .cancel) { }
+        } message: {
+            Text("Questa azione non si può annullare. Le sessioni passate andranno perse.")
+        }
+    }
+
+    // MARK: - Utilità
+
+    private enum _Contesto { case sessioni, parole }
+
+    // Traduzione qualitativa dei numeri: onesta, mai colpevolizzante.
+    private func conteggioQualitativo(_ n: Int, _ ctx: _Contesto) -> String {
+        switch ctx {
+        case .sessioni:
+            switch n {
+            case 0:       return "nessuna ancora"
+            case 1:       return "una"
+            case 2...4:   return "alcune"
+            case 5...9:   return "tante"
+            default:      return "moltissime"
+            }
+        case .parole:
+            switch n {
+            case 0:       return "nessuna ancora"
+            case 1...9:   return "poche"
+            case 10...49: return "tante"
+            case 50...199: return "moltissime"
+            default:      return "tantissime"
+            }
+        }
+    }
+}
+
+// MARK: - Punto dati per i grafici
+
+/// Struttura leggera usata solo da Chart: evita di calcolare due volte gli stessi valori.
+private struct _PuntoGrafico: Identifiable {
+    let id: Int
+    let accuratezza: Double   // 0...100
+    let sogliaMs: Double?
+}
+
+// MARK: - Riquadro riassuntivo
+
+private struct _RiquadroRiassuntivo: View {
+    let simbolo: String
+    let coloreSimbolo: Color
+    let etichetta: String
+    let valore: String
+    let sottotitolo: String?
+    let a11y: A11ySettings
+    let palette: Palette
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: a11y.size(6)) {
+            Image(systemName: simbolo)
+                .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
+                .foregroundStyle(coloreSimbolo)
+                .accessibilityHidden(true)
+            Text(valore)
+                .font(a11y.typeface.font(size: a11y.size(28), weight: .heavy))
+                .foregroundStyle(palette.foreground)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            Text(etichetta)
+                .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                .foregroundStyle(palette.muted)
+            if let sub = sottotitolo {
+                Text(sub)
+                    .font(a11y.typeface.font(size: a11y.size(12), weight: .regular))
+                    .foregroundStyle(palette.muted)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(a11y.size(16))
+        .background(palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Cella obiettivo
+
+private struct _CellaObiettivo: View {
+    let obiettivo: Achievement
+    let sbloccato: Bool
+    let a11y: A11ySettings
+    let palette: Palette
+
+    // Oro per gli obiettivi sbloccati: il colore è accompagnato dal simbolo
+    // e dal testo così il significato arriva anche senza distinguere le tinte.
+    private let oro = Color(red: 0.88, green: 0.68, blue: 0.10)
+
+    var body: some View {
+        VStack(spacing: a11y.size(8)) {
+            Image(systemName: sbloccato ? obiettivo.symbol : "lock.fill")
+                .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
+                .foregroundStyle(sbloccato ? oro : palette.muted)
+                .frame(width: a11y.size(44), height: a11y.size(44))
+                .accessibilityHidden(true)
+
+            Text(obiettivo.title)
+                .font(a11y.typeface.font(size: a11y.size(13), weight: .semibold))
+                .foregroundStyle(sbloccato ? palette.foreground : palette.muted)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+
+            // Il suggerimento è sempre visibile: il bambino deve sapere a cosa puntare.
+            Text(obiettivo.hint)
+                .font(a11y.typeface.font(size: a11y.size(11), weight: .regular))
+                .foregroundStyle(palette.muted)
+                .multilineTextAlignment(.center)
+                .lineLimit(3)
+        }
+        .padding(a11y.size(12))
+        .frame(maxWidth: .infinity)
+        .background(palette.surface.opacity(sbloccato ? 1.0 : 0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            if sbloccato {
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(oro.opacity(0.55), lineWidth: 1.5)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            sbloccato
+                ? "Obiettivo raggiunto: \(obiettivo.title). \(obiettivo.hint)"
+                : "Obiettivo ancora da raggiungere: \(obiettivo.title). \(obiettivo.hint)"
+        )
+    }
+}
+
+// MARK: - Riga sessione recente
+
+private struct _RigaSessione: View {
+    let sessione: SessionRecord
+    let aperta: Bool
+    let a11y: A11ySettings
+    let palette: Palette
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 0) {
+                rigaPrincipale
+                if aperta { dettaglioParole }
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(aperta ? "Tocca per chiudere i dettagli" : "Tocca per vedere le parole da ripassare")
+    }
+
+    private var rigaPrincipale: some View {
+        HStack(spacing: a11y.size(10)) {
+            // Indicatore di esito: forma + colore, mai solo il colore.
+            let buono = sessione.total > 0 && sessione.accuracy >= 0.6
+            Image(systemName: buono ? "checkmark.circle.fill" : "xmark.square.fill")
+                .font(a11y.typeface.font(size: a11y.size(18), weight: .regular))
+                .foregroundStyle(buono ? palette.ok : palette.wrong)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(dataItaliana(sessione.date))
+                    .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
+                    .foregroundStyle(palette.foreground)
+                HStack(spacing: a11y.size(6)) {
+                    Label(sessione.mode.label, systemImage: sessione.mode.symbol)
+                        .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                        .foregroundStyle(palette.muted)
+                    Text("·")
+                        .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                        .foregroundStyle(palette.muted)
+                    Label(sessione.level.title, systemImage: sessione.level.symbol)
+                        .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                        .foregroundStyle(palette.muted)
+                }
+            }
+
+            Spacer()
+
+            // "12 su 15" è più leggibile di una percentuale per i bambini.
+            Text("\(sessione.correct) su \(sessione.total)")
+                .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
+                .foregroundStyle(palette.foreground)
+
+            Image(systemName: aperta ? "chevron.up" : "chevron.down")
+                .font(a11y.typeface.font(size: a11y.size(12), weight: .regular))
+                .foregroundStyle(palette.muted)
+                .accessibilityHidden(true)
+        }
+        .padding(.vertical, a11y.size(10))
+    }
+
+    @ViewBuilder
+    private var dettaglioParole: some View {
+        let mancate = sessione.missedWords
+        VStack(alignment: .leading, spacing: a11y.size(6)) {
+            if mancate.isEmpty {
+                Text("Nessuna parola mancata — ottimo lavoro")
+                    .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                    .foregroundStyle(palette.muted)
+            } else {
+                Text("Parole da ripassare:")
+                    .font(a11y.typeface.font(size: a11y.size(13), weight: .semibold))
+                    .foregroundStyle(palette.muted)
+                // Chips orizzontali: scannable a colpo d'occhio.
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 80))],
+                    spacing: a11y.size(6)
+                ) {
+                    ForEach(Array(mancate.enumerated()), id: \.offset) { _, parola in
+                        Text(parola)
+                            .font(a11y.typeface.font(size: a11y.size(14), weight: .semibold))
+                            .foregroundStyle(palette.foreground)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(palette.background)
+                            .clipShape(RoundedRectangle(cornerRadius: 7))
+                    }
+                }
+            }
+        }
+        .padding(.bottom, a11y.size(10))
+    }
+
+    private func dataItaliana(_ data: Date) -> String {
+        let cal = Calendar.current
+        if cal.isDateInToday(data)     { return "oggi" }
+        if cal.isDateInYesterday(data) { return "ieri" }
+        let fmt = DateFormatter()
+        fmt.locale     = Locale(identifier: "it_IT")
+        fmt.dateFormat = "d MMMM"
+        return fmt.string(from: data)
+    }
 }

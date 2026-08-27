@@ -15,6 +15,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Aggiunto
+
+- `test.sh` riscritto per la nuova struttura: gli harness veloci girano da soli, quelli che
+  usano microfono e modello di sistema solo con `--all`.
+
 ## [0.1.0] — 2026-08-27
 
 Prima versione di MirrorScopio, nata dal tachistoscopio sperimentale e riscritta come app
