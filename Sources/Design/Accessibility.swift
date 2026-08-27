@@ -115,7 +115,10 @@ struct A11ySettings: Codable, Equatable {
   /// manca invece di immaginarlo. Conta il tempo passato, non quello che resta:
   /// non è un conto alla rovescia.
   var showTimer = false
-  var soundsEnabled = false
+  /// Acceso di serie: il suono è l'unico riscontro che arriva a chi lo schermo
+  /// non riesce a guardarlo mentre legge, ed è breve e morbido di proposito.
+  /// Il profilo Autismo lo spegne, e si spegne comunque dalle Impostazioni.
+  var soundsEnabled = true
   /// Voce di sistema scelta per dettare le parole. `nil` = la migliore trovata.
   var voiceIdentifier: String? = nil
   /// Velocità della voce. 0.4 è già più lenta del normale.
