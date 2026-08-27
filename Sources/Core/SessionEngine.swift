@@ -13,6 +13,8 @@ enum Phase: Equatable {
   case stimulus
   case postMask
   case listening
+  /// Attesa della trascrizione definitiva della parola appena letta.
+  case flushing
   /// Modalità Scrivi: il Mac ha detto la parola, si aspetta la tastiera.
   case typing
   case scoring
@@ -61,6 +63,7 @@ final class SessionEngine: ObservableObject {
   private var stimulusOnset: CFTimeInterval = 0
   private var stimulusOffset: CFTimeInterval = 0
   private var listeningStart: CFTimeInterval = 0
+  private var flushStart: CFTimeInterval = 0
   private var current: Trial?
   private var scoringTask: Task<Void, Never>?
 
@@ -223,7 +226,17 @@ final class SessionEngine: ObservableObject {
       let heard = !snap.text.isEmpty && silent
       let timedOut = elapsed >= responseTimeout / 1000
       if heard || timedOut {
-        closeListening(snapshot: snap)
+        // Prima di giudicare bisogna chiedere all'analizzatore quello che ha
+        // sentito: da solo, a parola singola, non lo dice.
+        requestFinalTranscript()
+      }
+
+    case .flushing:
+      // Si aspetta il testo definitivo, ma non all'infinito: mezzo secondo è
+      // il triplo di quanto serve in pratica.
+      let waited = now - flushStart
+      if snap.isFinal || waited > 0.5 {
+        closeListening(snapshot: listener.read())
       }
 
     case .feedback:
@@ -306,6 +319,15 @@ final class SessionEngine: ObservableObject {
   func repeatWord() {
     guard case .typing = phase, let t = current else { return }
     speaker.say(t.stimulus)
+  }
+
+  /// Chiede la trascrizione definitiva della parola appena letta e passa in
+  /// attesa: la risposta arriva in poche decine di millesimi.
+  private func requestFinalTranscript() {
+    guard case .listening = phase else { return }
+    phase = .flushing
+    flushStart = CACurrentMediaTime()
+    Task { await listener.flush() }
   }
 
   private func enterListening(at now: CFTimeInterval) {

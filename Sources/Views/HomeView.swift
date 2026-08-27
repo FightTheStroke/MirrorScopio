@@ -8,6 +8,8 @@ struct HomeView: View {
   @Environment(\.palette) private var palette
   var openSettings: () -> Void
   var openProgress: () -> Void
+  var openAudioCheck: () -> Void
+  var openReadiness: () -> Void
 
   @State private var showAdvanced = false
   @State private var showCalibrationIntro = false
@@ -47,6 +49,8 @@ struct HomeView: View {
           .foregroundStyle(palette.foreground)
       }
       Spacer()
+      iconButton("waveform.badge.mic", "Mi senti?", action: openAudioCheck)
+      iconButton("checklist", "Prepara il Mac", action: openReadiness)
       iconButton("chart.line.uptrend.xyaxis", "I tuoi progressi", action: openProgress)
       iconButton("gearshape.fill", "Impostazioni", action: openSettings)
     }

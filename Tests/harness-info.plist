@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>org.fightthestroke.mirrorscopio.harness</string>
+  <key>CFBundleName</key><string>MirrorScopio Harness</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Verifica automatica del microfono per MirrorScopio. L'audio resta su questo Mac.</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>Verifica automatica del riconoscimento vocale, interamente su questo Mac.</string>
+</dict>
+</plist>

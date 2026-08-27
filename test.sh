@@ -19,7 +19,8 @@ mkdir -p "$OUT"
 CORE=$(find Sources/Core Sources/Data Sources/Design -name "*.swift")
 
 FRAMEWORKS="-framework AppKit -framework SwiftUI -framework AVFoundation \
-  -framework Speech -framework FoundationModels -framework QuartzCore"
+  -framework Speech -framework FoundationModels -framework QuartzCore \
+  -framework CoreAudio"
 
 FAILED=0
 
@@ -50,6 +51,7 @@ run_harness() {
 }
 
 run_harness staircase   Tests/StaircaseHarness.swift    fast
+run_harness microfono   Tests/MicHarness.swift          slow
 run_harness punteggio   Tests/ScoringHarness.swift      slow
 run_harness intelligenza Tests/IntelligenceHarness.swift slow
 

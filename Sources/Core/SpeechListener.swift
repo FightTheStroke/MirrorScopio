@@ -15,6 +15,7 @@ struct VoiceWindowSnapshot {
 
 enum ListenerError: LocalizedError {
   case notAuthorized
+  case noInputDevice
   case noAudioFormat
   case localeUnavailable(String)
 
@@ -22,6 +23,8 @@ enum ListenerError: LocalizedError {
     switch self {
     case .notAuthorized:
       "Permesso di riconoscimento vocale o microfono negato. Concedilo in Impostazioni di Sistema › Privacy e sicurezza."
+    case .noInputDevice:
+      "Nessun microfono attivo. Controlla quale ingresso è selezionato in \"Mi senti?\" o in Impostazioni di Sistema › Suono."
     case .noAudioFormat:
       "Nessun formato audio compatibile con il riconoscitore on-device."
     case .localeUnavailable(let l):
@@ -40,7 +43,9 @@ final class SpeechListener: @unchecked Sendable {
   private var windowStart: CMTime = .zero
   private var framesFed: Int64 = 0
 
-  private let engine = AVAudioEngine()
+  /// Creato solo al momento di ascoltare: il motore si lega al microfono che
+  /// trova alla nascita, quindi la scelta del dispositivo deve venire prima.
+  private var engine = AVAudioEngine()
   private var analyzer: SpeechAnalyzer?
   private var transcriber: SpeechTranscriber?
   private var continuation: AsyncStream<AnalyzerInput>.Continuation?
@@ -54,15 +59,20 @@ final class SpeechListener: @unchecked Sendable {
 
   // MARK: - Ciclo di vita
 
+  /// Serve soltanto il microfono.
+  ///
+  /// Il vecchio permesso di "riconoscimento vocale" fa comparire un avviso di
+  /// sistema che dice che l'audio viene inviato ad Apple: è il testo fisso di
+  /// quella richiesta, scritto per il riconoscimento sui server. Qui non serve,
+  /// perché `SpeechAnalyzer` lavora con il modello installato sul Mac e l'audio
+  /// non esce da questa macchina. Chiederlo lo stesso spaventerebbe le famiglie
+  /// dicendo il falso.
   static func requestPermissions() async -> Bool {
-    let speech = await withCheckedContinuation { (c: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
-      SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0) }
-    }
-    guard speech == .authorized else { return false }
-    return await AVCaptureDevice.requestAccess(for: .audio)
+    await AVCaptureDevice.requestAccess(for: .audio)
   }
 
-  func start(locale: Locale, vocabulary: [String]) async throws {
+  func start(locale: Locale, vocabulary: [String],
+             preferredInput: AudioDeviceID? = nil) async throws {
     guard SpeechTranscriber.isAvailable else { throw ListenerError.localeUnavailable(locale.identifier) }
 
     guard let supported = await SpeechTranscriber.supportedLocale(equivalentTo: locale) else {
@@ -99,6 +109,15 @@ final class SpeechListener: @unchecked Sendable {
     continuation = cont
     analyzerFormat = fmt
 
+    // La scelta del microfono passa dall'ingresso predefinito del sistema
+    // (vedi `AudioDevices.setDefaultInput`) e deve precedere la nascita del
+    // motore audio, altrimenti resta legato al microfono di prima.
+    if let preferredInput, preferredInput != AudioDevices.defaultInput() {
+      AudioDevices.setDefaultInput(preferredInput)
+      try? await Task.sleep(for: .milliseconds(600))
+    }
+    engine = AVAudioEngine()
+
     try installTap(target: fmt)
     try await an.start(inputSequence: stream)
     engine.prepare()
@@ -114,6 +133,21 @@ final class SpeechListener: @unchecked Sendable {
         // La chiusura dell'analizzatore termina la sequenza: non è una condizione di errore.
       }
     }
+  }
+
+  /// Chiude la trascrizione fino a questo punto e basta: la sessione resta
+  /// aperta e il microfono non si ferma.
+  ///
+  /// Senza questa chiamata i risultati non arrivano mai a parola singola —
+  /// l'analizzatore aspetta molto più audio prima di dire la sua, e il tempo di
+  /// risposta di una prova scade prima. È il guasto che rendeva l'app sorda.
+  /// Provato in `Tests/StreamHarness.swift`: i risultati arrivano in circa 40 ms.
+  func flush() async {
+    lock.lock()
+    let frames = framesFed
+    let rate = analyzerFormat?.sampleRate ?? 16000
+    lock.unlock()
+    try? await analyzer?.finalize(through: CMTime(value: frames, timescale: CMTimeScale(rate)))
   }
 
   func stop() async {
@@ -150,6 +184,11 @@ final class SpeechListener: @unchecked Sendable {
   private func installTap(target: AVAudioFormat) throws {
     let input = engine.inputNode
     let natural = input.outputFormat(forBus: 0)
+    // Un ingresso senza canali o a frequenza zero è un microfono che non c'è:
+    // meglio dirlo subito che restare in ascolto di un silenzio eterno.
+    guard natural.sampleRate > 0, natural.channelCount > 0 else {
+      throw ListenerError.noInputDevice
+    }
     guard let converter = AVAudioConverter(from: natural, to: target) else {
       throw ListenerError.noAudioFormat
     }

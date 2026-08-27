@@ -16,6 +16,29 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Aggiunto
+- Schermata **"Prepara il Mac"**: controlla permesso del microfono, microfono
+  collegato, modello di riconoscimento italiano, voce italiana di sistema e
+  Apple Intelligence. Il modello vocale si scarica dall'app con avanzamento;
+  per voci e Apple Intelligence si apre la pagina giusta delle Impostazioni di
+  Sistema. Compare da sola all'avvio se manca qualcosa.
+- Schermata **"Mi senti?"** per provare microfono e altoparlanti.
+- Indicatori di avanzamento discreti durante la sessione.
+
+### Corretto
+- **L'app non riconosceva nessuna parola.** `SpeechAnalyzer` non consegna
+  risultati per parole singole: ora al termine della finestra di risposta si
+  chiama `finalize(through:)`, che li restituisce in circa 40 ms.
+- La scelta del microfono passa dall'ingresso predefinito del sistema e avviene
+  prima di creare il motore audio: impostarlo sull'unità audio lo lasciava vivo
+  ma muto.
+
+### Rimosso
+- La richiesta del permesso di *riconoscimento vocale*, che mostrava l'avviso di
+  sistema "i dati vocali verranno inviati ad Apple". Non serve: la trascrizione
+  usa il modello installato sul Mac. Ora si chiede solo il microfono.
+
+
+### Aggiunto
 
 - `test.sh` riscritto per la nuova struttura: gli harness veloci girano da soli, quelli che
   usano microfono e modello di sistema solo con `--all`.

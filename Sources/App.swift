@@ -4,6 +4,7 @@ import SwiftUI
 struct MirrorScopioApp: App {
   @StateObject private var store = Store()
   @StateObject private var engine = SessionEngine()
+  @StateObject private var readiness = Readiness()
 
   init() {
     FontLoader.registerBundledFonts()
@@ -11,7 +12,7 @@ struct MirrorScopioApp: App {
 
   var body: some Scene {
     WindowGroup("MirrorScopio") {
-      RootView(store: store, engine: engine)
+      RootView(store: store, engine: engine, readiness: readiness)
         .frame(minWidth: 900, minHeight: 700)
     }
     .defaultSize(width: 1100, height: 850)
@@ -26,11 +27,12 @@ struct MirrorScopioApp: App {
 struct RootView: View {
   @ObservedObject var store: Store
   @ObservedObject var engine: SessionEngine
+  @ObservedObject var readiness: Readiness
   @Environment(\.colorScheme) private var systemScheme
 
   @State private var screen: Screen = .casa
 
-  enum Screen: Equatable { case casa, impostazioni, progressi, obiettivi }
+  enum Screen: Equatable { case casa, impostazioni, progressi, obiettivi, audio, preparazione }
 
   private var a11y: A11ySettings { store.current.a11y }
 
@@ -49,7 +51,15 @@ struct RootView: View {
     .environment(\.palette, palette)
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))
-    .onAppear { syncEngine() }
+    .onAppear {
+      syncEngine()
+      // Al primo avvio si controlla da soli che il Mac abbia microfono, modello
+      // vocale italiano e voce: meglio scoprirlo ora che a metà lettura.
+      Task {
+        await readiness.controlla()
+        if readiness.qualcosaManca, screen == .casa { screen = .preparazione }
+      }
+    }
     .onChange(of: store.currentID) { _, _ in syncEngine() }
     .onChange(of: store.current.a11y) { _, new in engine.a11y = new }
   }
@@ -65,11 +75,19 @@ struct RootView: View {
         case .casa:
           HomeView(engine: engine, store: store,
                    openSettings: { screen = .impostazioni },
-                   openProgress: { screen = .progressi })
+                   openProgress: { screen = .progressi },
+                   openAudioCheck: { screen = .audio },
+                   openReadiness: { screen = .preparazione })
         case .impostazioni:
           SettingsView(store: store, engine: engine, onClose: { screen = .casa })
         case .progressi, .obiettivi:
           DashboardView(store: store, onClose: { screen = .casa })
+        case .audio:
+          AudioCheckView(store: store, onClose: { screen = .casa })
+        case .preparazione:
+          ReadinessView(readiness: readiness, a11y: a11y,
+                        onClose: { screen = .casa },
+                        onContinue: { screen = .casa })
         }
       }
 

@@ -44,8 +44,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>NSHighResolutionCapable</key><true/>
   <key>NSMicrophoneUsageDescription</key>
   <string>Il microfono serve a sentire la lettura ad alta voce e capire da solo se la parola è giusta. L'audio resta su questo Mac.</string>
-  <key>NSSpeechRecognitionUsageDescription</key>
-  <string>Il riconoscimento vocale avviene interamente su questo Mac e serve a confrontare quello che leggi con la parola mostrata.</string>
+
   <key>ATSApplicationFontsPath</key><string>Fonts</string>
 </dict>
 </plist>
@@ -74,7 +73,7 @@ swiftc \
   -target arm64-apple-macos26.0 \
   -framework SwiftUI -framework AppKit -framework AVFoundation \
   -framework Speech -framework FoundationModels -framework QuartzCore \
-  -framework PDFKit -framework Charts \
+  -framework PDFKit -framework CoreAudio \
   -o "$BIN" \
   $(find Sources -name "*.swift")
 

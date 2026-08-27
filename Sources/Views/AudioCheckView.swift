@@ -1,0 +1,303 @@
+import SwiftUI
+import AVFoundation
+
+/// Prova del microfono e dell'audio.
+///
+/// Nasce da un guasto reale: "non mi riconosce nessuna parola anche se so di
+/// dirla bene". Senza un posto dove *vedere* se il microfono sente, non c'è modo
+/// di distinguere fra microfono muto, ingresso sbagliato e riconoscimento rotto.
+/// Qui si vedono tutti e tre.
+@MainActor
+final class AudioCheck: ObservableObject {
+  @Published var level: Float = 0
+  @Published var peak: Float = 0
+  @Published var transcript = ""
+  @Published var heardWords: [String] = []
+  @Published var running = false
+  @Published var error: String?
+
+  @Published var inputs: [AudioDevice] = []
+  @Published var outputs: [AudioDevice] = []
+  @Published var selectedInput: AudioDeviceID?
+  @Published var selectedOutput: AudioDeviceID?
+  @Published var outputWarning: String?
+
+  private let listener = SpeechListener()
+  private let speaker = AVSpeechSynthesizer()
+  private var poll: Task<Void, Never>?
+
+  /// Le parole di prova: comuni, corte, e polarizzano il riconoscitore.
+  static let testWords = ["ciao", "cane", "casa", "sole", "farfalla", "tavolo"]
+
+  func refreshDevices() {
+    inputs = AudioDevices.inputs()
+    outputs = AudioDevices.outputs()
+    if selectedInput == nil { selectedInput = AudioDevices.defaultInput() }
+    if selectedOutput == nil { selectedOutput = AudioDevices.defaultOutput() }
+    checkOutput()
+  }
+
+  func checkOutput() {
+    guard let out = selectedOutput ?? AudioDevices.defaultOutput() else {
+      outputWarning = "Nessun altoparlante disponibile."
+      return
+    }
+    if AudioDevices.isOutputMuted(out) {
+      outputWarning = "L'audio è in muto: alza il volume per sentire le parole."
+    } else if let v = AudioDevices.outputVolume(out), v < 0.08 {
+      outputWarning = "Il volume è quasi a zero: alzalo per sentire le parole."
+    } else {
+      outputWarning = nil
+    }
+  }
+
+  func start() {
+    guard !running else { return }
+    error = nil
+    transcript = ""
+    heardWords = []
+    peak = 0
+    refreshDevices()
+
+    Task {
+      guard await SpeechListener.requestPermissions() else {
+        self.error = "Il permesso per il microfono o per il riconoscimento vocale è negato. Aprilo in Impostazioni di Sistema › Privacy e sicurezza."
+        return
+      }
+      do {
+        try await listener.start(locale: Locale(identifier: "it_IT"),
+                                 vocabulary: Self.testWords,
+                                 preferredInput: selectedInput)
+        listener.beginWindow()
+        self.running = true
+        self.startPolling()
+      } catch {
+        self.error = error.localizedDescription
+      }
+    }
+  }
+
+  func stop() {
+    poll?.cancel()
+    poll = nil
+    running = false
+    listener.endWindow()
+    Task { await listener.stop() }
+  }
+
+  /// Fa dire una parola all'altoparlante: verifica l'uscita senza dover parlare.
+  func speakSample() {
+    let u = AVSpeechUtterance(string: "Ciao, mi senti?")
+    u.voice = AVSpeechSynthesisVoice(language: "it-IT")
+    u.rate = 0.44
+    u.volume = 1.0
+    speaker.speak(u)
+  }
+
+  private func startPolling() {
+    poll = Task { [weak self] in
+      while !Task.isCancelled {
+        try? await Task.sleep(for: .milliseconds(50))
+        guard let self, self.running else { continue }
+        let snap = self.listener.read()
+        self.level = snap.level
+        self.peak = max(self.peak, snap.level)
+        let text = snap.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !text.isEmpty, text != self.transcript {
+          self.transcript = text
+          // Ogni tanto la finestra si chiude e riparte: teniamo la scia.
+          if let last = text.split(separator: " ").last.map(String.init),
+             self.heardWords.last != last {
+            self.heardWords.append(last)
+            if self.heardWords.count > 8 { self.heardWords.removeFirst() }
+          }
+        }
+      }
+    }
+  }
+
+  /// Il giudizio in una frase, senza gergo.
+  var verdict: (text: String, symbol: String, good: Bool)? {
+    guard running else { return nil }
+    if !transcript.isEmpty {
+      return ("Ti sento e ti capisco.", "checkmark.circle.fill", true)
+    }
+    if peak > 0.02 {
+      return ("Ti sento, ma non ho ancora capito nessuna parola. Prova a dire «ciao».", "ear", false)
+    }
+    return ("Non sento ancora niente. Parla vicino al Mac.", "waveform", false)
+  }
+}
+
+struct AudioCheckView: View {
+  @ObservedObject var store: Store
+  var onClose: () -> Void
+
+  @StateObject private var check = AudioCheck()
+  @Environment(\.palette) private var pal
+  @State private var showAdult = false
+
+  private var a11y: A11ySettings { store.current.a11y }
+
+  var body: some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 26) {
+        header
+        meter
+        heard
+        if let e = check.error { problem(e) }
+        if let w = check.outputWarning { problem(w) }
+        speakerTest
+        adultSection
+      }
+      .padding(36)
+      .frame(maxWidth: 820)
+      .frame(maxWidth: .infinity)
+    }
+    .background(pal.background)
+    .foregroundStyle(pal.foreground)
+    .onAppear { check.refreshDevices(); check.start() }
+    .onDisappear { check.stop() }
+  }
+
+  private var header: some View {
+    HStack(alignment: .top) {
+      VStack(alignment: .leading, spacing: 6) {
+        Text("Mi senti?")
+          .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
+        Text("Di' **ciao** ad alta voce e guarda la barra qui sotto.")
+          .font(a11y.typeface.font(size: a11y.size(19)))
+          .foregroundStyle(pal.muted)
+      }
+      Spacer()
+      Button(action: { check.stop(); onClose() }) {
+        Label("Chiudi", systemImage: "xmark")
+          .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+          .padding(.horizontal, 18).padding(.vertical, 12)
+      }
+      .buttonStyle(.plain)
+      .background(pal.surface, in: .rect(cornerRadius: 12))
+      .frame(minWidth: 44, minHeight: 44)
+    }
+  }
+
+  /// La barra del livello: grande, e con una tacca che segna il punto in cui
+  /// il riconoscimento comincia a funzionare, così "abbastanza forte" è visibile.
+  private var meter: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      GeometryReader { geo in
+        ZStack(alignment: .leading) {
+          RoundedRectangle(cornerRadius: 16).fill(pal.surface)
+          RoundedRectangle(cornerRadius: 16)
+            .fill(check.level > 0.02 ? pal.ok : pal.accent)
+            .frame(width: max(8, min(1, CGFloat(check.level) * 14) * geo.size.width))
+            .animation(a11y.animation(0.08), value: check.level)
+          Rectangle()
+            .fill(pal.foreground.opacity(0.35))
+            .frame(width: 3)
+            .offset(x: geo.size.width * 0.14)
+        }
+      }
+      .frame(height: 74)
+      .accessibilityElement()
+      .accessibilityLabel("Livello del microfono")
+      .accessibilityValue(check.level > 0.02 ? "ti sento" : "silenzio")
+
+      if let v = check.verdict {
+        HStack(spacing: 12) {
+          Image(systemName: v.symbol)
+            .font(.system(size: a11y.size(26)))
+            .foregroundStyle(v.good ? pal.ok : pal.muted)
+          Text(v.text)
+            .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+            .fixedSize(horizontal: false, vertical: true)
+        }
+      }
+    }
+  }
+
+  private var heard: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text("Quello che ho capito")
+        .font(a11y.typeface.font(size: a11y.size(15)))
+        .foregroundStyle(pal.muted)
+      Text(check.transcript.isEmpty ? "…" : check.transcript)
+        .font(a11y.typeface.font(size: a11y.size(30), weight: .semibold))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(pal.surface, in: .rect(cornerRadius: 16))
+        .animation(a11y.animation(), value: check.transcript)
+    }
+  }
+
+  private var speakerTest: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      Text("E gli altoparlanti?")
+        .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+      Button(action: { check.speakSample() }) {
+        Label("Fammi dire una frase", systemImage: "speaker.wave.2.fill")
+          .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+          .padding(.horizontal, 22).padding(.vertical, 16)
+      }
+      .buttonStyle(.plain)
+      .background(pal.surface, in: .rect(cornerRadius: 14))
+      .frame(minHeight: 44)
+      Text("Serve per la modalità Scrivi, dove è il Mac a dire la parola.")
+        .font(a11y.typeface.font(size: a11y.size(14)))
+        .foregroundStyle(pal.muted)
+    }
+  }
+
+  private func problem(_ text: String) -> some View {
+    HStack(alignment: .top, spacing: 12) {
+      Image(systemName: "exclamationmark.triangle.fill")
+        .font(.system(size: a11y.size(20)))
+        .foregroundStyle(pal.wrong)
+      Text(text)
+        .font(a11y.typeface.font(size: a11y.size(16)))
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .padding(18)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(pal.wrong.opacity(0.12), in: .rect(cornerRadius: 14))
+  }
+
+  private var adultSection: some View {
+    DisclosureGroup(isExpanded: $showAdult) {
+      VStack(alignment: .leading, spacing: 16) {
+        Picker("Microfono", selection: Binding(
+          get: { check.selectedInput ?? AudioDeviceID(0) },
+          set: { check.selectedInput = $0; check.stop(); check.start() })) {
+          ForEach(check.inputs) { d in Text(d.name).tag(d.id) }
+        }
+
+        Picker("Altoparlanti", selection: Binding(
+          get: { check.selectedOutput ?? AudioDeviceID(0) },
+          set: { check.selectedOutput = $0; check.checkOutput() })) {
+          ForEach(check.outputs) { d in Text(d.name).tag(d.id) }
+        }
+
+        HStack(spacing: 20) {
+          Text("livello ora: \(String(format: "%.4f", check.level))")
+          Text("picco: \(String(format: "%.4f", check.peak))")
+        }
+        .font(.system(size: a11y.size(12)).monospacedDigit())
+        .foregroundStyle(pal.muted)
+
+        Button("Aggiorna l'elenco dei dispositivi") { check.refreshDevices() }
+          .font(.system(size: a11y.size(13)))
+
+        Text("La scelta del microfono vale per questa app. Il riconoscimento avviene interamente su questo Mac.")
+          .font(.system(size: a11y.size(12)))
+          .foregroundStyle(pal.muted)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .padding(.top, 14)
+    } label: {
+      Label("Scegli microfono e altoparlanti", systemImage: "slider.horizontal.3")
+        .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+    }
+    .padding(22)
+    .background(pal.surface, in: .rect(cornerRadius: 18))
+  }
+}
