@@ -15,6 +15,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.4.0] — 2026-08-27
+
 ### Corretto
 - **«Ti ho sentito, ma pianissimo»**: quando il microfono prende troppo piano,
   il Mac non capisce nessuna parola — e l'app rispondeva «non sono riuscita a
@@ -288,6 +290,7 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.2.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.4.0...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
+[0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
