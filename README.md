@@ -15,7 +15,10 @@ Un tachistoscopio per logopedia che non ha bisogno di un adulto che segni le ris
 [![Solo per Mac](https://img.shields.io/badge/solo%20per-Mac-000000?logo=apple&logoColor=white)](#requisiti)
 [![macOS 26+](https://img.shields.io/badge/macOS-26%2B-lightgrey)](#requisiti)
 [![Firmata e notarizzata da Apple](https://img.shields.io/badge/firmata%20e%20notarizzata-da%20Apple-success)](#scaricare-e-usare)
-[![Windows · Linux · web: non ancora](https://img.shields.io/badge/Windows%20%C2%B7%20Linux%20%C2%B7%20web-non%20ancora-lightgrey)](#windows-linux-web)
+
+[![Solo in italiano](https://img.shields.io/badge/lingua-solo%20italiano-008C45)](https://github.com/FightTheStroke/MirrorScopio/discussions/1)
+[![Ti serve in un'altra lingua? Vota](https://img.shields.io/badge/altra%20lingua%3F-vota%20qui-blue)](https://github.com/FightTheStroke/MirrorScopio/discussions/1)
+[![Windows · Linux · web: vota](https://img.shields.io/badge/Windows%20%C2%B7%20Linux%20%C2%B7%20web-vota%20qui-blue)](https://github.com/FightTheStroke/MirrorScopio/discussions/2)
 
 [![Tutto in locale](https://img.shields.io/badge/dati-mai%20fuori%20dal%20Mac-brightgreen)](#privacy-la-promessa-e-come-la-manteniamo)
 [![Gratuita e senza pubblicità](https://img.shields.io/badge/gratuita-e%20senza%20pubblicit%C3%A0-brightgreen)](#licenza)
@@ -144,26 +147,35 @@ un doppio clic, senza avvisi e senza tasto destro.
 - Apple Intelligence **facoltativo**: senza, cambia solo il commento clinico sugli errori
 
 <a id="windows-linux-web"></a>
-### Windows, Linux, web?
+### Altre piattaforme, altre lingue
 
-**Non ancora.** MirrorScopio oggi esiste **solo per Mac**, e non per pigrizia: la parte
-difficile — la parola che compare per 80 millesimi di secondo senza tremare, e il
-riconoscimento vocale in italiano che gira **dentro il Mac** senza mandare la voce di un
-bambino su un server — è costruita sopra cose che oggi sono solo di Apple. Rifarla
-altrove è possibile, ma è un lavoro vero, non un adattamento.
+**Non ancora.** MirrorScopio oggi esiste **solo per Mac** e parla **solo italiano**, e non
+per pigrizia.
 
-Se ti serve su Windows, su Linux o dentro un browser, **scrivicelo**: sapere quante
-persone aspettano è l'unica cosa che ci fa decidere da dove cominciare.
+La parte difficile non è l'interfaccia: è la parola che compare per 80 millesimi di secondo
+senza tremare, e il riconoscimento vocale che gira **dentro il Mac** senza mandare la voce
+di un bambino sul server di qualcun altro. Oggi quelle due cose, insieme, le dà solo Apple.
+E ogni lingua nuova non è un file di traduzioni: vuole **le sue liste di parole**, costruite
+sulla frequenza e sulla struttura di quella lingua. È lavoro clinico, non lavoro di codice.
 
-📬 **[Scrivi a info@fightthestroke.org](mailto:info@fightthestroke.org?subject=MirrorScopio%20su%20un%27altra%20piattaforma&body=Ciao%2C%0A%0AVorrei%20usare%20MirrorScopio%20su%3A%20(Windows%20%2F%20Linux%20%2F%20browser)%0A%0APer%20chi%3A%20(a%20casa%2C%20in%20studio%2C%20a%20scuola%2C%20altro)%0A%0AQuante%20persone%20lo%20userebbero%3A%0A%0AAltro%20che%20ci%20serve%20sapere%3A%0A)**
+Prima di cominciare vogliamo sapere **per chi**. Bastano due clic:
 
-Il messaggio si apre già scritto: basta completarlo e inviarlo. Nessun modulo, nessun
-registro di iscrizioni, nessuno strumento che conta chi apre le email — ci arriva
-un'email normale, come quella di chiunque. Non ti scriveremo per altro.
+| | |
+|---|---|
+| 🌍 **[In che lingua ti serve?](https://github.com/FightTheStroke/MirrorScopio/discussions/1)** | metti 👍 sulla tua lingua |
+| 💻 **[Windows, Linux, iPad, browser?](https://github.com/FightTheStroke/MirrorScopio/discussions/2)** | metti 👍 sulla tua piattaforma |
 
-Chi sviluppa e vuole provarci davvero: apri una *issue*, il codice è Apache 2.0 e la
-logica clinica è deliberatamente separata dall'interfaccia proprio per questo
-(vedi [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md)).
+Sono sondaggi aperti: i voti si vedono, li conta GitHub, **non c'è nessun modulo da
+compilare e nessuno strumento che traccia chi passa**. Se puoi, aggiungi un commento con
+*per chi* ti serve e *quante persone* la userebbero — un logopedista con trenta pazienti
+conta più di trenta curiosi, ed è l'unica cosa che ci fa decidere da dove partire.
+
+Senza account GitHub va bene lo stesso: 📬 **[info@fightthestroke.org](mailto:info@fightthestroke.org?subject=MirrorScopio%20in%20un%27altra%20lingua%20o%20piattaforma&body=Ciao%2C%0A%0AMi%20servirebbe%20MirrorScopio%20in%3A%20(lingua)%0ASu%3A%20(Mac%20%2F%20Windows%20%2F%20Linux%20%2F%20iPad%20%2F%20browser)%0A%0APer%20chi%3A%20(a%20casa%2C%20in%20studio%2C%20a%20scuola%2C%20altro)%0AQuante%20persone%20lo%20userebbero%3A%0A%0AAltro%20che%20vi%20serve%20sapere%3A%0A)** — il messaggio si apre già scritto, basta completarlo. Ci
+arriva un'email normale. Non ti scriveremo per altro.
+
+Chi sviluppa e vuole provarci davvero: il codice è Apache 2.0 e la logica clinica è
+deliberatamente separata dall'interfaccia proprio per questo. Vedi
+[`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md) e [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 
