@@ -25,6 +25,7 @@ struct OnboardingView: View {
       out.append(.sistema(voce.id))
     }
     out.append(.voce)
+    if !Updates.chosen { out.append(.aggiornamenti) }
     out.append(.pronti)
     return out
   }
@@ -33,6 +34,7 @@ struct OnboardingView: View {
     case benvenuto
     case sistema(String)
     case voce
+    case aggiornamenti
     case pronti
   }
 
@@ -114,6 +116,24 @@ struct OnboardingView: View {
         Explain(text: "In alcune prove è l'app a dire la parola ad alta voce. Scegli la voce che si capisce meglio: sentile e decidi tu.", a11y: a11y, size: 21)
         VoiceChooser(store: store)
         altreVoci
+      }
+
+    case .aggiornamenti:
+      VStack(alignment: .leading, spacing: a11y.size(16)) {
+        titolo("Ti avviso quando esce una versione nuova?")
+        Explain(text: "MirrorScopio non manda niente a nessuno: quello che dici o scrivi resta su questo Mac. Questa è l'unica eccezione, e la scegli tu.", a11y: a11y, size: 21)
+        Explain(text: "Se dici di sì, una volta al giorno l'app chiede a GitHub qual è l'ultima versione pubblicata. È una domanda su di noi, non su di te: non parte nessun nome, nessuna parola, nessun punteggio. E non scarica niente da sola — se c'è una versione nuova te lo dice e basta.", a11y: a11y, size: 19)
+        HStack(spacing: 12) {
+          BigButton(title: "Sì, avvisami", symbol: "checkmark", a11y: a11y) {
+            Updates.enabled = true
+            passo = min(passi.count - 1, passo + 1)
+          }
+          BigButton(title: "No, grazie", a11y: a11y, prominent: false) {
+            Updates.enabled = false
+            passo = min(passi.count - 1, passo + 1)
+          }
+        }
+        Explain(text: "Si cambia idea quando vuoi, dalle impostazioni.", a11y: a11y, size: 17)
       }
 
     case .pronti:

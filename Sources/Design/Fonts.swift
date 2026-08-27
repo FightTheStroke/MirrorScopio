@@ -24,7 +24,7 @@ enum TypefaceChoice: String, CaseIterable, Identifiable, Codable {
 
   var hint: String {
     switch self {
-    case .sistema: "Il carattere normale del Mac."
+    case .sistema: "Il carattere di serie del Mac."
     case .arrotondato: "Lettere più tonde, piacevoli per i più piccoli."
     case .monospaziato: "Tutte le lettere larghe uguali: aiuta a contarle."
     case .openDyslexic: "Lettere appesantite in basso, pensate per la dislessia."

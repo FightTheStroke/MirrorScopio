@@ -31,6 +31,14 @@ struct ReportView: View {
       .frame(maxWidth: 820)
       .frame(maxWidth: .infinity)
     }
+    // I coriandoli stanno sopra a tutto ma non intercettano niente: si vede la
+    // festa e si può continuare a usare la schermata mentre cade.
+    .overlay(alignment: .top) {
+      if !engine.isCalibration, record.total > 0 {
+        Celebrazione(a11y: a11y, intensita: intensitaFesta)
+          .allowsHitTesting(false)
+      }
+    }
     .onAppear(perform: saveOnce)
   }
 
@@ -65,6 +73,14 @@ struct ReportView: View {
           .font(a11y.typeface.font(size: a11y.size(24)))
           .foregroundStyle(palette.muted)
 
+        if record.correct < record.total {
+          Text(frasePerLeRimaste)
+            .font(a11y.typeface.font(size: a11y.size(20), weight: .medium))
+            .foregroundStyle(palette.accent)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: 520)
+        }
+
         HStack(spacing: 8) {
           ForEach(0..<5, id: \.self) { i in
             Image(systemName: i < stars ? "star.fill" : "star")
@@ -96,14 +112,34 @@ struct ReportView: View {
     return max(1, Int((record.accuracy * 5).rounded(.down)))
   }
 
+  /// Quanta festa. Mai zero: arrivare in fondo è già un risultato, e chi ha
+  /// preso poche parole è quello che ha faticato di più per arrivarci.
+  private var intensitaFesta: Double {
+    let base = 0.45 + record.accuracy * 0.55
+    return unlocked.isEmpty ? base : min(1, base + 0.25)
+  }
+
   private var headline: String {
     if a11y.calmMode { return "Sessione finita" }
     return switch record.accuracy {
-    case 0.9...: "Bravissimo!"
-    case 0.7..<0.9: "Bravo!"
-    case 0.5..<0.7: "Bene!"
-    default: "Ci hai provato!"
+    case 0.9...: "Che sessione!"
+    case 0.7..<0.9: "Bravissimo!"
+    case 0.5..<0.7: "Bravo, si vede!"
+    case 0.25..<0.5: "Ci sei quasi!"
+    // Mai "male", mai "poche": sei arrivato in fondo, ed è la cosa che conta.
+    default: "Sei arrivato in fondo!"
     }
+  }
+
+  /// Le parole che non sono venute non si chiamano errori.
+  ///
+  /// Si chiamano "ancora": non sono venute *ancora*. È l'unica differenza che
+  /// conta fra un ragazzo che smette e uno che torna domani.
+  private var frasePerLeRimaste: String {
+    let mancanti = record.total - record.correct
+    if mancanti == 1 { return "Una non è venuta ancora. Verrà." }
+    if record.accuracy >= 0.5 { return "\(mancanti) non sono venute ancora. Vengono con la pratica." }
+    return "\(mancanti) non sono venute ancora — e va benissimo così: si imparano proprio riprovandole."
   }
 
   // MARK: - Obiettivi appena sbloccati
@@ -227,7 +263,7 @@ struct ReportView: View {
         .keyboardShortcut(.return, modifiers: [])
 
         if !record.missedWords.isEmpty {
-          BigButton(title: "Solo le sbagliate", symbol: "target", a11y: a11y, prominent: false) {
+          BigButton(title: "Solo quelle da riprendere", symbol: "target", a11y: a11y, prominent: false) {
             let words = record.missedWords
             engine.reset()
             engine.start(words: words)

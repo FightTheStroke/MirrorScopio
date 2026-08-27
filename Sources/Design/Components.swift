@@ -133,11 +133,11 @@ struct Verdict: View {
   var body: some View {
     HStack(spacing: 6) {
       Image(systemName: correct ? ColorVision.okSymbol : ColorVision.wrongSymbol)
-      Text(correct ? "giusta" : "sbagliata")
+      Text(correct ? "giusta" : "ancora")
     }
     .font(a11y.typeface.font(size: a11y.size(size), weight: .semibold))
     .foregroundStyle(correct ? palette.ok : palette.wrong)
-    .accessibilityLabel(correct ? "risposta giusta" : "risposta sbagliata")
+    .accessibilityLabel(correct ? "risposta giusta" : "questa non è venuta ancora")
   }
 }
 
@@ -191,5 +191,61 @@ struct StopButton: View {
     .background(Capsule().fill(palette.surface))
     .overlay(Capsule().stroke(rosso.opacity(0.55), lineWidth: 2))
     .accessibilityLabel("interrompi la sessione")
+  }
+}
+
+/// I coriandoli di fine sessione.
+///
+/// Non festeggiano il punteggio: festeggiano l'essere arrivati in fondo. Chi
+/// prende quattro parole su venti ha fatto la fatica più grande di tutti, e
+/// meritarsi una festa non può dipendere dal risultato — altrimenti la festa
+/// diventa l'ennesima classifica in cui si perde sempre.
+///
+/// Si spegne da sola con "meno animazioni" o in modalità calma: per chi ha
+/// ipersensibilità sensoriale una pioggia di colori non è un premio, è
+/// un'aggressione. In quel caso resta il testo, che dice le stesse cose.
+struct Celebrazione: View {
+  var a11y: A11ySettings
+  /// Da 0 a 1: quanti coriandoli. Il minimo non è mai zero.
+  var intensita: Double = 1
+
+  @State private var partita = false
+
+  private let colori: [Color] = [
+    Color(red: 0.98, green: 0.75, blue: 0.14),
+    Color(red: 0.28, green: 0.66, blue: 0.96),
+    Color(red: 0.38, green: 0.80, blue: 0.45),
+    Color(red: 0.95, green: 0.44, blue: 0.60),
+    Color(red: 0.62, green: 0.48, blue: 0.92),
+  ]
+
+  private var quanti: Int { max(14, Int(46 * intensita)) }
+
+  var body: some View {
+    if a11y.reducedMotion || a11y.calmMode {
+      Color.clear.frame(height: 0)
+    } else {
+      GeometryReader { geo in
+        ZStack {
+          ForEach(0..<quanti, id: \.self) { i in
+            let seme = Double((i * 7919) % 1000) / 1000
+            let seme2 = Double((i * 104729) % 1000) / 1000
+            RoundedRectangle(cornerRadius: 2)
+              .fill(colori[i % colori.count])
+              .frame(width: 9, height: 14)
+              .rotationEffect(.degrees(seme * 360))
+              .position(x: geo.size.width * seme,
+                        y: partita ? geo.size.height + 40 : -40)
+              .opacity(partita ? 0 : 1)
+              .animation(
+                .easeIn(duration: 2.4 + seme2 * 1.6).delay(seme2 * 0.9),
+                value: partita)
+          }
+        }
+      }
+      .allowsHitTesting(false)
+      .accessibilityHidden(true)
+      .onAppear { partita = true }
+    }
   }
 }

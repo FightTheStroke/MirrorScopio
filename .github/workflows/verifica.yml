@@ -29,7 +29,12 @@ jobs:
           # AGENTS.md, regola 2: "una URLSession in questo codice è un bug".
           # Finché era solo una frase, bastava una distrazione a tradirla.
           # Adesso è un cancello: se rientra la rete, la build si ferma.
-          TROVATO="$(grep -rnE 'URLSession|URLRequest|NWConnection|CFReadStream|import Network' Sources/ || true)"
+          # Un'eccezione sola, dichiarata: Updates.swift chiede a GitHub qual è
+          # l'ultima versione. È una domanda su di noi, non su chi usa l'app.
+          # Ovunque altro la rete resta vietata, e questo cancello lo dimostra
+          # a ogni push senza che nessuno debba fidarsi della nostra parola.
+          TROVATO="$(grep -rnE 'URLSession|URLRequest|NWConnection|CFReadStream|import Network' Sources/ \
+            | grep -v '^Sources/Core/Updates.swift:' || true)"
           if [ -n "$TROVATO" ]; then
             echo "$TROVATO"
             echo "::error::I dati del bambino non escono da quel Mac. Qui c'è del codice di rete."

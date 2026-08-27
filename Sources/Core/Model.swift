@@ -128,9 +128,69 @@ enum SessionMode: String, CaseIterable, Identifiable, Codable {
   }
 }
 
+/// Quanto è impegnativo il **dettato**.
+///
+/// In lettura la difficoltà è il tempo: la parola resta meno. Scrivendo il
+/// tempo non c'entra niente — la parola si sente, non si vede — e quello che
+/// cresce è la complessità: prima parole facili, poi parole con le trappole
+/// ortografiche, poi frasi, infine frasi vere di cui bisogna tenere a mente il
+/// senso mentre si scrive.
+///
+/// È la progressione usata dai software di riabilitazione della disortografia
+/// (parola → frase → brano), e ha una ragione precisa: scrivere una frase
+/// intera non è scrivere più parole, è reggere insieme significato, ordine e
+/// ortografia. Sono muscoli diversi e vanno allenati in quest'ordine.
+enum WritingLevel: String, CaseIterable, Identifiable, Codable {
+  case parole, paroleDifficili, frasiBrevi, frasiIntere
+
+  var id: String { rawValue }
+
+  var title: String {
+    switch self {
+    case .parole: "Parole semplici"
+    case .paroleDifficili: "Parole difficili"
+    case .frasiBrevi: "Frasi brevi"
+    case .frasiIntere: "Frasi intere"
+    }
+  }
+
+  var subtitle: String {
+    switch self {
+    case .parole: "Due sillabe, senza trappole"
+    case .paroleDifficili: "gn, gl, sc, ch, doppie"
+    case .frasiBrevi: "Tre o quattro parole"
+    case .frasiIntere: "Frasi vere, di senso compiuto"
+    }
+  }
+
+  var symbol: String {
+    switch self {
+    case .parole: "textformat.abc"
+    case .paroleDifficili: "character.magnify"
+    case .frasiBrevi: "text.alignleft"
+    case .frasiIntere: "text.quote"
+    }
+  }
+
+  /// Vero quando lo stimolo è fatto di più parole: allora serve poterle
+  /// ricontrollare una per una.
+  var isSentences: Bool { self == .frasiBrevi || self == .frasiIntere }
+
+  func apply(to c: inout SessionConfig) {
+    switch self {
+    case .parole: c.set = .bisillabe; c.trials = 15
+    case .paroleDifficili: c.set = .digrammi; c.trials = 15
+    case .frasiBrevi: c.set = .frasiBrevi; c.trials = 10
+    // Poche: una frase intera costa fatica, e la fatica va dosata.
+    case .frasiIntere: c.set = .frasiIntere; c.trials = 8
+    }
+  }
+}
+
 struct SessionConfig: Codable, Equatable {
   var mode: SessionMode = .lettura
   var level: Level = .base
+  var writingLevel: WritingLevel = .parole
 
   var set: StimulusSet = .bisillabe
   var customList: String = ""

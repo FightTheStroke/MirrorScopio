@@ -12,7 +12,7 @@ enum Exporter {
     for i in s.items {
       rows.append([
         i.stimulus, i.response,
-        i.correct ? "giusta" : "sbagliata",
+        i.correct ? "giusta" : "ancora",
         String(Int(i.exposureMs)),
         i.latencyMs.map { String(Int($0)) } ?? "",
         i.errorKind,
@@ -149,7 +149,7 @@ enum Exporter {
           let values = [
             i.stimulus,
             i.response.isEmpty ? "—" : i.response,
-            i.warmup ? "prova" : (i.correct ? "giusta" : "sbagliata"),
+            i.warmup ? "prova" : (i.correct ? "giusta" : "ancora"),
             String(Int(i.exposureMs)),
             i.latencyMs.map { String(Int($0)) } ?? "—",
           ]

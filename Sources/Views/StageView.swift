@@ -190,7 +190,10 @@ struct StageView: View {
         .font(.system(size: a11y.size(100)))
         .foregroundStyle(ok ? palette.ok : palette.wrong)
       if !a11y.hideScore {
-        Text(ok ? (a11y.calmMode ? "Giusta" : "Giusta!") : "Riproviamo")
+        // "Ancora" e non "sbagliato": la parola non è venuta *ancora*, e la
+        // differenza fra le due parole è tutta la differenza fra un difetto e
+        // un percorso.
+        Text(ok ? (a11y.calmMode ? "Giusta" : "Giusta!") : "Ancora")
           .font(a11y.typeface.font(size: a11y.size(28), weight: .semibold))
           .foregroundStyle(palette.foreground)
       }

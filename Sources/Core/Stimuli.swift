@@ -3,7 +3,7 @@ import Foundation
 /// Liste di stimoli in italiano per il training di lettura, ordinate per difficoltà.
 enum StimulusSet: String, CaseIterable, Identifiable, Codable {
   case sillabePiane, sillabeComplesse, bisillabe, trisillabe, quadrisillabe
-  case nonParole, gruppiConsonantici, digrammi, frasiBrevi, numeri, personalizzata
+  case nonParole, gruppiConsonantici, digrammi, frasiBrevi, frasiIntere, numeri, personalizzata
 
   var id: String { rawValue }
 
@@ -18,6 +18,7 @@ enum StimulusSet: String, CaseIterable, Identifiable, Codable {
     case .gruppiConsonantici: "Parole con gruppi consonantici"
     case .digrammi: "Parole con digrammi (gn gl sc ch gh)"
     case .frasiBrevi: "Frasi brevi"
+    case .frasiIntere: "Frasi intere di senso compiuto"
     case .numeri: "Numeri in lettere"
     case .personalizzata: "Lista personalizzata"
     }
@@ -73,6 +74,30 @@ enum StimulusSet: String, CaseIterable, Identifiable, Codable {
        "il sole scalda", "corro nel prato", "mangio una mela", "chiudi la finestra",
        "il treno parte", "piove sul tetto", "porta il libro", "la neve cade",
        "il gatto dorme", "salta il muro", "conta fino a dieci"]
+    case .frasiIntere:
+      // Frasi vere, non esercizi: hanno un senso che si può tenere a mente
+      // mentre si scrive. È quello a rendere il compito diverso da una fila di
+      // parole — bisogna reggere il significato e l'ortografia insieme.
+      ["il gatto dorme sul divano rosso",
+       "domani andiamo al mare con la nonna",
+       "ho dimenticato il quaderno di matematica a casa",
+       "la maestra ci ha letto una storia bellissima",
+       "quando piove preferisco restare a leggere",
+       "mio fratello gioca a pallone nel cortile",
+       "abbiamo mangiato gli spaghetti al pomodoro",
+       "il treno per Bologna parte alle sette",
+       "ho visto un ragno enorme sulla finestra",
+       "la bicicletta nuova è appoggiata al muro",
+       "gli alberi del giardino sono pieni di foglie",
+       "non riesco a trovare le chiavi di casa",
+       "ci siamo divertiti moltissimo alla festa",
+       "il cane della vicina abbaia tutta la notte",
+       "questa estate ho imparato a nuotare",
+       "la pioggia ha bagnato tutti i banchi",
+       "vorrei un gelato al cioccolato e alla panna",
+       "il maestro ha spiegato una cosa difficile",
+       "sabato mattina andiamo in biblioteca",
+       "le montagne sono coperte di neve fresca"]
     case .numeri:
       ["quattro", "sette", "dodici", "diciannove", "ventitré", "trentuno", "quarantasei",
        "cinquantotto", "sessantaquattro", "settantanove", "ottantacinque", "novantadue"]

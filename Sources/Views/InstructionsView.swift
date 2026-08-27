@@ -92,7 +92,7 @@ struct InstructionsView: View {
     VStack(alignment: .leading, spacing: a11y.size(14)) {
       step("Il Mac dice una parola ad alta voce.")
       step("Tu la scrivi nella casella e premi Invio.")
-      step("Se non l'hai sentita bene, premi **Ripeti**: non è un errore.")
+      step("Se non l'hai sentita bene, premi **Ripeti**: puoi farlo quante volte vuoi.")
     }
     .frame(maxWidth: 520, alignment: .leading)
   }

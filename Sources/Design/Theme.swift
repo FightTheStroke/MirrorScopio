@@ -31,6 +31,11 @@ enum ThemeChoice: String, CaseIterable, Identifiable, Codable {
 }
 
 /// Come vede i colori chi usa l'app. Cambia i colori di esito, non il testo.
+///
+/// Le voci descrivono **cosa succede guardando lo schermo**, non che cosa manca
+/// a chi guarda. La prima si chiamava "Normale", e chiamare normale un modo di
+/// vedere significa dire a tutti gli altri quello che sono. Chi apre questa
+/// app ha già sentito abbastanza spesso di essere l'eccezione.
 enum ColorVision: String, CaseIterable, Identifiable, Codable {
   case standard, deuteranopia, protanopia, tritanopia, monocromia
 
@@ -38,11 +43,11 @@ enum ColorVision: String, CaseIterable, Identifiable, Codable {
 
   var label: String {
     switch self {
-    case .standard: "Normale"
-    case .deuteranopia: "Non distinguo bene il verde"
-    case .protanopia: "Non distinguo bene il rosso"
-    case .tritanopia: "Non distinguo bene il blu"
-    case .monocromia: "Non distinguo i colori"
+    case .standard: "Distinguo tutti i colori"
+    case .deuteranopia: "Il verde e il rosso si somigliano"
+    case .protanopia: "Il rosso mi sembra spento"
+    case .tritanopia: "Il blu e il giallo si somigliano"
+    case .monocromia: "Vedo tutto in tonalità di grigio"
     }
   }
 
@@ -68,7 +73,14 @@ enum ColorVision: String, CaseIterable, Identifiable, Codable {
 
   /// Simbolo per "giusto"/"sbagliato": la forma porta l'informazione anche senza colore.
   static let okSymbol = "checkmark.circle.fill"
-  static let wrongSymbol = "xmark.square.fill"
+  /// Non una croce: una freccia che torna indietro.
+  ///
+  /// La croce dice "hai sbagliato", e a un ragazzo che sbaglia da anni quella
+  /// croce è già arrivata abbastanza volte. La freccia dice "di nuovo", che è
+  /// l'unica cosa vera: la parola non è ancora venuta, e si riprova. Resta una
+  /// forma nettamente diversa dal segno di spunta, così chi non distingue i
+  /// colori vede comunque la differenza.
+  static let wrongSymbol = "arrow.counterclockwise.circle.fill"
 }
 
 /// I colori concreti usati dalle viste, già risolti.

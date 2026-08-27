@@ -8,31 +8,143 @@ struct SettingsView: View {
   @Environment(\.palette) private var palette
   var onClose: () -> Void
 
+  @State private var pagina: Pagina = .inizio
   @State private var chiedeCancellazione = false
+  @State private var aggiornamentiAccesi = Updates.enabled
+  @State private var controlloInCorso = false
+  @State private var esitoControllo: String?
 
   private var a11y: A11ySettings { store.current.a11y }
+
+  private func controllaAdesso() {
+    controlloInCorso = true
+    esitoControllo = nil
+    Task {
+      defer { controlloInCorso = false }
+      do {
+        if let r = try await Updates.check(force: true) {
+          esitoControllo = "C'è la \(r.version)."
+          NSWorkspace.shared.open(r.pageURL)
+        } else {
+          esitoControllo = "Sei già aggiornato."
+        }
+      } catch {
+        esitoControllo = error.localizedDescription
+      }
+    }
+  }
 
   private var nomeCorrente: String {
     store.current.name.isEmpty ? "questa persona" : store.current.name
   }
 
+  /// Le impostazioni erano una pagina sola, lunghissima, con otto argomenti in
+  /// fila: bisognava scorrerla tutta per trovare una cosa, e chi fa fatica a
+  /// tenere insieme molte informazioni insieme si perdeva prima di arrivare in
+  /// fondo. Ora sono sette pagine corte, una per argomento, con l'elenco
+  /// sempre visibile a sinistra: si vede subito che cosa c'è e dove si è.
   var body: some View {
     VStack(spacing: 0) {
       header
-      ScrollView {
-        VStack(alignment: .leading, spacing: 28) {
-          who
-          profiles
-          fonts
-          colors
-          rhythm
-          voce
-          feedback
-          privacy
+      HStack(spacing: 0) {
+        elenco
+        Divider()
+        ScrollView {
+          paginaCorrente
+            .padding(32)
+            .frame(maxWidth: 720, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(32)
-        .frame(maxWidth: 860)
-        .frame(maxWidth: .infinity)
+      }
+    }
+  }
+
+  // MARK: - L'elenco delle pagine
+
+  private enum Pagina: String, CaseIterable, Identifiable {
+    case inizio, lettura, colori, ritmo, voce, risposte, dati
+
+    var id: String { rawValue }
+
+    var titolo: String {
+      switch self {
+      case .inizio: "Si comincia da qui"
+      case .lettura: "Come si legge"
+      case .colori: "Colori e luce"
+      case .ritmo: "Ritmo e calma"
+      case .voce: "La voce che legge"
+      case .risposte: "Dopo ogni parola"
+      case .dati: "I dati e l'app"
+      }
+    }
+
+    var simbolo: String {
+      switch self {
+      case .inizio: "sparkles"
+      case .lettura: "textformat.size"
+      case .colori: "paintpalette.fill"
+      case .ritmo: "tortoise.fill"
+      case .voce: "speaker.wave.2.fill"
+      case .risposte: "hand.thumbsup.fill"
+      case .dati: "lock.fill"
+      }
+    }
+  }
+
+  private var elenco: some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 4) {
+        ForEach(Pagina.allCases) { p in
+          Button { pagina = p } label: {
+            HStack(spacing: 12) {
+              Image(systemName: p.simbolo)
+                .font(.system(size: a11y.size(17)))
+                .frame(width: a11y.size(26))
+              Text(p.titolo)
+                .font(a11y.typeface.font(size: a11y.size(17),
+                                         weight: pagina == p ? .semibold : .regular))
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+              Spacer(minLength: 0)
+            }
+            .foregroundStyle(pagina == p ? palette.accent : palette.foreground)
+            .padding(.horizontal, 14)
+            .padding(.vertical, a11y.size(12))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(minHeight: 48)
+            .background(
+              RoundedRectangle(cornerRadius: 12)
+                .fill(pagina == p ? palette.accent.opacity(0.15) : .clear))
+            .contentShape(RoundedRectangle(cornerRadius: 12))
+          }
+          .buttonStyle(.plain)
+          .accessibilityAddTraits(pagina == p ? [.isSelected] : [])
+        }
+      }
+      .padding(10)
+    }
+    .frame(width: a11y.size(260))
+  }
+
+  @ViewBuilder
+  private var paginaCorrente: some View {
+    VStack(alignment: .leading, spacing: 28) {
+      switch pagina {
+      case .inizio:
+        who
+        profiles
+      case .lettura:
+        fonts
+      case .colori:
+        colors
+      case .ritmo:
+        rhythm
+      case .voce:
+        voce
+      case .risposte:
+        feedback
+      case .dati:
+        privacy
       }
     }
   }
@@ -150,7 +262,7 @@ struct SettingsView: View {
       }
 
       SectionTitle(text: "Come vedi i colori", a11y: a11y)
-      Explain(text: "Giusto e sbagliato non si distinguono mai solo dal colore: c'è sempre anche un simbolo e una parola. Qui scegli i colori che distingui meglio.", a11y: a11y, size: 15)
+      Explain(text: "«Giusta» e «ancora» non si distinguono mai solo dal colore: c'è sempre anche un simbolo e una parola. Qui scegli i colori che si distinguono meglio per te.", a11y: a11y, size: 15)
       LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
         ForEach(ColorVision.allCases) { v in
           ChoiceCard(title: v.label, selected: a11y.colorVision == v, a11y: a11y) {
@@ -202,7 +314,7 @@ struct SettingsView: View {
       toggle("Nascondere punteggi e percentuali", bindBool(\.hideScore),
              "Per chi si mette in ansia con i numeri: resta solo il senso di aver finito.")
       toggle("Rileggere ad alta voce la parola giusta", bindBool(\.speakCorrectWord),
-             "Utile a chi vede poco e a chi ha sbagliato.")
+             "Comoda quando lo schermo si legge a fatica, e per riguardare con calma le parole che non sono venute.")
     }
   }
 
@@ -216,6 +328,30 @@ struct SettingsView: View {
         NSWorkspace.shared.open(store.storageFolder)
       }
       .font(a11y.typeface.font(size: a11y.size(15)))
+
+      Divider().padding(.vertical, 4)
+
+      Toggle(isOn: Binding(get: { Updates.enabled },
+                           set: { Updates.enabled = $0; aggiornamentiAccesi = $0 })) {
+        Text("Avvisami quando esce una versione nuova")
+          .font(a11y.typeface.font(size: a11y.size(17)))
+      }
+      .toggleStyle(.switch)
+      Explain(text: "È l'unica cosa che esce da questo Mac: una domanda al giorno a GitHub su qual è l'ultima versione. Non parte nessun nome, nessuna parola, nessun punteggio, e non si scarica niente da solo.", a11y: a11y, size: 14)
+
+      if aggiornamentiAccesi {
+        HStack(spacing: 12) {
+          Button("Controlla adesso") { controllaAdesso() }
+            .font(a11y.typeface.font(size: a11y.size(15)))
+            .disabled(controlloInCorso)
+          if controlloInCorso { ProgressView().controlSize(.small) }
+          if let esito = esitoControllo {
+            Text(esito)
+              .font(a11y.typeface.font(size: a11y.size(15)))
+              .foregroundStyle(palette.muted)
+          }
+        }
+      }
 
       Button("Cancella tutti i dati di \(nomeCorrente)", role: .destructive) {
         chiedeCancellazione = true
