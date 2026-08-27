@@ -28,6 +28,17 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   Impostazioni (⌘,), «I tuoi progressi» (⌘P), la prova del microfono e
   «Prepara il Mac». Durante una lettura queste voci restano spente, così
   nessuno esce da una sessione per sbaglio.
+- **Distintivi degli obiettivi**: nella pagina «Obiettivi» ogni traguardo
+  ancora da prendere non mostra più lo stesso lucchetto grigio uguale per tutti.
+  Si vede il suo simbolo — attenuato, dentro un cerchio tratteggiato, con un
+  piccolo lucchetto in un angolo — così si capisce sempre *che cosa* si può
+  conquistare. Una volta preso, il simbolo diventa pieno con una medaglia e un
+  segno di spunta. La differenza fra i due si vede a colpo d'occhio anche in
+  bianco e nero e da chi i colori non li distingue.
+- **Distintivi dei livelli**: ogni fascia — Esploratore, Lettore curioso,
+  Occhio veloce, Lampo, Maestro dei lampi, Leggenda — ha ora il suo simbolo e un
+  anello che si riempie salendo, in home e nella pagina dei progressi. Con la
+  modalità calma i distintivi restano sobri, senza ori accesi né animazioni.
 - **GitHub costruisce il pacchetto da solo**: ogni tag `v*` fa partire il
   workflow «Rilascio», che compila su macOS 26, firma, notarizza, verifica
   Gatekeeper e allega il DMG alla release.
