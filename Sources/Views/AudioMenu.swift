@@ -23,8 +23,13 @@ struct AudioMenu: View {
   @State private var ingressoAttivo: AudioDeviceID?
   @State private var uscitaAttiva: AudioDeviceID?
 
+  /// Il nome del microfono lo legge `leggi()` ogni tre secondi, non il corpo
+  /// della vista: chiedere a CoreAudio a ogni ridisegno era una domanda di
+  /// sistema dentro un ciclo di disegno, e la risposta cambia due volte al
+  /// giorno.
   private var etichetta: String {
-    AudioDevices.currentInputName() ?? "Audio"
+    if let id = ingressoAttivo, let d = ingressi.first(where: { $0.id == id }) { return d.name }
+    return "Audio"
   }
 
   var body: some View {

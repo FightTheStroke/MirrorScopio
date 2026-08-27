@@ -46,7 +46,8 @@ struct RootView: View {
     }
     // L'orologio dei frame vive qui e non nella schermata di presentazione, così
     // il livello del microfono si vede già durante la prova iniziale.
-    .background(FrameClock { engine.tick($0) }.frame(width: 0, height: 0))
+    .background(FrameClock(attivo: engine.serveIlBattito) { engine.tick($0) }
+      .frame(width: 0, height: 0))
     .environment(\.palette, palette)
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))

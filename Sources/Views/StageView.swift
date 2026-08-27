@@ -53,24 +53,9 @@ struct StageView: View {
   /// lo sguardo che stiamo misurando.
   @ViewBuilder
   private var progress: some View {
-    if engine.totalTrials > 0, showsProgress {
-      VStack {
-        Spacer()
-        HStack(spacing: 8) {
-          ForEach(0..<engine.totalTrials, id: \.self) { i in
-            Circle()
-              .fill(dotColor(i))
-              .frame(width: i == engine.trialIndex - 1 ? 12 : 8,
-                     height: i == engine.trialIndex - 1 ? 12 : 8)
-          }
-        }
-        .padding(.bottom, 26)
-        .animation(a11y.animation(0.2), value: engine.trialIndex)
-        .accessibilityElement()
-        .accessibilityLabel("parola \(engine.trialIndex) di \(engine.totalTrials)")
-      }
-      .allowsHitTesting(false)
-      .transition(.opacity)
+    if showsProgress {
+      ProgressoPallini(fatte: engine.trials, indice: engine.trialIndex,
+                       totale: engine.totalTrials, a11y: a11y)
     }
   }
 
@@ -79,19 +64,6 @@ struct StageView: View {
     case .stimulus, .preMask, .postMask, .fixation, .countdown, .preparing: false
     default: true
     }
-  }
-
-  /// Il colore del pallino dice com'è andata, ma solo se il feedback per parola
-  /// è acceso: con "nascondi i punteggi" resta una fila neutra che dice soltanto
-  /// a che punto siamo.
-  private func dotColor(_ i: Int) -> Color {
-    guard i < engine.trials.count, i < engine.trialIndex else {
-      return palette.muted.opacity(0.25)
-    }
-    guard a11y.showFeedbackPerWord, !a11y.hideScore else {
-      return palette.muted.opacity(0.75)
-    }
-    return engine.trials[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
   }
 
   // MARK: - Il palcoscenico

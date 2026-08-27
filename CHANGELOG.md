@@ -15,6 +15,20 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Corretto
+- **L'app non consuma più batteria stando ferma**: il battito che scandisce i
+  centesimi di secondo di una lettura restava acceso anche in home, con lo
+  schermo fermo. L'app ridisegnava tutto sessanta volte al secondo per non
+  mostrare niente: mezzo core occupato, batteria che se ne va, ventole che
+  partono. Ora il battito si ferma quando non c'è niente da cronometrare.
+  Misurato a riposo: da mezzo core a zero.
+
+### Cambiato
+- **Leggi e Scrivi si assomigliano**: le due modalità avevano preso strade
+  diverse — sfondo, margini, la fila dei pallini dell'avanzamento scritta due
+  volte e già scivolata. Il compito resta diverso, ma quello che si vede
+  intorno è lo stesso: chi impara in una modalità non deve reimparare l'altra.
+
 ### Aggiunto
 - **Sostieni Fight The Stroke**: un pulsante discreto — nella pagina «Chi
   siamo» dell'aiuto e in fondo alla schermata di fine sessione — apre il sito

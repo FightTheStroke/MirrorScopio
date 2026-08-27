@@ -21,7 +21,12 @@ struct TypingView: View {
 
   var body: some View {
     ZStack {
+      palette.background.ignoresSafeArea()
       palcoscenico
+      // La barra sta sopra alla scena, come in lettura, e come in lettura
+      // sparisce con «togli le distrazioni». Prima era dentro alla colonna:
+      // restava sempre, e chi aveva chiesto uno schermo nudo se la trovava lì.
+      if !a11y.distractionFree { barra }
       progress
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -36,8 +41,6 @@ struct TypingView: View {
 
   private var palcoscenico: some View {
     VStack(spacing: a11y.size(20)) {
-      header
-
       Spacer(minLength: 0)
 
       orecchio
@@ -180,52 +183,37 @@ struct TypingView: View {
   /// Anche gli altoparlanti: qui il Mac detta, e se la voce esce dal posto
   /// sbagliato l'esercizio e impossibile — cercare quel comando fuori
   /// dall'allenamento voleva dire perdere la sessione.
-  private var header: some View {
-    TrainingBar(
-      a11y: a11y,
-      palette: palette,
-      contatore: engine.totalTrials > 0
-        ? "parola \(engine.trialIndex) di \(engine.totalTrials)" : "",
-      inizio: engine.sessionStartedAt,
-      mostraRiscaldamento: engine.isWarmup && engine.totalTrials > 0,
-      scegliIngresso: { engine.cambiaMicrofono($0) },
-      onStop: { engine.abort() })
+  /// La stessa barra della lettura, con gli stessi argomenti: mancava
+  /// `cambioMicrofonoInCorso`, così scrivendo non si vedeva che il Mac stava
+  /// cambiando ingresso e sembrava che non fosse successo niente.
+  private var barra: some View {
+    VStack {
+      TrainingBar(
+        a11y: a11y,
+        palette: palette,
+        contatore: engine.totalTrials > 0
+          ? "\(nomeDellUnita) \(engine.trialIndex) di \(engine.totalTrials)" : "",
+        inizio: engine.sessionStartedAt,
+        mostraRiscaldamento: engine.isWarmup && engine.totalTrials > 0,
+        cambioMicrofonoInCorso: engine.cambioMicrofonoInCorso,
+        scegliIngresso: { engine.cambiaMicrofono($0) },
+        onStop: { engine.abort() })
+      Spacer()
+    }
   }
 
-  /// La stessa fila di pallini della lettura: dice a che punto si è senza
-  /// costringere a leggere un numero.
-  @ViewBuilder
+  /// «parola» o «frase»: una parola sola, usata dalla barra e dai pallini, così
+  /// non possono più dire due cose diverse sulla stessa sessione.
+  private var nomeDellUnita: String {
+    engine.config.writingLevel.isSentences ? "frase" : "parola"
+  }
+
+  /// La stessa identica fila di pallini della lettura: stesso pezzo, non una
+  /// copia che col tempo diventa diversa.
   private var progress: some View {
-    if engine.totalTrials > 0 {
-      VStack {
-        Spacer()
-        HStack(spacing: 8) {
-          ForEach(0..<engine.totalTrials, id: \.self) { i in
-            Circle()
-              .fill(colorePallino(i))
-              .frame(width: i == engine.trialIndex - 1 ? 12 : 8,
-                     height: i == engine.trialIndex - 1 ? 12 : 8)
-          }
-        }
-        .padding(.bottom, 22)
-        .animation(a11y.animation(0.2), value: engine.trialIndex)
-        .accessibilityElement()
-        .accessibilityLabel(engine.config.writingLevel.isSentences
-                            ? "frase \(engine.trialIndex) di \(engine.totalTrials)"
-                            : "parola \(engine.trialIndex) di \(engine.totalTrials)")
-      }
-      .allowsHitTesting(false)
-    }
-  }
-
-  private func colorePallino(_ i: Int) -> Color {
-    guard i < engine.trials.count, i < engine.trialIndex else {
-      return palette.muted.opacity(0.25)
-    }
-    guard a11y.showFeedbackPerWord, !a11y.hideScore else {
-      return palette.muted.opacity(0.75)
-    }
-    return engine.trials[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
+    ProgressoPallini(fatte: engine.trials, indice: engine.trialIndex,
+                     totale: engine.totalTrials, a11y: a11y,
+                     nomeDellUnita: nomeDellUnita)
   }
 }
 

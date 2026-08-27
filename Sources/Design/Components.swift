@@ -295,3 +295,54 @@ struct Celebrazione: View {
     }
   }
 }
+
+/// La fila di pallini che dice a che punto si è, uno per parola.
+///
+/// Sta qui, e non dentro le due schermate, perché era scritta due volte: una in
+/// `StageView` e una in `TypingView`. Erano già diverse di quattro punti di
+/// margine, e sarebbero diventate diverse in tutto — è così che due modalità
+/// della stessa app cominciano a sembrare due app. Il compito cambia, la
+/// fila di pallini no.
+///
+/// Il colore dice com'è andata solo se il riscontro per parola è acceso: con
+/// «nascondi i punteggi» resta una fila neutra che dice soltanto a che punto si
+/// è arrivati, senza giudicare niente.
+struct ProgressoPallini: View {
+  @Environment(\.palette) private var palette
+  let fatte: [Trial]
+  let indice: Int
+  let totale: Int
+  var a11y: A11ySettings
+  /// «parola» o «frase»: cambia il compito, non la forma.
+  var nomeDellUnita: String = "parola"
+
+  var body: some View {
+    if totale > 0 {
+      VStack {
+        Spacer()
+        HStack(spacing: 8) {
+          ForEach(0..<totale, id: \.self) { i in
+            Circle()
+              .fill(colore(i))
+              .frame(width: i == indice - 1 ? 12 : 8,
+                     height: i == indice - 1 ? 12 : 8)
+          }
+        }
+        .padding(.bottom, 24)
+        .animation(a11y.animation(0.2), value: indice)
+        .accessibilityElement()
+        .accessibilityLabel("\(nomeDellUnita) \(indice) di \(totale)")
+      }
+      .allowsHitTesting(false)
+      .transition(.opacity)
+    }
+  }
+
+  private func colore(_ i: Int) -> Color {
+    guard i < fatte.count, i < indice else { return palette.muted.opacity(0.25) }
+    guard a11y.showFeedbackPerWord, !a11y.hideScore else {
+      return palette.muted.opacity(0.75)
+    }
+    return fatte[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
+  }
+}

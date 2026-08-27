@@ -226,10 +226,32 @@ final class SessionEngine: ObservableObject {
 
   // MARK: - Orologio
 
+  /// Se adesso serve il battito del display.
+  ///
+  /// A riposo non serve a niente: non c'è niente da cronometrare e il livello
+  /// del microfono non lo guarda nessuno. Tenerlo acceso costava un ridisegno
+  /// per fotogramma a schermo fermo.
+  var serveIlBattito: Bool {
+    switch phase {
+    case .idle, .finished, .failed: false
+    default: true
+    }
+  }
+
+
   /// Chiamato una volta per frame dal display link della finestra di presentazione.
   func tick(_ now: CFTimeInterval) {
     let snap = listener.read()
-    micLevel = snap.level
+    // Solo se è cambiato davvero.
+    //
+    // `@Published` avvisa a ogni assegnazione, anche quando il valore è
+    // identico. Assegnando il livello sessanta volte al secondo, tutta l'app
+    // che osserva il motore si ridisegnava sessanta volte al secondo — anche
+    // ferma in home, con il microfono spento e il livello inchiodato a zero.
+    // Costava un terzo di un core e batteria per non mostrare niente, e con
+    // quel ritmo l'albero di accessibilità non riusciva più a essere letto:
+    // chi usa VoiceOver rischiava di trovare una schermata muta.
+    if abs(micLevel - snap.level) > 0.002 { micLevel = snap.level }
 
     switch phase {
     case .idle, .preparing, .instructions, .typing, .pausa, .scoring, .finished, .failed:
