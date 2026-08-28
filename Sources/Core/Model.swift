@@ -285,10 +285,39 @@ extension SessionConfig {
     return ms > 0 ? 1000 / ms : .infinity
   }
 
+  /// Quanti **lampi al secondo** produce questa configurazione.
+  ///
+  /// Non è la stessa cosa della frequenza del ciclo, ed è la differenza che
+  /// conta. La norma (WCAG 2.3.1) non conta i cicli ma i lampi, e un lampo è
+  /// una coppia di cambi opposti: acceso→spento→acceso. Dentro una sola prova
+  /// i cambi possono essere tre o quattro molto ravvicinati — croce, maschera,
+  /// parola, maschera — e contare solo il giro completo li nasconderebbe
+  /// tutti dietro una media.
+  ///
+  /// I tratti si contano in giro: l'ultimo si richiude sul primo, perché le
+  /// prove si susseguono.
+  var lampiAlSecondo: Double {
+    let mascheraPrima = maskMode == .both ? maskMs : 0
+    let mascheraDopo = maskMode != .none ? maskMs : 0
+    var tratti = 1.0                                  // la parola c'è sempre
+    if fixationMs > 0 { tratti += 1 }
+    if mascheraPrima > 0 { tratti += 1 }
+    if mascheraDopo > 0 { tratti += 1 }
+    if interTrialMs > 0 { tratti += 1 }
+    let secondi = durataCicloPeggioreMs / 1000
+    guard secondi > 0 else { return .infinity }
+    // Tratti in giro = altrettanti cambi; due cambi fanno un lampo.
+    return (tratti / 2) / secondi
+  }
+
   /// Vero quando questa configurazione fa lampeggiare lo schermo più in fretta
   /// del limite.
+  ///
+  /// Si guardano tutte e due le cose: le prove che si susseguono troppo in
+  /// fretta, e i lampi contati come li conta la norma.
   var oltreIlLimiteDiLampeggio: Bool {
     frequenzaCicloHz > SessionConfig.limiteLampeggioHz
+      || lampiAlSecondo > SessionConfig.limiteLampeggioHz
   }
 
   /// La durata minima che il ciclo deve avere per restare sotto il limite.

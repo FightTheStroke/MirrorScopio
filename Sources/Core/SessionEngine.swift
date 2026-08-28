@@ -271,7 +271,7 @@ final class SessionEngine: ObservableObject {
       listener.endWindow()
       suoni.microfonoInAscolto = false
       voceInCorso = false
-      commit(trial)
+      registraInterrotta(trial)
     }
 
     displayText = ""
@@ -281,11 +281,31 @@ final class SessionEngine: ObservableObject {
 
   /// Le fasi in cui non c'è nessun turno da interrompere: fermarsi qui sarebbe
   /// solo un fastidio.
+  ///
+  /// `.scoring` è in elenco e non è una svista: lì la parola è già stata letta
+  /// e già trascritta, manca solo l'etichetta dell'errore. Interrompere in quel
+  /// punto butterebbe via una risposta vera — una parola letta bene
+  /// diventerebbe un turno interrotto perché la finestra ha perso il fuoco
+  /// mentre il modello lavorava.
   private var phaseÈFerma: Bool {
     switch phase {
-    case .idle, .preparing, .instructions, .pausa, .finished, .failed: true
+    case .idle, .preparing, .instructions, .pausa, .finished, .failed, .scoring: true
     default: false
     }
+  }
+
+  /// Mette via una prova interrotta senza far finta che sia stata giocata.
+  ///
+  /// Non passa da `commit` di proposito: `commit` suona «Ancora», fa
+  /// pronunciare la parola giusta e accende il pallino del riscontro. Tutte
+  /// cose che, dette per una parola che il ragazzo non ha mai visto, sono un
+  /// rimprovero per una cosa che non ha fatto lui — e arriverebbero un istante
+  /// dopo avergli scritto che quella parola non conta.
+  private func registraInterrotta(_ trial: Trial) {
+    trials.append(trial)
+    current = nil
+    // Niente `staircase.update`: un turno fermato dal Mac non dice niente su
+    // chi legge, e farlo pesare sulla soglia vorrebbe dire misurare il Mac.
   }
 
   /// Il test iniziale: poche parole a velocità che cala in fretta, per capire
@@ -334,6 +354,11 @@ final class SessionEngine: ObservableObject {
                                  vocabulary: items,
                                  preferredInput: id)
         guard èAncoraMia(mia) else { await listener.stop(); return }
+        // La sorveglianza deve guardare il microfono **in uso**, non quello
+        // che era predefinito quando è partita la sessione: altrimenti
+        // staccare le cuffie che si stanno usando non viene visto, e staccare
+        // un microfono vecchio e inutilizzato ferma il turno per niente.
+        sorveglianzaMicrofono.inizia(su: id)
       } catch {
         guard èAncoraMia(mia) else { return }
         phase = .failed(error.localizedDescription)
@@ -380,6 +405,9 @@ final class SessionEngine: ObservableObject {
   /// due schermi a frequenza diversa il numero era di un altro monitor, e la
   /// tolleranza con cui si chiude l'esposizione risultava sbagliata proprio
   /// nella cosa che questa app misura.
+  /// È la durata **nominale**, non quella dell'ultimo fotogramma: su uno
+  /// schermo a frequenza variabile la seconda oscilla per costruzione, e
+  /// usarla come metro faceva dichiarare 24 Hz su un display a 120.
   func tick(_ now: CFTimeInterval, durataFrame: CFTimeInterval) {
     if durataFrame > 0 { ultimaDurataFrame = durataFrame }
     let snap = listener.read()
@@ -432,7 +460,11 @@ final class SessionEngine: ObservableObject {
       // schermo più a lungo di quanto dice il referto, e per un tachistoscopio
       // è la differenza fra una misura e un'impressione.
       frameEffettivi += 1
-      if ultimoFrame > 0, now - ultimoFrame > ultimaDurataFrame * 1.5 { frameSaltato = true }
+      // Il primo fotogramma della parola non ha un precedente con cui
+      // confrontarsi, e proprio l'accensione è il momento in cui il Mac salta
+      // più spesso: si usa l'istante in cui la parola è comparsa.
+      let precedente = ultimoFrame > 0 ? ultimoFrame : stimulusOnset
+      if precedente > 0, now - precedente > ultimaDurataFrame * 1.5 { frameSaltato = true }
       ultimoFrame = now
       guard now >= deadline - halfFrame(now) else { return }
       stimulusOffset = now
@@ -548,6 +580,9 @@ final class SessionEngine: ObservableObject {
   /// Quanto dura un frame sullo schermo della finestra, aggiornato a ogni
   /// battito. Il valore iniziale vale solo per i pochi millesimi prima del
   /// primo frame, e per le prove che chiamano `tick` senza un display link.
+  /// Quanto dura **di regola** un fotogramma su questo schermo: è il metro con
+  /// cui si decide la tolleranza, la frequenza da scrivere nel referto e
+  /// quanti fotogrammi serve tenere accesa la parola.
   private var ultimaDurataFrame: CFTimeInterval = 1.0 / 60.0
 
   /// La frequenza dello schermo su cui si sta davvero presentando, in hertz.
@@ -784,9 +819,47 @@ final class SessionEngine: ObservableObject {
   }
 
   /// Riprende dopo una pausa.
+  ///
+  /// Se la pausa è arrivata da un'interruzione — cuffie staccate, Mac
+  /// addormentato — non basta ripartire: il motore audio si lega al microfono
+  /// che trova quando nasce, e quel microfono non c'è più. Riprendere e basta
+  /// significava che **ogni parola successiva diventava «Non ho sentito
+  /// niente»**: esattamente la fila di omissioni che l'interruzione doveva
+  /// evitare, spostata di un minuto. Il messaggio prometteva «ricollegalo e si
+  /// riprende da qui»: adesso è vero.
   func resumeFromPause() {
     guard case .pausa = phase else { return }
     wordsSincePause = 0
+
+    guard ascoltoAvviso != nil, config.mode == .lettura else {
+      ascoltoAvviso = nil
+      riparti()
+      return
+    }
+
+    ascoltoAvviso = nil
+    phase = .preparing
+    statusMessage = "Un attimo: riaccendo l'ascolto…"
+    let mia = sessionID
+    Task {
+      await listener.stop()
+      do {
+        try await listener.start(locale: Locale(identifier: "it_IT"), vocabulary: items)
+        guard èAncoraMia(mia) else { await listener.stop(); return }
+        sorveglianzaMicrofono.inizia(su: AudioDevices.defaultInput())
+        statusMessage = ""
+        riparti()
+      } catch {
+        guard èAncoraMia(mia) else { return }
+        // Anche qui si dice che cosa è successo invece di tornare in pausa in
+        // silenzio: senza microfono l'allenamento di lettura non può andare
+        // avanti, e girare a vuoto sarebbe peggio.
+        phase = .failed(error.localizedDescription)
+      }
+    }
+  }
+
+  private func riparti() {
     if config.mode == .scrittura {
       startTrial(at: CACurrentMediaTime())
     } else {
@@ -845,17 +918,24 @@ final class SessionEngine: ObservableObject {
     // e peggio di un numero severo — toglie senso anche ai miglioramenti veri.
     // Erano gia escluse dalla scala adattiva e dalle parole da riprendere: qui
     // mancava.
-    let contate = trials.filter { $0.id > config.warmupTrials }
+    // E nemmeno le prove interrotte. Contarle nel totale senza poterle
+    // contare fra le giuste fa scendere la percentuale perché il Mac si è
+    // addormentato: al ragazzo verrebbe mostrato un risultato peggiore per una
+    // cosa che non ha fatto lui.
+    let contate = trials.filter { $0.id > config.warmupTrials && !$0.interrotto }
     r.total = contate.count
     r.correct = contate.filter(\.correct).count
     r.thresholdMs = thresholdMs
-    let lat = trials.compactMap(\.vocalLatencyMs)
+    let lat = trials.filter { !$0.interrotto }.compactMap(\.vocalLatencyMs)
     r.meanLatencyMs = lat.isEmpty ? nil : lat.reduce(0, +) / Double(lat.count)
     r.items = trials.map {
       ItemRecord(stimulus: $0.stimulus, response: $0.response, correct: $0.correct,
                  exposureMs: $0.actualExposureMs > 0 ? $0.actualExposureMs : $0.requestedExposureMs,
                  latencyMs: $0.vocalLatencyMs, errorKind: $0.errorKind.label,
-                 warmup: $0.id <= config.warmupTrials)
+                 warmup: $0.id <= config.warmupTrials,
+                 interrotto: $0.interrotto,
+                 refreshHz: $0.refreshHz,
+                 frameSaltato: $0.frameSaltato)
     }
     return r
   }

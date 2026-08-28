@@ -92,7 +92,11 @@ struct RootView: View {
     // Il turno si ferma e viene marcato interrotto, invece di finire nei dati
     // come una parola non letta.
     .onChange(of: scenePhase) { _, nuova in
-      guard nuova != .active else { return }
+      // Solo `.background`, non `.inactive`. Su macOS la scena diventa
+      // `.inactive` anche solo perdendo il fuoco — un clic sul Finder, una
+      // finestra di sistema che compare — e fermarsi lì bruciava una parola
+      // della lista a ogni distrazione, senza restituirla.
+      guard nuova == .background else { return }
       engine.interrompi(motivo: "L'app è passata in secondo piano: questa parola non conta. Quando torni, si riprende da qui.")
     }
     .onChange(of: store.current.a11y) { _, new in

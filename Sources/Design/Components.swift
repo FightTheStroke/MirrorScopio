@@ -416,6 +416,10 @@ struct ProgressoPallini: View {
 
   private func colore(_ i: Int) -> Color {
     guard i < fatte.count, i < indice else { return palette.muted.opacity(0.25) }
+    // Una parola interrotta dal Mac non è un risultato: resta neutra, come
+    // quelle non ancora arrivate. Colorarla di rosso sarebbe dire al ragazzo
+    // che ha sbagliato una parola che non ha mai visto.
+    guard !fatte[i].interrotto else { return palette.muted.opacity(0.4) }
     guard a11y.showFeedbackPerWord, !a11y.hideScore else {
       return palette.muted.opacity(0.75)
     }

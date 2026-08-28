@@ -34,12 +34,22 @@ final class TickView: NSView {
   }
 
   @objc private func step(_ sender: CADisplayLink) {
-    // `duration` è la durata nominale del frame su questo schermo. Su un
-    // display a frequenza variabile può oscillare: si prende la distanza vera
-    // fra il frame di adesso e quello atteso, che è la stessa cosa quando la
-    // frequenza è fissa e più onesta quando non lo è.
-    let durata = sender.targetTimestamp - sender.timestamp
-    onTick?(sender.targetTimestamp, durata > 0 ? durata : sender.duration)
+    // Servono due durate diverse, e confonderle è stato un errore.
+    //
+    // `duration` è quanto **dura di regola** un fotogramma su questo schermo:
+    // è il metro. Da lì si ricavano la frequenza da scrivere nel referto e la
+    // tolleranza con cui si decide se una parola è rimasta accesa il tempo
+    // giusto.
+    // Quanto è durato *questo* fotogramma lo si ricava già dalla distanza fra
+    // due chiamate, e chi conta i salti usa quella. Prendere invece
+    // `targetTimestamp - timestamp` come metro voleva dire dichiarare 24 Hz su
+    // un display a 120, e misurare i salti con un righello che si allunga
+    // proprio quando c'è un salto: il rilevatore smetteva di rilevare, in
+    // silenzio.
+    let nominale = sender.duration > 0
+      ? sender.duration
+      : max(sender.targetTimestamp - sender.timestamp, 1.0 / 60)
+    onTick?(sender.targetTimestamp, nominale)
   }
 }
 

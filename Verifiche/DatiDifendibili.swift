@@ -172,3 +172,71 @@ struct DatiDifendibili {
             "Se contare un turno interrotto non cambiasse niente, questa protezione sarebbe inutile: cambia.")
   }
 }
+
+/// Che cosa arriva nel referto quando il turno si è fermato per colpa del Mac.
+///
+/// Il motore sapeva distinguere una parola interrotta da una parola sbagliata,
+/// ma l'informazione moriva lì: nel referto, nella percentuale e nel ripasso
+/// arrivava come «nessuna risposta», cioè come un errore del ragazzo. Una
+/// protezione che si ferma al confine del referto non protegge nessuno.
+@Suite("Una parola interrotta non diventa un errore")
+struct InterrotteFuoriDalReferto {
+
+  private func voce(interrotto: Bool, corretta: Bool, parola: String = "casa") -> ItemRecord {
+    ItemRecord(stimulus: parola, response: "", correct: corretta,
+               exposureMs: 100, latencyMs: nil, errorKind: "omissione",
+               warmup: false, interrotto: interrotto)
+  }
+
+  @Test("Non finisce fra le parole da ripassare")
+  func nonSiRipassaUnaParolaMaiVista() {
+    var r = SessionRecord()
+    r.items = [voce(interrotto: true, corretta: false, parola: "gatto"),
+               voce(interrotto: false, corretta: false, parola: "cane")]
+    #expect(r.missedWords == ["cane"], "far ripetere una parola mai comparsa è chiedere conto di una cosa mai successa")
+  }
+
+  @Test("Non entra nel conteggio dei tipi di errore")
+  func nonConteggiaUnErroreMaiFatto() {
+    var r = SessionRecord()
+    r.items = [voce(interrotto: true, corretta: false),
+               voce(interrotto: false, corretta: false)]
+    #expect(r.errorCounts["omissione"] == 1)
+  }
+}
+
+/// Il limite di lampeggio contato come lo conta la norma.
+@Suite("Il limite di lampeggio")
+struct LimiteLampeggio {
+
+  @Test("I valori di serie non fanno scattare l'avviso")
+  func serieÈTranquilla() {
+    let c = SessionConfig()
+    #expect(!c.oltreIlLimiteDiLampeggio, "un avviso che compare sempre non lo legge più nessuno")
+  }
+
+  @Test("Azzerando croce e pausa l'avviso scatta")
+  func azzerareSiVede() {
+    var c = SessionConfig()
+    c.fixationMs = 0
+    c.interTrialMs = 0
+    c.maskMode = .both
+    c.maskMs = 30
+    c.minExposureMs = 16
+    #expect(c.oltreIlLimiteDiLampeggio)
+  }
+
+  @Test("I lampi si contano a coppie di cambi, non a cicli")
+  func lampiNonCicli() {
+    // Due cambi fanno un lampo: è la definizione della norma, ed è il motivo
+    // per cui contare i cicli soltanto nascondeva i cambi ravvicinati dentro
+    // una singola prova.
+    var c = SessionConfig()
+    c.fixationMs = 0
+    c.interTrialMs = 0
+    c.maskMode = .post
+    c.maskMs = 30
+    c.minExposureMs = 16
+    #expect(c.lampiAlSecondo > c.frequenzaCicloHz / 2)
+  }
+}

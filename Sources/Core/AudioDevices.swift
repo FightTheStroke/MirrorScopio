@@ -193,8 +193,18 @@ final class SorveglianzaMicrofono {
 
   /// Il blocco che CoreAudio richiama: arriva su una coda sua, quindi si
   /// rimbalza sul thread principale prima di toccare qualunque cosa.
-  private lazy var ascoltatore: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
-    Task { @MainActor in self?.controlla() }
+  ///
+  /// `nonisolated(unsafe)` perché serve anche a `deinit`, che non gira sul
+  /// main actor: è una `let` assegnata una volta sola alla nascita e mai più
+  /// toccata, quindi non c'è niente da proteggere.
+  private nonisolated(unsafe) let ascoltatore: AudioObjectPropertyListenerBlock
+
+  init() {
+    var richiama: (() -> Void)?
+    ascoltatore = { _, _ in
+      Task { @MainActor in richiama?() }
+    }
+    richiama = { [weak self] in self?.controlla() }
   }
 
   func inizia(su dispositivo: AudioDeviceID?) {
@@ -224,9 +234,27 @@ final class SorveglianzaMicrofono {
     guard attiva, let atteso = sorvegliato else { return }
     let presenti = AudioDevices.inputs().map(\.id)
     guard !presenti.contains(atteso) else { return }
-    fermati()
+    // Si smette di guardare **questo** microfono, che non c'è più, ma il
+    // collegamento con CoreAudio resta acceso: chi riprende ne sceglie un
+    // altro e `inizia(su:)` ricomincia da lì. Prima qui si chiamava
+    // `fermati()`, e la sorveglianza restava spenta per tutto il resto della
+    // sessione: il secondo microfono staccato non lo vedeva più nessuno.
+    sorvegliato = nil
     suMicrofonoSparito?()
   }
 
-  deinit { }
+  /// CoreAudio tiene il blocco finché non glielo si toglie: se questo oggetto
+  /// muore senza togliersi di mezzo, il blocco resta registrato e continua a
+  /// essere chiamato. Oggi non morde, perché la sorveglianza vive quanto
+  /// l'app; diventa un difetto il giorno in cui il motore viene ricreato, ed è
+  /// il tipo di difetto che si trova mesi dopo.
+  deinit {
+    guard attiva else { return }
+    var indirizzo = AudioObjectPropertyAddress(
+      mSelector: kAudioHardwarePropertyDevices,
+      mScope: kAudioObjectPropertyScopeGlobal,
+      mElement: kAudioObjectPropertyElementMain)
+    AudioObjectRemovePropertyListenerBlock(
+      AudioObjectID(kAudioObjectSystemObject), &indirizzo, .main, ascoltatore)
+  }
 }

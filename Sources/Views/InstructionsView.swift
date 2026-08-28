@@ -198,18 +198,34 @@ struct PauseView: View {
   var body: some View {
     VStack(spacing: a11y.size(Metrica.spazioLargo)) {
       Spacer()
-      Image(systemName: "cup.and.saucer.fill")
+      // Due pause diverse, e vanno dette diverse. Una è la pausa che ci si
+      // prende; l'altra è il Mac che si è fermato — microfono staccato, Mac
+      // addormentato, finestra passata dietro. Mostrare la tazzina e
+      // «respira, guarda fuori dalla finestra» quando l'app sa benissimo che
+      // cosa è successo è uno stato conosciuto e taciuto.
+      Image(systemName: engine.ascoltoAvviso == nil
+              ? "cup.and.saucer.fill" : "exclamationmark.triangle.fill")
         .font(.system(size: a11y.size(60)))
-        .foregroundStyle(palette.accent)
-      Text("Pausa")
+        .foregroundStyle(engine.ascoltoAvviso == nil ? palette.accent : palette.wrong)
+        .accessibilityHidden(true)
+      Text(engine.ascoltoAvviso == nil ? "Pausa" : "Ci siamo fermati")
         .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
-      Explain(text: "Respira, guarda fuori dalla finestra, muovi le spalle. Riprendiamo quando vuoi tu: non c'è nessun tempo che scorre.",
+      Explain(text: engine.ascoltoAvviso
+                ?? "Respira, guarda fuori dalla finestra, muovi le spalle. Riprendiamo quando vuoi tu: non c'è nessun tempo che scorre.",
               a11y: a11y, size: 19)
       .multilineTextAlignment(.center)
       .frame(maxWidth: 520)
 
-      BigButton(title: "Riprendi", symbol: "play.fill", a11y: a11y) { engine.resumeFromPause() }
+      if engine.ascoltoAvviso != nil {
+        Explain(text: "Quella parola non conta: non l'hai sbagliata tu, e nel riepilogo non ci sarà.",
+                a11y: a11y, size: 17)
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: 520)
+      }
+
+      BigButton(title: engine.ascoltoAvviso == nil ? "Riprendi" : "Riprova adesso",
+                symbol: "play.fill", a11y: a11y) { engine.resumeFromPause() }
         .frame(maxWidth: 360)
         .keyboardShortcut(.space, modifiers: [])
 
