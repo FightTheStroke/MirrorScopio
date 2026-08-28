@@ -31,14 +31,76 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Prendo il codice
+      # Due prelievi, non uno.
+      #
+      # Prima ce n'era uno solo, e prendeva **tutto** dall'etichetta: sia l'app
+      # da impacchettare sia gli script che la impacchettano. Ma gli script
+      # girano con il certificato della fondazione aperto nel portachiavi, e
+      # un'etichetta la può creare chiunque abbia accesso in scrittura: bastava
+      # un'etichetta con un `build.sh` modificato per farci firmare qualunque
+      # cosa. L'unica difesa era l'approvazione a mano, che guarda il nome
+      # dell'etichetta e non il suo contenuto.
+      #
+      # Adesso: **quello che gira** viene dal ramo principale, cioè da codice
+      # che è passato da una revisione; **quello che viene impacchettato** viene
+      # dall'etichetta.
+      - name: Prendo il ramo principale, che è quello di cui mi fido
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+          path: fidato
+
+      # Il secondo cancello, e il più importante: un'etichetta che non sta
+      # dentro il ramo principale non è mai stata rivista da nessuno. Qui il
+      # rilascio si ferma, prima ancora di aprire il portachiavi.
+      - name: Controllo che l'etichetta sia dentro il ramo principale
+        working-directory: fidato
+        env:
+          # L'etichetta passa da una variabile d'ambiente, non interpolata
+          # nello script: un nome scritto ad arte diventerebbe altrimenti un
+          # comando eseguito.
+          TAG_INPUT: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          TAG="$TAG_INPUT"
+          # L'etichetta e il ramo partono con la stessa spinta, e ogni tanto
+          # l'etichetta arriva per prima: si riprova, invece di bocciare un
+          # rilascio buono per una manciata di secondi.
+          for tentativo in 1 2 3; do
+            git fetch --force --tags origin main >/dev/null 2>&1 || true
+            if git merge-base --is-ancestor "$TAG^{commit}" origin/main 2>/dev/null; then
+              echo "L'etichetta $TAG è dentro il ramo principale: si procede."
+              exit 0
+            fi
+            echo "Tentativo $tentativo: $TAG non risulta ancora nel ramo principale, aspetto."
+            sleep 20
+          done
+          echo "::error::L'etichetta $TAG non è contenuta nel ramo principale. Un rilascio si fa solo da codice già rivisto e fuso: crea l'etichetta su un commit di main."
+          exit 1
+
+      - name: Prendo il codice dell'etichetta, che è quello da impacchettare
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # Il numero di build è il conteggio dei commit: serve la storia intera.
           fetch-depth: 0
           ref: ${{ github.event.inputs.tag || github.ref }}
+          path: sorgente
+
+      # Anche se l'etichetta è dentro il ramo principale, gli script che
+      # girano sono quelli del ramo principale **di adesso**: se un problema
+      # viene scoperto oggi in `package.sh`, ri-pacchettizzare una versione di
+      # sei mesi fa non deve rimetterlo in circolo.
+      - name: Gli script che girano vengono dal ramo principale
+        run: |
+          set -euo pipefail
+          rm -rf sorgente/scripts sorgente/build.sh sorgente/test.sh
+          cp -R fidato/scripts sorgente/scripts
+          cp fidato/build.sh fidato/test.sh sorgente/
+          chmod +x sorgente/build.sh sorgente/test.sh sorgente/scripts/*.sh
 
       - name: Preparo Xcode
+        working-directory: sorgente
         run: |
           set -euo pipefail
           # Senza questo il rilascio si ferma con «Manca xcodegen» dopo aver
@@ -81,9 +143,28 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: ./scripts/package.sh --notarize
+          # Se un giorno ci sarà una chiave API di App Store Connect, il
+          # segreto non passerà più nemmeno dall'ingresso standard: sarà un
+          # file, e i file non si leggono con `ps`. Finché i tre segreti non
+          # esistono, queste righe sono vuote e `package.sh` prende l'altra
+          # strada da solo.
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+          NOTARY_KEY_BASE64: ${{ secrets.NOTARY_KEY_BASE64 }}
+        working-directory: sorgente
+        run: |
+          set -euo pipefail
+          if [ -n "${NOTARY_KEY_BASE64:-}" ]; then
+            CHIAVE="$RUNNER_TEMP/AuthKey.p8"
+            umask 077
+            echo "$NOTARY_KEY_BASE64" | base64 --decode > "$CHIAVE"
+            export NOTARY_KEY="$CHIAVE"
+          fi
+          ./scripts/package.sh --notarize
+          rm -f "$RUNNER_TEMP/AuthKey.p8"
 
       - name: Verifico che si aprirebbe davvero su un Mac qualsiasi
+        working-directory: sorgente
         run: |
           set -euo pipefail
           VERSION="$(cat VERSION)"
@@ -93,6 +174,7 @@ jobs:
           grep -q "source=Notarized Developer ID" /tmp/spctl.txt
 
       - name: Verifico che l'app dentro lo zip si aggiorni davvero
+        working-directory: sorgente
         run: |
           set -euo pipefail
           # Lo zip è il pacchetto che le versioni già installate scaricano da
@@ -110,6 +192,7 @@ jobs:
           rm -rf "$PROVA"
 
       - name: Allego il pacchetto alla release
+        working-directory: sorgente
         env:
           GH_TOKEN: ${{ github.token }}
           TAG_INPUT: ${{ github.event.inputs.tag || github.ref_name }}
@@ -130,6 +213,6 @@ jobs:
         with:
           name: MirrorScopio-dmg
           path: |
-            build/*.dmg
-            build/*.zip
+            sorgente/build/*.dmg
+            sorgente/build/*.zip
           retention-days: 30

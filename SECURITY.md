@@ -112,6 +112,35 @@ mostrare un avviso su questo Mac a un'ora scelta; nessun testo, nessun orario,
 nessun dato viene inviato da nessuna parte. Restano avvisi che nascono e
 muoiono su questo computer, e si spengono quando vuoi.
 
+## Come nasce il pacchetto che scarichi
+
+Chi fa un rilascio ha in mano il certificato della fondazione: quel certificato è
+quello che dice a macOS «questa app è di chi dice di essere». Quindi la domanda che
+conta non è se il pacchetto è firmato — lo è sempre — ma **quale codice ha ottenuto
+quella firma**.
+
+Tre cancelli, in ordine:
+
+1. **L'etichetta di versione deve stare dentro il ramo principale.** Un'etichetta creata
+   su un ramo qualunque, con dentro quello che si vuole, non viene impacchettata: il
+   rilascio si ferma prima ancora di aprire il portachiavi. Solo codice già rivisto e
+   fuso arriva a essere firmato.
+2. **Gli script che girano vengono dal ramo principale di adesso**, non dall'etichetta.
+   L'etichetta dice *che cosa* impacchettare; il come lo dice il ramo principale. Così
+   un problema scoperto oggi non torna in circolo ri-pacchettizzando una versione di sei
+   mesi fa.
+3. **Una persona approva a mano.** I segreti stanno in un ambiente protetto e GitHub non
+   li consegna prima. È scomodo apposta.
+
+Fino al 28 agosto 2026 c'era solo il terzo, e guardava il nome dell'etichetta, non il
+suo contenuto: bastava un'etichetta con un `build.sh` modificato dentro per far firmare
+qualunque cosa alla fondazione.
+
+**Quello che questi cancelli non coprono, detto:** il progetto Xcode e `project.yml`
+vengono ancora dall'etichetta, e in un progetto Xcode si possono nascondere passi che
+eseguono comandi. Il primo cancello lo rende difficile — quel contenuto è comunque
+passato da una revisione — ma non è la stessa cosa di un controllo automatico.
+
 ## Versioni supportate
 
 Riceve correzioni solo l'ultima versione pubblicata. Il progetto è giovane
