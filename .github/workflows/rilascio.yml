@@ -15,6 +15,15 @@ on:
 jobs:
   pacchetto:
     runs-on: macos-26
+    # Il certificato di firma della fondazione e la password di Apple vivono
+    # qui dentro. Chiunque possa far partire questo workflow può farci firmare
+    # qualunque cosa: basterebbe un tag creato ad arte, perché il codice che
+    # gira è quello *del tag*, non quello del ramo principale.
+    #
+    # L'ambiente è il lucchetto: i segreti stanno lì, e GitHub non li consegna
+    # finché una persona non approva a mano. È scomodo apposta — un rilascio
+    # all'anno vale più di una firma rubata.
+    environment: rilascio
     # Il permesso di scrittura vive nel job, non nel workflow: così non viene
     # ereditato da eventuali job futuri che non ne hanno bisogno.
     permissions:
