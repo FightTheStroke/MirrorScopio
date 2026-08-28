@@ -18,8 +18,19 @@ struct InstructionsView: View {
   private var isWriting: Bool { engine.config.mode == .scrittura }
 
   var body: some View {
-    VStack(spacing: a11y.size(26)) {
-      Spacer(minLength: 0)
+    // Il contenuto scorre.
+    //
+    // Non e' una precauzione teorica: misurato, questo schermo era alto 742
+    // punti gia' a grandezza normale, e 1467 con «Dimensione di tutto» a 1,8.
+    // Su una finestra da 700 punti — un portatile — il pulsante «Scegli il
+    // microfono» finiva sotto il bordo, e siccome non si scorreva non c'era
+    // nessun modo di raggiungerlo: chi non sentiva niente restava fermo li'.
+    // Piu' si ingrandisce il testo, prima succede — cioe' colpiva per primo
+    // chi ha ipovisione, esattamente per aver usato l'impostazione fatta per
+    // lui. `minHeight` tiene tutto centrato quando lo spazio invece basta.
+    ScrollView {
+      VStack(spacing: a11y.size(26)) {
+        Spacer(minLength: 0)
 
       Text(engine.isCalibration ? "Facciamo la prova" : "Pronti?")
         .font(a11y.typeface.font(size: a11y.size(42), weight: .bold))
@@ -47,10 +58,12 @@ struct InstructionsView: View {
       .multilineTextAlignment(.center)
       .frame(maxWidth: 520)
 
-      Spacer(minLength: 0)
+        Spacer(minLength: 0)
+      }
+      .frame(maxWidth: .infinity, minHeight: 560)
+      .padding(36)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .padding(36)
     // L'app scrive «se vuoi fermarti premi Esc» già in questa schermata: se lo
     // dice, deve funzionare già qui, non solo dopo la prima parola.
     .background {

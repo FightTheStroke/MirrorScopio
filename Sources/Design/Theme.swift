@@ -52,22 +52,45 @@ enum ColorVision: String, CaseIterable, Identifiable, Codable {
   }
 
   /// Colore per "giusto". Mai solo il colore: è sempre accompagnato da un simbolo.
-  var ok: Color {
+  ///
+  /// Dipende dallo sfondo, e per un pezzo non è stato così: c'era un colore
+  /// solo, calcolato per lo sfondo bianco, riusato tale e quale sul nero. I
+  /// numeri di quel riuso: «giusta» in verde sul tema scuro faceva 4,28 a 1
+  /// contro il 4,5 richiesto, «ancora» in rosso 3,42, e per chi vede tutto in
+  /// grigio e sceglie il tema scuro «giusta» faceva **1,76** — cioè quasi lo
+  /// sfondo. La parola che dice com'è andata era la meno leggibile dello
+  /// schermo, per chi ha più bisogno di leggerla.
+  ///
+  /// Non è un dettaglio da manuale: si è visto in un PNG disegnato dal banco
+  /// di prova, e poi misurato. Adesso ogni combinazione sta sopra 4,6 su tutti
+  /// e quattro i temi.
+  func ok(isDark: Bool) -> Color {
     switch self {
-    case .standard: Color(red: 0.13, green: 0.55, blue: 0.24)
-    case .deuteranopia, .protanopia: Color(red: 0.00, green: 0.45, blue: 0.80)
-    case .tritanopia: Color(red: 0.00, green: 0.50, blue: 0.35)
-    case .monocromia: Color(white: 0.25)
+    case .standard:
+      isDark ? Color(red: 0.15, green: 0.63, blue: 0.27) : Color(red: 0.14, green: 0.46, blue: 0.23)
+    case .deuteranopia, .protanopia:
+      isDark ? Color(red: 0.09, green: 0.56, blue: 0.93) : Color(red: 0.00, green: 0.41, blue: 0.73)
+    case .tritanopia:
+      isDark ? Color(red: 0.00, green: 0.63, blue: 0.44) : Color(red: 0.00, green: 0.46, blue: 0.32)
+    case .monocromia:
+      // Qui il colore non dice niente per definizione: a distinguere sono la
+      // forma e la parola. La differenza di chiarezza resta comunque netta,
+      // perché è l'unico indizio in più che si può dare.
+      isDark ? Color(white: 0.95) : Color(white: 0.15)
     }
   }
 
-  /// Colore per "sbagliato".
-  var wrong: Color {
+  /// Colore per la parola che non è venuta.
+  func wrong(isDark: Bool) -> Color {
     switch self {
-    case .standard: Color(red: 0.80, green: 0.16, blue: 0.16)
-    case .deuteranopia, .protanopia: Color(red: 0.85, green: 0.55, blue: 0.00)
-    case .tritanopia: Color(red: 0.85, green: 0.20, blue: 0.35)
-    case .monocromia: Color(white: 0.55)
+    case .standard:
+      isDark ? Color(red: 1.00, green: 0.28, blue: 0.28) : Color(red: 0.77, green: 0.15, blue: 0.15)
+    case .deuteranopia, .protanopia:
+      isDark ? Color(red: 0.85, green: 0.55, blue: 0.00) : Color(red: 0.56, green: 0.36, blue: 0.00)
+    case .tritanopia:
+      isDark ? Color(red: 0.97, green: 0.30, blue: 0.46) : Color(red: 0.75, green: 0.18, blue: 0.31)
+    case .monocromia:
+      isDark ? Color(white: 0.60) : Color(white: 0.40)
     }
   }
 
@@ -114,7 +137,7 @@ struct Palette {
                      foreground: Color(white: 0.08),
                      muted: Color(white: 0.38),
                      accent: Color(red: 0.15, green: 0.39, blue: 0.92), onAccent: .white,
-                     ok: vision.ok, wrong: vision.wrong, isDark: false)
+                     ok: vision.ok(isDark: false), wrong: vision.wrong(isDark: false), isDark: false)
     case .scuro:
       return Palette(background: Color(red: 0.07, green: 0.08, blue: 0.11),
                      surface: Color(red: 0.13, green: 0.14, blue: 0.18),
@@ -122,7 +145,7 @@ struct Palette {
                      muted: Color(white: 0.68),
                      accent: Color(red: 0.42, green: 0.62, blue: 1.0),
                      onAccent: Color(white: 0.05),
-                     ok: vision.ok, wrong: vision.wrong, isDark: true)
+                     ok: vision.ok(isDark: true), wrong: vision.wrong(isDark: true), isDark: true)
     case .altoContrasto:
       return Palette(background: .black,
                      surface: Color(white: 0.12),
@@ -139,7 +162,7 @@ struct Palette {
                      foreground: Color(red: 0.16, green: 0.14, blue: 0.10),
                      muted: Color(red: 0.40, green: 0.36, blue: 0.28),
                      accent: Color(red: 0.15, green: 0.36, blue: 0.72), onAccent: .white,
-                     ok: vision.ok, wrong: vision.wrong, isDark: false)
+                     ok: vision.ok(isDark: false), wrong: vision.wrong(isDark: false), isDark: false)
     }
   }
 }

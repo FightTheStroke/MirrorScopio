@@ -73,8 +73,12 @@ enum FontLoader {
   private(set) static var availableFamilies: Set<String> = []
   private static var postScriptNames: [String: String] = [:]
 
-  static func registerBundledFonts() {
-    guard let dir = Bundle.main.resourceURL?.appendingPathComponent("Fonts"),
+  /// `da` serve solo al banco di prova che disegna le schermate: quello non ha
+  /// un pacchetto applicazione, quindi senza questo parametro ripiegherebbe sul
+  /// carattere di sistema e le immagini mostrerebbero una cosa diversa da
+  /// quella che vede chi usa l'app — cioe' mentirebbero proprio su OpenDyslexic.
+  static func registerBundledFonts(da cartella: URL? = nil) {
+    guard let dir = cartella ?? Bundle.main.resourceURL?.appendingPathComponent("Fonts"),
           let files = try? FileManager.default.contentsOfDirectory(at: dir,
                                                                    includingPropertiesForKeys: nil)
     else { return }

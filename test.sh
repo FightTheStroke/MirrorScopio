@@ -12,11 +12,13 @@ ALL=0
 [ "${1:-}" = "--all" ] && ALL=1
 
 OUT="build/tests"
-mkdir -p "$OUT"
+mkdir -p "$OUT" build/schermate
 
 # I file di Sources che servono agli harness: tutto il Core, più i dati.
 # Le viste no: tirerebbero dentro SwiftUI senza alcun bisogno.
 CORE=$(find Sources/Core Sources/Data Sources/Design -name "*.swift")
+# Il banco delle schermate disegna l'interfaccia vera: a lui servono anche le viste.
+VISTE=$(find Sources/Views -name "*.swift")
 
 FRAMEWORKS="-framework AppKit -framework SwiftUI -framework AVFoundation \
   -framework Speech -framework FoundationModels -framework QuartzCore \
@@ -36,8 +38,10 @@ run_harness() {
   # Si mostrano solo gli errori: il rumore dei warning nasconderebbe il resto.
   # L'esito vero è l'esistenza del binario, controllata subito sotto.
   rm -f "$OUT/$name"
+  local sorgenti="$CORE"
+  [ "$name" = "schermate" ] && sorgenti="$CORE $VISTE"
   swiftc -O -target arm64-apple-macos26.0 -parse-as-library \
-    $FRAMEWORKS -o "$OUT/$name" $CORE "$file" 2>&1 | grep -E "error:" || true
+    $FRAMEWORKS -o "$OUT/$name" $sorgenti "$file" 2>&1 | grep -E "error:" || true
   if [ ! -x "$OUT/$name" ]; then
     echo "✗ $name non compila"
     FAILED=1
@@ -103,6 +107,7 @@ ENT
 
 run_harness staircase   Tests/StaircaseHarness.swift    fast
 run_harness suoni       Tests/SuoniHarness.swift         fast
+run_harness schermate   Tests/SchermateHarness.swift     fast
 run_harness microfono   Tests/MicHarness.swift          slow
 run_harness punteggio   Tests/ScoringHarness.swift      slow
 run_harness intelligenza Tests/IntelligenceHarness.swift slow
