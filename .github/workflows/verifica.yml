@@ -80,6 +80,19 @@ jobs:
           fi
           grep -q "## \[$VERSION\]\|## \[Non ancora rilasciato\]" CHANGELOG.md
 
+      # XcodeGen genera il progetto da project.yml: senza, `./test.sh` non ha
+      # con che cosa lanciare le prove. Va installato **prima** di lanciarle:
+      # messo dopo, il primo giro e' fallito dicendo «manca xcodegen».
+      - name: Preparo Xcode
+        run: brew install xcodegen
+
+      # Finche' «Navigazione da tastiera» e' spenta, Tab salta da un campo di
+      # testo all'altro e ignora i pulsanti: le prove si fermerebbero
+      # dichiarando che non hanno provato niente. Qui la accendiamo apposta,
+      # cosi' il controllo si fa davvero.
+      - name: Accendo la navigazione da tastiera
+        run: defaults write -g AppleKeyboardUIMode -int 3
+
       # Le prove che si possono fare senza un essere umano davanti: la scala
       # adattiva, il contrasto dei colori in tutti i temi, il confronto fra
       # versioni, e il fatto che nessuna schermata nasconda i propri pulsanti.
@@ -89,25 +102,9 @@ jobs:
       # che cosa questo cancello non controlla.
       - name: Eseguo le prove
         run: ./test.sh
-
-      # Le prove che aprono l'applicazione vera e la usano senza mouse, leggendo
-      # l'albero di accessibilita' — cioe' quello che VoiceOver pronuncia. Girano
-      # qui perche' l'accessibilita' controllata a occhio non e' una promessa:
-      # per settimane ho scritto che l'app era usabile da tastiera senza che
-      # nessuno l'avesse mai attraversata premendo solo Tab.
-      - name: Preparo Xcode
-        run: brew install xcodegen
-
-      # Finche' «Navigazione da tastiera» e' spenta, Tab salta da un campo di
-      # testo all'altro e ignora i pulsanti: le prove si fermerebbero dichiarando
-      # che non hanno provato niente. Qui la accendiamo apposta, cosi' il
-      # controllo si fa davvero.
-      - name: Accendo la navigazione da tastiera
-        run: defaults write -g AppleKeyboardUIMode -int 3
-
-      - name: Eseguo le prove di accessibilita'
-        run: |
-          set -euo pipefail
-          xcodegen generate
-          xcodebuild test -project MirrorScopio.xcodeproj -scheme MirrorScopio \
-            -destination 'platform=macOS'
+        # `./test.sh` lancia anche `xcodebuild test`: le 21 prove unitarie e le
+        # 5 che aprono l'applicazione vera e la usano **senza mouse**, leggendo
+        # l'albero di accessibilita' — cioe' quello che VoiceOver pronuncia.
+        # Girano qui perche' l'accessibilita' controllata a occhio non e' una
+        # promessa: per settimane ho scritto che l'app era usabile da tastiera
+        # senza che nessuno l'avesse mai attraversata premendo solo Tab.
