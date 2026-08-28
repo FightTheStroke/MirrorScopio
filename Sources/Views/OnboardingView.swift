@@ -31,7 +31,7 @@ struct OnboardingView: View {
   /// I passi da mostrare: benvenuto, poi solo quelli non ancora a posto,
   /// poi la voce, poi il saluto finale.
   private var passi: [Passo] {
-    var out: [Passo] = [.benvenuto, .aspetto, .calma]
+    var out: [Passo] = [.benvenuto, .profilo, .aspetto, .calma]
     for voce in readiness.voci where !voce.isOK && voce.necessaria {
       out.append(.sistema(voce.id))
     }
@@ -44,6 +44,7 @@ struct OnboardingView: View {
 
   private enum Passo: Equatable {
     case benvenuto
+    case profilo
     case aspetto
     case calma
     case sistema(String)
@@ -109,6 +110,24 @@ struct OnboardingView: View {
         Explain(text: "MirrorScopio fa vedere una parola per un istante e ascolta come la leggi. Serve per allenare la lettura, un pezzetto alla volta.", a11y: a11y, size: 21)
         Explain(text: "**Tutto resta su questo Mac.** La tua voce non viene inviata a nessuno: il riconoscimento funziona anche senza internet.", a11y: a11y, size: 21)
         Explain(text: "Sistemiamo insieme come si vede l'app e quel che le serve per ascoltarti: ci vuole un minuto.", a11y: a11y, size: 21)
+      }
+
+    case .profilo:
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
+        titolo("Che cosa succede quando leggi?")
+        Explain(text: "Se ti riconosci in una di queste frasi, l'app si sistema da sola: carattere, colori, tempi, pause, grandezza dei comandi. Se non ti riconosci in nessuna, si salta: non cambia niente e si può scegliere anche dopo.", a11y: a11y, size: 21)
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)],
+                  spacing: Metrica.spazioPiccolo) {
+          ForEach(A11yProfile.allCases) { p in
+            ChoiceCard(title: p.frase, subtitle: p.hint, symbol: p.symbol,
+                       selected: a11y.profile == p, a11y: a11y) {
+              var l = store.current
+              p.apply(to: &l.a11y)
+              store.current = l
+            }
+          }
+        }
+        notaSiCambia
       }
 
     case .aspetto:
@@ -307,6 +326,11 @@ struct OnboardingView: View {
   private func aggiorna(_ change: (inout A11ySettings) -> Void) {
     var l = store.current
     change(&l.a11y)
+    // Come nelle Impostazioni: toccare una manopola a mano vuol dire che il
+    // profilo non descrive più esattamente questa persona, e si passa a «su
+    // misura». Qui non succedeva, e rifare l'avvio guidato lasciava l'app in
+    // uno stato diverso da quello in cui la lasciavano le Impostazioni.
+    if l.a11y.profile != .nessuno { l.a11y.profile = .nessuno }
     store.current = l
   }
 

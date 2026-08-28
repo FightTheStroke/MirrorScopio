@@ -32,6 +32,22 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
     }
   }
 
+  /// Che cosa succede guardando lo schermo.
+  ///
+  /// I nomi qui sopra sono diagnosi, e una diagnosi dice a una persona che cosa
+  /// le manca. Chi apre questa app quelle parole le ha già sentite abbastanza:
+  /// per scegliere basta riconoscersi in quello che si vede, non in un'etichetta.
+  var frase: String {
+    switch self {
+    case .nessuno: "Comincio così e vediamo"
+    case .dislessia: "Le lettere si mescolano e saltano di riga"
+    case .autismo: "Le cose che si muovono e i colori accesi disturbano"
+    case .adhd: "Lo sguardo scappa da un'altra parte"
+    case .ipovisione: "Le parole sono troppo piccole per vederle"
+    case .paralisiCerebrale: "I comandi piccoli sono difficili da prendere"
+    }
+  }
+
   /// Che cosa cambia davvero, detto senza gergo.
   var hint: String {
     switch self {
@@ -76,10 +92,15 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
       s.speakCorrectWord = true
       s.letterSpacing = 4
     case .paralisiCerebrale:
+      // I bersagli grandi non stanno qui perché non sono una preferenza
+      // memorizzata: li calcola `EffettiveImpostazioniAccessibilita.bersaglio`
+      // a partire dal profilo, così tutti i comandi dell'app li seguono senza
+      // che nessuno debba ricordarsi di leggerli.
       s.textScale = 1.3
       s.extraResponseTime = 1.6
       s.reducedMotion = true
       s.speakCorrectWord = true
+      s.stimulusSize = 150
     }
     s.profile = self
   }

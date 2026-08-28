@@ -211,11 +211,13 @@ struct SettingsView: View {
   private var profiles: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "Un profilo imposta tutto in un colpo", a11y: a11y)
-      Explain(text: "Scegline uno e carattere, colori, tempi e pause si sistemano da soli. Poi puoi ritoccare quello che vuoi qui sotto.", a11y: a11y, size: 15)
+      Explain(text: "Scegline uno e carattere, colori, tempi, pause e grandezza dei comandi si sistemano da soli. Poi puoi ritoccare quello che vuoi qui sotto.", a11y: a11y, size: 15)
 
       LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(A11yProfile.allCases) { p in
-          ChoiceCard(title: p.label, subtitle: p.hint, symbol: p.symbol,
+          // La frase, non la diagnosi: le stesse parole dell'avvio guidato, così
+          // chi ha già scelto lì ritrova qui esattamente quello che aveva scelto.
+          ChoiceCard(title: p.frase, subtitle: p.hint, symbol: p.symbol,
                      selected: a11y.profile == p, a11y: a11y) {
             var l = store.current
             p.apply(to: &l.a11y)
