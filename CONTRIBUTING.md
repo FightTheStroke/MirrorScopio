@@ -97,6 +97,13 @@ resta leggibile e compilabile senza aprire nulla.
 - Niente `try!`, niente force unwrap su valori che possono davvero mancare.
 - I testi dell'interfaccia si scrivono per un ragazzino di dieci anni: frasi
   corte, nessun termine tecnico non spiegato nella stessa frase.
+- **Non si disegna niente da zero.** I mattoncini stanno in
+  `Sources/Design/Components.swift`, le misure in `Metrica`, i colori in
+  `Palette`: se una schermata riscrive un pulsante invece di usare quello
+  condiviso, fra tre mesi le due copie saranno diverse — è già successo, ed è
+  così che chiudere una schermata era finito per essere fatto in sei modi.
+  Il documento è [`docs/DESIGN.md`](docs/DESIGN.md), e in fondo ci sono tre
+  `grep` che devono restare vuoti.
 
 ## Verifiche prima di proporre una modifica
 

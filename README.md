@@ -27,7 +27,7 @@ Un tachistoscopio per logopedia che non ha bisogno di un adulto che segni le ris
 Un progetto della **[Fight The Stroke Foundation](https://www.fightthestroke.org)**,
 sorella di **[MirrorBuddy](https://github.com/FightTheStroke/MirrorBuddy)**.
 
-[Scarica](#scaricare-e-usare) · [Com'è fatta](docs/ARCHITETTURA.md) · [Accessibilità](docs/ACCESSIBILITA.md) · [Parte clinica](docs/CLINICA.md) · [Roadmap mobile e store](roadmap.md) · [Contribuire](CONTRIBUTING.md)
+[Scarica](#scaricare-e-usare) · [Com'è fatta](docs/ARCHITETTURA.md) · [Accessibilità](docs/ACCESSIBILITA.md) · [Parte clinica](docs/CLINICA.md) · [Disegno](docs/DESIGN.md) · [Roadmap mobile e store](roadmap.md) · [Contribuire](CONTRIBUTING.md)
 
 </div>
 
@@ -232,6 +232,7 @@ Come si insegnano le chiavi a GitHub: [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIO
 | [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md) | Com'è fatta dentro: macchina a stati, riconoscimento, dati |
 | [`docs/ACCESSIBILITA.md`](docs/ACCESSIBILITA.md) | Ogni scelta inclusiva e il motivo per cui è stata fatta |
 | [`docs/CLINICA.md`](docs/CLINICA.md) | Scala adattiva, soglia, latenza vocale, tipi di errore |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | I mattoncini condivisi, le misure, i colori e le parole: come si resta coerenti |
 | [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) | Punti, serie, obiettivi — e perché si possono spegnere |
 | [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md) | Firma, notarizzazione, pacchetto, automazione su GitHub |
 | [`roadmap.md`](roadmap.md) | Piano tracciabile per iPhone, iPad, TestFlight e App Store |
