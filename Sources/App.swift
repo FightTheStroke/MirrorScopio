@@ -56,6 +56,12 @@ struct RootView: View {
       .frame(width: 0, height: 0))
     .environment(\.palette, palette)
     .environment(\.impostazioni, a11y)
+    // L'interlinea si imposta qui una volta sola e scende in tutto quello che
+    // c'è sotto: righe troppo vicine si scavalcano con l'occhio — si rilegge
+    // la stessa o si salta la successiva — ed è la fatica che il profilo
+    // Dislessia prometteva di togliere da quando esiste, senza che nel codice
+    // ci fosse una riga che la togliesse davvero.
+    .interlinea(a11y)
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))
     .onAppear {
