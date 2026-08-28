@@ -16,6 +16,21 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Aggiunto
+- **C'è scritto che cosa impedisce a qualcun altro di venderci sopra.** La licenza resta
+  Apache 2.0 e non cambia niente per chi usa l'app, ma adesso il ragionamento è scritto:
+  `docs/STRATEGIA-LICENZA.md` dice perché questa licenza, dove sta il valore che nel
+  codice non c'è, e le tre condizioni al verificarsi delle quali si rivede. Con una riga
+  scomoda dichiarata invece che nascosta: quattro delle sei cose che dovrebbero rendere
+  MirrorScopio difendibile — dati normativi italiani, soglie tarate su bambini veri,
+  protocollo validato, rete di logopedisti — **oggi non esistono ancora**.
+- **Il nome è protetto anche se il codice è libero.** `NOTICE` e il README adesso dicono
+  che «MirrorScopio», il logo e «Fight The Stroke» non sono coperti dalla licenza: chi
+  parte da questo codice può farlo, ma deve chiamare la sua cosa in un altro modo e non
+  può lasciar credere che sia nostra.
+- **A chi contribuisce chiediamo una firma, e gli diciamo perché.** Senza, il giorno in cui
+  servisse vendere una licenza a chi ci fa business bisognerebbe chiedere il permesso a
+  ognuno o riscrivere il suo pezzo — e finirebbe che non si fa. La liberatoria non toglie
+  niente a chi contribuisce: resta l'autore e il suo lavoro resta libero per tutti.
 - **Tre documenti nuovi per chi non scrive codice.** «Per i genitori» spiega che cos'è e
   che cosa non è, senza una parola tecnica; «Per i logopedisti» dà paradigma, parametri ed
   esportazioni, e mette i limiti in cima invece che in fondo; «Privacy» dice che cosa l'app

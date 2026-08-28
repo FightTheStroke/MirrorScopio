@@ -104,6 +104,7 @@
 		1C71B81D6FA380E5AB23BBF8 /* idea.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = idea.yml; sourceTree = "<group>"; };
 		205933038872E415019CBA59 /* AppVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
 		25A2AFB8C51925E557D963F4 /* stabilizza-progetto.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "stabilizza-progetto.py"; sourceTree = "<group>"; };
+		25D6DE1D9E9E7507C8EC270D /* STRATEGIA-LICENZA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "STRATEGIA-LICENZA.md"; sourceTree = "<group>"; };
 		2A0E70FB4BD5DEF09320F20B /* AudioDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDevices.swift; sourceTree = "<group>"; };
 		2A44049637BC6FFAEB421A64 /* release.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = release.sh; sourceTree = "<group>"; };
 		2BE0A57B030C674CC7521A8C /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -411,6 +412,7 @@
 				8118DA5BFB5F8F8654C02D65 /* PER-I-GENITORI.md */,
 				AFE70137AA171B11379D4157 /* PER-I-LOGOPEDISTI.md */,
 				777E29AB1E10DF167ECFF397 /* PRIVACY.md */,
+				25D6DE1D9E9E7507C8EC270D /* STRATEGIA-LICENZA.md */,
 				ED307154A2239E0C31BDF705 /* assets */,
 			);
 			path = docs;

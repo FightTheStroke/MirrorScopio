@@ -33,3 +33,23 @@ MirrorScopio usa framework di sistema di Apple (Speech, FoundationModels,
 AVFoundation, SwiftUI, CoreAudio) senza incorporarne il codice. I modelli di
 riconoscimento vocale e i modelli linguistici on-device appartengono ad Apple e
 vengono installati dal sistema operativo, non distribuiti con questa app.
+
+--------------------------------------------------------------------------------
+Nome e marchio
+--------------------------------------------------------------------------------
+
+L'articolo 6 della Apache License 2.0 non concede alcun diritto sui nomi
+commerciali, sui marchi o sui loghi del licenziante.
+
+"MirrorScopio", "Fight The Stroke", "Fight The Stroke Foundation" e i relativi
+loghi e segni distintivi NON sono coperti dalla licenza del codice.
+
+Chi parte da questo codice può farlo liberamente, alle condizioni della Apache
+License 2.0, ma deve dare al proprio prodotto un nome diverso e non deve
+lasciare intendere che sia realizzato, sostenuto o approvato dalla Fight The
+Stroke Foundation.
+
+I riferimenti al progetto originale a scopo descrittivo — per esempio "basato su
+MirrorScopio" o "derivato da MirrorScopio" — restano leciti.
+
+Il ragionamento per esteso è in docs/STRATEGIA-LICENZA.md.

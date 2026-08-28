@@ -136,7 +136,33 @@ affermazioni diverse.
 
 Non aprire una issue pubblica: vedi [`SECURITY.md`](SECURITY.md).
 
-## Licenza
+## Licenza, e perché ti chiediamo una firma
 
 Proponendo una modifica accetti che venga distribuita sotto
 [Apache License 2.0](LICENSE), la stessa del resto del progetto.
+
+Ti chiediamo anche una cosa in più, e ti spieghiamo perché.
+
+MirrorScopio lo fa una fondazione, senza pubblicità e senza vendere dati. Un
+giorno, per tenerlo in piedi, potrebbe servire vendere licenze a chi ci fa
+business — enti, aziende, editori. Se nel codice c'è una riga scritta da te e
+tu non ci hai dato il permesso, quel giorno dovremmo chiederti il consenso, o
+riscrivere quel pezzo. Con dieci persone diventa impossibile, e finisce che non
+si fa: cioè il progetto perde una strada per sopravvivere.
+
+Per questo, alla tua prima proposta di modifica, ti chiediamo di accettare una
+**liberatoria**: resti l'autore di quello che hai scritto, il tuo nome resta
+nello storico, il tuo lavoro resta libero per tutti sotto Apache 2.0 — e in più
+concedi alla Fight The Stroke Foundation il diritto di distribuire quel codice
+anche con una licenza diversa, se un domani servisse.
+
+Non ti toglie niente, e non ti impegna a niente. Se questa cosa non ti va bene,
+dillo: preferiamo saperlo prima e discuterne, piuttosto che scoprirlo dopo.
+
+Il ragionamento per esteso, comprese le condizioni a cui la licenza si
+rivedrebbe, è in [`docs/STRATEGIA-LICENZA.md`](docs/STRATEGIA-LICENZA.md).
+
+**Il nome è un'altra cosa dal codice.** «MirrorScopio», il logo e «Fight The
+Stroke» non sono coperti dalla licenza: puoi partire da questo codice e farne
+quello che vuoi, ma la tua cosa deve chiamarsi in un altro modo e non deve far
+credere che sia nostra.
