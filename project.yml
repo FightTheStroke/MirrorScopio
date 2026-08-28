@@ -53,6 +53,12 @@ settings:
     GCC_TREAT_WARNINGS_AS_ERRORS: NO
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
 
+    # Solo Apple Silicon. Non e' una scelta di comodo: l'app usa
+    # FoundationModels, il modello di linguaggio che sta dentro macOS, e su un
+    # Mac Intel quel framework non esiste. Costruire anche per Intel vorrebbe
+    # dire produrre meta' pacchetto che non partirebbe comunque.
+    ARCHS: arm64
+
     # Toglie dal programma finito il codice che nessuno chiama. Lo consiglia
     # Xcode dalla finestra «Update to recommended settings».
     #
@@ -60,14 +66,11 @@ settings:
     # Xcode e' generato da questo file: una spunta messa a mano nella finestra
     # sparirebbe alla prima ricostruzione.
     #
-    # Attenzione a che cosa promette: **niente**, sull'app che si scarica.
-    # Misurato accendendolo e spegnendolo: il programma prodotto da `build.sh`
-    # pesa 4944 KB in tutti e due i casi, identico. Il motivo e' che `build.sh`
-    # non apre nemmeno questo file — compila con `swiftc` per conto suo. Questa
-    # impostazione vale solo per chi costruisce da Xcode.
-    #
-    # Cioe': ci sono due modi di costruire l'app e non si somigliano. Finche'
-    # restano due, ogni impostazione scritta qui vale per meta' del mondo.
+    # Quanto vale, misurato accendendolo e spegnendolo: 2336 KB contro 2384,
+    # cioe' 48 KB. Poco. Per un po' qui c'e' stato scritto che risparmiava
+    # megabyte, e non era vero: allora `build.sh` compilava per conto suo con
+    # `swiftc` e questo file non lo apriva nemmeno, quindi l'impostazione non
+    # arrivava all'app che la gente scarica. Adesso ci arriva, e vale 48 KB.
     DEAD_CODE_STRIPPING: YES
 
 # File che non si compilano ma che fanno parte del progetto: documentazione,
