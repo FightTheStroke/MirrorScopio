@@ -4,8 +4,15 @@ import SwiftUI
 /// ruba attenzione alla parola che sta per comparire.
 struct StageView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
+
+  /// L'ultima cosa detta a voce, per non ripetersi.
+  ///
+  /// `@Published` avvisa a ogni assegnazione, anche quando il valore non è
+  /// cambiato: senza questo guardiano VoiceOver direbbe «ti ascolto» tre volte
+  /// di fila e coprirebbe quello che viene dopo.
+  @State private var ultimaVoce = ""
 
   var body: some View {
     ZStack {
@@ -43,6 +50,70 @@ struct StageView: View {
 
       if !a11y.distractionFree { overlay }
       progress
+    }
+    // Chi usa VoiceOver seguiva l'esercizio alla cieca: lo schermo cambiava —
+    // conto alla rovescia, ascolto aperto, esito del turno — e non lo diceva
+    // nessuno. Restava il silenzio, e non c'era modo di distinguere «sto
+    // aspettando che parli» da «si è piantato».
+    //
+    // Qui si annuncia che cosa sta succedendo, mai la parola da leggere: dirla
+    // sarebbe suggerire la risposta.
+    .onChange(of: engine.phase) { _, nuova in annuncia(fraseDellaFase(nuova)) }
+    // Un turno vuoto e un microfono muto sono due cose opposte, e a voce si
+    // somigliavano entrambe al silenzio.
+    .onChange(of: engine.ascoltoAvviso) { _, avviso in
+      // Quando l'avviso sparisce si dimentica anche che era stato detto: il
+      // microfono che si azzittisce, torna e si azzittisce di nuovo e' lo
+      // stesso avviso due volte, e la seconda va detta. Il guardiano contro le
+      // ripetizioni serve alle fasi, che si susseguono; qui rendeva muto
+      // proprio il caso in cui l'app sa una cosa e deve dirla.
+      guard let avviso else { ultimaVoce = ""; return }
+      annuncia(avviso)
+    }
+    .onChange(of: engine.statusMessage) { _, messaggio in
+      if case .preparing = engine.phase { annuncia(messaggio) }
+    }
+    .onChange(of: engine.voceInCorso) { _, sente in
+      if sente, mostraAscolto { annuncia("Ti sento") }
+    }
+    // Un microfono muto, a schermo, si vede dal cerchio che non pulsa. Chi non
+    // guarda lo schermo aveva solo il silenzio, uguale identico al silenzio di
+    // «sto aspettando che parli»: due secondi bastano a distinguerli.
+    .task(id: mostraAscolto) {
+      guard mostraAscolto else { return }
+      try? await Task.sleep(for: .seconds(2))
+      guard !Task.isCancelled, mostraAscolto,
+            !engine.voceInCorso, engine.liveTranscript.isEmpty else { return }
+      annuncia("Non sento niente dal microfono")
+    }
+  }
+
+  // MARK: - Quello che l'app dice a voce
+
+  private func annuncia(_ frase: String) {
+    guard !frase.isEmpty, frase != ultimaVoce else { return }
+    ultimaVoce = frase
+    AccessibilityNotification.Announcement(frase).post()
+  }
+
+  /// Che cosa sta succedendo, detto a chi non guarda lo schermo.
+  ///
+  /// La parola dello stimolo non compare mai qui dentro: l'esercizio misura se
+  /// si riesce a leggerla in un lampo, e annunciarla sarebbe barare.
+  private func fraseDellaFase(_ fase: Phase) -> String {
+    switch fase {
+    case .preparing: "Sto preparando"
+    case .countdown(let n): n == 1 ? "Si comincia" : ""
+    case .fixation: "Guarda al centro"
+    case .stimulus: "Parola \(engine.trialIndex + 1) di \(engine.totalTrials)"
+    case .listening: "Adesso parla"
+    case .flushing, .scoring: "Sto ascoltando quello che hai detto"
+    case .typing: "Scrivi la parola"
+    case .feedback(let ok): a11y.hideScore ? "Turno finito" : (ok ? "Giusta" : "Ancora")
+    case .pausa: "Pausa"
+    case .finished: "Sessione finita"
+    case .failed(let messaggio): messaggio
+    default: ""
     }
   }
 

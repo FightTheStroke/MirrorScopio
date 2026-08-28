@@ -18,6 +18,7 @@
 		2286360E3A9C58DB37B742BF /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205933038872E415019CBA59 /* AppVersion.swift */; };
 		2832DC450C429B45F0482FD9 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AA6D3030117F939C0678D9 /* App.swift */; };
 		2877E0784151A22FCF97DE74 /* Stimuli.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2E31DB5E360461371F5524 /* Stimuli.swift */; };
+		2DDA465011CA5F7593C02E1E /* Bersagli.swift in Sources */ = {isa = PBXBuildFile; fileRef = C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */; };
 		2F41E13250A0EB9AEE1777DE /* DatiAlSicuro.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */; };
 		30195BC95FAF28CFF5A7EED4 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138E17EF7A234EFD43A06DC /* Log.swift */; };
 		354582885019B32535778395 /* VoiceChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BCAA8C25A78EAA0828A3FF /* VoiceChooser.swift */; };
@@ -30,6 +31,7 @@
 		5ED5293352158029B96B4749 /* FrameClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C0BAC75B45E720D4EC713C /* FrameClock.swift */; };
 		5F38A65C41C5ECA1975785AB /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35E182095769B06776CC6F7 /* DashboardView.swift */; };
 		5F7543BCCB6E28B524340AAF /* ReadinessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */; };
+		61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C5C670CCAC577809191C /* Interlinea.swift */; };
 		6E519530D16C2239A064E801 /* AudioDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E70FB4BD5DEF09320F20B /* AudioDevices.swift */; };
 		709984EA43D1F94ED972E00D /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A34ECBF54C93620D8462066 /* ReportView.swift */; };
 		7AA8D0FF6EAD344E137560BF /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CF05A39638296A9A050E2E /* Model.swift */; };
@@ -41,6 +43,7 @@
 		A8A1E4A76D3B0FCA62A87C05 /* Intelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7873929AD1C523DB5A9983D2 /* Intelligence.swift */; };
 		AAD053F52024C18ABB369359 /* Battito.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C25C5F17C318E947E1AD49 /* Battito.swift */; };
 		AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD41100535CF14951204A59 /* OnboardingView.swift */; };
+		ABA58014213F1EE37E0E1960 /* AccessibilitaDelMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */; };
 		AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */; };
 		B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E94B8AD368179CF019AEB21 /* Contrasto.swift */; };
 		B42E26E0BC7CF3CB0B69E17C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B323386D38EFBCCD82CF3AA8 /* HomeView.swift */; };
@@ -114,6 +117,7 @@
 		3EE66A11CF2993242603C80C /* CODEOWNERS */ = {isa = PBXFileReference; path = CODEOWNERS; sourceTree = "<group>"; };
 		3FE6F239472A53F627C76B21 /* estrai-identita.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "estrai-identita.py"; sourceTree = "<group>"; };
 		4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScalaAdattiva.swift; sourceTree = "<group>"; };
+		4A96C5C670CCAC577809191C /* Interlinea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interlinea.swift; sourceTree = "<group>"; };
 		4CE5A851E0EC588426F00E4B /* Verifiche.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Verifiche.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5266357C1E390A61B3294EC1 /* Readiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Readiness.swift; sourceTree = "<group>"; };
 		53C25C5F17C318E947E1AD49 /* Battito.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battito.swift; sourceTree = "<group>"; };
@@ -165,6 +169,7 @@
 		BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aggiornamenti.swift; sourceTree = "<group>"; };
 		BDC9D3329F9BE985B4A44517 /* config.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = config.yml; sourceTree = "<group>"; };
 		BE218955B02B3D36D0D42915 /* ImpostazioniDiSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpostazioniDiSistema.swift; sourceTree = "<group>"; };
+		C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bersagli.swift; sourceTree = "<group>"; };
 		C35E182095769B06776CC6F7 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		CBD41100535CF14951204A59 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CC15C6CCA60C061748E42475 /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
@@ -177,6 +182,7 @@
 		DB8F73F157C256378466F009 /* ProveDaTastiera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProveDaTastiera.swift; sourceTree = "<group>"; };
 		E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadinessView.swift; sourceTree = "<group>"; };
 		E7255A28477B9B61F9EF88B4 /* ProveDaTastiera.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProveDaTastiera.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitaDelMac.swift; sourceTree = "<group>"; };
 		E8BCAA8C25A78EAA0828A3FF /* VoiceChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChooser.swift; sourceTree = "<group>"; };
 		E8CC16AEE2F4A86D2D0A27DA /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		EB98145457D8873F58DC5B95 /* StaffettaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffettaView.swift; sourceTree = "<group>"; };
@@ -334,6 +340,7 @@
 		BDC924D52FA36FCDBFBB966C /* Design */ = {
 			isa = PBXGroup;
 			children = (
+				E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */,
 				88AA1E26779A757F2BA6651E /* Accessibility.swift */,
 				6366D8DAE4BC19CFBAD19367 /* Badge.swift */,
 				B66873BF49E2DAAF966A291A /* Components.swift */,
@@ -373,10 +380,12 @@
 			children = (
 				BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */,
 				53C25C5F17C318E947E1AD49 /* Battito.swift */,
+				C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */,
 				3E94B8AD368179CF019AEB21 /* Contrasto.swift */,
 				AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */,
 				EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */,
 				7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */,
+				4A96C5C670CCAC577809191C /* Interlinea.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
 			);
@@ -561,6 +570,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABA58014213F1EE37E0E1960 /* AccessibilitaDelMac.swift in Sources */,
 				F378FEE4D123DE1C5130FB95 /* Accessibility.swift in Sources */,
 				FC1B24A65A23FC69979C350F /* AdvancedControls.swift in Sources */,
 				04CA40E8A63EBB8CFFD3E996 /* AiutoView.swift in Sources */,
@@ -616,10 +626,12 @@
 			files = (
 				0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */,
 				AAD053F52024C18ABB369359 /* Battito.swift in Sources */,
+				2DDA465011CA5F7593C02E1E /* Bersagli.swift in Sources */,
 				B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */,
 				2F41E13250A0EB9AEE1777DE /* DatiAlSicuro.swift in Sources */,
 				5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */,
 				F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */,
+				61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,
 			);

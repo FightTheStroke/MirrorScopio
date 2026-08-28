@@ -4,7 +4,7 @@ import SwiftUI
 /// succedere, e far vedere con i propri occhi che il microfono funziona.
 struct InstructionsView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
   /// Che fare quando dal microfono non arriva proprio niente: portare la
   /// persona dove si sceglie l'ingresso, invece di lasciarla davanti a una
@@ -192,7 +192,7 @@ struct InstructionsView: View {
 /// quando si è pronti, che è tutto il punto di una pausa.
 struct PauseView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
 
   var body: some View {
@@ -230,7 +230,7 @@ struct PauseView: View {
         .keyboardShortcut(.space, modifiers: [])
 
       Button("Ho finito per oggi") { engine.abort() }
-        .buttonStyle(.plain)
+        .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
         .font(a11y.font(.etichetta))
         .foregroundStyle(palette.muted)
         .frame(minHeight: 44)

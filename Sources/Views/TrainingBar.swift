@@ -12,7 +12,7 @@ import CoreAudio
 /// cuffie si attaccano e si staccano a meta sessione, e prima bisognava uscire
 /// dall'allenamento per accorgersene.
 struct TrainingBar: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
   /// Testo a destra: "parola 3 di 20". Vuoto se non c'e niente da contare.
   var contatore: String = ""
@@ -65,7 +65,7 @@ struct TrainingBar: View {
 /// nessun colore che diventa rosso. Chi ha chiesto di vederlo voleva sapere da
 /// quanto sta andando, non sentirsi inseguito.
 struct Cronometro: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
   var inizio: Date
 

@@ -32,11 +32,11 @@ profilo se non lo sono più.
 
 | Profilo | Che cosa cambia |
 |---|---|
-| **Dislessia** | OpenDyslexic, lettere più distanziate, righe più larghe, testo più grande |
+| **Dislessia** | OpenDyslexic, lettere più distanziate, interlinea più ampia, testo più grande |
 | **Autismo** | Niente animazioni, niente distrazioni, niente esclamazioni, pause frequenti. **Contrasto medio, non alto** |
 | **ADHD** | Sessioni brevi, pause automatiche, schermo pulito, feedback immediato |
 | **Ipovisione** | Testo molto grande, altissimo contrasto, Atkinson Hyperlegible |
-| **Paralisi cerebrale** | Tempi di risposta lunghi, bersagli grandi, nessuna fretta |
+| **Paralisi cerebrale** | Tempi di risposta lunghi, bersagli da 60 pt invece che da 44, parola più grande, nessuna fretta |
 
 Il caso dell'autismo merita una nota, perché è controintuitivo: **l'alto contrasto è
 disattivato apposta.** In molte linee guida "accessibile" e "ad alto contrasto" sono
@@ -128,9 +128,29 @@ finale parla di quello che è migliorato prima di quello che manca.
 
 ## Fondamenta tecniche
 
-- Bersagli tattili/clic minimo 44×44 pt, ovunque.
-- Contrasto WCAG 2.1 AA sui testi, AAA nelle schermate del ragazzo.
-- Focus da tastiera sempre visibile; ogni schermata è percorribile senza mouse.
+- Bersagli tattili/clic minimo 44×44 pt, ovunque — compresi i controlli che disegna
+  macOS (interruttori, cursori, elenchi a comparsa), che di serie sono alti fra i 16 e i
+  26 pt e qui passano dagli involucri di `Sources/Design/Components.swift`. Nel profilo
+  «I comandi piccoli sono difficili da prendere» il minimo sale a 60 pt.
+  Misurato da `Verifiche/Bersagli.swift` sull'altezza resa, non su quella dichiarata.
+- Contrasto WCAG 2.1 **AAA (7:1)** su tutto quello che l'app scrive — testo, esiti,
+  scritte sui pulsanti — in tutti e quattro i temi e per tutti e cinque i modi di vedere
+  i colori. Le forme che portano informazione senza essere testo (l'oro di un obiettivo
+  conquistato, la fiamma dei giorni di fila, il rosso del comando che ferma) stanno a
+  3:1, che è la soglia che la WCAG chiede per loro. Misurato da `Verifiche/Contrasto.swift`
+  su tutte e venti le combinazioni, non a occhio.
+- Focus da tastiera sempre visibile: i pulsanti dell'app passano tutti da
+  `StilePulsante` (`Sources/Design/Components.swift`), che disegna un doppio anello
+  attorno a quello che ha il fuoco. `.buttonStyle(.plain)`, che l'anello lo cancella,
+  resta in un punto solo — il pulsante a schermo intero della staffetta, che coincide
+  con lo schermo. Il Tab li raggiunge tutti anche sui Mac in cui «Navigazione da
+  tastiera» è spenta — cioè quelli appena usciti dalla scatola — perché la
+  dichiarazione sta dentro `StilePulsante`, una volta sola, e non nei singoli
+  pulsanti: prima ce l'avevano otto su diciannove, e gli altri undici restavano
+  fuori dal giro senza che si vedesse.
+  Il fuoco **parte** dal pulsante principale in Home, nel riepilogo, nell'avvio e
+  nella scrittura; nelle altre schermate parte da dove capita. È un lavoro non
+  finito, scritto qui perché non sembri fatto.
 - Etichette VoiceOver su ogni controllo; le decorazioni sono nascoste allo screen reader.
 - Le dimensioni si moltiplicano fino a ×2 sopra il valore già grande di partenza.
 
@@ -154,3 +174,16 @@ Queste righe raccontano prove fatte, non intenzioni.
   «Selezionato», che non faceva niente.
 - **Quello che conta parla.** Il segno di esito resta leggibile a voce quando
   il punteggio è nascosto: lì è l'unica cosa che dice «Giusta» o «Ancora».
+
+## Che cosa non è ancora stato verificato a schermo
+
+Sta scritto qui perché una promessa non verificata, in un documento di accessibilità,
+vale meno di zero: chi lo legge ci conta.
+
+- **L'anello di fuoco** è nel codice e compila, ma non è ancora stato guardato in
+  esecuzione con «Navigazione da tastiera» accesa nelle Impostazioni di Sistema.
+- **Gli annunci a voce durante l'esercizio** (fase, inizio ascolto, esito, microfono
+  muto, fine turno) sono nel codice e non sono ancora stati ascoltati con VoiceOver
+  acceso.
+- **L'impaginazione col testo a ×2** è misurata dalle prove in `Verifiche/`, ma non è
+  ancora stata guardata a occhio schermata per schermata.

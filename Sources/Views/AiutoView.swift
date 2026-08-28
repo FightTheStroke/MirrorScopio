@@ -18,7 +18,7 @@ struct AiutoView: View {
 
   @State private var pagina: Pagina = .comeFunziona
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   private let repoURL = "https://github.com/FightTheStroke/MirrorScopio"
   private let sostieniURL = "https://www.fightthestroke.org/donorbox"

@@ -19,13 +19,19 @@ struct OnboardingView: View {
   /// Deciso una volta sola all'apertura e non ricalcolato: se sparisse appena
   /// risposto, i passi si rinumererebbero sotto i piedi di chi li sta facendo.
   @State private var chiediPromemoria = false
+  /// La tastiera arriva sul pulsante che porta avanti, non sul primo controllo
+  /// che capita: qui dentro si sceglie anche il profilo di chi «usa solo la
+  /// voce o pochi tasti», e chiedergli il mouse proprio qui sarebbe il modo
+  /// peggiore di cominciare.
+  @FocusState private var fuoco: Fuoco?
+  private enum Fuoco: Hashable { case avanti }
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   /// I passi da mostrare: benvenuto, poi solo quelli non ancora a posto,
   /// poi la voce, poi il saluto finale.
   private var passi: [Passo] {
-    var out: [Passo] = [.benvenuto, .aspetto, .calma]
+    var out: [Passo] = [.benvenuto, .profilo, .aspetto, .calma]
     for voce in readiness.voci where !voce.isOK && voce.necessaria {
       out.append(.sistema(voce.id))
     }
@@ -38,6 +44,7 @@ struct OnboardingView: View {
 
   private enum Passo: Equatable {
     case benvenuto
+    case profilo
     case aspetto
     case calma
     case sistema(String)
@@ -66,6 +73,7 @@ struct OnboardingView: View {
         .frame(maxWidth: 820, alignment: .leading)
     }
     .frame(maxWidth: .infinity)
+    .defaultFocus($fuoco, .avanti)
     .task {
       await readiness.controlla()
       // Il permesso delle notifiche si chiede qui, dove c'e' lo spazio per
@@ -104,6 +112,24 @@ struct OnboardingView: View {
         Explain(text: "Sistemiamo insieme come si vede l'app e quel che le serve per ascoltarti: ci vuole un minuto.", a11y: a11y, size: 21)
       }
 
+    case .profilo:
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
+        titolo("Che cosa succede quando leggi?")
+        Explain(text: "Se ti riconosci in una di queste frasi, l'app si sistema da sola: carattere, colori, tempi, pause, grandezza dei comandi. Se non ti riconosci in nessuna, si salta: non cambia niente e si può scegliere anche dopo.", a11y: a11y, size: 21)
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)],
+                  spacing: Metrica.spazioPiccolo) {
+          ForEach(A11yProfile.allCases) { p in
+            ChoiceCard(title: p.frase, subtitle: p.hint, symbol: p.symbol,
+                       selected: a11y.profile == p, a11y: a11y) {
+              var l = store.current
+              p.apply(to: &l.a11y)
+              store.current = l
+            }
+          }
+        }
+        notaSiCambia
+      }
+
     case .aspetto:
       VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Si legge bene?")
@@ -121,7 +147,7 @@ struct OnboardingView: View {
         SectionTitle(text: "Colori e luce", a11y: a11y)
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
           ForEach(ThemeChoice.allCases) { t in
-            ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
+            ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.manopole.theme == t, a11y: a11y) {
               aggiorna { $0.theme = t }
             }
           }
@@ -280,30 +306,17 @@ struct OnboardingView: View {
 
   private func sliderOnb(_ title: String, _ value: Binding<Double>,
                          _ range: ClosedRange<Double>,
-                         _ format: (Double) -> String) -> some View {
-    VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
-      HStack {
-        Text(title)
-          .font(a11y.font(.corpo))
-          .foregroundStyle(palette.foreground)
-        Spacer()
-        Text(format(value.wrappedValue))
-          .font(a11y.font(.etichetta))
-          .foregroundStyle(palette.muted)
-          .monospacedDigit()
-      }
-      Slider(value: value, in: range).frame(maxWidth: 460)
-        .accessibilityLabel(title)
-        .accessibilityValue(format(value.wrappedValue))
-    }
+                         _ format: @escaping (Double) -> String) -> some View {
+    CursoreAccessibile(titolo: title, valore: value, intervallo: range,
+                       passo: (range.upperBound - range.lowerBound) / 40,
+                       a11y: a11y, descrizione: format)
   }
 
   private func toggleOnb(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
     VStack(alignment: .leading, spacing: Metrica.filo) {
-      Toggle(title, isOn: value)
-        .font(a11y.font(.guida))
-        .foregroundStyle(palette.foreground)
+      InterruttoreAccessibile(titolo: title, acceso: value, a11y: a11y)
       Explain(text: hint, a11y: a11y, size: 15)
+        .padding(.horizontal, Metrica.spazioStretto)
     }
   }
 
@@ -313,6 +326,11 @@ struct OnboardingView: View {
   private func aggiorna(_ change: (inout A11ySettings) -> Void) {
     var l = store.current
     change(&l.a11y)
+    // Come nelle Impostazioni: toccare una manopola a mano vuol dire che il
+    // profilo non descrive più esattamente questa persona, e si passa a «su
+    // misura». Qui non succedeva, e rifare l'avvio guidato lasciava l'app in
+    // uno stato diverso da quello in cui la lasciavano le Impostazioni.
+    if l.a11y.profile != .nessuno { l.a11y.profile = .nessuno }
     store.current = l
   }
 
@@ -349,6 +367,7 @@ struct OnboardingView: View {
             BigButton(title: "Facciamo la prova", symbol: "wand.and.stars", a11y: a11y,
                       action: onCalibrate)
               .frame(maxWidth: 320)
+              .focused($fuoco, equals: .avanti)
               .keyboardShortcut(.defaultAction)
             BigButton(title: "Salta, comincio e basta", symbol: "play.fill", a11y: a11y,
                       prominent: false, action: onFinish)
@@ -356,6 +375,7 @@ struct OnboardingView: View {
           } else {
             BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
               .frame(maxWidth: 320)
+              .focused($fuoco, equals: .avanti)
               .keyboardShortcut(.defaultAction)
           }
         } else {
@@ -364,12 +384,13 @@ struct OnboardingView: View {
             passo = min(passi.count - 1, passo + 1)
           }
           .frame(maxWidth: 280)
+          .focused($fuoco, equals: .avanti)
           .keyboardShortcut(.defaultAction)
         }
         Spacer(minLength: 0)
         Button("Salta") { onFinish() }
           .font(a11y.font(.etichetta))
-          .buttonStyle(.plain)
+          .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
           .foregroundStyle(palette.muted)
           .frame(minHeight: Metrica.bersaglio)
           .keyboardShortcut(.escape, modifiers: [])

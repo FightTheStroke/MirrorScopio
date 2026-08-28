@@ -47,7 +47,7 @@ func altezzaNaturale<V: View>(_ vista: V, larghezza: CGFloat) -> CGFloat {
 
 /// Un campionario dei mattoncini condivisi, in un tema.
 struct Campionario: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var tema: ThemeChoice
   var nomeTema: String
 
@@ -100,7 +100,7 @@ struct DisegnaSchermate {
         atPath: "build/schermate", withIntermediateDirectories: true)
       FontLoader.registerBundledFonts(da: URL(fileURLWithPath: "Resources/Fonts"))
 
-      var base = A11ySettings()
+      let base = EffettiveImpostazioniAccessibilita()
       print("── I mattoncini, in tutti i temi ──")
       for (tema, nome) in [(ThemeChoice.chiaro, "Chiaro"),
                            (.scuro, "Scuro"),
@@ -112,9 +112,11 @@ struct DisegnaSchermate {
 
       print("")
       print("── Lo stesso, ingrandito e con il carattere per la dislessia ──")
-      base.textScale = 1.4
-      base.typeface = .openDyslexic
-      disegna(Campionario(a11y: base, tema: .chiaro, nomeTema: "Ingrandito 1,4"),
+      var manopoleIngrandite = A11ySettings()
+      manopoleIngrandite.textScale = 1.4
+      manopoleIngrandite.typeface = .openDyslexic
+      let ingrandito = EffettiveImpostazioniAccessibilita(manopoleIngrandite)
+      disegna(Campionario(a11y: ingrandito, tema: .chiaro, nomeTema: "Ingrandito 1,4"),
               nome: "mattoncini-ingranditi", larghezza: 1100, altezza: 900)
 
       print("")
@@ -142,7 +144,7 @@ struct DisegnaSchermate {
           RiquadroAggiornamento(release: finta, fase: fase,
                                 sessioneInCorso: inSessione,
                                 puòInstallare: scrivibile,
-                                a11y: A11ySettings())
+                                a11y: EffettiveImpostazioniAccessibilita())
             .padding(Metrica.spazio)
             .frame(width: 720, alignment: .leading)
             .background(chiara.background)
@@ -151,9 +153,10 @@ struct DisegnaSchermate {
       }
       // Anche ingrandito e con il carattere per la dislessia: è la prova che
       // il riquadro regge il testo grande senza tagliare le parole.
-      var grande = A11ySettings()
-      grande.textScale = 2.0
-      grande.typeface = .openDyslexic
+      var manopoleGrandi = A11ySettings()
+      manopoleGrandi.textScale = 2.0
+      manopoleGrandi.typeface = .openDyslexic
+      let grande = EffettiveImpostazioniAccessibilita(manopoleGrandi)
       let riquadroGrande = RiquadroAggiornamento(
         release: finta, fase: .verifico, sessioneInCorso: false,
         puòInstallare: true, a11y: grande)
