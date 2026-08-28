@@ -157,6 +157,12 @@ apri il `.dmg`, trascina MirrorScopio in Applicazioni.
 L'app è firmata dalla Fight The Stroke Foundation e **notarizzata da Apple**: si apre con
 un doppio clic, senza avvisi e senza tasto destro.
 
+Questa è l'unica volta che serve fare tutto a mano. **Dalla 0.6.0 in poi l'app si aggiorna
+da sé**: quando esce una versione nuova lo dice, e nelle impostazioni — sotto «I dati» —
+c'è «Aggiorna e riavvia». Scarica il pacchetto, controlla che la firma sia la nostra e che
+il timbro di Apple sia valido, si sostituisce e riparte. Non chiede mai la password di
+amministratore, e non si aggiorna mai mentre una sessione è in corso.
+
 ### Requisiti
 
 - **macOS 26** o successivo, Mac con Apple Silicon
