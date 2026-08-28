@@ -5,6 +5,18 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Se qualcosa si rompe, si deve capire *dove*. Senza questa riga lo script
+# poteva fermarsi a meta' senza stampare niente, e chi lo aveva lanciato
+# restava a guardare uno schermo che sembrava dire «non e' successo nulla».
+# Un programma che si arrende in silenzio fa credere alla persona di aver
+# sbagliato lei.
+mi_sono_fermato() {
+  echo
+  echo "✗ Mi sono fermato alla riga $1, e non e' colpa tua."
+  echo "  E' un difetto di questo script: copia questo messaggio e le righe qui sopra."
+}
+trap 'mi_sono_fermato $LINENO' ERR
+
 REPO="FightTheStroke/MirrorScopio"
 TEAM_ID="93T3LG4NPG"
 IDENTITY="Developer ID Application: Fight The Stroke Foundation ($TEAM_ID)"
@@ -59,11 +71,18 @@ trap 'rm -rf "$TEMPDIR"' EXIT
 P12_PATH="$TEMPDIR/firma.p12"
 # Una password lunga e casuale: vive dentro questo script e dentro la cassaforte
 # di GitHub, e nessun essere umano deve mai ridigitarla.
-P12_PASSWORD="$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 40)"
+#
+# Si genera con «openssl rand» e non con «tr < /dev/urandom | head -c 40».
+# Quel modo, che e' il piu' diffuso su internet, qui uccideva lo script in
+# silenzio: «head» chiude la pipe appena ha i suoi 40 caratteri, «tr» muore di
+# SIGPIPE con codice 141, e «set -o pipefail» piu' «set -e» fanno uscire tutto
+# senza stampare una riga. Dallo schermo sembrava che il comando non avesse
+# fatto niente.
+P12_PASSWORD="$(openssl rand -hex 20)"
 export P12_PASSWORD
 
 TUTTE="$TEMPDIR/tutte.p12"
-PASS_TUTTE="$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 40)"
+PASS_TUTTE="$(openssl rand -hex 20)"
 if ! security export -k login.keychain-db -t identities -f pkcs12 \
      -P "$PASS_TUTTE" -o "$TUTTE" >/dev/null 2>&1; then
   echo "✗ Il portachiavi non mi ha lasciato esportare i certificati."
