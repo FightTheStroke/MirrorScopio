@@ -50,9 +50,13 @@ if [[ $NOTARIZE -eq 1 ]]; then
   # Sul Mac di casa le credenziali stanno nel portachiavi; su GitHub arrivano
   # dalle variabili segrete. Stessa strada, due modi di autenticarsi.
   if [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
-    # @env: tiene la password fuori da `ps aux`.
-    export APPLE_APP_PASSWORD
-    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "@env:APPLE_APP_PASSWORD"
+    # Qui c'era «--password "@env:APPLE_APP_PASSWORD"», con il commento
+    # «@env: tiene la password fuori da ps aux». Il commento raccontava una
+    # cosa che non esiste: notarytool quella sintassi non la conosce e prende
+    # la stringa alla lettera. Risultato, ogni notarizzazione automatica e'
+    # sempre fallita con «Invalid credentials», e il messaggio dava la colpa
+    # alla password. La password era giusta tutte le volte.
+    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD"
                  --team-id "${APPLE_TEAM_ID:-93T3LG4NPG}")
   else
     NOTARY_ARGS=(--keychain-profile "$PROFILE")
