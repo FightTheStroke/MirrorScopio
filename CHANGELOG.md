@@ -73,6 +73,13 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   (`Gamification.swift:88`, `Fonts.swift:73-74`) restano da correggere.
 
 ### Corretto
+- **Gli aggiornamenti potevano smettere di arrivare senza che nessuno se ne accorgesse.**
+  L'app portava un numero di build ricavato dal conto delle modifiche salvate, e quel
+  conto può *scendere* quando una serie di modifiche viene unita in un salvataggio solo.
+  È successo: sul Mac di prova l'app installata portava il 103 mentre la versione nuova
+  ne portava 94, e macOS pretende che quel numero salga sempre — un Mac fermo a un numero
+  più alto non avrebbe mai visto arrivare le versioni successive, in silenzio. Ora il
+  numero nasce dalla versione (0.6.0 → 600) e le prove controllano che salga.
 - **I comandi grandi sparivano appena si toccava qualcos'altro.** Chi sceglieva
   «Paralisi cerebrale» otteneva pulsanti alti 60 punti invece di 44; poi bastava
   alzare di un filo la dimensione del testo e tornavano a 44, in silenzio,

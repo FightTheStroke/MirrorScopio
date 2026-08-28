@@ -9,15 +9,15 @@
 # protestava. Ora la versione la scrive questo script, sempre dalla stessa
 # fonte: il file VERSION alla radice, esattamente come fa build.sh.
 #
-# Il file generato non sta nel repository: cambia a ogni commit (il numero di
-# build è il conto dei commit) e sporcherebbe ogni confronto.
+# Il file generato non sta nel repository: cambia a ogni cambio di versione e
+# porta dentro il team di firma di questo Mac, quindi sporcherebbe i confronti.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 VERSION="$(tr -d ' \n' < VERSION)"
-# Lo stesso conto che usa build.sh: cresce da solo e non si scorda mai.
-BUILD_NUMBER="$(git rev-list --count HEAD 2>/dev/null || echo 0)"
+# Lo stesso calcolo che usa build.sh, e sta scritto in un posto solo.
+BUILD_NUMBER="$(./scripts/numero-build.sh)"
 
 cat > Versione.xcconfig <<CONF
 // Generato da scripts/genera-progetto.sh — non modificare a mano:
