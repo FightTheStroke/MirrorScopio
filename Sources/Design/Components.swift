@@ -360,11 +360,7 @@ struct StopButton: View {
   var titolo = "Basta"
   let action: () -> Void
 
-  private var rosso: Color {
-    palette.isDark
-      ? Color(red: 1.0, green: 0.36, blue: 0.36)
-      : Color(red: 0.85, green: 0.13, blue: 0.16)
-  }
+  private var rosso: Color { palette.stop }
 
   var body: some View {
     Button(action: action) {
@@ -412,6 +408,9 @@ struct Celebrazione: View {
 
   @State private var partita = false
 
+  // Decorazione pura: i coriandoli non dicono niente che non sia già scritto
+  // sopra a parole, e nessuno deve distinguerli fra loro. Restano fuori dalla
+  // palette apposta — colorare di tema una festa la spegne.
   private let colori: [Color] = [
     Color(red: 0.98, green: 0.75, blue: 0.14),
     Color(red: 0.28, green: 0.66, blue: 0.96),

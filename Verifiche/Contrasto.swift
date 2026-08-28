@@ -4,7 +4,13 @@ import AppKit
 @testable import MirrorScopio
 
 /// Il rapporto di contrasto fra due colori, come lo definisce la WCAG.
-/// Sotto 4,5 a 1 un testo normale non si legge, se si vede poco.
+///
+/// Il livello minimo — 4,5 a 1 — è pensato per chi legge senza fatica. Qui
+/// legge chi fatica, e `docs/ACCESSIBILITA.md` prometteva il livello alto da
+/// prima che fosse vero: la misura c'era e si fermava al minimo. Adesso la
+/// soglia è 7 a 1 per tutto quello che l'app scrive, e 3 a 1 per le forme che
+/// portano informazione senza essere testo — bordi, medaglie, fiamme — che è
+/// quello che la WCAG chiede per loro.
 @MainActor
 func contrasto(_ a: Color, _ b: Color) -> Double {
   func luminanza(_ c: Color) -> Double {
@@ -56,9 +62,36 @@ struct Contrasto {
     for (che, davanti, dietro) in prove {
       let r = contrasto(davanti, dietro)
       #expect(
-        r >= 4.5,
-        "\(tema.label) · \(vista.label) · \(che): \(String(format: "%.2f", r)) a 1, serve almeno 4,50"
+        r >= 7.0,
+        "\(tema.label) · \(vista.label) · \(che): \(String(format: "%.2f", r)) a 1, serve almeno 7,00"
       )
+    }
+  }
+
+  /// Le forme che dicono qualcosa senza parlare.
+  ///
+  /// L'oro di un obiettivo conquistato, la fiamma dei giorni di fila e il rosso
+  /// del comando che ferma tutto erano scritti a mano dentro le viste, uguali
+  /// su ogni tema: sul nero di «Altissimo contrasto» restavano quelli del
+  /// bianco. Adesso stanno nella palette e cambiano col tema, e qui si misura
+  /// che si vedano — 3 a 1 è la soglia della WCAG per le forme, non per il
+  /// testo.
+  @Test("Anche le forme che dicono qualcosa si vedono", arguments: combinazioniDiTemaEVista)
+  func leFormeSiVedono(tema: ThemeChoice, vista: ColorVision) {
+    let p = Palette.resolve(theme: tema, vision: vista, system: .light)
+    let prove: [(String, Color)] = [
+      ("oro dell'obiettivo conquistato", p.premio),
+      ("fiamma dei giorni di fila", p.serie),
+      ("rosso del comando che ferma", p.stop),
+    ]
+    for (che, colore) in prove {
+      for (dove, dietro) in [("sul fondo", p.background), ("sulla carta", p.surface)] {
+        let r = contrasto(colore, dietro)
+        #expect(
+          r >= 3.0,
+          "\(tema.label) · \(vista.label) · \(che) \(dove): \(String(format: "%.2f", r)) a 1, serve almeno 3,00"
+        )
+      }
     }
   }
 
@@ -70,7 +103,7 @@ struct Contrasto {
   @Test("La misura sa ancora bocciare: bianco su giallo resta illeggibile")
   func laMisuraSaBocciare() {
     let r = contrasto(.white, Color(red: 1, green: 0.85, blue: 0))
-    #expect(r < 4.5, "bianco su giallo deve risultare illeggibile, invece dà \(r)")
+    #expect(r < 7.0, "bianco su giallo deve risultare illeggibile, invece dà \(r)")
     #expect(r < 2.0, "il valore atteso è intorno a 1,41 a 1; qui è \(r)")
   }
 }

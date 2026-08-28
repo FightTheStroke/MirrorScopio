@@ -133,7 +133,12 @@ finale parla di quello che è migliorato prima di quello che manca.
   26 pt e qui passano dagli involucri di `Sources/Design/Components.swift`. Nel profilo
   «I comandi piccoli sono difficili da prendere» il minimo sale a 60 pt.
   Misurato da `Verifiche/Bersagli.swift` sull'altezza resa, non su quella dichiarata.
-- Contrasto WCAG 2.1 AA sui testi, AAA nelle schermate del ragazzo.
+- Contrasto WCAG 2.1 **AAA (7:1)** su tutto quello che l'app scrive — testo, esiti,
+  scritte sui pulsanti — in tutti e quattro i temi e per tutti e cinque i modi di vedere
+  i colori. Le forme che portano informazione senza essere testo (l'oro di un obiettivo
+  conquistato, la fiamma dei giorni di fila, il rosso del comando che ferma) stanno a
+  3:1, che è la soglia che la WCAG chiede per loro. Misurato da `Verifiche/Contrasto.swift`
+  su tutte e venti le combinazioni, non a occhio.
 - Focus da tastiera sempre visibile; ogni schermata è percorribile senza mouse.
 - Etichette VoiceOver su ogni controllo; le decorazioni sono nascoste allo screen reader.
 - Le dimensioni si moltiplicano fino a ×2 sopra il valore già grande di partenza.

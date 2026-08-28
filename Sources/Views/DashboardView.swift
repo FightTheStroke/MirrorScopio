@@ -159,7 +159,7 @@ struct DashboardView: View {
             // ribadito dal testo così chi non distingue i colori capisce lo stesso.
             Image(systemName: streak > 0 ? "flame.fill" : "calendar")
                 .font(a11y.font(.titolo, .bold))
-                .foregroundStyle(streak > 0 ? Color.orange : palette.accent)
+                .foregroundStyle(streak > 0 ? palette.serie : palette.accent)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: Metrica.briciola) {
@@ -581,8 +581,8 @@ private struct _CellaObiettivo: View {
             // colore grazie allo spessore: in modalità calma niente oro acceso.
             if sbloccato {
                 let cornice = a11y.calmMode
-                    ? palette.foreground.opacity(0.5)
-                    : Color(red: 0.85, green: 0.63, blue: 0.10).opacity(0.55)
+                    ? palette.foreground.opacity(a11y.velo(0.5))
+                    : palette.premio
                 RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
                     .strokeBorder(cornice, lineWidth: 2)
             }

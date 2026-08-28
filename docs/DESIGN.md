@@ -84,9 +84,24 @@ Nessuna vista scrive un colore a mano. Si prende dall'ambiente:
 @Environment(\.palette) private var palette
 ```
 
-`background`, `surface`, `foreground`, `muted`, `accent`, `ok`, `wrong`,
-`isDark`. Cambiano insieme al tema scelto (chiaro, scuro, altissimo
-contrasto, carta) e al modo in cui la persona vede i colori.
+`background`, `surface`, `foreground`, `muted`, `accent`, `onAccent`, `ok`,
+`wrong`, `premio`, `serie`, `stop`, `isDark`. Cambiano insieme al tema scelto
+(chiaro, scuro, altissimo contrasto, carta) e al modo in cui la persona vede i
+colori.
+
+**Ogni colore che porta informazione sta qui.** Se un colore dice qualcosa —
+questo l'hai preso, questa è la tua serie, questo comando ferma tutto — sta
+nella palette e cambia col tema. Per un po' non è stato vero: l'oro delle
+medaglie, il giallo delle stelle, l'arancione della fiamma e il rosso di
+«Basta» erano scritti a mano dentro le viste, uguali su ogni tema, e sul nero
+di «Altissimo contrasto» restavano quelli del bianco.
+
+Restano fuori dalla palette solo i colori che **non** dicono niente: i
+coriandoli della festa e i compagni di corsa della staffetta. Lì nessuno deve
+distinguere un colore dall'altro, e colorare di tema una festa la spegne.
+
+E comunque, dentro o fuori dalla palette: **gli esiti non dipendono mai dal
+solo colore.** Accanto c'è sempre una forma e una parola.
 
 **Mai gli stili di sistema.** `.buttonStyle(.borderedProminent)` usa il blu di
 macOS, che *non segue il tema*: con «Altissimo contrasto» il comando più

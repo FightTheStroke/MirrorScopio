@@ -535,6 +535,8 @@ struct StaffettaView: View {
   private let simboliCompagni = [
     "figure.roll", "figure.walk", "figure.run", "figure.and.child.holdinghands",
   ]
+  // Decorazione: i compagni di corsa si distinguono dalla posizione e dal
+  // simbolo, il colore serve solo a farli sembrare persone diverse.
   private let coloriCompagni: [Color] = [
     Color(red: 0.98, green: 0.75, blue: 0.14),
     Color(red: 0.38, green: 0.80, blue: 0.45),

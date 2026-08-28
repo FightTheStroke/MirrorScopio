@@ -160,7 +160,7 @@ struct ReportView: View {
           ForEach(0..<5, id: \.self) { i in
             Image(systemName: i < stars ? "star.fill" : "star")
               .font(.system(size: a11y.size(34)))
-              .foregroundStyle(i < stars ? Color.yellow : palette.muted.opacity(0.4))
+              .foregroundStyle(i < stars ? palette.premio : palette.muted.opacity(a11y.velo(0.4)))
           }
         }
         .accessibilityElement(children: .ignore)

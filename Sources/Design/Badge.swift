@@ -26,7 +26,7 @@ struct DistintivoObiettivo: View {
   /// il colore del testo — perché la modalità calma toglie i festeggiamenti, non
   /// il senso di aver conquistato qualcosa. La forma continua a parlare da sola.
   private var coloreConquistato: Color {
-    a11y.calmMode ? palette.foreground : Color(red: 0.85, green: 0.63, blue: 0.10)
+    a11y.calmMode ? palette.foreground : palette.premio
   }
 
   private var lato: CGFloat { a11y.size(diametro) }
