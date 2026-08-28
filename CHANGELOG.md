@@ -13,9 +13,21 @@ Che cosa vuol dire qui, in concreto:
 
 Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
-## [Non ancora rilasciato]
+## [0.5.0] — 2026-08-28
 
 ### Corretto
+- **Con il testo ingrandito, «Scrivi» e il gioco non nascondono più i propri
+  comandi.** Misurate: la schermata dove si scrive era alta 1009 punti e il
+  gioco 988, dentro una finestra da 700. Il campo dove si scrive e la parte
+  bassa della festa finivano sotto il bordo, senza nessun modo di arrivarci — e
+  finivano fuori proprio a chi aveva ingrandito il testo perché ne aveva
+  bisogno. Ora scorrono, e restano centrate quando lo spazio basta.
+- **Il pacchetto da scaricare si costruisce da solo a ogni versione.** Prima
+  ogni rilascio automatico si fermava dicendo «credenziali non valide», e la
+  colpa sembrava della password: in realtà lo script chiedeva ad Apple una cosa
+  scritta in un modo che non esiste. Da questa versione il file da scaricare
+  compare da sé nella pagina delle release, già firmato e timbrato da Apple:
+  doppio clic e si apre, senza avvisi di sicurezza.
 - **«giusta» e «ancora» adesso si leggono davvero, in tutti i temi.** I due
   colori erano calcolati per lo sfondo bianco e riusati tali e quali sul nero:
   sul tema scuro «ancora» stava sotto la soglia di leggibilità, e per chi vede
@@ -40,6 +52,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   voce erano più piccoli del minimo: chi ha difficoltà di mira li mancava.
 
 ### Cambiato
+- **La pagina dei Progressi ha lo stesso impianto delle Impostazioni.** Erano
+  disegnate uguali ma costruite con numeri diversi: il titolo rientrava del
+  doppio, la colonna era più larga, c'era una riga di separazione in più. Ora
+  entrambe usano lo stesso guscio, quindi restano allineate anche dopo il
+  prossimo ritocco.
 - **Si chiude sempre allo stesso modo.** Chiudere una schermata era fatto in
   sei modi diversi, con due parole diverse: chi aveva imparato dove si esce,
   nella schermata dopo non lo ritrovava. Adesso è un pulsante solo, sempre
