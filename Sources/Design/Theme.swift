@@ -90,6 +90,15 @@ struct Palette {
   var foreground: Color
   var muted: Color
   var accent: Color
+  /// Il colore del testo **sopra** `accent`.
+  ///
+  /// Non e' sempre bianco, ed e' un errore che abbiamo fatto davvero: dopo aver
+  /// tolto il blu di sistema dai pulsanti principali li abbiamo riempiti di
+  /// accent con la scritta bianca sopra. Con «Altissimo contrasto» l'accent e'
+  /// giallo pieno, e bianco su giallo fa circa 1,1 a 1: illeggibile. Cioe'
+  /// avevamo reso invisibili «Via!» e «Consenti il microfono» esattamente nel
+  /// tema che sceglie chi vede poco.
+  var onAccent: Color
   var ok: Color
   var wrong: Color
   /// Vero quando lo sfondo è scuro: serve per scegliere il colore delle ombre.
@@ -104,7 +113,7 @@ struct Palette {
                      surface: Color(white: 0.95),
                      foreground: Color(white: 0.08),
                      muted: Color(white: 0.38),
-                     accent: Color(red: 0.15, green: 0.39, blue: 0.92),
+                     accent: Color(red: 0.15, green: 0.39, blue: 0.92), onAccent: .white,
                      ok: vision.ok, wrong: vision.wrong, isDark: false)
     case .scuro:
       return Palette(background: Color(red: 0.07, green: 0.08, blue: 0.11),
@@ -112,6 +121,7 @@ struct Palette {
                      foreground: Color(white: 0.96),
                      muted: Color(white: 0.68),
                      accent: Color(red: 0.42, green: 0.62, blue: 1.0),
+                     onAccent: Color(white: 0.05),
                      ok: vision.ok, wrong: vision.wrong, isDark: true)
     case .altoContrasto:
       return Palette(background: .black,
@@ -119,6 +129,7 @@ struct Palette {
                      foreground: .white,
                      muted: Color(white: 0.85),
                      accent: Color(red: 1.0, green: 0.84, blue: 0.0),
+                     onAccent: .black,
                      ok: Color(red: 0.35, green: 1.0, blue: 0.45),
                      wrong: Color(red: 1.0, green: 0.65, blue: 0.0),
                      isDark: true)
@@ -127,7 +138,7 @@ struct Palette {
                      surface: Color(red: 0.95, green: 0.91, blue: 0.81),
                      foreground: Color(red: 0.16, green: 0.14, blue: 0.10),
                      muted: Color(red: 0.40, green: 0.36, blue: 0.28),
-                     accent: Color(red: 0.15, green: 0.36, blue: 0.72),
+                     accent: Color(red: 0.15, green: 0.36, blue: 0.72), onAccent: .white,
                      ok: vision.ok, wrong: vision.wrong, isDark: false)
     }
   }

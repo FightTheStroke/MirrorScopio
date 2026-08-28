@@ -326,38 +326,57 @@ struct OnboardingView: View {
             set: { v in aggiorna { $0[keyPath: key] = v } })
   }
 
+  /// Il primo avvio era l'unica schermata dell'app che non si potesse
+  /// attraversare a tasti: nessuna scorciatoia, nessuna via d'uscita, e per
+  /// andare avanti bisognava per forza prendere il mouse. Ma e' obbligatoria,
+  /// viene prima di tutto, e nelle sue stesse pagine si sceglie il profilo di
+  /// chi «usa solo la voce o pochi tasti». Chiedere il mouse proprio li'
+  /// significa fermare sulla soglia le persone per cui l'app e' stata scritta.
+  ///
+  /// Invio va avanti, Esc salta. Le due scorciatoie stanno anche scritte sotto
+  /// i pulsanti: una scorciatoia che nessuno sa che esiste non aiuta nessuno.
   private var pulsanti: some View {
-    HStack(spacing: 14) {
-      if passo > 0 {
-        BigButton(title: "Indietro", symbol: "chevron.left", a11y: a11y, prominent: false) {
-          passo = max(0, passo - 1)
+    VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
+      HStack(spacing: Metrica.spazioPiccolo) {
+        if passo > 0 {
+          BigButton(title: "Indietro", symbol: "chevron.left", a11y: a11y, prominent: false) {
+            passo = max(0, passo - 1)
+          }
+          .frame(maxWidth: 220)
         }
-        .frame(maxWidth: 220)
-      }
-      if passoCorrente == .pronti {
-        if readiness.puoIniziare {
-          BigButton(title: "Facciamo la prova", symbol: "wand.and.stars", a11y: a11y,
-                    action: onCalibrate)
-            .frame(maxWidth: 320)
-          BigButton(title: "Salta, comincio e basta", symbol: "play.fill", a11y: a11y,
-                    prominent: false, action: onFinish)
-            .frame(maxWidth: 300)
+        if passoCorrente == .pronti {
+          if readiness.puoIniziare {
+            BigButton(title: "Facciamo la prova", symbol: "wand.and.stars", a11y: a11y,
+                      action: onCalibrate)
+              .frame(maxWidth: 320)
+              .keyboardShortcut(.defaultAction)
+            BigButton(title: "Salta, comincio e basta", symbol: "play.fill", a11y: a11y,
+                      prominent: false, action: onFinish)
+              .frame(maxWidth: 300)
+          } else {
+            BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
+              .frame(maxWidth: 320)
+              .keyboardShortcut(.defaultAction)
+          }
         } else {
-          BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
-            .frame(maxWidth: 320)
+          BigButton(title: "Avanti", symbol: "chevron.right", a11y: a11y) {
+            Task { await readiness.controlla() }
+            passo = min(passi.count - 1, passo + 1)
+          }
+          .frame(maxWidth: 280)
+          .keyboardShortcut(.defaultAction)
         }
-      } else {
-        BigButton(title: "Avanti", symbol: "chevron.right", a11y: a11y) {
-          Task { await readiness.controlla() }
-          passo = min(passi.count - 1, passo + 1)
-        }
-        .frame(maxWidth: 280)
+        Spacer(minLength: 0)
+        Button("Salta") { onFinish() }
+          .font(a11y.typeface.font(size: a11y.size(16)))
+          .buttonStyle(.plain)
+          .foregroundStyle(palette.muted)
+          .frame(minHeight: Metrica.bersaglio)
+          .keyboardShortcut(.escape, modifiers: [])
+          .accessibilityHint("Puoi anche premere Esc")
       }
-      Spacer(minLength: 0)
-      Button("Salta") { onFinish() }
-        .font(a11y.typeface.font(size: a11y.size(16)))
-        .buttonStyle(.plain)
-        .foregroundStyle(palette.muted)
+      Explain(text: "Puoi anche premere **Invio** per andare avanti, o **Esc** per saltare tutto.",
+              a11y: a11y, size: 14)
     }
   }
 

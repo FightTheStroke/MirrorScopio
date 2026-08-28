@@ -83,7 +83,7 @@ struct SmallButton: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .foregroundStyle(prominente ? Color.white
+    .foregroundStyle(prominente ? palette.onAccent
                      : (distruttivo ? palette.wrong : palette.foreground))
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
       .fill(prominente ? palette.accent : palette.surface))
@@ -117,7 +117,7 @@ struct BigButton: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .foregroundStyle(prominent ? Color.white : palette.foreground)
+    .foregroundStyle(prominent ? palette.onAccent : palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
         .fill(prominent ? palette.accent : palette.surface)
@@ -438,7 +438,7 @@ struct PulsanteChiudi: View {
       .contentShape(Capsule())
     }
     .buttonStyle(.plain)
-    .foregroundStyle(.white)
+    .foregroundStyle(palette.onAccent)
     .background(Capsule().fill(palette.accent))
     .keyboardShortcut(.escape, modifiers: [])
     .accessibilityLabel("Chiudi \(cosa)")
