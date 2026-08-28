@@ -815,7 +815,13 @@ struct SceltaAccessibile<T: Hashable>: View {
         .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
         .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
       }
-      .buttonStyle(.plain)
+      // `StilePulsante` e non `.plain`: lo stile dell'app non mette sfondi né
+      // cornici, aggiunge solo l'anello di fuoco e la dichiarazione che rende
+      // il pulsante raggiungibile col Tab. Con `.plain` queste righe erano
+      // premibili e larghe 44 punti, ma **invisibili alla tastiera**: un
+      // elenco che si apre e non si può percorrere senza mouse è una trappola,
+      // ed è esattamente il difetto che questo elenco era nato per togliere.
+      .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
       .focusable()
       .foregroundStyle(palette.foreground)
       .popover(isPresented: $aperto, arrowEdge: .bottom) {
@@ -844,7 +850,13 @@ struct SceltaAccessibile<T: Hashable>: View {
                   .fill(o == scelta ? palette.accent.opacity(0.12) : .clear))
                 .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
               }
-              .buttonStyle(.plain)
+              // `StilePulsante` e non `.plain`: lo stile dell'app non mette sfondi né
+              // cornici, aggiunge solo l'anello di fuoco e la dichiarazione che rende
+              // il pulsante raggiungibile col Tab. Con `.plain` queste righe erano
+              // premibili e larghe 44 punti, ma **invisibili alla tastiera**: un
+              // elenco che si apre e non si può percorrere senza mouse è una trappola,
+              // ed è esattamente il difetto che questo elenco era nato per togliere.
+              .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
               .accessibilityLabel(o == scelta ? "\(etichetta(o)), scelto adesso" : etichetta(o))
             }
           }

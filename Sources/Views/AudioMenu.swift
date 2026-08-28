@@ -58,7 +58,13 @@ struct AudioMenu: View {
     //
     // Un pulsante normale con un pannello a comparsa e' fatto tutto di viste
     // nostre: l'altezza e' quella che scriviamo, qui e in ogni riga dell'elenco.
-    .buttonStyle(.plain)
+    // `StilePulsante` e non `.plain`: lo stile dell'app non mette sfondi né
+    // cornici, aggiunge solo l'anello di fuoco e la dichiarazione che rende
+    // il pulsante raggiungibile col Tab. Con `.plain` queste righe erano
+    // premibili e larghe 44 punti, ma **invisibili alla tastiera**: un
+    // elenco che si apre e non si può percorrere senza mouse è una trappola,
+    // ed è esattamente il difetto che questo elenco era nato per togliere.
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
     .foregroundStyle(palette.muted)
     .popover(isPresented: $aperto, arrowEdge: .bottom) {
       PannelloAudio(a11y: a11y, palette: palette,
@@ -164,7 +170,13 @@ private struct PannelloAudio: View {
         .fill(attiva ? palette.accent.opacity(0.12) : .clear))
       .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
     }
-    .buttonStyle(.plain)
+    // `StilePulsante` e non `.plain`: lo stile dell'app non mette sfondi né
+    // cornici, aggiunge solo l'anello di fuoco e la dichiarazione che rende
+    // il pulsante raggiungibile col Tab. Con `.plain` queste righe erano
+    // premibili e larghe 44 punti, ma **invisibili alla tastiera**: un
+    // elenco che si apre e non si può percorrere senza mouse è una trappola,
+    // ed è esattamente il difetto che questo elenco era nato per togliere.
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
     .accessibilityLabel(etichettaVoce)
   }
 }

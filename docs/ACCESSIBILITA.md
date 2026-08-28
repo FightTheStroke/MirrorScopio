@@ -193,6 +193,12 @@ vale meno di zero: chi lo legge ci conta.
 
 - **L'anello di fuoco** è nel codice e compila, ma non è ancora stato guardato in
   esecuzione con «Navigazione da tastiera» accesa nelle Impostazioni di Sistema.
+- **Il Tab dentro gli elenchi a comparsa** (audio, scelte delle impostazioni). Le righe
+  usano lo stile dell'app, quindi dichiarano di volere il fuoco e disegnano l'anello; ma
+  provando a schermo il Tab non è entrato nel pannello, e non sono riuscito a stabilire se
+  sia un limite di SwiftUI su macOS o un difetto nostro. Le righe restano premibili col
+  mouse e alte 44 punti: quello è misurato. Il resto no, ed è scritto qui perché non
+  sembri fatto.
 - **Gli annunci a voce durante l'esercizio** (fase, inizio ascolto, esito, microfono
   muto, fine turno) sono nel codice e non sono ancora stati ascoltati con VoiceOver
   acceso.
