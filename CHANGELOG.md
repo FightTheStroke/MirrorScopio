@@ -33,6 +33,12 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
     una cartella dove non si può scrivere — succede a scuola — l'app lo dice e
     si ferma, invece di chiedere privilegi che non dovrebbe avere.
 
+### Cambiato
+- **Il pacchetto da scaricare pesa la metà** (5,8 MB → 3,3 MB): dentro il
+  programma c'erano i nomi interni delle funzioni, che servono solo a chi cerca
+  un difetto col debugger e restano comunque nel file di diagnostica accanto.
+  Sono megabyte che ogni famiglia doveva scaricare.
+
 ### Corretto
 - **L'app costruita da Xcode dichiarava di essere la versione 0.0.0.** Il numero
   vero, quello del file `VERSION`, arrivava solo nell'app costruita da `build.sh`:
