@@ -10,6 +10,10 @@ struct ReportView: View {
   @State private var saved = false
   @State private var unlocked: [Achievement] = []
   @State private var showDetail = false
+  /// Con «Nascondi punteggi» acceso il dettaglio numerico resta chiuso finché
+  /// non lo chiede qualcuno, adesso, in modo esplicito.
+  @State private var numeriChiesti = false
+  @State private var chiedeINumeri = false
   /// Il premio è opzionale: chi non lo vuole non lo vede aprirsi da solo.
   @State private var showStaffetta = false
   /// La tastiera arriva sul pulsante che quasi tutti premono: «Ancora».
@@ -352,7 +356,42 @@ struct ReportView: View {
 
   // MARK: - Per l'adulto
 
+  /// Chi ha chiesto di non vedere i numeri non li vedeva da nessuna parte —
+  /// tranne qui, in fondo al riepilogo, dove comparivano tutti insieme:
+  /// percentuali, millesimi di secondo, la tabella parola per parola. Era la
+  /// schermata in cui quella richiesta contava di più, ed era l'unica in cui
+  /// non veniva rispettata.
+  ///
+  /// Adesso la porta è chiusa come le altre porte «per l'adulto» dell'app: si
+  /// apre chiedendolo, e la domanda dice che cosa si sta per far comparire.
+  @ViewBuilder
   private var adultDetail: some View {
+    if a11y.hideScore && !numeriChiesti {
+      portaDeiNumeri
+    } else {
+      dettaglioPerLAdulto
+    }
+  }
+
+  private var portaDeiNumeri: some View {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+      SmallButton(title: "Dettaglio per l'adulto", symbol: "gearshape", a11y: a11y) {
+        chiedeINumeri = true
+      }
+      Explain(text: "Hai chiesto di non vedere punteggi e percentuali, e qui dentro ci sono. Si aprono solo se lo chiedi adesso.", a11y: a11y, size: 14)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.top, Metrica.spazioStretto)
+    .confirmationDialog("Far comparire punteggi e percentuali?",
+                        isPresented: $chiedeINumeri, titleVisibility: .visible) {
+      Button("Sì, mostrali") { numeriChiesti = true; showDetail = true }
+      Button("Lascia stare", role: .cancel) {}
+    } message: {
+      Text("Compaiono le parole prese su quelle mostrate, i millesimi di secondo e la tabella parola per parola. Restano visibili fino alla fine di questa schermata.")
+    }
+  }
+
+  private var dettaglioPerLAdulto: some View {
     DisclosureGroup(isExpanded: $showDetail) {
       VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
         Explain(text: plainLanguage, a11y: a11y, size: 16)
