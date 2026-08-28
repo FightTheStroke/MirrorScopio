@@ -225,8 +225,8 @@ struct AudioCheckView: View {
     VStack(alignment: .leading, spacing: 14) {
       GeometryReader { geo in
         ZStack(alignment: .leading) {
-          RoundedRectangle(cornerRadius: 16).fill(pal.surface)
-          RoundedRectangle(cornerRadius: 16)
+          RoundedRectangle(cornerRadius: Metrica.raggio).fill(pal.surface)
+          RoundedRectangle(cornerRadius: Metrica.raggio)
             .fill(check.level > 0.02 ? pal.ok : pal.accent)
             .frame(width: max(8, min(1, CGFloat(check.level) * 14) * geo.size.width))
             .animation(a11y.animation(0.08), value: check.level)
@@ -270,7 +270,7 @@ struct AudioCheckView: View {
         .font(a11y.typeface.font(size: a11y.size(30), weight: .semibold))
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
-        .background(pal.surface, in: .rect(cornerRadius: 16))
+        .background(pal.surface, in: .rect(cornerRadius: Metrica.raggio))
         .animation(a11y.animation(), value: check.transcript)
     }
   }
@@ -285,7 +285,7 @@ struct AudioCheckView: View {
           .padding(.horizontal, 22).padding(.vertical, 16)
       }
       .buttonStyle(.plain)
-      .background(pal.surface, in: .rect(cornerRadius: 14))
+      .background(pal.surface, in: .rect(cornerRadius: Metrica.raggio))
       .frame(minHeight: 44)
       Text("Serve per la modalità Scrivi, dove è il Mac a dire la parola.")
         .font(a11y.typeface.font(size: a11y.size(14)))
@@ -305,7 +305,7 @@ struct AudioCheckView: View {
     }
     .padding(18)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(pal.wrong.opacity(0.12), in: .rect(cornerRadius: 14))
+    .background(pal.wrong.opacity(0.12), in: .rect(cornerRadius: Metrica.raggio))
   }
 
   private var adultSection: some View {
@@ -330,11 +330,11 @@ struct AudioCheckView: View {
         .font(.system(size: a11y.size(12)).monospacedDigit())
         .foregroundStyle(pal.muted)
 
-        Button("Aggiorna l'elenco dei dispositivi") { check.refreshDevices() }
-          .font(.system(size: a11y.size(13)))
+        SmallButton(title: "Aggiorna l'elenco dei dispositivi",
+                    symbol: "arrow.clockwise", a11y: a11y) { check.refreshDevices() }
 
         Text("La scelta del microfono vale per questa app. Il riconoscimento avviene interamente su questo Mac.")
-          .font(.system(size: a11y.size(12)))
+          .font(a11y.typeface.font(size: a11y.size(12)))
           .foregroundStyle(pal.muted)
           .fixedSize(horizontal: false, vertical: true)
       }
@@ -344,6 +344,6 @@ struct AudioCheckView: View {
         .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
     }
     .padding(22)
-    .background(pal.surface, in: .rect(cornerRadius: 18))
+    .background(pal.surface, in: .rect(cornerRadius: Metrica.raggioGrande))
   }
 }

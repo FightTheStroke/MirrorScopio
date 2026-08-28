@@ -119,11 +119,11 @@ struct BigButton: View {
     .buttonStyle(.plain)
     .foregroundStyle(prominent ? Color.white : palette.foreground)
     .background(
-      RoundedRectangle(cornerRadius: 16)
+      RoundedRectangle(cornerRadius: Metrica.raggio)
         .fill(prominent ? palette.accent : palette.surface)
     )
     .overlay(
-      RoundedRectangle(cornerRadius: 16)
+      RoundedRectangle(cornerRadius: Metrica.raggio)
         .stroke(prominent ? .clear : palette.muted.opacity(0.35), lineWidth: 2)
     )
     .frame(minHeight: 56)
@@ -165,11 +165,11 @@ struct ChoiceCard: View {
     .buttonStyle(.plain)
     .foregroundStyle(palette.foreground)
     .background(
-      RoundedRectangle(cornerRadius: 14)
+      RoundedRectangle(cornerRadius: Metrica.raggio)
         .fill(selected ? palette.accent.opacity(palette.isDark ? 0.32 : 0.16) : palette.surface)
     )
     .overlay(
-      RoundedRectangle(cornerRadius: 14)
+      RoundedRectangle(cornerRadius: Metrica.raggio)
         .stroke(selected ? palette.accent : Color.clear, lineWidth: 3)
     )
     // Il bordo da solo non basta: chi non distingue i colori deve poterlo capire lo stesso.
@@ -269,7 +269,7 @@ struct StopButton: View {
       HStack(spacing: a11y.size(10)) {
         ZStack {
           Circle().fill(rosso)
-          RoundedRectangle(cornerRadius: 3)
+          RoundedRectangle(cornerRadius: Metrica.raggioMinimo)
             .fill(Color.white)
             .frame(width: a11y.size(16), height: a11y.size(16))
         }
@@ -328,7 +328,7 @@ struct Celebrazione: View {
           ForEach(0..<quanti, id: \.self) { i in
             let seme = Double((i * 7919) % 1000) / 1000
             let seme2 = Double((i * 104729) % 1000) / 1000
-            RoundedRectangle(cornerRadius: 2)
+            RoundedRectangle(cornerRadius: Metrica.raggioMinimo)
               .fill(colori[i % colori.count])
               .frame(width: 9, height: 14)
               .rotationEffect(.degrees(seme * 360))

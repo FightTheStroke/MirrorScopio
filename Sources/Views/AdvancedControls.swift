@@ -7,9 +7,20 @@ import SwiftUI
 /// Impostazioni, insieme a tutto il resto che si regola una volta e non si
 /// tocca piu: due porte diverse per la stessa cosa erano solo un modo per
 /// perdersi.
+/// Questa pagina la guarda un adulto, e per un po' e' stata l'unica a non
+/// rispettare il tema, il carattere e l'ingrandimento scelti nelle
+/// impostazioni: testo di sistema, grigio `.secondary`, taglia fissa. Ma il
+/// genitore o il logopedista che alza «Dimensione di tutto» a 1,8 lo fa
+/// perche' vede poco lui, non perche' vede poco il ragazzo — e proprio qui
+/// non gli veniva applicato niente. Chi accompagna ha le stesse esigenze di
+/// chi e' accompagnato.
 struct AdvancedControls: View {
+  @Environment(\.palette) private var palette
   @ObservedObject var store: Store
   @ObservedObject var engine: SessionEngine
+  var a11y: A11ySettings
+
+  private var corpo: Font { a11y.typeface.font(size: a11y.size(15)) }
 
   var body: some View {
       Form {
@@ -19,9 +30,9 @@ struct AdvancedControls: View {
           }
           if engine.config.set == .personalizzata {
             VStack(alignment: .leading, spacing: 6) {
-              Text("Una parola per riga.").font(.callout).foregroundStyle(.secondary)
+              Text("Una parola per riga.").font(corpo).foregroundStyle(palette.muted)
               TextEditor(text: $engine.config.customList)
-                .font(.system(.body, design: .monospaced))
+                .font(.system(size: a11y.size(14), design: .monospaced))
                 .frame(height: 110)
             }
           }
@@ -66,6 +77,8 @@ struct AdvancedControls: View {
         }
       }
       .formStyle(.grouped)
+      .font(corpo)
+      .foregroundStyle(palette.foreground)
       .frame(minHeight: 620)
       .onDisappear {
         var l = store.current
@@ -76,8 +89,8 @@ struct AdvancedControls: View {
 
   private func note(_ text: String) -> some View {
     Text(text)
-      .font(.callout)
-      .foregroundStyle(.secondary)
+      .font(a11y.typeface.font(size: a11y.size(14)))
+      .foregroundStyle(palette.muted)
       .fixedSize(horizontal: false, vertical: true)
   }
 
@@ -85,9 +98,12 @@ struct AdvancedControls: View {
                       _ range: ClosedRange<Double>, unit: String) -> some View {
     VStack(alignment: .leading, spacing: 2) {
       HStack {
-        Text(title)
+        Text(title).font(corpo)
         Spacer()
-        Text("\(Int(value.wrappedValue)) \(unit)").monospacedDigit().foregroundStyle(.secondary)
+        Text("\(Int(value.wrappedValue)) \(unit)")
+          .font(corpo)
+          .monospacedDigit()
+          .foregroundStyle(palette.muted)
       }
       Slider(value: value, in: range)
         // Senza nome VoiceOver legge "cursore, 50 per cento": non dice di che

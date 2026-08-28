@@ -40,7 +40,7 @@ struct AudioMenu: View {
             scegliIngresso(d.id)
             leggi()
           } label: {
-            Label(d.name, systemImage: d.id == ingressoAttivo ? "checkmark" : "")
+            Label(d.name, systemImage: d.id == ingressoAttivo ? "checkmark" : "circle")
           }
         }
       }
@@ -50,7 +50,7 @@ struct AudioMenu: View {
             _ = AudioDevices.setDefaultOutput(d.id)
             leggi()
           } label: {
-            Label(d.name, systemImage: d.id == uscitaAttiva ? "checkmark" : "")
+            Label(d.name, systemImage: d.id == uscitaAttiva ? "checkmark" : "circle")
           }
         }
       }

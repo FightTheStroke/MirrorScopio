@@ -141,15 +141,13 @@ struct VoiceChooser: View {
       }
       .buttonStyle(.plain)
 
-      Button {
-        prova(voce)
-      } label: {
-        Image(systemName: inProva == voce.identifier ? "speaker.wave.3.fill" : "play.fill")
-          .font(.system(size: a11y.size(20)))
-          .frame(width: a11y.size(46), height: a11y.size(40))
-      }
-      .buttonStyle(.bordered)
-      .accessibilityLabel("Ascolta \(voce.name)")
+      // Era alto 40 punti e in stile di sistema. Quaranta e' sotto il minimo
+      // di Apple, e questo e' proprio il tasto con cui si sceglie la voce che
+      // si capisce meglio: chi ha difficolta' di mira non deve mancarlo.
+      SmallButton(title: "Ascolta",
+                  symbol: inProva == voce.identifier ? "speaker.wave.3.fill" : "play.fill",
+                  a11y: a11y) { prova(voce) }
+        .accessibilityLabel("Ascolta \(voce.name)")
     }
     .padding(.vertical, 4)
   }

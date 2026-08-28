@@ -93,9 +93,9 @@ struct ReadinessView: View {
       }
     }
     .padding(a11y.size(18))
-    .background(RoundedRectangle(cornerRadius: 14).fill(palette.surface))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
     .overlay(
-      RoundedRectangle(cornerRadius: 14)
+      RoundedRectangle(cornerRadius: Metrica.raggio)
         .stroke(bordo(voce), lineWidth: voce.isOK ? 0 : 2)
     )
   }

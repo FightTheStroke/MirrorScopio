@@ -156,7 +156,7 @@ struct DashboardView: View {
         }
         .padding(a11y.size(20))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         // Un unico elemento VoiceOver che legge tutto d'un fiato.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Livello \(lv), \(nome)")
@@ -204,7 +204,7 @@ struct DashboardView: View {
         }
         .padding(a11y.size(18))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(etichettaVoiceOverSerie)
     }
@@ -288,7 +288,7 @@ struct DashboardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(a11y.size(24))
             .background(palette.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         } else {
             VStack(alignment: .leading, spacing: a11y.size(12)) {
                 graficoAccuratezza
@@ -321,7 +321,7 @@ struct DashboardView: View {
         }
         .padding(a11y.size(18))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Grafico della precisione nel tempo. Le sessioni più recenti sono a destra.")
     }
@@ -368,7 +368,7 @@ struct DashboardView: View {
         }
         .padding(a11y.size(18))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
     }
 
     // MARK: - Obiettivi
@@ -394,7 +394,7 @@ struct DashboardView: View {
         }
         .padding(a11y.size(18))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
     }
 
     // MARK: - Sessioni recenti
@@ -438,60 +438,36 @@ struct DashboardView: View {
         }
         .padding(a11y.size(18))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
     }
 
     // MARK: - Piede adulto
 
     private var piedePiePage: some View {
         HStack(spacing: a11y.size(10)) {
-            Button {
+            SmallButton(title: "Esporta PDF", symbol: "doc.fill", a11y: a11y) {
                 let data = Exporter.pdf(sessions: store.currentHistory, learner: store.current)
                 let nome = bambino.name.isEmpty ? "bambino" : bambino.name
                 Exporter.save(data: data, suggested: "progressi-\(nome).pdf")
-            } label: {
-                Label("Esporta PDF", systemImage: "doc.fill")
-                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
-                    .foregroundStyle(palette.foreground)
             }
-            .buttonStyle(.plain)
-            .frame(minHeight: 44)
-            .padding(.horizontal, 12)
-            .background(palette.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            Button {
+            SmallButton(title: "Esporta CSV", symbol: "tablecells", a11y: a11y) {
                 guard let ultima = sessioni.first else { return }
                 let csv  = Exporter.csv(ultima, learner: store.current)
                 let nome = bambino.name.isEmpty ? "sessione" : bambino.name
                 Exporter.save(text: csv, suggested: "sessione-\(nome).csv")
-            } label: {
-                Label("Esporta CSV", systemImage: "tablecells")
-                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
-                    .foregroundStyle(palette.foreground)
             }
-            .buttonStyle(.plain)
-            .frame(minHeight: 44)
-            .padding(.horizontal, 12)
-            .background(palette.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
 
-            Button {
+            SmallButton(title: "Cancella lo storico", symbol: "trash",
+                        a11y: a11y, distruttivo: true) {
                 mostraConfermaReset = true
-            } label: {
-                Label("Cancella lo storico", systemImage: "trash")
-                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
-                    .foregroundStyle(palette.wrong)
             }
-            .buttonStyle(.plain)
-            .frame(minHeight: 44)
-            .padding(.horizontal, 12)
         }
         .padding(a11y.size(14))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         .confirmationDialog(
             "Cancellare tutto lo storico\(bambino.name.isEmpty ? "" : " di \(bambino.name)")?",
             isPresented: $mostraConfermaReset,
@@ -576,7 +552,7 @@ private struct _RiquadroRiassuntivo: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(a11y.size(16))
         .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
     }
 }
 
@@ -616,7 +592,7 @@ private struct _CellaObiettivo: View {
         .padding(a11y.size(12))
         .frame(maxWidth: .infinity)
         .background(palette.surface.opacity(sbloccato ? 1.0 : 0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
         .overlay {
             // La cornice della cella conquistata resta leggibile anche senza
             // colore grazie allo spessore: in modalità calma niente oro acceso.
@@ -624,7 +600,7 @@ private struct _CellaObiettivo: View {
                 let cornice = a11y.calmMode
                     ? palette.foreground.opacity(0.5)
                     : Color(red: 0.85, green: 0.63, blue: 0.10).opacity(0.55)
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
                     .strokeBorder(cornice, lineWidth: 2)
             }
         }
@@ -731,7 +707,7 @@ private struct _RigaSessione: View {
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
                             .background(palette.background)
-                            .clipShape(RoundedRectangle(cornerRadius: 7))
+                            .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
                     }
                 }
             }

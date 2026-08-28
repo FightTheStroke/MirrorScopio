@@ -133,7 +133,7 @@ struct SettingsView: View {
             .font(a11y.typeface.font(size: a11y.size(15)))
             .foregroundStyle(palette.muted)
             .fixedSize(horizontal: false, vertical: true)
-          AdvancedControls(store: store, engine: engine)
+          AdvancedControls(store: store, engine: engine, a11y: a11y)
         }
       }
     }
@@ -248,7 +248,7 @@ struct SettingsView: View {
         .foregroundStyle(palette.foreground)
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 18)
-        .background(RoundedRectangle(cornerRadius: 12).fill(palette.surface))
+        .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
     }
   }
 
@@ -439,12 +439,12 @@ struct SettingsView: View {
       Text(AppVersion.display)
         .font(a11y.typeface.font(size: a11y.size(14), weight: .semibold))
       Text(AppVersion.detail)
-        .font(.system(size: a11y.size(12)))
+        .font(a11y.typeface.font(size: a11y.size(12)))
         .foregroundStyle(palette.muted)
         .textSelection(.enabled)
         .fixedSize(horizontal: false, vertical: true)
       Text("Fight The Stroke Foundation")
-        .font(.system(size: a11y.size(12)))
+        .font(a11y.typeface.font(size: a11y.size(12)))
         .foregroundStyle(palette.muted)
     }
   }
@@ -537,8 +537,8 @@ struct SettingsView: View {
     }
     .padding(14)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(RoundedRectangle(cornerRadius: 12).fill(palette.wrong.opacity(0.10)))
-    .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.wrong.opacity(0.4), lineWidth: 1.5))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.wrong.opacity(0.10)))
+    .overlay(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).stroke(palette.wrong.opacity(0.4), lineWidth: 1.5))
   }
 
   // MARK: - Utilità

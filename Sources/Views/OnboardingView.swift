@@ -243,11 +243,10 @@ struct OnboardingView: View {
   private var altreVoci: some View {
     VStack(alignment: .leading, spacing: 8) {
       Explain(text: "Le voci di serie bastano. Se ne vuoi una più naturale, macOS non permette a nessuna app di scaricarle: si fa una volta sola in Impostazioni di Sistema › Accessibilità › Contenuto letto › Voce di sistema › Gestisci voci.", a11y: a11y, size: 16)
-      Button("Apri quella pagina delle Impostazioni") {
+      SmallButton(title: "Apri quella pagina delle Impostazioni",
+                  symbol: "arrow.up.forward.app", a11y: a11y) {
         readiness.apriImpostazioniVoci()
       }
-      .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
-      .buttonStyle(.bordered)
     }
     .padding(.top, 4)
   }
@@ -267,8 +266,8 @@ struct OnboardingView: View {
         .foregroundStyle(palette.foreground)
         .frame(maxWidth: .infinity)
         .frame(height: CGFloat(a11y.stimulusSize) * 1.4)
-        .background(RoundedRectangle(cornerRadius: 16).fill(palette.background))
-        .overlay(RoundedRectangle(cornerRadius: 16)
+        .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.background))
+        .overlay(RoundedRectangle(cornerRadius: Metrica.raggio)
           .stroke(palette.muted.opacity(0.3), lineWidth: 1.5))
         .animation(a11y.animation(0.15), value: a11y.stimulusSize)
         .accessibilityLabel("Parola di esempio, grande \(Int(a11y.stimulusSize)) punti")

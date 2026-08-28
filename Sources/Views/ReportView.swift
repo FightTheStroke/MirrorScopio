@@ -233,7 +233,7 @@ struct ReportView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(14)
-            .background(RoundedRectangle(cornerRadius: 12).fill(palette.surface))
+            .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
           }
         }
       }
@@ -262,7 +262,7 @@ struct ReportView: View {
         }
       }
       .padding(18)
-      .background(RoundedRectangle(cornerRadius: 14).fill(palette.surface))
+      .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
     }
   }
 
@@ -361,7 +361,7 @@ struct ReportView: View {
 
         if !record.errorCounts.isEmpty {
           VStack(alignment: .leading, spacing: 6) {
-            Text("Che tipo di errori")
+            Text("Che cosa succede alle parole che non vengono")
               .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
               .foregroundStyle(palette.foreground)
             ForEach(record.errorCounts.sorted { $0.value > $1.value }, id: \.key) { kind, count in
@@ -399,18 +399,17 @@ struct ReportView: View {
 
         trialTable
 
-        HStack(spacing: 10) {
-          Button("Esporta PDF") {
+        HStack(spacing: Metrica.spazioPiccolo) {
+          SmallButton(title: "Esporta PDF", symbol: "doc.fill", a11y: a11y) {
             Exporter.save(data: Exporter.pdf(record, learner: store.current),
                           suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).pdf")
           }
-          Button("Esporta CSV") {
+          SmallButton(title: "Esporta CSV", symbol: "tablecells", a11y: a11y) {
             Exporter.save(text: Exporter.csv(record, learner: store.current),
                           suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).csv")
           }
         }
-        .font(a11y.typeface.font(size: a11y.size(15)))
-        Explain(text: "Il file contiene il nome e gli errori di lettura: trattalo come un documento clinico.", a11y: a11y, size: 14)
+        Explain(text: "Il file contiene il nome e le parole che non sono venute: trattalo come un documento clinico.", a11y: a11y, size: 14)
       }
       .padding(.top, 14)
     } label: {
@@ -449,7 +448,7 @@ struct ReportView: View {
         .background(item.warmup ? palette.surface.opacity(0.5) : Color.clear)
       }
     }
-    .background(RoundedRectangle(cornerRadius: 10).fill(palette.surface.opacity(0.35)))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface.opacity(0.35)))
   }
 
   /// I numeri qui sopra, detti in italiano.
@@ -457,13 +456,13 @@ struct ReportView: View {
     guard record.total > 0 else { return "Nessuna parola completata." }
     var out = "Ha letto giuste \(record.correct) parole su \(record.total). Le prime \(engine.config.warmupTrials) erano di riscaldamento e non contano per la soglia."
     if let t = record.thresholdMs {
-      out += " Riesce a leggere parole mostrate per circa \(Int(t)) millesimi di secondo: sotto questo tempo comincia a sbagliare."
+      out += " Riesce a leggere parole mostrate per circa \(Int(t)) millesimi di secondo: sotto questo tempo le parole cominciano a non venire."
     }
     if let l = record.meanLatencyMs {
       out += " Ci ha messo in media \(Int(l)) millesimi di secondo a cominciare a parlare."
     }
     if let k = record.errorCounts.sorted(by: { $0.value > $1.value }).first, record.correct < record.total {
-      out += " L'errore più frequente: \(k.key)."
+      out += " La difficoltà più frequente: \(k.key)."
     }
     return out
   }
@@ -481,6 +480,6 @@ struct ReportView: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(12)
-    .background(RoundedRectangle(cornerRadius: 10).fill(palette.surface))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
   }
 }

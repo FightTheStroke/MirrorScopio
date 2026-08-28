@@ -45,9 +45,9 @@ struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessColle
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(minHeight: 48)
             .background(
-              RoundedRectangle(cornerRadius: 12)
+              RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
                 .fill(scelta == p ? palette.accent.opacity(0.15) : .clear))
-            .contentShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
           }
           .buttonStyle(.plain)
           .accessibilityAddTraits(scelta == p ? [.isSelected] : [])

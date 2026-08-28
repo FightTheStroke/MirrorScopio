@@ -135,7 +135,7 @@ struct StageView: View {
   private var maschera: some View {
     HStack(spacing: CGFloat(a11y.letterSpacing) + 4) {
       ForEach(0..<max(3, engine.displayText.count), id: \.self) { _ in
-        RoundedRectangle(cornerRadius: 2)
+        RoundedRectangle(cornerRadius: Metrica.raggioMinimo)
           .fill(palette.foreground.opacity(0.55))
           .frame(width: CGFloat(a11y.stimulusSize) * 0.42,
                  height: CGFloat(a11y.stimulusSize) * 0.72)

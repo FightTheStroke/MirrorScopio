@@ -147,7 +147,7 @@ struct HomeView: View {
         .accessibilityLabel("nascondi l'avviso")
       }
       .padding(a11y.size(16))
-      .background(RoundedRectangle(cornerRadius: 16).fill(palette.accent.opacity(0.12)))
+      .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.accent.opacity(0.12)))
     }
   }
 
@@ -209,8 +209,8 @@ struct HomeView: View {
         }
         .padding(a11y.size(18))
         .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 18).fill(palette.surface))
-        .contentShape(RoundedRectangle(cornerRadius: 18))
+        .background(RoundedRectangle(cornerRadius: Metrica.raggioGrande).fill(palette.surface))
+        .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioGrande))
       }
     .buttonStyle(.plain)
     .accessibilityLabel(iniziato

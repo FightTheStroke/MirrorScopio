@@ -93,8 +93,8 @@ struct TypingView: View {
       .lineLimit(1...4)
       .padding(.vertical, a11y.size(14))
       .padding(.horizontal, 20)
-      .background(RoundedRectangle(cornerRadius: 14).fill(palette.surface))
-      .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.accent, lineWidth: 3))
+      .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
+      .overlay(RoundedRectangle(cornerRadius: Metrica.raggio).stroke(palette.accent, lineWidth: 3))
       .frame(maxWidth: 620)
       .focused($focused)
       .onSubmit { engine.submitTyped() }
