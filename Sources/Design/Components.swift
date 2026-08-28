@@ -473,11 +473,14 @@ struct IntestazionePagina: View {
             .foregroundStyle(palette.muted)
         }
       }
-      // Il tratto «intestazione» va messo su un elemento che ha un nome. Messo
-      // sul contenitore e basta, VoiceOver annunciava un'intestazione vuota e
-      // il titolo della pagina spariva: chi non vede lo schermo non sapeva più
-      // dove si trovava. `combine` unisce titolo e sottotitolo in una frase
-      // sola, che è anche come la leggerebbe una persona ad alta voce.
+      // `combine` unisce titolo e sottotitolo in una frase sola: è come li
+      // leggerebbe una persona ad alta voce, invece di due annunci staccati.
+      // Il tratto «intestazione» va dopo, su quell'unico elemento con un nome.
+      //
+      // Avevo scritto qui che senza `combine` il titolo spariva del tutto. Non
+      // è vero: l'ho tolto apposta e l'albero mostrava ancora il titolo. La
+      // riga resta perché la frase unica è migliore, non perché ripari un
+      // guasto.
       .accessibilityElement(children: .combine)
       .accessibilityAddTraits(.isHeader)
       Spacer(minLength: Metrica.spazio)
