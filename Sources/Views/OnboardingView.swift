@@ -11,10 +11,14 @@ struct OnboardingView: View {
   @Environment(\.palette) private var palette
   @ObservedObject var readiness: Readiness
   @ObservedObject var store: Store
+  @ObservedObject var promemoria: Promemoria
   var onFinish: () -> Void
   var onCalibrate: () -> Void
 
   @State private var passo = 0
+  /// Deciso una volta sola all'apertura e non ricalcolato: se sparisse appena
+  /// risposto, i passi si rinumererebbero sotto i piedi di chi li sta facendo.
+  @State private var chiediPromemoria = false
 
   private var a11y: A11ySettings { store.current.a11y }
 
@@ -27,6 +31,7 @@ struct OnboardingView: View {
     }
     out.append(.voce)
     if !Updates.chosen { out.append(.aggiornamenti) }
+    if chiediPromemoria { out.append(.promemoria) }
     out.append(.pronti)
     return out
   }
@@ -38,6 +43,7 @@ struct OnboardingView: View {
     case sistema(String)
     case voce
     case aggiornamenti
+    case promemoria
     case pronti
   }
 
@@ -60,7 +66,14 @@ struct OnboardingView: View {
         .frame(maxWidth: 820, alignment: .leading)
     }
     .frame(maxWidth: .infinity)
-    .task { await readiness.controlla() }
+    .task {
+      await readiness.controlla()
+      // Il permesso delle notifiche si chiede qui, dove c'e' lo spazio per
+      // dire a che cosa serve. Chiederlo a freddo la prima volta che si apre
+      // l'app e' il modo piu' sicuro per farselo negare per sempre.
+      await promemoria.aggiornaPermesso()
+      chiediPromemoria = promemoria.permesso == .notDetermined
+    }
   }
 
   // MARK: - Pezzi
@@ -189,6 +202,28 @@ struct OnboardingView: View {
           }
         }
         Explain(text: "Si cambia idea quando vuoi, dalle impostazioni.", a11y: a11y, size: 17)
+      }
+
+    case .promemoria:
+      VStack(alignment: .leading, spacing: a11y.size(16)) {
+        titolo("Ti ricordo di allenarti?")
+        Explain(text: "Serve pochissimo, ma serve spesso: dieci minuti al giorno valgono piu' di un'ora una volta a settimana. E la cosa piu' difficile non e' farlo — e' ricordarsene.", a11y: a11y, size: 21)
+        Explain(text: "Se dici di si', il Mac fa comparire un invito gentile alle \(promemoria.orarioTesto). Resta tutto qui dentro: e' un avviso di macOS, non un messaggio che parte da qualche parte. E nel giorno in cui ti sei gia' allenato non arriva niente.", a11y: a11y, size: 19)
+        HStack(spacing: 12) {
+          BigButton(title: "Si', ricordamelo", symbol: "bell.fill", a11y: a11y) {
+            Task {
+              await promemoria.accendi(
+                giaFattoOggi: store.current.lastSessionDay == Gamification.dayKey(Date()),
+                serieGiorni: store.current.streakCurrent)
+              passo = min(passi.count - 1, passo + 1)
+            }
+          }
+          BigButton(title: "No, grazie", a11y: a11y, prominent: false) {
+            promemoria.spegni()
+            passo = min(passi.count - 1, passo + 1)
+          }
+        }
+        Explain(text: "Si cambia idea quando vuoi, dalle impostazioni: orario, giorni, o spegnerli del tutto.", a11y: a11y, size: 17)
       }
 
     case .pronti:

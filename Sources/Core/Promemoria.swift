@@ -79,7 +79,15 @@ final class Promemoria: ObservableObject {
   private let prefissoID = "promemoria.giorno."
 
   init() {
-    acceso = difese.bool(forKey: Chiave.acceso)
+    // Accesi di serie. Un promemoria che bisogna scoprire nelle impostazioni
+    // per accenderlo non arriva mai a chi salta gli esercizi perche' se ne
+    // dimentica — cioe' a chi serviva. Restano un invito, non un obbligo: si
+    // spengono in un clic, e senza il permesso del Mac non arriva niente
+    // comunque.
+    //
+    // `object(forKey:)` e non `bool(forKey:)`: la seconda non sa distinguere
+    // "l'hai spento tu" da "non l'hai mai toccato", e spegnerebbe tutto.
+    acceso = difese.object(forKey: Chiave.acceso) as? Bool ?? true
     ora = difese.object(forKey: Chiave.ora) as? Int ?? 17
     minuto = difese.object(forKey: Chiave.minuto) as? Int ?? 0
     giorni = (difese.string(forKey: Chiave.giorni)).flatMap(Giorni.init) ?? .tutti

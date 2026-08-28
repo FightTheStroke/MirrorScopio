@@ -68,9 +68,21 @@ struct RootView: View {
         // I promemoria si riprogrammano a ogni avvio: così la giornata in cui
         // ci si è già allenati viene saltata invece di ricevere un invito
         // inutile.
+        let giaFattoOggi = store.current.lastSessionDay == Gamification.dayKey(Date())
         await promemoria.ripianifica(
-          giaFattoOggi: store.current.lastSessionDay == Gamification.dayKey(Date()),
+          giaFattoOggi: giaFattoOggi,
           serieGiorni: store.current.streakCurrent)
+        // I promemoria sono accesi di serie, ma senza il permesso del Mac non
+        // arriva niente: un interruttore acceso che non fa succedere nulla e'
+        // una bugia. Chi ha gia' fatto il primo avvio non e' mai passato dalla
+        // schermata che lo chiede, quindi glielo si chiede qui — mai prima,
+        // che sarebbe la richiesta a freddo che si finisce per negare.
+        await promemoria.aggiornaPermesso()
+        if UserDefaults.standard.bool(forKey: "onboardingFatto"),
+           promemoria.acceso, promemoria.permesso == .notDetermined {
+          await promemoria.accendi(giaFattoOggi: giaFattoOggi,
+                                   serieGiorni: store.current.streakCurrent)
+        }
       }
     }
     .onChange(of: store.currentID) { _, _ in syncEngine() }
@@ -107,7 +119,7 @@ struct RootView: View {
         case .audio:
           AudioCheckView(store: store, onClose: { nav.schermata = .casa })
         case .benvenuto:
-          OnboardingView(readiness: readiness, store: store, onFinish: {
+          OnboardingView(readiness: readiness, store: store, promemoria: promemoria, onFinish: {
             UserDefaults.standard.set(true, forKey: "onboardingFatto")
             nav.schermata = .casa
           }, onCalibrate: {
