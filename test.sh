@@ -119,13 +119,28 @@ echo "── prove swift ──"
 if ! command -v xcodegen >/dev/null 2>&1; then
   echo "✗ manca xcodegen (brew install xcodegen)"
   FAILED=1
-elif xcodegen generate >/dev/null && xcodebuild test \
+elif ./scripts/genera-progetto.sh >/dev/null && xcodebuild test \
     -project MirrorScopio.xcodeproj -scheme MirrorScopio \
     -destination 'platform=macOS' 2>&1 \
     | grep -E "Test run with|Executed [0-9]+ test|skipped -|error:|\*\* TEST"; then
   echo "✓ prove Xcode"
 else
   echo "✗ prove Xcode"
+  FAILED=1
+fi
+
+# Il progetto Xcode deve dire la stessa versione del file VERSION. Prima diceva
+# sempre "0.0.0" e nessuno se ne accorgeva, perche' l'unico controllo guardava
+# l'applicazione costruita da build.sh. Un numero sbagliato che non protesta e'
+# il difetto peggiore: finisce in un pacchetto e ci resta.
+ATTESA="$(tr -d ' \n' < VERSION)"
+DETTA="$(xcodebuild -project MirrorScopio.xcodeproj -target MirrorScopio \
+  -configuration Release -showBuildSettings 2>/dev/null \
+  | awk -F' = ' '/ MARKETING_VERSION = /{print $2; exit}')"
+if [ "$ATTESA" = "$DETTA" ]; then
+  echo "✓ versione del progetto Xcode ($DETTA)"
+else
+  echo "✗ versione: VERSION dice $ATTESA, il progetto Xcode dice ${DETTA:-niente}"
   FAILED=1
 fi
 

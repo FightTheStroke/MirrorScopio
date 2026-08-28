@@ -13,6 +13,15 @@ Che cosa vuol dire qui, in concreto:
 
 Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
+## [Non ancora rilasciato]
+
+### Corretto
+- **L'app costruita da Xcode dichiarava di essere la versione 0.0.0.** Il numero
+  vero, quello del file `VERSION`, arrivava solo nell'app costruita da `build.sh`:
+  chi apriva il progetto in Xcode otteneva un pacchetto con un numero sbagliato che
+  non protestava. Ora la versione la scrive `scripts/genera-progetto.sh` da un'unica
+  fonte, e `./test.sh` si ferma se i due numeri non coincidono.
+
 ## [0.5.0] — 2026-08-28
 
 ### Corretto

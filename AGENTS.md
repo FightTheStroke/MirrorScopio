@@ -69,16 +69,21 @@ SwiftUI, `Design` non sa niente di sessioni, `Views` non fa calcoli.
 
 ## Dipendenze
 
-Nessuna, e va tenuta così. Niente SwiftPM, niente CocoaPods, niente progetto Xcode. Solo
-`swiftc` e i framework di sistema. Aggiungere una dipendenza è una decisione da discutere,
+Nessuna, e va tenuta così. Niente SwiftPM, niente CocoaPods. Solo `swiftc` e i framework di
+sistema — `build.sh` compila senza aprire Xcode. Il progetto Xcode esiste (serve alle prove
+e al profilo di accessibilità) ma **non sta nel repository**: nasce da `project.yml` con
+`./scripts/genera-progetto.sh`. Aggiungere una dipendenza è una decisione da discutere,
 non da fare di passaggio.
 
 ## Versioni
 
 `VERSION` alla radice è l'unica fonte di verità. `build.sh` la scrive nell'Info.plist
 insieme al numero di build (il conto dei commit) e al commit da cui è nato il binario;
-`AppVersion` la rilegge dal bundle e la mostra nelle impostazioni. **Non scrivere mai un
-numero di versione dentro il codice Swift.**
+`AppVersion` la rilegge dal bundle e la mostra nelle impostazioni. Per la strada che passa
+da Xcode fa lo stesso `scripts/genera-progetto.sh`, che scrive `Versione.xcconfig` dal file
+`VERSION` prima di generare il progetto. **Non scrivere mai un numero di versione dentro il
+codice Swift, né dentro `project.yml`, né a mano nella scheda «General» di Xcode** (quella
+lavora su un progetto generato: sparisce alla rigenerazione successiva).
 
 Per rilasciare: scrivi che cosa cambia sotto `## [Non ancora rilasciato]` nel
 [CHANGELOG](CHANGELOG.md), poi `./scripts/release.sh 0.2.0`. Lo script rifiuta di partire

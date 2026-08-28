@@ -205,10 +205,18 @@ cd MirrorScopio
 ./build.sh                      # compila e firma
 open build/MirrorScopio.app
 ./test.sh --all                 # tutte le verifiche
+./scripts/genera-progetto.sh    # se preferisci lavorare dentro Xcode
 ```
 
-Non c'è un progetto Xcode ed **è voluto**: `build.sh` chiama `swiftc` direttamente, così il
-progetto resta leggibile e compilabile senza aprire nulla. La firma usa il certificato
+Il progetto Xcode **non sta nel repository**: nasce da `project.yml`, un file di testo che
+si legge e si confronta, mentre un `.xcodeproj` si sporca da solo a ogni apertura. Lo
+rigenera `scripts/genera-progetto.sh`, che prima scrive nel progetto il numero di versione
+preso dal file `VERSION` — l'unica fonte di verità. **Le modifiche fatte a mano nella
+scheda «General» di Xcode vengono perse alla rigenerazione successiva: vanno fatte in
+`project.yml`.**
+
+Per compilare basta comunque `build.sh`, che chiama `swiftc` direttamente: un clone fresco
+si compila senza aprire nulla e senza installare altro. La firma usa il certificato
 *Developer ID* della fondazione se è nel portachiavi, altrimenti ripiega su una firma
 ad-hoc — un clone fresco compila su qualunque Mac.
 

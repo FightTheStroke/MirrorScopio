@@ -17,3 +17,6 @@ PIANO-LAVORI.md
 
 # Generato da xcodegen a partire da project.yml: la sorgente e project.yml.
 MirrorScopio.xcodeproj/
+
+# Generato da scripts/genera-progetto.sh a partire dal file VERSION.
+Versione.xcconfig
