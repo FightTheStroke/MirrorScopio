@@ -362,6 +362,30 @@ struct EffettiveImpostazioniAccessibilita: Equatable {
 
   func size(_ base: Double) -> CGFloat { scelte.size(base) }
 
+  /// Le colonne di una griglia che si adatta, con la larghezza minima già
+  /// moltiplicata come il testo.
+  ///
+  /// Serve perché ogni `LazyVGrid` dell'app nasceva con una larghezza minima
+  /// scritta a mano — 144, 160, 220, 230, 250 — e quel numero non cresceva con
+  /// «Dimensione di tutto». Il testo raddoppiava, la colonna no, e quello che
+  /// non ci stava veniva tagliato con i puntini. Guardato a schermo il 28
+  /// agosto 2026 sulla pagina «Obiettivi»: a ×2 si leggeva «Una settima…»,
+  /// «Più veloce…», «Hai letto giuste tutte le…». Sette colonne strette invece
+  /// di tre larghe. È il difetto che colpisce **solo** chi ha alzato il testo
+  /// perché vede poco — cioè proprio la persona per cui quella manopola esiste.
+  ///
+  /// `maximum` si moltiplica insieme al minimo: se restasse fermo, con il testo
+  /// a ×2 la colonna non potrebbe crescere abbastanza per contenerlo.
+  func colonneAdattive(minimo: Double, massimo: Double? = nil,
+                       spazio: Double? = nil) -> [GridItem] {
+    let dimensione: GridItem.Size = if let massimo {
+      .adaptive(minimum: size(minimo), maximum: size(massimo))
+    } else {
+      .adaptive(minimum: size(minimo))
+    }
+    return [GridItem(dimensione, spacing: spazio.map(size))]
+  }
+
   func font(_ testo: A11ySettings.Testo, _ weight: Font.Weight = .regular) -> Font {
     scelte.font(testo, weight)
   }

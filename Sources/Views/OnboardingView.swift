@@ -116,7 +116,7 @@ struct OnboardingView: View {
       VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Che cosa succede quando leggi?")
         Explain(text: "Se ti riconosci in una di queste frasi, l'app si sistema da sola: carattere, colori, tempi, pause, grandezza dei comandi. Se non ti riconosci in nessuna, si salta: non cambia niente e si può scegliere anche dopo.", a11y: a11y, size: 21)
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)],
+        LazyVGrid(columns: a11y.colonneAdattive(minimo: 250, spazio: Metrica.spazioPiccolo),
                   spacing: Metrica.spazioPiccolo) {
           ForEach(A11yProfile.allCases) { p in
             ChoiceCard(title: p.frase, subtitle: p.hint, symbol: p.symbol,
@@ -137,7 +137,7 @@ struct OnboardingView: View {
         anteprimaParola
         sliderOnb("Quanto grande", bindDouble(\.stimulusSize), 48...220) { "\(Int($0)) punti" }
         SectionTitle(text: "Il carattere", a11y: a11y)
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+        LazyVGrid(columns: a11y.colonneAdattive(minimo: 220, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
           ForEach(TypefaceChoice.allCases.filter(\.isAvailable)) { t in
             ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.typeface == t, a11y: a11y) {
               aggiorna { $0.typeface = t }
@@ -145,7 +145,7 @@ struct OnboardingView: View {
           }
         }
         SectionTitle(text: "Colori e luce", a11y: a11y)
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+        LazyVGrid(columns: a11y.colonneAdattive(minimo: 220, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
           ForEach(ThemeChoice.allCases) { t in
             ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.manopole.theme == t, a11y: a11y) {
               aggiorna { $0.theme = t }
@@ -169,7 +169,7 @@ struct OnboardingView: View {
           Verdict(correct: true, a11y: a11y)
           Verdict(correct: false, a11y: a11y)
         }
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+        LazyVGrid(columns: a11y.colonneAdattive(minimo: 220, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
           ForEach(ColorVision.allCases) { v in
             ChoiceCard(title: v.label, selected: a11y.colorVision == v, a11y: a11y) {
               aggiorna { $0.colorVision = v }
