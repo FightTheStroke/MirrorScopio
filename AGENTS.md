@@ -69,11 +69,17 @@ SwiftUI, `Design` non sa niente di sessioni, `Views` non fa calcoli.
 
 ## Dipendenze
 
-Nessuna, e va tenuta così. Niente SwiftPM, niente CocoaPods. Solo `swiftc` e i framework di
-sistema — `build.sh` compila senza aprire Xcode. Il progetto Xcode esiste (serve alle prove
-e al profilo di accessibilità) ma **non sta nel repository**: nasce da `project.yml` con
-`./scripts/genera-progetto.sh`. Aggiungere una dipendenza è una decisione da discutere,
-non da fare di passaggio.
+Nessuna, e va tenuta così. Niente SwiftPM, niente CocoaPods: solo i framework che stanno già
+dentro macOS. Serve però **xcodegen** (`brew install xcodegen`), perché `build.sh` rigenera
+il progetto Xcode da `project.yml` prima di compilare con `xcodebuild`.
+
+Il progetto Xcode **sta nel repository**, ma non è la sorgente: è un risultato, e ci sta
+perché Xcode Cloud pretende di trovarlo appena clonato. La sorgente è `project.yml`, e
+`scripts/genera-progetto.sh` lo produce sempre uguale; un controllo su GitHub rifiuta le
+modifiche in cui i due non corrispondono. **Si cambia `project.yml`, poi si rigenera. Mai il
+contrario.**
+
+Aggiungere una dipendenza è una decisione da discutere, non da fare di passaggio.
 
 ## Versioni
 

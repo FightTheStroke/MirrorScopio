@@ -37,10 +37,11 @@ Regole di aggiornamento:
 | UI e accessibilità mobile | DA FARE | `MOB-07` |
 | Dati ed esportazione | DA FARE | `MOB-08` |
 | Test su dispositivi reali | DA FARE | `MOB-09` |
-| Account e materiali Apple | DA FARE | `STORE-01`–`STORE-05` |
+| Account e materiali Apple | DA FARE (privacy tecnica: IN CORSO) | `STORE-01`–`STORE-05` |
 | TestFlight | DA FARE | `STORE-06`, `STORE-07` |
 | App Review e pubblicazione | DA FARE | `STORE-08`, `STORE-09` |
 | Sorveglianza dopo il rilascio | DA FARE | `STORE-10` |
+| Manutenzione dell'app per Mac | DA FARE | `MAC-01` |
 
 ## Principi che non cambiano
 
@@ -325,21 +326,28 @@ TestFlight.
 
 ### STORE-03 — Preparare privacy tecnica e policy pubblica
 
-**Stato:** DA FARE
+**Stato:** IN CORSO
 **Dipendenze:** `MOB-04`, `MOB-05`, `MOB-08`
 **Responsabile:** privacy + sviluppo
 **Stima:** 3–5 giorni
 
-Preparare:
+Già fatto sul Mac, e riusabile tale e quale:
 
-- `NSMicrophoneUsageDescription`;
-- `PrivacyInfo.xcprivacy` se una API usata rientra nelle Required Reason APIs;
-- privacy policy pubblica;
-- descrizione del trattamento locale;
-- assenza di account, tracking, pubblicità e telemetria;
-- trattamento del nome e dello storico;
-- cancellazione;
-- esportazione manuale;
+- `PrivacyInfo.xcprivacy` nel pacchetto: nessun tracciamento, nessun dominio di
+  tracciamento, nessun dato raccolto; unica dichiarazione positiva `UserDefaults` con
+  motivo `CA92.1`;
+- il testo dell'informativa, in [`docs/PRIVACY.md`](docs/PRIVACY.md): tabella
+  dato → finalità → dove sta → per quanto, versione per gli adulti, versione per i
+  ragazzi, esercizio dei diritti, valutazione d'impatto.
+
+Resta da fare:
+
+- `NSMicrophoneUsageDescription` nella versione mobile;
+- **pubblicare** la policy su un indirizzo web stabile (oggi vive solo nel repository);
+- rivedere la valutazione d'impatto quando cambia dove stanno i dati;
+- compilare l'App Privacy questionnaire coerentemente con il manifesto;
+- decidere il trattamento del nome e dello storico su iCloud (oggi: nessun iCloud);
+- esportazione manuale e cancellazione, già presenti su Mac, da riportare su mobile;
 - eventuale uso facoltativo di Foundation Models.
 
 **Criterio di uscita:** codice, schermate, privacy policy e App Privacy
@@ -489,6 +497,52 @@ se esiste un problema riproducibile e documentato.
 
 **Criterio di uscita:** problemi post-rilascio classificati, proprietario e
 azione assegnati, nessun incidente privacy o misura falsata non gestito.
+
+## Manutenzione dell'app per Mac
+
+Questa sezione raccoglie i lavori che riguardano solo la versione per Mac già
+pubblicata, e non il percorso verso gli store.
+
+### MAC-01 — L'aggiornamento si prepara da solo e si installa alla chiusura
+
+**Stato:** DA FARE
+**Dipendenze:** nessuna
+**Responsabile:** prodotto
+**Stima:** 2 giorni
+
+Oggi l'app fa una cosa sola: quando il controllo della versione è acceso, una
+volta al giorno chiede a GitHub qual è l'ultima pubblicata. Da lì in poi non si
+muove più niente finché qualcuno non apre le Impostazioni e preme «Aggiorna e
+riavvia»; solo allora scarica il pacchetto, ne verifica firma e timbro, si
+sostituisce e riparte. È prudente, ma scarica al momento sbagliato: il ragazzo
+sta aspettando davanti allo schermo mentre passano decine di megabyte, e per
+avere la versione nuova bisogna comunque interrompere quello che si sta facendo.
+
+Il comportamento che vogliamo è quello delle app moderne: scaricare il pacchetto
+in anticipo e in silenzio, verificarlo, tenerlo da parte, e **non sostituire
+niente** finché non si verifica una di queste due cose — la persona dice di sì,
+oppure l'app viene chiusa. Al riavvio successivo si trova la versione nuova senza
+aver mai aspettato.
+
+Vincoli che restano fermi:
+
+- Lo scaricamento parte solo se il controllo della versione è acceso, che è già
+  una scelta esplicita e spenta di suo.
+- Mai mentre una sessione è in corso: né scaricare né sostituire.
+- La sostituzione resta preceduta dalle verifiche di firma nostra, timbro di
+  Apple e numero di versione atteso, come oggi.
+- Se qualcosa va storto, l'app che si sta usando resta quella di prima: il
+  pacchetto scaricato si butta e si riprova un'altra volta.
+- Il pacchetto messo da parte va detto, non nascosto: dove sta, quanto pesa, e
+  come lo si cancella.
+
+**Criterio di uscita:** con il controllo acceso e una versione nuova disponibile,
+il pacchetto risulta scaricato e verificato senza che nessuno abbia premuto
+niente; chiudendo l'app la sostituzione avviene e al riavvio successivo la
+versione è quella nuova; avviando invece una sessione mentre il pacchetto è
+pronto, non succede niente fino alla chiusura. Da aggiornare di conseguenza:
+`docs/PRIVACY.md` (elenco dei passaggi dalla rete e valutazione d'impatto) e il
+`README.md`.
 
 ## Dipendenze principali
 

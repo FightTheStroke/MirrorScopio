@@ -27,7 +27,7 @@ Un tachistoscopio per logopedia che non ha bisogno di un adulto che segni le ris
 Un progetto della **[Fight The Stroke Foundation](https://www.fightthestroke.org)**,
 sorella di **[MirrorBuddy](https://github.com/FightTheStroke/MirrorBuddy)**.
 
-[Scarica](#scaricare-e-usare) · [Com'è fatta](docs/ARCHITETTURA.md) · [Accessibilità](docs/ACCESSIBILITA.md) · [Parte clinica](docs/CLINICA.md) · [Disegno](docs/DESIGN.md) · [Roadmap mobile e store](roadmap.md) · [Contribuire](CONTRIBUTING.md)
+[Scarica](#scaricare-e-usare) · [Per i genitori](docs/PER-I-GENITORI.md) · [Per i logopedisti](docs/PER-I-LOGOPEDISTI.md) · [Privacy](docs/PRIVACY.md) · [Com'è fatta](docs/ARCHITETTURA.md) · [Accessibilità](docs/ACCESSIBILITA.md) · [Parte clinica](docs/CLINICA.md) · [Disegno](docs/DESIGN.md) · [Roadmap mobile e store](roadmap.md) · [Contribuire](CONTRIBUTING.md)
 
 </div>
 
@@ -56,8 +56,8 @@ settimana, mentre l'esercizio darebbe il meglio se fatto pochi minuti al giorno.
 |---|---|
 | **Valuta da solo** | Il riconoscimento vocale gira interamente sul Mac. Nessuno deve premere niente: la parola lampeggia, il bambino la legge, l'app decide. |
 | **Si adatta** | La velocità sale e scende inseguendo la soglia di chi legge. A fine sessione propone di cambiare livello se è stato troppo facile o troppo difficile. |
-| **Non fa sentire nessuno stupido** | Difficile quanto basta per valere qualcosa, facile abbastanza da riuscirci. Punteggi nascondibili, festeggiamenti spegnibili. |
-| **Non esce mai dal Mac** | Nessun account, nessun servizio, nessuna telemetria. L'unica cosa che passa dalla rete è il controllo della versione, che puoi tenere spento. |
+| **Non fa sentire nessuno stupido** | Difficile quanto basta per valere qualcosa, facile abbastanza da riuscirci. Punteggi e percentuali si spengono in tutte le schermate del ragazzo, festeggiamenti spegnibili. |
+| **Non esce mai dal Mac** | Nessun account, nessun servizio, nessuna telemetria, niente che si possa ricondurre a una persona. Dalla rete passano solo quattro cose, e nessuna porta via dati: [sono elencate qui sotto](#privacy-la-promessa-e-come-la-manteniamo). |
 
 ### Due modalità
 
@@ -104,9 +104,16 @@ Un **profilo** imposta tutto in un colpo solo; poi ogni singola manopola resta r
   parola scritta.
 - **Voce** — tutte le voci italiane del Mac in elenco, con anteprima all'ascolto e
   velocità regolabile.
-- **Movimento** — ogni animazione si può togliere.
+- **Movimento** — ogni animazione si può togliere. Va tolta dall'interruttore dell'app:
+  oggi MirrorScopio **non legge** «Riduci movimento» delle Impostazioni di Sistema. È un
+  difetto noto, in lavorazione.
 - **Calma** — modalità senza esclamazioni né festeggiamenti, per chi li vive come rumore.
-- **Ansia da prestazione** — punteggi e percentuali nascondibili del tutto.
+- **Ansia da prestazione** — punteggi e percentuali spariscono da tutte le schermate del
+  ragazzo: il risultato diventa «hai letto tutte le parole fino in fondo», e nei progressi i
+  numeri lasciano il posto a parole («tante», «un fulmine»). Restano invece nel *Dettaglio
+  per l'adulto* a fine sessione, che oggi si apre con un clic e **non è ancora chiuso dietro
+  un accesso adulto**: se serve che il ragazzo non li veda proprio, quel pannello non va
+  aperto davanti a lui. È un difetto noto, non un comportamento voluto.
 - **Pause automatiche** ogni N parole, senza conto alla rovescia.
 - **Promemoria giornalieri** — un invito gentile all'ora che scegli, tutti i
   giorni o solo feriali, spegnibile. Tutto locale, mai un rimprovero, e niente
@@ -134,18 +141,23 @@ telemetria, nessun profilo, niente che si possa ricondurre a una persona.
 - I **promemoria giornalieri**, se li accendi, sono avvisi locali di macOS:
   compaiono su questo Mac e non mandano niente a nessuno.
 
-Per onestà, le uniche tre cose che passano dalla rete:
+Per onestà, le uniche quattro cose che passano dalla rete:
 
 1. Al primo avvio macOS **scarica** da Apple il modello di riconoscimento italiano — è un
    download del sistema operativo, non contiene dati tuoi, e succede una volta sola.
 2. Il **controllo della versione**: una volta al giorno l'app può chiedere a GitHub qual è
    l'ultima versione pubblicata. Non manda niente, chiede e basta. Lo si accende
-   nell'avvio guidato o dalle Impostazioni, ed è **spento finché non lo scegli**. Tutto il
-   codice che tocca la rete sta in un file solo, [`Sources/Core/Updates.swift`](Sources/Core/Updates.swift),
-   e un controllo automatico impedisce che ne compaia altrove.
-3. Chi *pubblica* una versione manda l'app ad Apple per la firma di sicurezza.
+   nell'avvio guidato o dalle Impostazioni, ed è **spento finché non lo scegli**.
+3. Lo **scaricamento dell'aggiornamento**, solo quando premi tu «Aggiorna e riavvia»: l'app
+   prende da GitHub il pacchetto nuovo e ne verifica firma e timbro prima di sostituirsi.
+   Il codice dei punti 2 e 3 sta in un file solo,
+   [`Sources/Core/Updates.swift`](Sources/Core/Updates.swift), e un controllo automatico
+   impedisce che una connessione di rete compaia altrove.
+4. Chi *pubblica* una versione manda l'app ad Apple per la firma di sicurezza.
 
-Dettagli in [`SECURITY.md`](SECURITY.md).
+Dettagli in [`SECURITY.md`](SECURITY.md), e l'informativa completa — con la tabella di che
+cosa viene tenuto e per quanto, una pagina scritta per i ragazzi e la valutazione d'impatto —
+in [`docs/PRIVACY.md`](docs/PRIVACY.md).
 
 ---
 
@@ -208,23 +220,28 @@ deliberatamente separata dall'interfaccia proprio per questo. Vedi
 ```bash
 git clone https://github.com/FightTheStroke/MirrorScopio.git
 cd MirrorScopio
-./build.sh                      # compila e firma
+brew install xcodegen               # serve a build.sh
+./build.sh                          # rigenera il progetto, compila e firma
 open build/MirrorScopio.app
-./test.sh --all                 # tutte le verifiche
-./scripts/genera-progetto.sh    # se preferisci lavorare dentro Xcode
+./test.sh                           # le verifiche
+./scripts/genera-progetto.sh        # se preferisci lavorare dentro Xcode
 ```
 
-Il progetto Xcode **non sta nel repository**: nasce da `project.yml`, un file di testo che
-si legge e si confronta, mentre un `.xcodeproj` si sporca da solo a ogni apertura. Lo
-rigenera `scripts/genera-progetto.sh`, che prima scrive nel progetto il numero di versione
-preso dal file `VERSION` — l'unica fonte di verità. **Le modifiche fatte a mano nella
-scheda «General» di Xcode vengono perse alla rigenerazione successiva: vanno fatte in
-`project.yml`.**
+Il progetto Xcode **sta nel repository**, ma non è la sorgente: è un risultato. La sorgente
+è `project.yml`, un file di testo che si legge e si confronta, mentre un `.xcodeproj` si
+sporca da solo a ogni apertura. Ci sta perché Xcode Cloud pretende di trovarlo appena
+clonato, prima di poter eseguire qualunque script. Lo rigenera `scripts/genera-progetto.sh`,
+che prima scrive il numero di versione preso dal file `VERSION` — l'unica fonte di verità —
+e un controllo su GitHub rifiuta le modifiche in cui progetto e `project.yml` non
+corrispondono.
 
-Per compilare basta comunque `build.sh`, che chiama `swiftc` direttamente: un clone fresco
-si compila senza aprire nulla e senza installare altro. La firma usa il certificato
-*Developer ID* della fondazione se è nel portachiavi, altrimenti ripiega su una firma
-ad-hoc — un clone fresco compila su qualunque Mac.
+**Si cambia `project.yml`, poi si rigenera. Mai il contrario:** le modifiche fatte a mano
+nella scheda «General» di Xcode vengono perse alla rigenerazione successiva.
+
+`build.sh` fa tutto da sé — rigenera il progetto e chiama `xcodebuild` — quindi un clone
+fresco si compila con un comando solo. La firma usa il certificato *Developer ID* della
+fondazione se è nel portachiavi, altrimenti ripiega su una firma ad-hoc: si compila su
+qualunque Mac.
 
 ### Pubblicare una versione
 
@@ -243,9 +260,12 @@ Come si insegnano le chiavi a GitHub: [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIO
 
 | Documento | Che cosa ci trovi |
 |---|---|
+| [`docs/PER-I-GENITORI.md`](docs/PER-I-GENITORI.md) | Che cos'è e che cosa non è, senza una parola tecnica |
+| [`docs/PER-I-LOGOPEDISTI.md`](docs/PER-I-LOGOPEDISTI.md) | Paradigma, parametri, esportazioni — e i limiti, detti prima |
+| [`docs/PRIVACY.md`](docs/PRIVACY.md) | Che cosa l'app tiene e per quanto, informativa per adulti e per ragazzi, valutazione d'impatto |
 | [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md) | Com'è fatta dentro: macchina a stati, riconoscimento, dati |
-| [`docs/ACCESSIBILITA.md`](docs/ACCESSIBILITA.md) | Ogni scelta inclusiva e il motivo per cui è stata fatta |
-| [`docs/CLINICA.md`](docs/CLINICA.md) | Scala adattiva, soglia, latenza vocale, tipi di errore |
+| [`docs/ACCESSIBILITA.md`](docs/ACCESSIBILITA.md) | Ogni scelta inclusiva, il motivo, e che cosa è verificato davvero |
+| [`docs/CLINICA.md`](docs/CLINICA.md) | Scala adattiva, soglia, latenza vocale, tipi di errore — con fonti e limiti |
 | [`docs/DESIGN.md`](docs/DESIGN.md) | I mattoncini condivisi, le misure, i colori e le parole: come si resta coerenti |
 | [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) | Punti, serie, obiettivi — e perché si possono spegnere |
 | [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md) | Firma, notarizzazione, pacchetto, automazione su GitHub |

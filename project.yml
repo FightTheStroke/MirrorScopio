@@ -53,6 +53,22 @@ settings:
     GCC_TREAT_WARNINGS_AS_ERRORS: NO
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
 
+    # Concorrenza rigorosa: fa ricomparire gli avvisi che dicono dove il codice
+    # tocca lo stesso stato da due thread diversi.
+    #
+    # Non e' un'aggiunta, e' un ripristino. Quando le prove passavano da un
+    # Package.swift questi avvisi si vedevano; quando quel file e' stato tolto
+    # sono spariti dallo schermo — ma i difetti erano rimasti tutti al loro
+    # posto, semplicemente non li vedeva piu' nessuno. Un problema che non si
+    # vede e' peggio di un problema che si vede.
+    #
+    # In linguaggio Swift 5 restano avvisi e non errori: il programma compila
+    # lo stesso. Diventeranno errori il giorno in cui si passera' a Swift 6, ed
+    # e' esattamente per arrivarci senza sorprese che stanno qui adesso.
+    # Attenzione: build.sh mostra solo gli avvisi che parlano di funzioni
+    # deprecate, quindi per leggerli tutti serve chiamare xcodebuild a mano.
+    SWIFT_STRICT_CONCURRENCY: complete
+
     # Solo Apple Silicon. Non e' una scelta di comodo: l'app usa
     # FoundationModels, il modello di linguaggio che sta dentro macOS, e su un
     # Mac Intel quel framework non esiste. Costruire anche per Intel vorrebbe
@@ -109,6 +125,10 @@ targets:
     sources:
       - path: Sources
       - path: Resources/AppIcon.icns
+        buildPhase: resources
+      # Il manifesto della privacy che chiede Apple. Deve stare nella radice
+      # delle risorse del pacchetto, altrimenti Apple non lo trova.
+      - path: Resources/PrivacyInfo.xcprivacy
         buildPhase: resources
       # Cartella intera, non file sciolti: dentro il pacchetto deve restare una
       # cartella «Fonts», perché è lì che ATSApplicationFontsPath va a cercare.

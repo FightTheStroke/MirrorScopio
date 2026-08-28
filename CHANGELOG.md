@@ -15,6 +15,48 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Aggiunto
+- **Tre documenti nuovi per chi non scrive codice.** «Per i genitori» spiega che cos'è e
+  che cosa non è, senza una parola tecnica; «Per i logopedisti» dà paradigma, parametri ed
+  esportazioni, e mette i limiti in cima invece che in fondo; «Privacy» dice che cosa l'app
+  tiene, perché e per quanto — con una tabella riga per riga, **una pagina scritta per i
+  ragazzi** e una valutazione d'impatto.
+- **`docs/CLINICA.md` adesso cita le sue fonti.** Prima non ne citava nemmeno una. La nuova
+  sezione «Fonti e limiti» separa tre cose che stavano mescolate: quello che poggia sulla
+  letteratura (con la bibliografia per esteso), quello che è una scelta nostra mai validata
+  — ogni numero con la riga di codice in cui vive — e quello che l'app non sa fare. In cima
+  a tutto una frase che non c'era: **nessun valore prodotto da quest'app è normato su
+  popolazione italiana**.
+- **Il manifesto della privacy di Apple** (`PrivacyInfo.xcprivacy`) è dentro il pacchetto:
+  dichiara nessun tracciamento, nessun dominio di tracciamento, nessun dato raccolto.
+
+### Cambiato
+- **La documentazione smette di promettere cose che il codice non fa.** Erano sei
+  affermazioni false e due imprecise, trovate contandole:
+  - Il progetto Xcode **sta** nel repository (README, AGENTS, ARCHITETTURA dicevano di no).
+  - L'app si compila con `xcodebuild`, non con `swiftc`, e serve xcodegen.
+  - `Verifiche/` e `ProveDaTastiera/` **sono** prove vere; solo `Tests/` sono banchi da
+    lanciare a mano.
+  - «L'unica cosa che passa dalla rete» erano tre, e il README stesso le elencava più sotto.
+  - «Punteggi nascondibili del tutto»: si nascondono in tutte le schermate del ragazzo, ma
+    il *Dettaglio per l'adulto* li mostra ancora e si apre senza chiedere niente. Adesso è
+    scritto.
+  - «Le animazioni si tolgono da sole con Riduci movimento di sistema»: **non è vero**, oggi
+    vanno tolte a mano dall'app. Scritto anche questo.
+  - La mappa del codice in `ARCHITETTURA.md` saltava dieci file: adesso ci sono tutti.
+- **`docs/ACCESSIBILITA.md` dice quali promesse sono verificate e quali no**, una per una:
+  i bersagli da 44 punti valgono per i nostri componenti e non per i controlli di sistema,
+  il contrasto AA è misurato da una prova mentre l'AAA no, il fuoco da tastiera oggi spesso
+  non si vede, e delle sette schermate che promettevano Esc ne è provata una.
+- **Tolto il riferimento a RIDInet** dalla scala della modalità «Scrivi»: citava un prodotto
+  di terzi come se ne confermasse le scelte, senza riferimento. I quattro gradini sono una
+  progettazione nostra, e adesso lo dicono.
+- **Riacceso il controllo di concorrenza rigoroso** (`SWIFT_STRICT_CONCURRENCY`). Non è una
+  funzione nuova: quegli avvisi c'erano, sono spariti dallo schermo quando è stato tolto
+  `Package.swift`, e i difetti erano rimasti tutti. Un problema che non si vede è peggio di
+  un problema che si vede. L'app compila come prima; i tre punti che ora si vedono
+  (`Gamification.swift:88`, `Fonts.swift:73-74`) restano da correggere.
+
 ### Corretto
 - **I comandi grandi sparivano appena si toccava qualcos'altro.** Chi sceglieva
   «Paralisi cerebrale» otteneva pulsanti alti 60 punti invece di 44; poi bastava
@@ -70,19 +112,6 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   le colonne: il file si apriva bene e diceva una cosa diversa da quella letta
   davvero. In un referto clinico non è ammissibile. Ora il testo arriva
   identico, virgolette e a capo compresi.
-
-### Sicurezza
-- **Lo schermo non lampeggia più di tre volte al secondo.** Le parole ad alto
-  contrasto che si alternano alla maschera sono esattamente il tipo di
-  alternanza che può scatenare una crisi in chi ha un'epilessia fotosensibile,
-  e questa app la usa un ragazzo da solo, senza nessuno accanto che possa
-  fermarlo. Azzerando la croce e la pausa da «Per l'adulto» si arrivava a più
-  di sessanta cambi al secondo, e niente lo impediva. Adesso il pannello
-  avvisa mentre si stanno spostando i cursori, la sessione non parte, e la
-  spiegazione dice perché e come rientrare. Un adulto può consentire un ritmo
-  più veloce, ma deve dirlo apposta.
-
-### Corretto
 - **La risposta di una parola poteva finire attribuita a quella dopo.** Il
   riconoscitore vocale consegna quando gli pare, e una consegna in ritardo
   entrava nel turno successivo: chi aveva letto «casa» si trovava giudicato
@@ -93,10 +122,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - **La durata delle parole era misurata sullo schermo sbagliato.** Con due
   schermi a frequenza diversa — un portatile accanto a un monitor — l'app
   chiedeva la frequenza a quello dove c'era il cursore, non a quello dove
-  stava la finestra. Adesso la chiede a chi disegna davvero. Nel referto ci
-  sono anche la frequenza dello schermo, i fotogrammi chiesti e quelli
-  ottenuti: senza quei numeri «30 millesimi» non vuol dire niente, perché su
-  uno schermo a 60 Hz un'esposizione di 30 millesimi non esiste.
+  stava la finestra. Adesso la chiede a chi disegna davvero. La frequenza dello
+  schermo e il fotogramma saltato vengono **salvati** insieme a ogni parola:
+  senza quei numeri «30 millesimi» non vuol dire niente, perché su uno schermo
+  a 60 Hz un'esposizione di 30 millesimi non esiste. Restano però dentro i file
+  dei dati: **nel PDF e nel CSV esportati non compaiono ancora**.
 - **Un turno interrotto veniva contato come una parola non letta.** Il Mac che
   si addormenta, la finestra che passa dietro a un'altra, le cuffie staccate a
   metà: succede, e non dice niente su chi sta leggendo. Ora quel turno è
@@ -118,6 +148,18 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   Erano due copie della stessa cosa, e due copie si allontanano in silenzio.
 - **Nel registro di sistema non finiscono più percorsi e messaggi del Mac in
   chiaro.** Un percorso di cartella contiene il nome dell'utente.
+
+### Sicurezza
+- **Lo schermo non lampeggia più di tre volte al secondo.** Le parole ad alto
+  contrasto che si alternano alla maschera sono esattamente il tipo di
+  alternanza che può scatenare una crisi in chi ha un'epilessia fotosensibile,
+  e questa app la usa un ragazzo da solo, senza nessuno accanto che possa
+  fermarlo. Azzerando la croce e la pausa da «Per l'adulto» si arrivava a più
+  di sessanta cambi al secondo, e niente lo impediva. Adesso il pannello
+  avvisa mentre si stanno spostando i cursori, la sessione non parte, e la
+  spiegazione dice perché e come rientrare. Un adulto può consentire un ritmo
+  più veloce, ma deve dirlo apposta.
+
 ## [0.6.0] — 2026-08-28
 
 ### Aggiunto

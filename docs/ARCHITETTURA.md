@@ -1,7 +1,12 @@
 # Architettura
 
-Un'app SwiftUI per macOS 26, compilata da `swiftc` senza progetto Xcode. Nessuna
-dipendenza esterna, nessuna chiamata di rete.
+Un'app SwiftUI per macOS 26, senza nessuna dipendenza esterna: solo i framework che stanno
+già dentro il sistema. Si compila con `xcodebuild` sul progetto Xcode, che `build.sh`
+rigenera da `project.yml` a ogni compilazione.
+
+Una sola parte del codice tocca la rete — `Core/Updates.swift`, che chiede a GitHub qual è
+l'ultima versione (spento finché non lo si accende) e ne scarica il pacchetto solo se lo si
+chiede — e un controllo automatico impedisce che ne compaia altra altrove.
 
 ## Mappa
 
@@ -9,7 +14,7 @@ dipendenza esterna, nessuna chiamata di rete.
 Sources/
   App.swift              punto d'ingresso, router fra le schermate, ambiente condiviso
   Core/
-    Model.swift          configurazione della sessione, livelli, tipi di errore
+    Model.swift          configurazione della sessione, livelli, tipi di errore, scala
     Stimuli.swift        le liste di parole
     SessionEngine.swift  la macchina a stati che governa una sessione
     FrameClock.swift     tempi al fotogramma via CVDisplayLink
@@ -17,6 +22,14 @@ Sources/
     Scoring.swift        confronto deterministico fra parola detta e parola attesa
     Intelligence.swift   Foundation Models, solo per etichettare il tipo di errore
     Speaker.swift        sintesi vocale per la modalità Scrivi
+    ItalianVoices.swift  elenco delle voci italiane installate, con anteprima
+    Suoni.swift          i quattro suoni di conferma, generati in codice
+    AudioDevices.swift   microfoni disponibili e scelta dell'ingresso
+    Readiness.swift      «Prepara il Mac»: permessi, modello vocale, voce
+    Promemoria.swift     avvisi locali giornalieri
+    Navigazione.swift    quali schermate sono raggiungibili e quando
+    AppVersion.swift     versione e numero di build letti dal pacchetto
+    Log.swift            registro diagnostico locale
     Updates.swift        l'unico file che tocca la rete: chiede a GitHub qual è
                          l'ultima versione e sa installarla, dopo aver
                          ricontrollato firma e timbro di Apple
@@ -24,14 +37,45 @@ Sources/
     Theme.swift          temi e palette per daltonismo
     Fonts.swift          caratteri per la dislessia, registrati a runtime
     Accessibility.swift  profili di disabilità e singole manopole
-    Components.swift     pulsanti e riquadri riusabili, tutti sopra i 44 pt
+    Components.swift     pulsanti e riquadri riusabili
+    Badge.swift          i simboli degli obiettivi
+    ElencoPagine.swift   la lista di navigazione laterale
   Data/
     Store.swift          profili e storico, JSON su disco
     Gamification.swift   punti, serie, obiettivi, proposta di livello
     Exporter.swift       referto PDF e CSV
-  Views/                 una schermata per file
-Tests/                   harness eseguibili, non XCTest
+  Views/                 una schermata per file (18)
 ```
+
+## Le prove
+
+Tre cartelle, tre mestieri diversi:
+
+```
+Verifiche/          Swift Testing, senza aprire l'app: scala adattiva,
+                    contrasto dei colori, suoni, confronto fra versioni,
+                    e i due banchi sui dati — che il salvataggio non perda
+                    niente e che il referto non alteri le parole
+ProveDaTastiera/    XCUITest: apre l'app vera e la usa solo da tastiera,
+                    leggendo l'albero di accessibilità
+Tests/              banchi di prova eseguibili a mano (`@main`), non XCTest:
+                    servono microfono, modello vocale o Foundation Models veri
+```
+
+Le prime due girano da `./test.sh` e dentro la verifica automatica su GitHub. La terza si
+lancia a mano, perché ha bisogno di hardware e modelli che una macchina di compilazione non
+ha.
+
+## Il progetto Xcode
+
+`MirrorScopio.xcodeproj` **sta nel repository**, ma non è la sorgente: è un risultato.
+La sorgente è `project.yml`, un file di testo che si legge e si confronta, mentre un
+`.xcodeproj` si sporca da solo a ogni apertura. Ci sta perché Xcode Cloud pretende di
+trovarlo al momento del clone, prima di eseguire qualunque script.
+
+`scripts/genera-progetto.sh` lo produce sempre uguale a partire da `project.yml`, e un
+controllo su GitHub rifiuta le modifiche in cui i due non corrispondono. **Regola pratica: si
+cambia `project.yml`, poi si rigenera. Mai il contrario.**
 
 ## Il ciclo di una parola
 
