@@ -4,9 +4,9 @@ Un'app SwiftUI per macOS 26, senza nessuna dipendenza esterna: solo i framework 
 già dentro il sistema. Si compila con `xcodebuild` sul progetto Xcode, che `build.sh`
 rigenera da `project.yml` a ogni compilazione.
 
-Una sola parte del codice tocca la rete — il controllo della versione in
-`Core/Updates.swift`, spento finché non lo si accende — e un controllo automatico impedisce
-che ne compaia altra altrove.
+Una sola parte del codice tocca la rete — `Core/Updates.swift`, che chiede a GitHub qual è
+l'ultima versione (spento finché non lo si accende) e ne scarica il pacchetto solo se lo si
+chiede — e un controllo automatico impedisce che ne compaia altra altrove.
 
 ## Mappa
 

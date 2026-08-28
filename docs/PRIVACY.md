@@ -48,9 +48,9 @@ di quello che è stato capito. Nessun file audio viene scritto sul disco, in nes
 Nessuna di queste righe esce dal Mac. Nessuna viene usata per profilare, misurare o
 confrontare con altre persone.
 
-### Le uniche tre volte che passa dalla rete
+### Le uniche quattro volte che passa dalla rete
 
-Nessuna delle tre porta via dati del ragazzo.
+Nessuna delle quattro porta via dati del ragazzo.
 
 1. **Il modello vocale italiano**, la prima volta. Lo scarica macOS da Apple, non
    MirrorScopio, ed è circa un giga. Succede una volta sola. Non contiene niente di vostro:
@@ -59,10 +59,17 @@ Nessuna delle tre porta via dati del ragazzo.
    GitHub qual è l'ultima versione pubblicata. Manda una domanda e basta, non manda mai
    dati. **È spento finché non lo accendete voi**, nell'avvio guidato o nelle Impostazioni.
    Come per qualunque visita a un sito, GitHub vede l'indirizzo IP da cui arriva la domanda:
-   se questo vi dà fastidio, lasciatelo spento e l'app funziona identica. Tutto il codice
-   che tocca la rete sta in un file solo (`Sources/Core/Updates.swift`), e un controllo
-   automatico impedisce che ne compaia altrove.
-3. **La firma di Apple**, che riguarda noi e non voi: chi *pubblica* una versione manda
+   se questo vi dà fastidio, lasciatelo spento e l'app funziona identica.
+3. **Lo scaricamento dell'aggiornamento**, solo se lo chiedete voi premendo «Aggiorna e
+   riavvia». A quel punto l'app prende da GitHub il pacchetto della versione nuova — sono
+   decine di megabyte — e prima di sostituirsi controlla che la firma sia la nostra e che
+   il timbro di Apple sia valido. Anche qui non parte nessun dato vostro: solo la richiesta
+   del file, e ancora una volta GitHub vede l'indirizzo IP. Se non premete quel bottone,
+   non viene scaricato niente.
+
+   Il codice dei punti 2 e 3 sta tutto in un file solo (`Sources/Core/Updates.swift`), e un
+   controllo automatico impedisce che una connessione di rete compaia altrove nell'app.
+4. **La firma di Apple**, che riguarda noi e non voi: chi *pubblica* una versione manda
    l'app ad Apple perché la controlli. Non c'entra con chi la usa.
 
 ### I vostri diritti, e come si esercitano davvero
@@ -145,7 +152,7 @@ scritto l'app ha comunque la responsabilità di non renderlo peggiore del necess
 | 5 | Un referto esportato finisce dove non deve | Media | Alto | L'esportazione è sempre un'azione volontaria di un adulto, con la finestra «dove lo salvo» | Sta a chi esporta. Va detto nel documento per i logopedisti, ed è detto |
 | 6 | Un dato clinico sbagliato porta a una decisione sbagliata | Media | Alto | Il verdetto giusto/sbagliato è deterministico, il modello linguistico non può ribaltarlo. I limiti sono dichiarati in `CLINICA.md` | I limiti vanno letti davvero: nessun numero di quest'app è normato |
 | 7 | Un ragazzo si sente giudicato dai propri dati | Media | Medio | Punteggi nascondibili, mai la parola «sbagliato», mai una croce | Il *Dettaglio per l'adulto* non è ancora protetto: un ragazzo può aprirlo |
-| 8 | L'indirizzo IP arriva a GitHub col controllo versione | Media, solo se acceso | Basso | Spento finché non lo si accende, e detto prima | Niente |
+| 8 | L'indirizzo IP arriva a GitHub col controllo versione, e di nuovo se si scarica un aggiornamento | Media, solo se acceso; lo scaricamento solo se lo si chiede | Basso | Spento finché non lo si accende, e detto prima; lo scaricamento parte solo premendo «Aggiorna e riavvia» | Niente |
 
 ### Il giudizio
 

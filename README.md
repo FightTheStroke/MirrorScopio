@@ -57,7 +57,7 @@ settimana, mentre l'esercizio darebbe il meglio se fatto pochi minuti al giorno.
 | **Valuta da solo** | Il riconoscimento vocale gira interamente sul Mac. Nessuno deve premere niente: la parola lampeggia, il bambino la legge, l'app decide. |
 | **Si adatta** | La velocità sale e scende inseguendo la soglia di chi legge. A fine sessione propone di cambiare livello se è stato troppo facile o troppo difficile. |
 | **Non fa sentire nessuno stupido** | Difficile quanto basta per valere qualcosa, facile abbastanza da riuscirci. Punteggi e percentuali si spengono in tutte le schermate del ragazzo, festeggiamenti spegnibili. |
-| **Non esce mai dal Mac** | Nessun account, nessun servizio, nessuna telemetria, niente che si possa ricondurre a una persona. Dalla rete passano solo tre cose, e nessuna porta via dati: [sono elencate qui sotto](#privacy-la-promessa-e-come-la-manteniamo). |
+| **Non esce mai dal Mac** | Nessun account, nessun servizio, nessuna telemetria, niente che si possa ricondurre a una persona. Dalla rete passano solo quattro cose, e nessuna porta via dati: [sono elencate qui sotto](#privacy-la-promessa-e-come-la-manteniamo). |
 
 ### Due modalità
 
@@ -141,16 +141,19 @@ telemetria, nessun profilo, niente che si possa ricondurre a una persona.
 - I **promemoria giornalieri**, se li accendi, sono avvisi locali di macOS:
   compaiono su questo Mac e non mandano niente a nessuno.
 
-Per onestà, le uniche tre cose che passano dalla rete:
+Per onestà, le uniche quattro cose che passano dalla rete:
 
 1. Al primo avvio macOS **scarica** da Apple il modello di riconoscimento italiano — è un
    download del sistema operativo, non contiene dati tuoi, e succede una volta sola.
 2. Il **controllo della versione**: una volta al giorno l'app può chiedere a GitHub qual è
    l'ultima versione pubblicata. Non manda niente, chiede e basta. Lo si accende
-   nell'avvio guidato o dalle Impostazioni, ed è **spento finché non lo scegli**. Tutto il
-   codice che tocca la rete sta in un file solo, [`Sources/Core/Updates.swift`](Sources/Core/Updates.swift),
-   e un controllo automatico impedisce che ne compaia altrove.
-3. Chi *pubblica* una versione manda l'app ad Apple per la firma di sicurezza.
+   nell'avvio guidato o dalle Impostazioni, ed è **spento finché non lo scegli**.
+3. Lo **scaricamento dell'aggiornamento**, solo quando premi tu «Aggiorna e riavvia»: l'app
+   prende da GitHub il pacchetto nuovo e ne verifica firma e timbro prima di sostituirsi.
+   Il codice dei punti 2 e 3 sta in un file solo,
+   [`Sources/Core/Updates.swift`](Sources/Core/Updates.swift), e un controllo automatico
+   impedisce che una connessione di rete compaia altrove.
+4. Chi *pubblica* una versione manda l'app ad Apple per la firma di sicurezza.
 
 Dettagli in [`SECURITY.md`](SECURITY.md), e l'informativa completa — con la tabella di che
 cosa viene tenuto e per quanto, una pagina scritta per i ragazzi e la valutazione d'impatto —
