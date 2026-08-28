@@ -400,12 +400,12 @@
 			path = assets;
 			sourceTree = "<group>";
 		};
-		"TEMP_0002" /* MirrorScopio-aggiornamento */ = {
+		"TEMP_0002" /* MirrorScopio */ = {
 			isa = PBXGroup;
 			children = (
 				"TEMP_0001" /* Versione.xcconfig */,
 			);
-			path = "MirrorScopio-aggiornamento";
+			path = MirrorScopio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
