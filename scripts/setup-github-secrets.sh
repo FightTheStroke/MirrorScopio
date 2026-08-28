@@ -135,14 +135,34 @@ read -r -p "Apple ID (email): " APPLE_ID
 [ -z "$APPLE_ID" ] && { echo "✗ Serve l'Apple ID."; exit 1; }
 
 echo
-echo "COSA 3 di 3 — la password per app, quella con i trattini."
-echo "              È la stessa di ./scripts/setup-notarizzazione.sh."
+# Qui prima c'era solo «Password per app:» e un cursore che lampeggiava. Se non
+# te la ricordavi, lo schermo non ti diceva ne' che non e' recuperabile, ne'
+# dove se ne fa una nuova: restavi fermo a fissare un prompt muto. Se il
+# programma sa una cosa, la dice.
+echo "COSA 3 di 3 — la password per app, quella con i trattini (abcd-efgh-ijkl-mnop)."
+echo
+echo "  Non te la ricordi? Non e' un tuo problema di memoria: Apple la mostra"
+echo "  una volta sola e poi non la sa piu' nemmeno lei. Non si recupera, se ne"
+echo "  fa una nuova in un minuto — e quella vecchia si puo' buttare."
+echo
+echo "  Dove:  account.apple.com  →  Accesso e sicurezza  →  Password per app"
+echo "         (con Safari a volte non va: usa Chrome o Edge)"
+echo
+read -r -p "  Vuoi che ti apra la pagina adesso? [invio = si', n = no] " APRI
+if [ "${APRI:-}" != "n" ]; then
+  open "https://account.apple.com/account/manage" >/dev/null 2>&1 || true
+  echo "  Aperta. Quando ce l'hai, incollala qui sotto."
+fi
+echo
 read -r -s -p "Password per app: " APPLE_APP_PASSWORD
 echo
 APPLE_APP_PASSWORD="$(echo "$APPLE_APP_PASSWORD" | tr -d '[:space:]')"
 export APPLE_APP_PASSWORD
 if [[ ! "$APPLE_APP_PASSWORD" =~ ^[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}$ ]]; then
-  echo "✗ Non ha la forma  abcd-efgh-ijkl-mnop . Riprova."
+  echo "✗ Quella che hai incollato non ha la forma  abcd-efgh-ijkl-mnop ."
+  echo "  Sono quattro gruppi di quattro lettere minuscole con i trattini."
+  echo "  Se hai incollato la password del tuo Apple ID: non e' quella, serve"
+  echo "  proprio una \"password per app\" generata apposta."
   exit 1
 fi
 
