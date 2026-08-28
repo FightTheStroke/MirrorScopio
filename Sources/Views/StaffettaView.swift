@@ -19,7 +19,7 @@ import SwiftUI
 /// il tifo: è la frase con cui finisce la canzone del camp — *now walk it by
 /// yourself*, adesso camminaci da solo.
 struct StaffettaView: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Chi ha aperto il premio lo chiude quando vuole: il premio non trattiene.
   let onClose: () -> Void
 
@@ -589,7 +589,7 @@ private enum Fase: Equatable {
 /// un allarme: si spegne del tutto quando il movimento va evitato.
 private struct RespiroDolce: ViewModifier {
   let attivo: Bool
-  let a11y: A11ySettings
+  let a11y: EffettiveImpostazioniAccessibilita
   @State private var grande = false
 
   func body(content: Content) -> some View {

@@ -18,7 +18,7 @@ struct AdvancedControls: View {
   @Environment(\.palette) private var palette
   @ObservedObject var store: Store
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
 
   private var corpo: Font { a11y.font(.etichetta) }
 

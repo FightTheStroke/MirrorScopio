@@ -15,7 +15,7 @@ struct HomeView: View {
   @State private var showCalibrationIntro = false
   @State private var aggiornamento: Updates.Release?
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   var body: some View {
     VStack(spacing: 0) {

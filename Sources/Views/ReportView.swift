@@ -13,7 +13,7 @@ struct ReportView: View {
   /// Il premio è opzionale: chi non lo vuole non lo vede aprirsi da solo.
   @State private var showStaffetta = false
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
   private var record: SessionRecord { engine.finishedRecord ?? SessionRecord() }
 
   var body: some View {

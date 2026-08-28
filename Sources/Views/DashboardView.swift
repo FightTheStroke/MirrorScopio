@@ -18,7 +18,7 @@ struct DashboardView: View {
     @State private var mostraConfermaReset = false
     @State private var pagina: Pagina = .adesso
 
-    private var a11y: A11ySettings { store.current.a11y }
+    @Environment(\.impostazioni) private var a11y
     private var bambino: Learner { store.current }
     private var sessioni: [SessionRecord] { store.currentHistory }
 
@@ -507,7 +507,7 @@ private struct _RiquadroRiassuntivo: View {
     let etichetta: String
     let valore: String
     let sottotitolo: String?
-    let a11y: A11ySettings
+    let a11y: EffettiveImpostazioniAccessibilita
     let palette: Palette
 
     var body: some View {
@@ -542,7 +542,7 @@ private struct _RiquadroRiassuntivo: View {
 private struct _CellaObiettivo: View {
     let obiettivo: Achievement
     let sbloccato: Bool
-    let a11y: A11ySettings
+    let a11y: EffettiveImpostazioniAccessibilita
     let palette: Palette
 
     var body: some View {
@@ -599,7 +599,7 @@ private struct _CellaObiettivo: View {
 private struct _RigaSessione: View {
     let sessione: SessionRecord
     let aperta: Bool
-    let a11y: A11ySettings
+    let a11y: EffettiveImpostazioniAccessibilita
     let palette: Palette
     let onTap: () -> Void
 

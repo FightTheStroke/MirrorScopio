@@ -4,7 +4,7 @@ import SwiftUI
 /// ruba attenzione alla parola che sta per comparire.
 struct StageView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
 
   var body: some View {

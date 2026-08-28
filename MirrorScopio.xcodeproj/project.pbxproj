@@ -39,6 +39,7 @@
 		A8A1E4A76D3B0FCA62A87C05 /* Intelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7873929AD1C523DB5A9983D2 /* Intelligence.swift */; };
 		AAD053F52024C18ABB369359 /* Battito.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C25C5F17C318E947E1AD49 /* Battito.swift */; };
 		AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD41100535CF14951204A59 /* OnboardingView.swift */; };
+		ABA58014213F1EE37E0E1960 /* AccessibilitaDelMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */; };
 		AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */; };
 		B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E94B8AD368179CF019AEB21 /* Contrasto.swift */; };
 		B42E26E0BC7CF3CB0B69E17C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B323386D38EFBCCD82CF3AA8 /* HomeView.swift */; };
@@ -167,6 +168,7 @@
 		DB8F73F157C256378466F009 /* ProveDaTastiera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProveDaTastiera.swift; sourceTree = "<group>"; };
 		E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadinessView.swift; sourceTree = "<group>"; };
 		E7255A28477B9B61F9EF88B4 /* ProveDaTastiera.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProveDaTastiera.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitaDelMac.swift; sourceTree = "<group>"; };
 		E8BCAA8C25A78EAA0828A3FF /* VoiceChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChooser.swift; sourceTree = "<group>"; };
 		E8CC16AEE2F4A86D2D0A27DA /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		EB98145457D8873F58DC5B95 /* StaffettaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffettaView.swift; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 		BDC924D52FA36FCDBFBB966C /* Design */ = {
 			isa = PBXGroup;
 			children = (
+				E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */,
 				88AA1E26779A757F2BA6651E /* Accessibility.swift */,
 				6366D8DAE4BC19CFBAD19367 /* Badge.swift */,
 				B66873BF49E2DAAF966A291A /* Components.swift */,
@@ -544,6 +547,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABA58014213F1EE37E0E1960 /* AccessibilitaDelMac.swift in Sources */,
 				F378FEE4D123DE1C5130FB95 /* Accessibility.swift in Sources */,
 				FC1B24A65A23FC69979C350F /* AdvancedControls.swift in Sources */,
 				04CA40E8A63EBB8CFFD3E996 /* AiutoView.swift in Sources */,

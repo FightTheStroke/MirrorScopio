@@ -181,7 +181,7 @@ struct AudioCheckView: View {
   @Environment(\.palette) private var pal
   @State private var showAdult = false
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   var body: some View {
     ScrollView {

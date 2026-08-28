@@ -18,7 +18,7 @@ struct RiquadroAggiornamento: View {
   let sessioneInCorso: Bool
   /// Vero quando questo Mac può sostituire l'app da solo.
   let puòInstallare: Bool
-  let a11y: A11ySettings
+  let a11y: EffettiveImpostazioniAccessibilita
   var onAggiorna: () -> Void = {}
   var onPagina: () -> Void = {}
 

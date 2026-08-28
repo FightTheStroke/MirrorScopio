@@ -122,10 +122,10 @@ struct SottoIlBordo {
 
   var temaChiaro: Palette { Palette.resolve(theme: .chiaro, vision: .standard, system: .light) }
 
-  var caratteriGrandi: A11ySettings {
+  var caratteriGrandi: EffettiveImpostazioniAccessibilita {
     var a = A11ySettings()
     a.textScale = 1.8
-    return a
+    return EffettiveImpostazioniAccessibilita(a)
   }
 
   @Test("«Scrivi» non nasconde il campo dove si scrive")

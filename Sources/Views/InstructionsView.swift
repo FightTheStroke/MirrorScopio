@@ -4,7 +4,7 @@ import SwiftUI
 /// succedere, e far vedere con i propri occhi che il microfono funziona.
 struct InstructionsView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
   /// Che fare quando dal microfono non arriva proprio niente: portare la
   /// persona dove si sceglie l'ingresso, invece di lasciarla davanti a una
@@ -192,7 +192,7 @@ struct InstructionsView: View {
 /// quando si è pronti, che è tutto il punto di una pausa.
 struct PauseView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
 
   var body: some View {

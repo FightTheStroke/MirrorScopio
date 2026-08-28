@@ -18,7 +18,7 @@ struct VoiceChooser: View {
   @State private var inProva: String?
   @State private var synth = AVSpeechSynthesizer()
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   private var sceltaCorrente: String? {
     a11y.voiceIdentifier ?? Speaker.bestItalianVoice?.identifier

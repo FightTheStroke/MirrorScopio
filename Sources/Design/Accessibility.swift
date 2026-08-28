@@ -188,3 +188,156 @@ struct A11ySettings: Codable, Equatable {
     reducedMotion ? nil : .easeOut(duration: base)
   }
 }
+
+// MARK: - Le manopole dell'app messe insieme a quelle del Mac
+
+/// Quello che l'app deve davvero fare, dopo aver messo insieme due cose: le
+/// preferenze che chi usa l'app ha già dato **al Mac**, e le manopole di
+/// MirrorScopio.
+///
+/// Il punto di partenza è il Mac. Se lì è già stato chiesto meno movimento,
+/// qui il movimento non c'è, senza doverlo ripetere. Le manopole dell'app
+/// vengono dopo e possono **aggiungere**, mai togliere: se il Mac chiede meno
+/// movimento e nell'app la casella è spenta, il movimento resta tolto. Togliere
+/// in silenzio una cosa che qualcuno ha chiesto al proprio computer sarebbe
+/// esattamente il difetto che questo tipo è nato per riparare — e la scelta
+/// consapevole di fare diversamente esiste già dove ha senso: il tema si può
+/// mettere a mano su «Chiaro» invece di lasciarlo su «Come il Mac».
+///
+/// Le viste ricevono questo, non `A11ySettings`: così nessuna schermata può
+/// decidere come disegnarsi guardando solo metà della verità. Le manopole
+/// grezze restano raggiungibili con `manopole`, ma servono a un caso solo —
+/// le due schermate che le *scrivono*.
+struct EffettiveImpostazioniAccessibilita: Equatable {
+  private let scelte: A11ySettings
+  /// Che cosa sta chiedendo il Mac in questo momento.
+  let mac: StatoAccessibilitaDelMac
+
+  init(_ scelte: A11ySettings = A11ySettings(),
+       mac: StatoAccessibilitaDelMac = .nessunaRichiesta) {
+    self.scelte = scelte
+    self.mac = mac
+  }
+
+  /// Le manopole così come sono salvate. Solo per chi le cambia.
+  var manopole: A11ySettings { scelte }
+
+  // MARK: Quello che arriva tale e quale dalle manopole
+
+  var profile: A11yProfile { scelte.profile }
+  var colorVision: ColorVision { scelte.colorVision }
+  var typeface: TypefaceChoice { scelte.typeface }
+  var textScale: Double { scelte.textScale }
+  var letterSpacing: Double { scelte.letterSpacing }
+  var stimulusSize: Double { scelte.stimulusSize }
+  var calmMode: Bool { scelte.calmMode }
+  var distractionFree: Bool { scelte.distractionFree }
+  var showTimer: Bool { scelte.showTimer }
+  var soundsEnabled: Bool { scelte.soundsEnabled }
+  var voiceIdentifier: String? { scelte.voiceIdentifier }
+  var voiceRate: Double { scelte.voiceRate }
+  var pauseEveryNWords: Int { scelte.pauseEveryNWords }
+  var shorterSessions: Bool { scelte.shorterSessions }
+  var extraResponseTime: Double { scelte.extraResponseTime }
+  var showFeedbackPerWord: Bool { scelte.showFeedbackPerWord }
+  var hideScore: Bool { scelte.hideScore }
+  var speakCorrectWord: Bool { scelte.speakCorrectWord }
+  var volumeSuoni: Double { scelte.volumeSuoni }
+
+  // MARK: Quello che nasce dalle due cose insieme
+
+  /// Niente si muove: o perché l'ha chiesto il Mac, o perché l'ha chiesto qui.
+  var reducedMotion: Bool { scelte.reducedMotion || mac.menoMovimento }
+
+  /// Il tema da usare davvero.
+  ///
+  /// «Come il Mac» vuol dire come il Mac fino in fondo: se lì è acceso
+  /// «Aumenta contrasto», qui arriva «Altissimo contrasto» invece del chiaro o
+  /// dello scuro di serie. Un tema scelto a mano resta quello scelto a mano:
+  /// è la scelta consapevole, e non si scavalca.
+  var theme: ThemeChoice {
+    if scelte.theme == .auto, mac.piuContrasto { return .altoContrasto }
+    return scelte.theme
+  }
+
+  /// Il Mac chiede di non usare velature e trasparenze.
+  var menoTrasparenza: Bool { mac.menoTrasparenza }
+
+  /// Il Mac chiede che niente si distingua **solo** dal colore.
+  ///
+  /// Nell'app giusto e sbagliato hanno già simbolo e parola. Restava un posto
+  /// dove il colore era solo: la fila di pallini che dice a che punto si è.
+  var senzaColore: Bool { mac.senzaColore }
+
+  /// Quanto deve essere opaco uno sfondo velato.
+  ///
+  /// Le velature servono a dire «questo è sullo sfondo», ma per chi ha chiesto
+  /// meno trasparenze sono solo un contrasto in meno: qui diventano piene.
+  func velo(_ quanto: Double) -> Double { menoTrasparenza ? 1 : quanto }
+
+  // MARK: Misure che dipendono da chi usa l'app
+
+  /// Il lato minimo di qualunque cosa si possa premere.
+  ///
+  /// I 44 punti di Apple sono il minimo per una mano ferma. Chi ha paralisi
+  /// cerebrale un bersaglio di 44 punti lo colpisce a fatica: nel suo profilo
+  /// il minimo sale a 60, ed è la differenza fra un'app che si usa e una che si
+  /// abbandona. Prima il profilo lo prometteva a parole e non lo faceva.
+  var bersaglio: CGFloat {
+    profile == .paralisiCerebrale ? 60 : Metrica.bersaglio
+  }
+
+  /// Lo spazio in più fra una riga e l'altra.
+  ///
+  /// Righe troppo vicine si scavalcano con l'occhio: si rilegge la stessa o si
+  /// salta la successiva. È la fatica che il profilo Dislessia prometteva di
+  /// togliere da quando esiste, senza che nel codice ci fosse una sola riga che
+  /// la togliesse davvero.
+  var interlinea: CGFloat {
+    let base: Double = profile == .dislessia || typeface == .openDyslexic ? 6 : 0
+    return CGFloat(base * textScale)
+  }
+
+  // MARK: Le stesse funzioni di prima
+
+  func size(_ base: Double) -> CGFloat { scelte.size(base) }
+
+  func font(_ testo: A11ySettings.Testo, _ weight: Font.Weight = .regular) -> Font {
+    scelte.font(testo, weight)
+  }
+
+  func animation(_ base: Double = 0.25) -> Animation? {
+    reducedMotion ? nil : .easeOut(duration: base)
+  }
+
+  /// Le manopole da dare al motore della sessione, con dentro già quello che
+  /// chiede il Mac: `Core` non conosce le Impostazioni di Sistema, e i suoni si
+  /// adattano a «meno movimento» esattamente come si adatta lo schermo.
+  var perIlMotore: A11ySettings {
+    var s = scelte
+    s.reducedMotion = reducedMotion
+    s.theme = theme
+    return s
+  }
+}
+
+/// Le impostazioni effettive viaggiano nell'ambiente, come la palette: una
+/// vista non deve poterle ricostruire per conto suo e sbagliarsi.
+private struct ImpostazioniKey: EnvironmentKey {
+  static let defaultValue = EffettiveImpostazioniAccessibilita()
+}
+
+extension EnvironmentValues {
+  var impostazioni: EffettiveImpostazioniAccessibilita {
+    get { self[ImpostazioniKey.self] }
+    set { self[ImpostazioniKey.self] = newValue }
+  }
+}
+
+extension View {
+  /// L'interlinea giusta per chi legge con fatica, applicata dove c'è del testo
+  /// che scorre su più righe.
+  func interlinea(_ a11y: EffettiveImpostazioniAccessibilita) -> some View {
+    lineSpacing(a11y.interlinea)
+  }
+}

@@ -23,7 +23,7 @@ struct SettingsView: View {
   /// «Ascolta», e sente le impostazioni correnti così l'anteprima è fedele.
   @StateObject private var suoni = Suoni()
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   private func controllaAdesso() {
     controlloInCorso = true
@@ -220,7 +220,6 @@ struct SettingsView: View {
             var l = store.current
             p.apply(to: &l.a11y)
             store.current = l
-            engine.a11y = l.a11y
           }
         }
       }
@@ -264,9 +263,12 @@ struct SettingsView: View {
   private var colors: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Colori", a11y: a11y)
+      avvisoDelMac
       LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(ThemeChoice.allCases) { t in
-          ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
+          ChoiceCard(title: t.label,
+                     subtitle: t == .auto ? sottotitoloComeIlMac : t.hint,
+                     selected: a11y.manopole.theme == t, a11y: a11y) {
             update { $0.theme = t }
           }
         }
@@ -294,8 +296,11 @@ struct SettingsView: View {
   private var rhythm: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Ritmo e calma", a11y: a11y)
+      avvisoDelMac
       toggle("Niente animazioni", bindBool(\.reducedMotion),
-             "Tutto compare e sparisce senza movimento.")
+             a11y.mac.menoMovimento
+             ? "Il Mac lo sta già chiedendo, quindi qui non si muove niente comunque. Per rivedere le animazioni si cambia nelle Impostazioni di Sistema, dove l'hai chiesto."
+             : "Tutto compare e sparisce senza movimento.")
       toggle("Modalità calma", bindBool(\.calmMode),
              "Niente esclamazioni, niente festeggiamenti, tono sempre uguale.")
       toggle("Schermo pulito durante la prova", bindBool(\.distractionFree),
@@ -364,7 +369,7 @@ struct SettingsView: View {
             SmallButton(title: "Ascolta", symbol: "play.circle.fill", a11y: a11y) {
               // Alla fine passo una quota alta: in anteprima si sente la
               // cadenza piena, quella di una sessione andata bene.
-              suoni.anteprima(momento, quota: momento == .fine ? 0.85 : 1, a11y: a11y)
+              suoni.anteprima(momento, quota: momento == .fine ? 0.85 : 1, a11y: a11y.perIlMotore)
             }
             VStack(alignment: .leading, spacing: Metrica.filo) {
               Text(momento.titolo)
@@ -563,6 +568,36 @@ struct SettingsView: View {
 
   // MARK: - Utilità
 
+  /// «Come il Mac» segue il Mac fino in fondo, compreso «Aumenta contrasto».
+  /// Dirlo qui evita di far cercare a qualcuno perché lo schermo è nero pieno.
+  private var sottotitoloComeIlMac: String {
+    a11y.mac.piuContrasto
+      ? "Segue l'impostazione del Mac. Adesso il Mac chiede più contrasto: si vede l'altissimo contrasto."
+      : ThemeChoice.auto.hint
+  }
+
+  /// Che cosa sta già arrivando dalle Impostazioni di Sistema.
+  ///
+  /// Una manopola accesa che nessuno ricorda di aver acceso è un piccolo
+  /// mistero, e i misteri in un'app di accessibilità si pagano cari: si finisce
+  /// per cercare un guasto che non c'è. Se l'app lo sa, lo dice.
+  @ViewBuilder
+  private var avvisoDelMac: some View {
+    if let frase = a11y.mac.frase {
+      HStack(alignment: .top, spacing: Metrica.spazioStretto) {
+        Image(systemName: "desktopcomputer")
+          .font(a11y.font(.corpo))
+          .foregroundStyle(palette.accent)
+          .accessibilityHidden(true)
+        Explain(text: frase, a11y: a11y, size: 14)
+      }
+      .padding(Metrica.spazioPiccolo)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+        .fill(palette.accent.opacity(a11y.velo(0.10))))
+    }
+  }
+
   private func update(_ change: (inout A11ySettings) -> Void) {
     var l = store.current
     change(&l.a11y)
@@ -570,7 +605,10 @@ struct SettingsView: View {
     // questa persona: si passa a "su misura" senza perdere niente di quello che era impostato.
     if l.a11y.profile != .nessuno { l.a11y.profile = .nessuno }
     store.current = l
-    engine.a11y = l.a11y
+    // Il motore lo rimette in riga `App.swift`, che è l'unico posto in cui le
+    // manopole si sommano a quello che chiede il Mac. Scriverlo anche qui
+    // significava dare al motore metà della verità, e a caso: le due scritture
+    // arrivavano una dopo l'altra e vinceva l'ultima.
   }
 
   private func bind(_ key: WritableKeyPath<A11ySettings, Double>) -> Binding<Double> {

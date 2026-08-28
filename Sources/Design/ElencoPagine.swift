@@ -20,7 +20,7 @@ protocol PaginaLaterale: Identifiable, Hashable, CaseIterable {
 /// distingue.
 struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessCollection {
   @Binding var scelta: P
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
 
   var body: some View {
@@ -80,7 +80,7 @@ where P.AllCases: RandomAccessCollection {
   /// Una riga sotto il titolo: il nome di chi sta usando l'app, la data.
   var sottotitolo: String? = nil
   @Binding var scelta: P
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
   let onClose: () -> Void
   @ViewBuilder let contenuto: () -> Contenuto

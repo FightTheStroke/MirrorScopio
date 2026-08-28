@@ -20,7 +20,7 @@ struct OnboardingView: View {
   /// risposto, i passi si rinumererebbero sotto i piedi di chi li sta facendo.
   @State private var chiediPromemoria = false
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   /// I passi da mostrare: benvenuto, poi solo quelli non ancora a posto,
   /// poi la voce, poi il saluto finale.
@@ -121,7 +121,7 @@ struct OnboardingView: View {
         SectionTitle(text: "Colori e luce", a11y: a11y)
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
           ForEach(ThemeChoice.allCases) { t in
-            ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
+            ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.manopole.theme == t, a11y: a11y) {
               aggiorna { $0.theme = t }
             }
           }

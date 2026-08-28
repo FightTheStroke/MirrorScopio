@@ -7,7 +7,7 @@ import AVFoundation
 /// scritto quale e attivo adesso — cosi si vede se qualcosa e cambiato senza
 /// doverlo cercare.
 struct AudioMenu: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
   /// Come cambiare microfono. Durante un allenamento non basta cambiare
   /// l'ingresso del Mac: l'ascolto va rifatto, e ci pensa chi ci passa questa

@@ -84,7 +84,7 @@ struct SmallButton: View {
   @Environment(\.palette) private var palette
   let title: String
   var symbol: String? = nil
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var distruttivo = false
   /// Riempito col colore d'accento: per l'azione che sblocca la schermata.
   ///
@@ -125,7 +125,7 @@ struct BigButton: View {
   @Environment(\.palette) private var palette
   let title: String
   var symbol: String? = nil
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var prominent = true
   let action: () -> Void
 
@@ -161,7 +161,7 @@ struct ChoiceCard: View {
   var subtitle: String? = nil
   var symbol: String? = nil
   let selected: Bool
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   let action: () -> Void
 
   var body: some View {
@@ -172,10 +172,12 @@ struct ChoiceCard: View {
         }
         Text(title)
           .font(a11y.font(.guida, .semibold))
+          .interlinea(a11y)
           .multilineTextAlignment(.center)
         if let subtitle {
           Text(subtitle)
             .font(a11y.font(.nota))
+            .interlinea(a11y)
             .foregroundStyle(palette.muted)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
@@ -190,7 +192,8 @@ struct ChoiceCard: View {
     .foregroundStyle(palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
-        .fill(selected ? palette.accent.opacity(palette.isDark ? 0.32 : 0.16) : palette.surface)
+        .fill(selected ? palette.accent.opacity(a11y.velo(palette.isDark ? 0.32 : 0.16))
+                       : palette.surface)
     )
     .overlay(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -219,7 +222,7 @@ struct ChoiceCard: View {
 struct SectionTitle: View {
   @Environment(\.palette) private var palette
   let text: String
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
 
   var body: some View {
     Text(text)
@@ -233,12 +236,13 @@ struct SectionTitle: View {
 struct Explain: View {
   @Environment(\.palette) private var palette
   let text: String
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var size: Double = 17
 
   var body: some View {
     Text(.init(text))
       .font(a11y.typeface.font(size: a11y.size(size)))
+      .interlinea(a11y)
       .foregroundStyle(palette.muted)
       .fixedSize(horizontal: false, vertical: true)
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -249,7 +253,7 @@ struct Explain: View {
 struct Verdict: View {
   @Environment(\.palette) private var palette
   let correct: Bool
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var size: Double = 20
 
   var body: some View {
@@ -278,7 +282,7 @@ struct Verdict: View {
 /// somigliarsi.
 struct StopButton: View {
   @Environment(\.palette) private var palette
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var titolo = "Basta"
   let action: () -> Void
 
@@ -327,7 +331,7 @@ struct StopButton: View {
 /// ipersensibilità sensoriale una pioggia di colori non è un premio, è
 /// un'aggressione. In quel caso resta il testo, che dice le stesse cose.
 struct Celebrazione: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Da 0 a 1: quanti coriandoli. Il minimo non è mai zero.
   var intensita: Double = 1
 
@@ -388,7 +392,7 @@ struct ProgressoPallini: View {
   let fatte: [Trial]
   let indice: Int
   let totale: Int
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// «parola» o «frase»: cambia il compito, non la forma.
   var nomeDellUnita: String = "parola"
 
@@ -398,8 +402,7 @@ struct ProgressoPallini: View {
         Spacer()
         HStack(spacing: Metrica.spazioStretto) {
           ForEach(0..<totale, id: \.self) { i in
-            Circle()
-              .fill(colore(i))
+            pallino(i)
               .frame(width: i == indice - 1 ? 12 : 8,
                      height: i == indice - 1 ? 12 : 8)
           }
@@ -415,11 +418,26 @@ struct ProgressoPallini: View {
   }
 
   private func colore(_ i: Int) -> Color {
-    guard i < fatte.count, i < indice else { return palette.muted.opacity(0.25) }
+    guard i < fatte.count, i < indice else { return palette.muted.opacity(a11y.velo(0.25)) }
     guard a11y.showFeedbackPerWord, !a11y.hideScore else {
-      return palette.muted.opacity(0.75)
+      return palette.muted.opacity(a11y.velo(0.75))
     }
-    return fatte[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
+    return fatte[i].correct ? palette.ok.opacity(a11y.velo(0.8))
+                            : palette.wrong.opacity(a11y.velo(0.8))
+  }
+
+  /// Era l'unico posto dell'app in cui il colore portava un'informazione da
+  /// solo: pallino verde o pallino rosso, stessa forma. Quando il Mac chiede di
+  /// non distinguere le cose dal colore, le parole che non sono venute ancora
+  /// diventano un anello vuoto — una forma diversa, non una tinta diversa.
+  @ViewBuilder
+  private func pallino(_ i: Int) -> some View {
+    if a11y.senzaColore, a11y.showFeedbackPerWord, !a11y.hideScore,
+       i < fatte.count, i < indice, !fatte[i].correct {
+      Circle().strokeBorder(colore(i), lineWidth: 2.5)
+    } else {
+      Circle().fill(colore(i))
+    }
   }
 }
 
@@ -442,7 +460,7 @@ struct ProgressoPallini: View {
 /// proprio sul comando più importante della schermata.
 struct PulsanteChiudi: View {
   @Environment(\.palette) private var palette
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Che cosa si sta chiudendo. Serve a VoiceOver, che altrimenti annuncia
   /// quattro pulsanti identici chiamati «Chiudi» in quattro schermate diverse.
   var cosa: String
@@ -482,7 +500,7 @@ struct IntestazionePagina: View {
   let titolo: String
   /// Una riga sotto il titolo: il nome di chi sta usando l'app, la data.
   var sottotitolo: String? = nil
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   let onClose: () -> Void
 
   var body: some View {
