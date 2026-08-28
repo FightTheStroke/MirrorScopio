@@ -50,9 +50,15 @@ enum Exporter {
   /// L'apostrofo davanti a `= + - @ tab` non è pignoleria: Excel e Numbers
   /// eseguono come formula un campo che comincia così, e in una lista di parole
   /// scritte da un ragazzo ci finisce di tutto.
+  ///
+  /// L'apostrofo però **entra nel dato** per chi legge il file con un
+  /// programma invece che con un foglio di calcolo. Quindi si mette solo dove
+  /// serve davvero: un numero negativo — `-120` fra le latenze — non è una
+  /// formula, ed era l'unico modo in cui questa protezione poteva a sua volta
+  /// falsificare un numero.
   private static func escape(_ s: String) -> String {
     var campo = s
-    if let primo = campo.first, "=+-@\t\r".contains(primo) {
+    if let primo = campo.first, "=+-@\t\r".contains(primo), Double(s) == nil {
       campo = "'" + campo
     }
     return "\"" + campo.replacingOccurrences(of: "\"", with: "\"\"") + "\""
@@ -233,6 +239,19 @@ enum Exporter {
 
   static func save(text: String, suggested: String) {
     save(data: Data(text.utf8), suggested: suggested)
+  }
+
+  /// Come `save(text:)`, ma per i file di numeri destinati a un foglio di
+  /// calcolo: davanti ci mette il contrassegno che dice «questo è UTF-8».
+  ///
+  /// Senza, Excel su Mac apre il file con la codifica di sistema e «perché»
+  /// diventa «perchÃ©». In un referto clinico è lo stesso difetto della
+  /// sostituzione dei punti e virgola: il file si apre e mostra una parola
+  /// diversa da quella che il bambino ha letto davvero.
+  static func salvaFoglioDiCalcolo(text: String, suggested: String) {
+    var dati = Data([0xEF, 0xBB, 0xBF])
+    dati.append(Data(text.utf8))
+    save(data: dati, suggested: suggested)
   }
 
   static func fileStem(_ s: SessionRecord, learner: Learner) -> String {

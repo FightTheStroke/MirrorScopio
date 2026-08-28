@@ -38,7 +38,12 @@ struct DatiCheNonSiPerdono {
     // Il salvataggio deve essere un nulla di fatto: è la differenza fra
     // perdere la sessione di oggi e perdere quelle di sei mesi.
     store.save()
-    let dopo = try Data(contentsOf: learners)
+    // Si legge dal percorso, non dall'URL, come fa `Store`: le funzioni che
+    // leggono un URL accettano anche un indirizzo di rete, e il controllo
+    // automatico che tiene la rete fuori da questo programma non sa
+    // distinguere i due casi guardando il codice. Una prova non è una buona
+    // ragione per aprire un'eccezione alla promessa.
+    let dopo = FileManager.default.contents(atPath: learners.path)
     #expect(dopo == spazzatura, "il file di partenza deve essere ancora lì, intatto")
   }
 
@@ -69,7 +74,7 @@ struct DatiCheNonSiPerdono {
     #expect(store.guastoNeiDati == nil)
 
     // Adesso, e solo adesso, il file è stato riscritto in forma leggibile.
-    let dopo = try Data(contentsOf: learners)
+    let dopo = try #require(FileManager.default.contents(atPath: learners.path))
     #expect((try? JSONDecoder().decode([Learner].self, from: dopo)) != nil)
   }
 
@@ -82,6 +87,67 @@ struct DatiCheNonSiPerdono {
     let store = Store(folder: cartella)
     #expect(store.scritturaSospesa, "un'app vecchia non deve riscrivere dati nuovi")
     #expect(store.guastoNeiDati?.contains("recente") == true)
+  }
+
+  @Test("Un file che c'è ma non si può leggere non viene sovrascritto")
+  func permessiNegatiNonSonoUnPrimoAvvio() throws {
+    // È il caso che il primo tentativo di correzione lasciava aperto: leggere
+    // un file protetto dà lo stesso risultato di un file che non c'è, e l'app
+    // lo scambiava per un primo avvio. Poi ci scriveva sopra.
+    let cartella = cartellaDiProva()
+    let learners = cartella.appendingPathComponent("learners.json")
+    try Data("{}".utf8).write(to: learners)
+    try FileManager.default.setAttributes([.posixPermissions: 0],
+                                          ofItemAtPath: learners.path)
+    defer {
+      try? FileManager.default.setAttributes([.posixPermissions: 0o600],
+                                             ofItemAtPath: learners.path)
+    }
+
+    let store = Store(folder: cartella)
+    #expect(store.scritturaSospesa, "un file che non si legge è un guasto, non una cartella vuota")
+
+    store.save()
+    try FileManager.default.setAttributes([.posixPermissions: 0o600],
+                                          ofItemAtPath: learners.path)
+    let dopo = FileManager.default.contents(atPath: learners.path)
+    #expect(dopo == Data("{}".utf8), "il file doveva restare quello di prima")
+  }
+
+  @Test("Senza una copia di sicurezza non si propone di cancellare")
+  func senzaCopiaNienteRicomincia() throws {
+    let cartella = cartellaDiProva()
+    try Data("rotto".utf8).write(to: cartella.appendingPathComponent("learners.json"))
+    let store = Store(folder: cartella)
+    #expect(store.ricominciareÈPossibile, "la copia c'è, quindi si può scegliere")
+  }
+
+  @Test("Dati di una versione più recente non offrono di ricominciare")
+  func formatoFuturoNonSiCancella() throws {
+    // Qui i file sono sani: proporre "Ricomincia da capo" vorrebbe dire offrire
+    // di distruggere dati integri subito dopo aver promesso di non toccarli.
+    let cartella = cartellaDiProva()
+    try Data("{\"versione\": 99}".utf8)
+      .write(to: cartella.appendingPathComponent("formato.json"))
+    let store = Store(folder: cartella)
+    #expect(store.scritturaSospesa)
+    #expect(!store.ricominciareÈPossibile)
+  }
+
+  @Test("Il guasto si ridice a ogni salvataggio saltato")
+  func nonSiDiceUnaVoltaSola() throws {
+    let cartella = cartellaDiProva()
+    try Data("rotto".utf8).write(to: cartella.appendingPathComponent("learners.json"))
+    let store = Store(folder: cartella)
+
+    store.mettiDaParteIlGuasto()
+    #expect(store.guastoNeiDati == nil)
+
+    // Chi ha chiuso l'avviso non deve allenarsi tutto il pomeriggio credendo
+    // che il lavoro venga salvato.
+    store.save()
+    #expect(store.guastoNeiDati != nil, "il salvataggio saltato va ridetto")
+    #expect(store.genereDelGuasto == .scrittura)
   }
 
   @Test("Una cartella vuota resta il primo avvio di sempre")
@@ -125,6 +191,13 @@ struct EsportazioneFedele {
   func aCapoNonSpezza() {
     let csv = riga(parola: "gatto", risposta: "ga\ntto")
     #expect(csv.contains("\"ga\ntto\""), "dentro le virgolette l'a capo è legittimo")
+  }
+
+  @Test("Un numero negativo resta un numero")
+  func numeriNonSiSporcano() {
+    // La protezione dalle formule non deve a sua volta falsificare un dato:
+    // -120 fra le latenze è un numero, non una formula.
+    #expect(riga(parola: "gatto", risposta: "-120").contains("\"-120\""))
   }
 
   @Test("Una parola che comincia per uguale non diventa una formula")

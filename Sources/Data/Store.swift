@@ -88,6 +88,22 @@ final class Store: ObservableObject {
   /// non spetta al programma.
   @Published private(set) var scritturaSospesa = false
 
+  /// Vero solo quando ricominciare da zero non distruggerebbe l'ultima copia
+  /// rimasta.
+  ///
+  /// Non coincide con `scritturaSospesa`, ed è la differenza che conta: la
+  /// scrittura si sospende anche quando i file sono **sani** (scritti da una
+  /// versione più recente) o quando la copia di sicurezza non è riuscita. In
+  /// quei due casi offrire "Ricomincia da capo" vorrebbe dire proporre di
+  /// cancellare per sempre subito dopo aver promesso di non toccare niente.
+  @Published private(set) var ricominciareÈPossibile = false
+
+  /// Come va detto il guasto nel titolo: le parole giuste cambiano se il
+  /// problema è leggere o scrivere, e un titolo che contraddice il testo si
+  /// legge male proprio nel momento in cui si è spaventati.
+  enum GenereDelGuasto { case lettura, scrittura }
+  @Published private(set) var genereDelGuasto: GenereDelGuasto = .lettura
+
   private let folder: URL
   private let learnersURL: URL
   private let historyURL: URL
@@ -218,6 +234,19 @@ final class Store: ObservableObject {
 
   // MARK: - Lettura e scrittura
 
+  /// Che cosa si è trovato provando a leggere un file.
+  ///
+  /// La distinzione fra «non c'è» e «c'è ma non si legge» non è pignoleria: è
+  /// il difetto. Prima le due cose tornavano tutte e due `nil`, e un file
+  /// protetto da permessi sbagliati veniva scambiato per un primo avvio e
+  /// sovrascritto — cioè esattamente la perdita silenziosa che si voleva
+  /// chiudere.
+  private enum Lettura {
+    case nonCE
+    case letto(Data)
+    case guasto
+  }
+
   /// Legge un file dalla cartella dell'app, e nient'altro.
   ///
   /// Passa dal percorso invece che dall'URL di proposito: le funzioni che
@@ -225,8 +254,10 @@ final class Store: ObservableObject {
   /// automatico che tiene fuori la rete da questo programma non puo
   /// distinguere i due casi guardando il codice. Questa forma non ha quel
   /// doppio uso — la promessa resta dimostrabile senza eccezioni da spiegare.
-  private func contenuto(di url: URL) -> Data? {
-    FileManager.default.contents(atPath: url.path)
+  private func contenuto(di url: URL) -> Lettura {
+    guard FileManager.default.fileExists(atPath: url.path) else { return .nonCE }
+    guard let d = FileManager.default.contents(atPath: url.path) else { return .guasto }
+    return .letto(d)
   }
 
   private func load() {
@@ -238,32 +269,54 @@ final class Store: ObservableObject {
     // Prima di tutto: questi file sono stati scritti da una versione più
     // recente? Allora non si tocca niente, perché quello che questa versione
     // non sa leggere lo cancellerebbe salvando.
-    if let d = contenuto(di: formatoURL),
-       let f = try? dec.decode(Formato.self, from: d),
-       f.versione > Self.versioneFormato {
-      scritturaSospesa = true
-      guastoNeiDati = """
-        Questi dati sono stati salvati da una versione più recente di \
-        MirrorScopio (formato \(f.versione), questa app conosce il \
-        \(Self.versioneFormato)).
+    if case .letto(let d) = contenuto(di: formatoURL) {
+      if let f = try? dec.decode(Formato.self, from: d) {
+        if f.versione > Self.versioneFormato {
+          scritturaSospesa = true
+          genereDelGuasto = .lettura
+          // `ricominciareÈPossibile` resta falso di proposito: qui non è stata
+          // fatta nessuna copia, perché i file sono sani — e offrire
+          // "Ricomincia da capo" vorrebbe dire distruggere dati integri subito
+          // dopo aver scritto che non si tocca niente.
+          guastoNeiDati = """
+            Questi dati sono stati salvati da una versione più recente di \
+            MirrorScopio (formato \(f.versione), questa app conosce il \
+            \(Self.versioneFormato)).
 
-        Non ci scrivo sopra: aggiorna l'app e li ritrovi tutti. La cartella è \
-        \(folder.path).
-        """
-      Log.warn("Formato dati \(f.versione) più recente del previsto: scrittura sospesa.")
-      learners = [Learner(name: "")]
-      currentID = learners.first?.id
-      return
+            Non ci scrivo sopra e non ho cancellato niente: aggiorna l'app e li \
+            ritrovi tutti. La cartella è \(folder.path).
+            """
+          Log.warn("Formato dati più recente del previsto: scrittura sospesa.",
+                   motivo: "formato \(f.versione) > \(Self.versioneFormato)")
+          learners = [Learner(name: "")]
+          currentID = learners.first?.id
+          return
+        }
+      } else if !d.isEmpty {
+        // Un `formato.json` che c'è ma non si legge può benissimo essere un
+        // formato futuro scritto a metà. Ignorarlo e riscriverci sopra
+        // "versione 1" cancellerebbe la sola cosa che avvisa del pericolo.
+        illeggibili.append(metti(daParte: formatoURL, nome: "il segnalibro del formato"))
+      }
     }
 
-    if let d = contenuto(di: learnersURL) {
+    switch contenuto(di: learnersURL) {
+    case .nonCE: break
+    case .guasto:
+      illeggibili.append(metti(daParte: learnersURL, nome: "l'elenco delle persone"))
+    case .letto(let d):
       if let l = try? dec.decode([Learner].self, from: d) {
         learners = l
       } else if !d.isEmpty {
         illeggibili.append(metti(daParte: learnersURL, nome: "l'elenco delle persone"))
       }
     }
-    if let d = contenuto(di: historyURL) {
+
+    switch contenuto(di: historyURL) {
+    case .nonCE: break
+    case .guasto:
+      illeggibili.append(metti(daParte: historyURL, nome: "lo storico degli allenamenti"))
+    case .letto(let d):
       if let h = try? dec.decode([SessionRecord].self, from: d) {
         history = h
       } else if !d.isEmpty {
@@ -275,18 +328,22 @@ final class Store: ObservableObject {
       // Non si riparte da zero facendo finta di niente, e soprattutto non si
       // scrive: il file originale resta dov'era, se ne fa una copia con la
       // data, e si dice che cosa è successo. Ricominciare vuoti è una scelta,
-      // e la fa una persona.
+      // e la fa una persona — ma solo se una copia esiste davvero.
       scritturaSospesa = true
+      genereDelGuasto = .lettura
+      ricominciareÈPossibile = copieFatte.count == illeggibili.count
+      let elenco = illeggibili.joined(separator: " e ")
+      let dovEFinita = ricominciareÈPossibile
+        ? "I file sono al loro posto e ne ho fatto una copia di sicurezza qui accanto (\(copieFatte.joined(separator: ", "))). Finché non decidi tu, non ci scrivo sopra."
+        : "I file sono al loro posto e non ci scrivo sopra. Non sono però riuscita a farne una copia: finché non l'hai messa al sicuro tu, non ti propongo di ricominciare da capo, perché sarebbe l'unica copia rimasta."
       guastoNeiDati = """
-        Non sono riuscita a leggere \(illeggibili.joined(separator: " e ")).
+        Non sono riuscita a leggere \(elenco).
 
-        Non ho cancellato niente: i file sono al loro posto e ne ho fatto una \
-        copia di sicurezza qui accanto (\(copieFatte.joined(separator: ", "))). \
-        Finché non decidi tu, non ci scrivo sopra.
+        Non ho cancellato niente. \(dovEFinita)
 
         La cartella è \(folder.path).
         """
-      Log.warn("Dati illeggibili all'avvio: \(illeggibili.joined(separator: ", ")). Scrittura sospesa.")
+      Log.warn("Dati illeggibili all'avvio: scrittura sospesa.", motivo: elenco)
     }
 
     if learners.isEmpty {
@@ -326,6 +383,7 @@ final class Store: ObservableObject {
   func ricominciaDaCapo() {
     guastoNeiDati = nil
     scritturaSospesa = false
+    ricominciareÈPossibile = false
     save()
   }
 
@@ -341,38 +399,85 @@ final class Store: ObservableObject {
     // distruggerebbe per sempre. Si preferisce non salvare la sessione di oggi
     // piuttosto che perdere quelle di sei mesi.
     guard !scritturaSospesa else {
-      Log.warn("Salvataggio saltato: c'è un file illeggibile e nessuno ha ancora deciso che farne.")
+      // E lo si ridice: la prima volta l'avviso c'era, ma chi lo chiude non
+      // deve poi allenarsi tutto il pomeriggio credendo che il lavoro venga
+      // salvato. Un guasto che si dice una volta sola torna a essere silenzio.
+      genereDelGuasto = .scrittura
+      guastoNeiDati = messaggioScritturaSospesa
+      Log.warn("Salvataggio saltato: c'è un file che non si legge e nessuno ha ancora deciso che farne.")
       return
     }
     let enc = JSONEncoder()
     enc.outputFormatting = [.prettyPrinted, .sortedKeys]
     enc.dateEncodingStrategy = .iso8601
+
+    // Prima si prepara tutto in memoria, poi si scrive. Così un errore di
+    // codifica non lascia mai un file nuovo accanto a uno vecchio.
+    let daScrivere: [(URL, Data)]
     do {
-      try enc.encode(learners).write(to: learnersURL, options: [.atomic, .completeFileProtection])
-      try enc.encode(history).write(to: historyURL, options: [.atomic, .completeFileProtection])
-      try enc.encode(Formato(versione: Self.versioneFormato))
-        .write(to: formatoURL, options: [.atomic, .completeFileProtection])
+      daScrivere = [
+        // Il segnalibro del formato va scritto per primo: se il Mac si spegne
+        // a metà, deve essere già chiaro con che versione sono stati scritti i
+        // file che seguono, non dopo.
+        (formatoURL, try enc.encode(Formato(versione: Self.versioneFormato))),
+        (learnersURL, try enc.encode(learners)),
+        (historyURL, try enc.encode(history)),
+      ]
     } catch {
-      // Un salvataggio che fallisce di nascosto è peggio di uno che fallisce:
-      // chi si allena crede che il lavoro sia al sicuro e scopre il contrario
-      // settimane dopo. Disco pieno, permessi cambiati, cartella sparita — il
-      // motivo cambia, il silenzio no.
-      Log.warn("Salvataggio non riuscito", motivo: error.localizedDescription)
-      guastoNeiDati = """
-        Non sono riuscita a salvare l'allenamento di oggi.
-
-        Il Mac ha risposto: \(error.localizedDescription)
-
-        Di solito è il disco pieno o la cartella spostata. La cartella è \
-        \(folder.path). Quello che c'era prima non è stato toccato.
-        """
+      segnalaSalvataggioFallito(error, giaScritti: [])
       return
     }
-    // `.atomic` sostituisce il file: i permessi vanno riapplicati ogni volta.
-    for url in [learnersURL, historyURL, formatoURL] {
-      try? FileManager.default.setAttributes([.posixPermissions: 0o600],
-                                             ofItemAtPath: url.path)
+
+    var fatti: [String] = []
+    for (url, dati) in daScrivere {
+      do {
+        try dati.write(to: url, options: [.atomic, .completeFileProtection])
+        // `.atomic` sostituisce il file: i permessi vanno riapplicati ogni volta.
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600],
+                                               ofItemAtPath: url.path)
+        fatti.append(url.lastPathComponent)
+      } catch {
+        // Non si mente su che cosa è stato toccato: se il disco si riempie fra
+        // il primo file e il secondo, il primo è già stato sostituito, e chi
+        // legge deve saperlo per capire che cosa ha in mano.
+        segnalaSalvataggioFallito(error, giaScritti: fatti)
+        return
+      }
     }
+  }
+
+  /// Il messaggio che spiega perché oggi non si salva. Sta in un posto solo
+  /// perché va ridetto ogni volta che qualcuno prova a salvare.
+  private var messaggioScritturaSospesa: String {
+    """
+    L'allenamento di oggi non viene salvato.
+
+    C'è un file di dati che non sono riuscita a leggere, e scriverci sopra \
+    cancellerebbe per sempre quello che c'è dentro. Preferisco perdere oggi \
+    che perdere i mesi passati.
+
+    La cartella è \(folder.path).
+    """
+  }
+
+  private func segnalaSalvataggioFallito(_ errore: Error, giaScritti: [String]) {
+    // Un salvataggio che fallisce di nascosto è peggio di uno che fallisce:
+    // chi si allena crede che il lavoro sia al sicuro e scopre il contrario
+    // settimane dopo. Disco pieno, permessi cambiati, cartella sparita — il
+    // motivo cambia, il silenzio no.
+    Log.warn("Salvataggio non riuscito", motivo: errore.localizedDescription)
+    genereDelGuasto = .scrittura
+    let statoDeiFile = giaScritti.isEmpty
+      ? "Quello che c'era prima non è stato toccato."
+      : "Attenzione: \(giaScritti.joined(separator: " e ")) era già stato aggiornato prima che il salvataggio si fermasse, il resto no."
+    guastoNeiDati = """
+      Non sono riuscita a salvare l'allenamento di oggi.
+
+      Il Mac ha risposto: \(errore.localizedDescription)
+
+      Di solito è il disco pieno o la cartella spostata. \(statoDeiFile) La \
+      cartella è \(folder.path).
+      """
   }
 
   var storageFolder: URL { folder }
