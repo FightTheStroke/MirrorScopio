@@ -917,56 +917,17 @@ final class SessionEngine: ObservableObject {
   /// La sessione appena chiusa, pronta per essere salvata e mostrata.
   @Published private(set) var finishedRecord: SessionRecord?
 
+  /// I conti del referto stanno in `RegistroSessione`: sono regole cliniche
+  /// pure — quali prove entrano nel totale — e lì si possono provare senza
+  /// accendere un microfono.
   private func makeRecord() -> SessionRecord {
-    var r = SessionRecord()
-    r.mode = config.mode
-    r.level = config.level
-    r.setLabel = config.set.label
-    // Il riscaldamento non entra nel punteggio.
-    //
-    // Sono parole facili mostrate molto piu a lungo, fatte apposta per prendere
-    // la mano: contarle gonfiava la percentuale mostrata a fine sessione e
-    // spingeva in su il livello suggerito. Un numero che si abbellisce da solo
-    // e peggio di un numero severo — toglie senso anche ai miglioramenti veri.
-    // Erano gia escluse dalla scala adattiva e dalle parole da riprendere: qui
-    // mancava.
-    // E nemmeno le prove interrotte. Contarle nel totale senza poterle
-    // contare fra le giuste fa scendere la percentuale perché il Mac si è
-    // addormentato: al ragazzo verrebbe mostrato un risultato peggiore per una
-    // cosa che non ha fatto lui.
-    let contate = trials.filter { $0.id > config.warmupTrials && !$0.interrotto }
-    r.total = contate.count
-    r.correct = contate.filter(\.correct).count
-    r.thresholdMs = thresholdMs
-    let lat = trials.filter { !$0.interrotto }.compactMap(\.vocalLatencyMs)
-    r.meanLatencyMs = lat.isEmpty ? nil : lat.reduce(0, +) / Double(lat.count)
-    r.items = trials.map {
-      ItemRecord(stimulus: $0.stimulus, response: $0.response, correct: $0.correct,
-                 exposureMs: $0.actualExposureMs > 0 ? $0.actualExposureMs : $0.requestedExposureMs,
-                 latencyMs: $0.vocalLatencyMs, errorKind: $0.errorKind.label,
-                 warmup: $0.id <= config.warmupTrials,
-                 interrotto: $0.interrotto,
-                 refreshHz: $0.refreshHz,
-                 frameSaltato: $0.frameSaltato)
-    }
-    return r
+    RegistroSessione.referto(prove: trials, config: config, sogliaMs: thresholdMs)
   }
 
-  /// Velocità di partenza suggerita dal test iniziale. Si prende la soglia
-  /// misurata e si concede un margine del 25%, perché allenarsi al limite
-  /// scoraggia: si parte appena sopra, dove si sbaglia poco ma non zero.
+  /// Velocità di partenza suggerita dal test iniziale.
   var calibrationResult: (exposureMs: Double, level: Level)? {
-    guard isCalibration, !trials.isEmpty else { return nil }
-    let measured = thresholdMs ?? trials.filter(\.correct).map(\.requestedExposureMs).min()
-    guard let measured else { return nil }
-    let suggested = min(1000, max(80, measured * 1.25))
-    let level: Level = switch suggested {
-    case ..<180: .avanzato
-    case ..<380: .intermedio
-    case ..<700: .base
-    default: .inizio
-    }
-    return (suggested, level)
+    guard isCalibration else { return nil }
+    return RegistroSessione.partenzaSuggerita(prove: trials, sogliaMs: thresholdMs)
   }
 
   // MARK: - Esportazione

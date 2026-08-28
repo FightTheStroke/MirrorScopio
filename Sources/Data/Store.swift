@@ -309,10 +309,32 @@ final class Store: ObservableObject {
 
   /// Usata quando punti e obiettivi sono già stati calcolati altrove:
   /// evita di assegnarli due volte alla stessa sessione.
-  func recordAlreadyScored(_ session: SessionRecord) {
-    guard !history.contains(where: { $0.id == session.id }) else { return }
-    history.append(session)
-    save()
+  /// Mette via una sessione finita e restituisce gli obiettivi appena sbloccati.
+  ///
+  /// Sta qui, e non nella schermata del riepilogo, per una ragione precisa:
+  /// mettere via una sessione **assegna anche i punti**, e i punti non si
+  /// possono assegnare due volte. Prima il controllo «l'ho già messa via?»
+  /// viveva in uno stato della schermata del riepilogo, e uno stato di una
+  /// schermata è la cosa più fragile su cui appoggiare un conto che non si può
+  /// rifare: basta che SwiftUI ricostruisca quella schermata — e lo fa quando
+  /// vuole — perché il conto riparta da capo e i punti di quella sessione
+  /// vengano dati due volte, insieme a un giorno in più nella serie.
+  ///
+  /// Adesso il controllo è l'identificativo della sessione, che non dipende da
+  /// nessuno schermo: chiamare questo metodo dieci volte con la stessa
+  /// sessione produce lo stesso risultato di chiamarlo una volta.
+  @discardableResult
+  func archivia(_ session: SessionRecord) -> [Achievement] {
+    guard !history.contains(where: { $0.id == session.id }) else { return [] }
+    var persona = current
+    let sbloccati = Gamification.apply(session: session, to: &persona)
+    var messaVia = session
+    messaVia.learnerID = currentID
+    history.append(messaVia)
+    // `current` salva già da solo: si scrive per ultimo, così il salvataggio
+    // è uno solo e comprende anche la sessione appena aggiunta.
+    current = persona
+    return sbloccati
   }
 
   func deleteHistory() {
