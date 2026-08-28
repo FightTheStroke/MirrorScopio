@@ -38,6 +38,34 @@ settings:
     GCC_TREAT_WARNINGS_AS_ERRORS: NO
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
 
+# File che non si compilano ma che fanno parte del progetto: documentazione,
+# script, configurazioni. Senza questo elenco Xcode mostra solo il codice, e
+# per cambiare una riga del CHANGELOG bisogna uscire dall'editor.
+#
+# Qui vanno solo file che stanno davvero nel repository. Un file di lavoro
+# locale (in .gitignore) c'era finito, e su GitHub xcodegen si e' fermato:
+# «Invalid file group». Sul mio Mac il file c'era, quindi non se ne accorgeva
+# nessuno — il modo classico di rompere la macchina di tutti gli altri.
+fileGroups:
+  - README.md
+  - AGENTS.md
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md
+  - SECURITY.md
+  - roadmap.md
+  - LICENSE
+  - NOTICE
+  - VERSION
+  - project.yml
+  - build.sh
+  - test.sh
+  - MirrorScopio.plist
+  - MirrorScopio.entitlements
+  - docs
+  - scripts
+  - .github
+
 targets:
 
   MirrorScopio:
