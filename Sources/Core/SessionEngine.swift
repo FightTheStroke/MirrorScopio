@@ -228,13 +228,27 @@ final class SessionEngine: ObservableObject {
 
   /// Se adesso serve il battito del display.
   ///
-  /// A riposo non serve a niente: non c'è niente da cronometrare e il livello
-  /// del microfono non lo guarda nessuno. Tenerlo acceso costava un ridisegno
-  /// per fotogramma a schermo fermo.
-  var serveIlBattito: Bool {
-    switch phase {
-    case .idle, .finished, .failed: false
-    default: true
+  /// La regola è semplice e si controlla a occhio: **il battito serve se e
+  /// solo se `tick` fa qualcosa**. L'elenco qui sotto è lo stesso elenco di
+  /// fasi in cui `tick` esce subito senza toccare niente; se le due liste si
+  /// allontanano, l'app ridisegna lo schermo sessanta volte al secondo per
+  /// eseguire un `return`. Una prova in `Verifiche/Battito.swift` le tiene
+  /// insieme.
+  ///
+  /// Le fasi che contano non sono un dettaglio: in pausa e mentre si scrive si
+  /// resta fermi anche per minuti. È lì che si sentiva la ventola partire e la
+  /// batteria scendere — cioè una sessione interrotta a metà.
+  var serveIlBattito: Bool { Self.serveIlBattito(in: phase) }
+
+  /// La regola, staccata dal motore perche' si possa provare fase per fase
+  /// senza dover portare una sessione vera fin li'.
+  static func serveIlBattito(in fase: Phase) -> Bool {
+    switch fase {
+    case .idle, .preparing, .instructions, .typing, .pausa, .scoring,
+         .finished, .failed:
+      false
+    default:
+      true
     }
   }
 
