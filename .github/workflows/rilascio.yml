@@ -15,6 +15,15 @@ on:
 jobs:
   pacchetto:
     runs-on: macos-26
+    # Il certificato di firma della fondazione e la password di Apple vivono
+    # qui dentro. Chiunque possa far partire questo workflow può farci firmare
+    # qualunque cosa: basterebbe un tag creato ad arte, perché il codice che
+    # gira è quello *del tag*, non quello del ramo principale.
+    #
+    # L'ambiente è il lucchetto: i segreti stanno lì, e GitHub non li consegna
+    # finché una persona non approva a mano. È scomodo apposta — un rilascio
+    # all'anno vale più di una firma rubata.
+    environment: rilascio
     # Il permesso di scrittura vive nel job, non nel workflow: così non viene
     # ereditato da eventuali job futuri che non ne hanno bisogno.
     permissions:
@@ -28,6 +37,20 @@ jobs:
           # Il numero di build è il conteggio dei commit: serve la storia intera.
           fetch-depth: 0
           ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Preparo Xcode
+        run: |
+          set -euo pipefail
+          # Senza questo il rilascio si ferma con «Manca xcodegen» dopo aver
+          # gia' aperto il portachiavi di firma: e' esattamente com'e' fallita
+          # la 0.6.0. `build.sh` genera il progetto da project.yml prima di
+          # compilare, e senza xcodegen non ha con che cosa farlo.
+          brew install xcodegen
+          ATTESA="$(cat .xcodegen-version)"
+          TROVATA="$(xcodegen --version | sed 's/^Version: //')"
+          if [ "$ATTESA" != "$TROVATA" ]; then
+            echo "::warning::XcodeGen qui è $TROVATA, il progetto committato è stato generato con $ATTESA."
+          fi
 
       - name: Metto il certificato in un portachiavi usa-e-getta
         env:

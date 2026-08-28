@@ -22,5 +22,16 @@ cd "$(dirname "$0")/.."
 echo "Installo xcodegen"
 brew install xcodegen
 
+# La versione conta: XcodeGen genera il progetto, e una versione diversa da
+# quella con cui è stato generato il progetto committato produce differenze che
+# nessuno ha scritto. Qui non ci si ferma — Xcode Cloud deve poter compilare —
+# ma la differenza va detta, altrimenti resta nascosta in un log che non legge
+# nessuno.
+ATTESA="$(cat .xcodegen-version 2>/dev/null || echo '?')"
+TROVATA="$(xcodegen --version | sed 's/^Version: //')"
+if [ "$ATTESA" != "$TROVATA" ]; then
+  echo "ATTENZIONE: XcodeGen qui è $TROVATA, il progetto committato è stato generato con $ATTESA."
+fi
+
 echo "Genero Versione.xcconfig e il progetto Xcode da project.yml"
 ./scripts/genera-progetto.sh
