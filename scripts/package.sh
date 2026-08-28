@@ -10,10 +10,19 @@
 # e trascina l'icona nelle Applicazioni, e uno zip, che serve a MirrorScopio
 # stesso quando si aggiorna da solo.
 #
-# Per notarizzare serve una credenziale salvata una volta sola:
+# Per notarizzare serve una credenziale. Sul Mac di casa si salva una volta
+# sola nel portachiavi:
 #   xcrun notarytool store-credentials mirrorscopio \
-#     --apple-id <apple-id> --team-id 93T3LG4NPG --password <password-app>
-# La password per app si crea su appleid.apple.com › Accesso e sicurezza.
+#     --apple-id <apple-id> --team-id 93T3LG4NPG
+# (senza `--password`: la chiede lui, e cosi' non resta scritta da nessuna
+# parte. La password per app si crea su appleid.apple.com › Accesso e sicurezza.)
+#
+# Su GitHub la strada preferita e' la chiave API di App Store Connect, perche'
+# e' un file e non un segreto scritto in una riga di comando:
+#   NOTARY_KEY=/percorso/AuthKey_XXXXXX.p8  NOTARY_KEY_ID=XXXXXX  NOTARY_ISSUER=<uuid>
+# In mancanza di quella si usa APPLE_ID + APPLE_APP_PASSWORD, che pero' qui
+# viene consegnata sull'ingresso standard, mai fra gli argomenti: gli argomenti
+# di un comando in esecuzione li legge chiunque, con `ps aux`.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -51,21 +60,53 @@ IDENTITY="${SIGN_IDENTITY:-Developer ID Application: Fight The Stroke Foundation
 codesign --force --sign "$IDENTITY" --timestamp "$DMG"
 
 if [[ $NOTARIZE -eq 1 ]]; then
-  echo "→ Mando ad Apple per la notarizzazione (qualche minuto)"  # Sul Mac di casa le credenziali stanno nel portachiavi; su GitHub arrivano
-  # dalle variabili segrete. Stessa strada, due modi di autenticarsi.
-  if [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
-    # Qui c'era «--password "@env:APPLE_APP_PASSWORD"», con il commento
-    # «@env: tiene la password fuori da ps aux». Il commento raccontava una
-    # cosa che non esiste: notarytool quella sintassi non la conosce e prende
-    # la stringa alla lettera. Risultato, ogni notarizzazione automatica e'
-    # sempre fallita con «Invalid credentials», e il messaggio dava la colpa
-    # alla password. La password era giusta tutte le volte.
-    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD"
-                 --team-id "${APPLE_TEAM_ID:-93T3LG4NPG}")
+  echo "→ Mando ad Apple per la notarizzazione (qualche minuto)"
+  # Tre modi di autenticarsi, in ordine di preferenza. La differenza non e'
+  # comodita': e' che nei primi due il segreto non compare mai fra gli
+  # argomenti di un comando.
+  #
+  # 1. Chiave API di App Store Connect: e' un file, e un file non finisce in
+  #    `ps`. E' la strada consigliata su GitHub.
+  # 2. Apple ID con la password consegnata **sull'ingresso standard**.
+  # 3. Profilo salvato nel portachiavi: e' quello che si usa sul Mac di casa.
+  #
+  # Quella che non c'e' piu' e' la quarta: `--password` scritto fra gli
+  # argomenti. Su una macchina condivisa qualunque altro processo puo' leggere
+  # gli argomenti di tutti i comandi in esecuzione — `ps aux` e basta — e una
+  # password per app apre la notarizzazione a nome della fondazione.
+  #
+  # Prima ancora, qui c'era «--password "@env:APPLE_APP_PASSWORD"», con il
+  # commento «@env: tiene la password fuori da ps aux». Il commento raccontava
+  # una cosa che non esiste: notarytool quella sintassi non la conosce e prende
+  # la stringa alla lettera. Ogni notarizzazione automatica e' sempre fallita
+  # con «Invalid credentials», e il messaggio dava la colpa alla password. La
+  # password era giusta tutte le volte. E' il motivo per cui qui sotto la
+  # strada scelta viene **detta ad alta voce** prima di partire.
+  DA_INGRESSO=""
+  if [[ -n "${NOTARY_KEY:-}" && -n "${NOTARY_KEY_ID:-}" ]]; then
+    echo "  autenticazione: chiave API di App Store Connect"
+    NOTARY_ARGS=(--key "$NOTARY_KEY" --key-id "$NOTARY_KEY_ID")
+    if [[ -n "${NOTARY_ISSUER:-}" ]]; then NOTARY_ARGS+=(--issuer "$NOTARY_ISSUER"); fi
+  elif [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
+    # Senza `--password`, notarytool chiede la password e la legge
+    # dall'ingresso standard: gliela passiamo di li'. Provato: con la password
+    # sbagliata risponde «401», cioe' l'ha davvero letta e usata.
+    echo "  autenticazione: Apple ID, password consegnata sull'ingresso standard"
+    NOTARY_ARGS=(--apple-id "$APPLE_ID" --team-id "${APPLE_TEAM_ID:-93T3LG4NPG}")
+    DA_INGRESSO="$APPLE_APP_PASSWORD"
   else
+    echo "  autenticazione: profilo «$PROFILE» salvato nel portachiavi"
     NOTARY_ARGS=(--keychain-profile "$PROFILE")
   fi
-  if ! xcrun notarytool submit "$DMG" "${NOTARY_ARGS[@]}" --wait; then
+
+  if [[ -n "$DA_INGRESSO" ]]; then
+    ESITO=0
+    printf '%s\n' "$DA_INGRESSO" | xcrun notarytool submit "$DMG" "${NOTARY_ARGS[@]}" --wait || ESITO=$?
+  else
+    ESITO=0
+    xcrun notarytool submit "$DMG" "${NOTARY_ARGS[@]}" --wait || ESITO=$?
+  fi
+  if [[ $ESITO -ne 0 ]]; then
     echo "✗ Notarizzazione fallita. Credenziali mancanti? Vedi l'intestazione di questo file."
     exit 1
   fi

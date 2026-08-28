@@ -72,6 +72,19 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   un problema che si vede. L'app compila come prima; i tre punti che ora si vedono
   (`Gamification.swift:88`, `Fonts.swift:73-74`) restano da correggere.
 
+### Sicurezza
+- **Un'etichetta di versione creata ad arte poteva farsi firmare dalla fondazione.** Il
+  lavoro di rilascio prendeva *tutto* dall'etichetta: sia l'app da impacchettare sia gli
+  script che la impacchettano — e quegli script girano con il certificato aperto. L'unica
+  difesa era l'approvazione a mano, che guarda il nome dell'etichetta, non il suo
+  contenuto. Adesso l'etichetta deve stare dentro il ramo principale, altrimenti il
+  rilascio si ferma prima di aprire il portachiavi, e gli script che girano vengono dal
+  ramo principale invece che dall'etichetta.
+- **La password per la notarizzazione non passa più fra gli argomenti di un comando.**
+  Gli argomenti dei comandi in esecuzione li legge chiunque abbia un accesso alla stessa
+  macchina, con `ps aux`. Ora la password viene consegnata sull'ingresso standard, e se un
+  giorno ci sarà una chiave API di Apple non ci sarà nemmeno più quella: sarà un file.
+
 ### Corretto
 - **Gli aggiornamenti potevano smettere di arrivare senza che nessuno se ne accorgesse.**
   L'app portava un numero di build ricavato dal conto delle modifiche salvate, e quel
