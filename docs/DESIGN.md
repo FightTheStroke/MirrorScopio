@@ -137,6 +137,22 @@ vieta di fare complimenti. È così che sono usciti i sei modi di chiudere, la
 croce rossa sulle giornate storte, il blu di sistema che vanificava
 l'altissimo contrasto e la pagina clinica che ignorava tema e carattere.
 
+E un banco che **disegna l'interfaccia**: `./test.sh` produce
+`build/schermate/*.png` con i mattoncini in tutti e quattro i temi e
+ingranditi con OpenDyslexic, e poi verifica da solo tre cose:
+
+- il **contrasto** di ogni parola in tutte e venti le combinazioni di tema e
+  modo di vedere i colori (8 accostamenti ciascuna, soglia 4,5 a 1);
+- che tutte le **schermate intere scorrano**, perché chi ingrandisce il testo
+  altrimenti perde i pulsanti sotto il bordo senza rimedio;
+- che il controllo del contrasto **sappia ancora bocciare** bianco su giallo —
+  prima di fidarsi di un controllo bisogna vederlo fallire.
+
+Serve perché l'accessibilità di sistema può non rispondere, e allora l'unico
+modo di «vedere» una schermata è leggere il codice e immaginarsela.
+Immaginarsela non basta: è così che i pulsanti principali sono finiti bianchi
+su giallo, e che «Pronti?» è rimasta per mesi più alta della finestra.
+
 Due controlli rapidi che valgono ogni volta:
 
 ```sh

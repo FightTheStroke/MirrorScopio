@@ -15,6 +15,42 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Corretto
+- **«giusta» e «ancora» adesso si leggono davvero, in tutti i temi.** I due
+  colori erano calcolati per lo sfondo bianco e riusati tali e quali sul nero:
+  sul tema scuro «ancora» stava sotto la soglia di leggibilità, e per chi vede
+  tutto in tonalità di grigio «giusta» era praticamente dello stesso colore
+  dello sfondo. La parola che dice com'è andata era la meno leggibile dello
+  schermo, proprio per chi ha più bisogno di leggerla.
+- **I pulsanti principali seguono il tema.** «Via!», «Consenti il microfono» e
+  «Vai a prenderla» usavano il blu di macOS: con «Altissimo contrasto»
+  restavano blu su nero, cioè la cosa meno visibile dello schermo per chi ha
+  scelto quel tema perché vede poco.
+- **La schermata «Pronti?» adesso scorre.** Era più alta della finestra già a
+  grandezza normale: su un portatile «Scegli il microfono» finiva sotto il
+  bordo e non c'era nessun modo di raggiungerlo. Chi non veniva sentito
+  restava fermo lì.
+- **Le giornate storte non sono più segnate con una croce.** Nelle sessioni
+  recenti c'era una X rossa: qui si guardano i giorni passati, e quella X
+  trasformava una giornata difficile in una bocciatura da rivedere ogni volta.
+  Adesso c'è la stessa freccia del resto dell'app: non è venuta *ancora*.
+- **Il referto per l'adulto non parla più di «errori».** Il ragazzo non lo
+  legge, ma è il documento che il genitore stampa e porta alla logopedista.
+- La x che nasconde l'avviso di aggiornamento e il tasto per ascoltare una
+  voce erano più piccoli del minimo: chi ha difficoltà di mira li mancava.
+
+### Cambiato
+- **Si chiude sempre allo stesso modo.** Chiudere una schermata era fatto in
+  sei modi diversi, con due parole diverse: chi aveva imparato dove si esce,
+  nella schermata dopo non lo ritrovava. Adesso è un pulsante solo, sempre
+  nello stesso punto, e dice sempre «Chiudi».
+- **Il primo avvio si attraversa da tastiera**: Invio va avanti, Esc salta. Era
+  l'unica schermata dell'app che chiedeva per forza il mouse — ed è quella in
+  cui si sceglie il profilo di chi usa solo la voce o pochi tasti.
+- **La pagina dei parametri clinici rispetta tema, carattere e ingrandimento.**
+  Era l'unica a ignorarli: ma chi ingrandisce tutto lo fa perché vede poco lui,
+  e quella è la pagina dell'adulto.
+
 ## [0.4.0] — 2026-08-27
 
 ### Corretto
