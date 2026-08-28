@@ -4,13 +4,19 @@ import Foundation
 
 /// Un obiettivo da sbloccare. Sono pochi e tutti raggiungibili: servono a dare
 /// una ragione per tornare domani, non a creare ansia da prestazione.
-struct Achievement: Identifiable, Hashable {
+struct Achievement: Identifiable, Hashable, Sendable {
   let id: String
   let title: String
   let hint: String
   let symbol: String
   /// Restituisce vero quando l'obiettivo è stato raggiunto.
-  let check: (SessionRecord, Learner) -> Bool
+  ///
+  /// `@Sendable`: la regola non tiene niente di suo, guarda solo quello che le
+  /// viene passato. Dirlo qui è ciò che permette all'elenco degli obiettivi di
+  /// essere condiviso senza copie fra chi disegna lo schermo e chi salva i
+  /// dati — cioè le due parti che lo leggono davvero, e che girano in momenti
+  /// diversi.
+  let check: @Sendable (SessionRecord, Learner) -> Bool
 
   static func == (a: Achievement, b: Achievement) -> Bool { a.id == b.id }
   func hash(into h: inout Hasher) { h.combine(id) }

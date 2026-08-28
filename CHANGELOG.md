@@ -69,8 +69,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - **Riacceso il controllo di concorrenza rigoroso** (`SWIFT_STRICT_CONCURRENCY`). Non è una
   funzione nuova: quegli avvisi c'erano, sono spariti dallo schermo quando è stato tolto
   `Package.swift`, e i difetti erano rimasti tutti. Un problema che non si vede è peggio di
-  un problema che si vede. L'app compila come prima; i tre punti che ora si vedono
-  (`Gamification.swift:88`, `Fonts.swift:73-74`) restano da correggere.
+  un problema che si vede. L'app compila come prima, e i tre punti che erano venuti a galla
+  (`Gamification.swift:88`, `Fonts.swift:73-74`) adesso sono chiusi.
 
 ### Corretto
 - **Il microfono poteva restare occupato dopo che la sessione era finita.** Le strade che
@@ -81,6 +81,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   può chiedere quante volte si vuole, e un'accensione superata da un'altra si toglie di mezzo
   invece di sovrascriverla. Sette prove nuove lo mettono alla frusta: cinquanta spegnimenti
   di fila, venti insieme, accensioni e spegnimenti mescolati.
+- **Tre pezzi di memoria condivisa non erano protetti da niente.** L'elenco degli obiettivi
+  e i due elenchi dei caratteri installati venivano letti da chi disegna le schermate e
+  scritti dall'avvio dell'app senza nessuna difesa: non davano errore e non si potevano
+  riprodurre, ma erano il tipo di guasto che compare una volta su mille e sempre sul Mac di
+  qualcun altro. Adesso il compilatore controlla da solo che non succeda, invece di fidarsi.
 - **Gli aggiornamenti potevano smettere di arrivare senza che nessuno se ne accorgesse.**
   L'app portava un numero di build ricavato dal conto delle modifiche salvate, e quel
   conto può *scendere* quando una serie di modifiche viene unita in un salvataggio solo.

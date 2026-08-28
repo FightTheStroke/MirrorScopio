@@ -1,4 +1,5 @@
 import SwiftUI
+import Synchronization
 import AppKit
 import CoreText
 
@@ -70,8 +71,26 @@ enum TypefaceChoice: String, CaseIterable, Identifiable, Codable {
 /// Registra i caratteri inclusi nell'app all'avvio e tiene traccia di quali
 /// sono davvero disponibili, così l'interfaccia non offre scelte che non funzionano.
 enum FontLoader {
-  private(set) static var availableFamilies: Set<String> = []
-  private static var postScriptNames: [String: String] = [:]
+
+  /// I due elenchi stanno dietro un lucchetto solo.
+  ///
+  /// Sembrano innocui perché si riempiono una volta all'avvio e poi si leggono
+  /// e basta, ed è esattamente il motivo per cui erano rimasti così. Ma chi li
+  /// legge è chi disegna ogni schermata, e chi li scrive è l'avvio dell'app:
+  /// se un giorno qualcuno registrasse un carattere mentre una schermata è
+  /// già a video — un profilo che cambia, un carattere aggiunto a caldo — il
+  /// risultato sarebbe un guasto che non lascia traccia e non si riproduce.
+  /// Costa due righe evitarlo adesso.
+  private struct Registro {
+    var famiglie: Set<String> = []
+    var nomiPostScript: [String: String] = [:]
+  }
+
+  private static let registro = Mutex(Registro())
+
+  /// Le famiglie di caratteri che sono state davvero registrate, così
+  /// l'interfaccia non offre scelte che non funzionano.
+  static var availableFamilies: Set<String> { registro.withLock { $0.famiglie } }
 
   /// `da` serve solo al banco di prova che disegna le schermate: quello non ha
   /// un pacchetto applicazione, quindi senza questo parametro ripiegherebbe sul
@@ -91,11 +110,15 @@ enum FontLoader {
         for d in descriptors {
           let family = CTFontDescriptorCopyAttribute(d, kCTFontFamilyNameAttribute) as? String
           let psName = CTFontDescriptorCopyAttribute(d, kCTFontNameAttribute) as? String
-          if let family { availableFamilies.insert(family) }
-          if let family, let psName {
-            let bold = psName.lowercased().contains("bold")
-            postScriptNames["\(family)|\(bold)"] = psName
-            if postScriptNames["\(family)|false"] == nil { postScriptNames["\(family)|false"] = psName }
+          registro.withLock { r in
+            if let family { r.famiglie.insert(family) }
+            if let family, let psName {
+              let bold = psName.lowercased().contains("bold")
+              r.nomiPostScript["\(family)|\(bold)"] = psName
+              if r.nomiPostScript["\(family)|false"] == nil {
+                r.nomiPostScript["\(family)|false"] = psName
+              }
+            }
           }
         }
       }
@@ -103,6 +126,8 @@ enum FontLoader {
   }
 
   static func postScriptName(for family: String, bold: Bool) -> String? {
-    postScriptNames["\(family)|\(bold)"] ?? postScriptNames["\(family)|false"]
+    registro.withLock { r in
+      r.nomiPostScript["\(family)|\(bold)"] ?? r.nomiPostScript["\(family)|false"]
+    }
   }
 }
