@@ -105,16 +105,27 @@ ENT
   fi
 }
 
-# Le prove scritte con swift-testing («swift test»). Stanno in Verifiche/ e sono
-# il posto dove aggiungere prove nuove: danno il nome del caso che fallisce e
-# quale valore si aspettavano, cosa che un banco fatto a mano non fa. I banchi
-# qui sotto restano perche' alcuni hanno bisogno di un .app firmato (microfono,
-# modello vocale), che SwiftPM da solo non sa costruire.
+# Le prove scritte con swift-testing (Verifiche/) e quelle che aprono l'app vera
+# senza mouse (ProveDaTastiera/). Girano con Xcode, non con SwiftPM.
+#
+# Perche' non piu' `swift test`: le stesse prove vivevano in due sistemi che
+# chiamavano il modulo con due nomi diversi, e si sono scollate. Due sistemi che
+# si scollano sono peggio di uno solo, perche' il verde di uno copre il rosso
+# dell'altro. Ora la casa e' una: il progetto Xcode, generato da project.yml.
+#
+# I banchi qui sotto restano perche' hanno bisogno di un .app firmato
+# (microfono, modello vocale), che le prove unitarie non costruiscono.
 echo "── prove swift ──"
-if swift test 2>&1 | tail -20; then
-  echo "✓ swift test"
+if ! command -v xcodegen >/dev/null 2>&1; then
+  echo "✗ manca xcodegen (brew install xcodegen)"
+  FAILED=1
+elif xcodegen generate >/dev/null && xcodebuild test \
+    -project MirrorScopio.xcodeproj -scheme MirrorScopio \
+    -destination 'platform=macOS' 2>&1 \
+    | grep -E "Test run with|Executed [0-9]+ test|skipped -|error:|\*\* TEST"; then
+  echo "✓ prove Xcode"
 else
-  echo "✗ swift test"
+  echo "✗ prove Xcode"
   FAILED=1
 fi
 

@@ -89,3 +89,30 @@ jobs:
       # che cosa questo cancello non controlla.
       - name: Eseguo le prove
         run: ./test.sh
+
+      # Le prove che aprono l'applicazione vera e la usano senza mouse, leggendo
+      # l'albero di accessibilita' — cioe' quello che VoiceOver pronuncia. Girano
+      # qui perche' l'accessibilita' controllata a occhio non e' una promessa:
+      # per settimane ho scritto che l'app era usabile da tastiera senza che
+      # nessuno l'avesse mai attraversata premendo solo Tab.
+      - name: Preparo Xcode
+        run: brew install xcodegen
+
+      # Finche' «Navigazione da tastiera» e' spenta, Tab salta da un campo di
+      # testo all'altro e ignora i pulsanti: le prove si fermerebbero dichiarando
+      # che non hanno provato niente. Qui la accendiamo apposta, cosi' il
+      # controllo si fa davvero.
+      - name: Accendo la navigazione da tastiera
+        run: defaults write -g AppleKeyboardUIMode -int 3
+
+      # Nota onesta su quello che questo cancello NON controlla: le due prove sul
+      # fuoco della tastiera hanno bisogno del permesso di accessibilita', che su
+      # una macchina senza nessuno davanti non si puo' concedere. Li' si fermano
+      # dichiarando perche', invece di passare a vuoto. Quelle le lancia Roberto
+      # sul suo Mac.
+      - name: Eseguo le prove di accessibilita'
+        run: |
+          set -euo pipefail
+          xcodegen generate
+          xcodebuild test -project MirrorScopio.xcodeproj -scheme MirrorScopio \
+            -destination 'platform=macOS'
