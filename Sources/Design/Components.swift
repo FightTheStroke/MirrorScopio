@@ -440,7 +440,6 @@ struct PulsanteChiudi: View {
     .buttonStyle(.plain)
     .foregroundStyle(palette.onAccent)
     .background(Capsule().fill(palette.accent))
-    .keyboardShortcut(.escape, modifiers: [])
     .accessibilityLabel("Chiudi \(cosa)")
     .accessibilityHint("Puoi anche premere Esc")
   }
