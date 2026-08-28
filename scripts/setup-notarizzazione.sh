@@ -79,7 +79,7 @@ else
   echo "✗ Apple ha rifiutato queste credenziali."
   echo
   echo "  Che cosa controllare, in ordine:"
-  echo "  1. L'email «$APPLE_ID» è davvero l'Apple ID con cui hai fatto"
+  echo "  1. L'email «${APPLE_ID}» è davvero l'Apple ID con cui hai fatto"
   echo "     la password per app?"
   echo "  2. La password è stata copiata tutta intera, trattini compresi?"
   echo "  3. La password per app è ancora valida? Se l'hai revocata, creane"

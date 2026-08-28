@@ -39,7 +39,7 @@ if ! gh auth status >/dev/null 2>&1; then
   exit 1
 fi
 if ! security find-identity -v -p codesigning | grep -q "$TEAM_ID"; then
-  echo "✗ Su questo Mac non c'è il certificato «$IDENTITY»."
+  echo "✗ Su questo Mac non c'è il certificato «${IDENTITY}»."
   echo "  Senza, non si può firmare nulla."
   exit 1
 fi
@@ -197,17 +197,45 @@ if [[ ! "$APPLE_APP_PASSWORD" =~ ^[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}$ ]]; then
 fi
 
 echo
+# Qui c'era «--password "@env:APPLE_APP_PASSWORD"». Quella sintassi notarytool
+# non la conosce: passava letteralmente la stringa «@env:APPLE_APP_PASSWORD»
+# come se fosse la password, e Apple giustamente la rifiutava. Ogni credenziale
+# giusta veniva bocciata, e a schermo compariva «controlla l'email e la
+# password»: cioe' lo script accusava la persona di un errore suo.
+#
+# Lo stesso «2>/dev/null» buttava via l'unica informazione utile. Apple
+# distingue due casi che a noi servono separati:
+#   «The account does not exist»  → l'email non e' un account Apple
+#   «Invalid credentials»          → l'account c'e', la password non e' sua
+# Senza quel messaggio si finiva a provare a caso.
 echo "→ Controllo che Apple accetti queste credenziali…"
-if ! xcrun notarytool history --apple-id "$APPLE_ID" \
-       --password "@env:APPLE_APP_PASSWORD" --team-id "$TEAM_ID" >/dev/null 2>&1; then
-  echo "✗ Apple le rifiuta. Controlla l'email e la password per app."
+RISPOSTA_APPLE="$(xcrun notarytool history --apple-id "$APPLE_ID" \
+  --password "$APPLE_APP_PASSWORD" --team-id "$TEAM_ID" 2>&1)" || {
+  echo
+  if printf '%s' "$RISPOSTA_APPLE" | grep -q "account does not exist"; then
+    echo "✗ Apple dice che «${APPLE_ID}» non e' un account Apple."
+    echo "  Non e' la password a essere sbagliata: e' l'email."
+    echo "  Serve quella con cui entri su developer.apple.com — spesso e'"
+    echo "  un indirizzo personale (@icloud.com, @gmail.com) e non quello"
+    echo "  di lavoro."
+  elif printf '%s' "$RISPOSTA_APPLE" | grep -qi "invalid credentials"; then
+    echo "✗ L'account «${APPLE_ID}» esiste, ma quella password non e' sua."
+    echo "  Di solito succede quando la password per app e' stata generata"
+    echo "  mentre eri collegato con un altro Apple ID. Rifalla stando"
+    echo "  collegato proprio con «${APPLE_ID}»."
+  else
+    echo "✗ Apple ha rifiutato le credenziali. Ha detto testualmente:"
+    echo
+    printf '%s\n' "$RISPOSTA_APPLE" | sed 's/^/    /' | head -5
+  fi
+  echo
   exit 1
-fi
+}
 echo "✓ Apple risponde."
 
 # ── Consegna a GitHub ───────────────────────────────────────────────────────
 echo
-echo "→ Metto tutto nella cassaforte di $REPO…"
+echo "→ Metto tutto nella cassaforte di ${REPO}…"
 base64 -i "$P12_PATH" | gh secret set MACOS_CERT_P12 --repo "$REPO"
 printf '%s' "$P12_PASSWORD"       | gh secret set MACOS_CERT_PASSWORD --repo "$REPO"
 printf '%s' "$APPLE_ID"           | gh secret set APPLE_ID --repo "$REPO"
