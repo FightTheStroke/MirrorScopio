@@ -311,16 +311,20 @@ struct AudioCheckView: View {
   private var adultSection: some View {
     DisclosureGroup(isExpanded: $showAdult) {
       VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
-        Picker("Microfono", selection: Binding(
-          get: { check.selectedInput ?? AudioDeviceID(0) },
-          set: { check.selectedInput = $0; check.stop(); check.start() })) {
-          ForEach(check.inputs) { d in Text(d.name).tag(d.id) }
+        SceltaAccessibile(titolo: "Microfono",
+                          scelta: Binding(
+                            get: { check.selectedInput ?? AudioDeviceID(0) },
+                            set: { check.selectedInput = $0; check.stop(); check.start() }),
+                          opzioni: check.inputs.map(\.id), a11y: a11y) { id in
+          check.inputs.first(where: { $0.id == id })?.name ?? "Quello di sistema"
         }
 
-        Picker("Altoparlanti", selection: Binding(
-          get: { check.selectedOutput ?? AudioDeviceID(0) },
-          set: { check.selectedOutput = $0; check.checkOutput() })) {
-          ForEach(check.outputs) { d in Text(d.name).tag(d.id) }
+        SceltaAccessibile(titolo: "Altoparlanti",
+                          scelta: Binding(
+                            get: { check.selectedOutput ?? AudioDeviceID(0) },
+                            set: { check.selectedOutput = $0; check.checkOutput() }),
+                          opzioni: check.outputs.map(\.id), a11y: a11y) { id in
+          check.outputs.first(where: { $0.id == id })?.name ?? "Quelli di sistema"
         }
 
         HStack(spacing: Metrica.spazio) {

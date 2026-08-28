@@ -18,6 +18,7 @@
 		2286360E3A9C58DB37B742BF /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205933038872E415019CBA59 /* AppVersion.swift */; };
 		2832DC450C429B45F0482FD9 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AA6D3030117F939C0678D9 /* App.swift */; };
 		2877E0784151A22FCF97DE74 /* Stimuli.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2E31DB5E360461371F5524 /* Stimuli.swift */; };
+		2DDA465011CA5F7593C02E1E /* Bersagli.swift in Sources */ = {isa = PBXBuildFile; fileRef = C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */; };
 		30195BC95FAF28CFF5A7EED4 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138E17EF7A234EFD43A06DC /* Log.swift */; };
 		354582885019B32535778395 /* VoiceChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BCAA8C25A78EAA0828A3FF /* VoiceChooser.swift */; };
 		3A00D13C3E3249FE6E7E2E91 /* Promemoria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9068F88405B9013EE54895E4 /* Promemoria.swift */; };
@@ -156,6 +157,7 @@
 		BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aggiornamenti.swift; sourceTree = "<group>"; };
 		BDC9D3329F9BE985B4A44517 /* config.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = config.yml; sourceTree = "<group>"; };
 		BE218955B02B3D36D0D42915 /* ImpostazioniDiSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpostazioniDiSistema.swift; sourceTree = "<group>"; };
+		C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bersagli.swift; sourceTree = "<group>"; };
 		C35E182095769B06776CC6F7 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		CBD41100535CF14951204A59 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CC15C6CCA60C061748E42475 /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
@@ -362,6 +364,7 @@
 			children = (
 				BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */,
 				53C25C5F17C318E947E1AD49 /* Battito.swift */,
+				C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */,
 				3E94B8AD368179CF019AEB21 /* Contrasto.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
@@ -601,6 +604,7 @@
 			files = (
 				0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */,
 				AAD053F52024C18ABB369359 /* Battito.swift in Sources */,
+				2DDA465011CA5F7593C02E1E /* Bersagli.swift in Sources */,
 				B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,

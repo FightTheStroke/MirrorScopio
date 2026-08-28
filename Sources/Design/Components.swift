@@ -608,3 +608,203 @@ struct IntestazionePagina: View {
     .padding(.vertical, Metrica.spazioPiccolo)
   }
 }
+
+// MARK: - I controlli di sistema, portati alla misura promessa
+
+/// I controlli che macOS disegna per conto suo — interruttori, cursori, elenchi
+/// a comparsa, frecce su e giù — sono alti fra i 16 e i 26 punti.
+///
+/// L'app prometteva 44 punti «ovunque», e su ogni pulsante scritto a mano lo
+/// manteneva; poi bastava aprire le impostazioni e i comandi veri erano
+/// bersagli di venti punti, esattamente lì dove un adulto prepara l'app per un
+/// ragazzo con paralisi cerebrale. Un `Toggle` non si può ingrandire: si può
+/// però rendere premibile **tutta la riga**, e mettere accanto ai cursori due
+/// pulsanti grandi per chi il pallino non riesce a prenderlo.
+///
+/// Nel profilo «Paralisi cerebrale» il minimo sale a 60 punti: prima quel
+/// profilo prometteva bersagli grandi e non ne ingrandiva nemmeno uno.
+
+/// Un interruttore che si accende premendo la riga intera.
+struct InterruttoreAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var acceso: Bool
+  var a11y: EffettiveImpostazioniAccessibilita
+
+  var body: some View {
+    Button { acceso.toggle() } label: {
+      HStack(spacing: Metrica.spazioPiccolo) {
+        Text(titolo)
+          .font(a11y.font(.corpo))
+          .interlinea(a11y)
+          .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
+        Spacer(minLength: Metrica.spazioPiccolo)
+        // L'interruttore resta quello di sistema — si riconosce a colpo
+        // d'occhio — ma non intercetta niente: a rispondere è la riga.
+        Toggle("", isOn: $acceso)
+          .labelsHidden()
+          .allowsHitTesting(false)
+      }
+      .padding(.horizontal, Metrica.spazioStretto)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .frame(minHeight: a11y.bersaglio)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .focusable()
+    .foregroundStyle(palette.foreground)
+    .accessibilityRepresentation { Toggle(titolo, isOn: $acceso) }
+  }
+}
+
+/// Un numero che si alza e si abbassa con due pulsanti grandi.
+struct PassoAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var valore: Double
+  var intervallo: ClosedRange<Double>
+  var passo: Double = 1
+  var a11y: EffettiveImpostazioniAccessibilita
+  /// Come si dice il valore a voce e a schermo: mai un numero nudo.
+  var descrizione: (Double) -> String
+
+  var body: some View {
+    HStack(spacing: Metrica.spazioPiccolo) {
+      Text(descrizione(valore))
+        .font(a11y.font(.corpo))
+        .interlinea(a11y)
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Metrica.spazioPiccolo)
+      pulsante("minus", "meno", -passo)
+      pulsante("plus", "più", passo)
+    }
+    .frame(minHeight: a11y.bersaglio)
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(titolo)
+    .accessibilityValue(descrizione(valore))
+  }
+
+  private func pulsante(_ simbolo: String, _ nome: String, _ delta: Double) -> some View {
+    Button {
+      valore = min(max(valore + delta, intervallo.lowerBound), intervallo.upperBound)
+    } label: {
+      Image(systemName: simbolo)
+        .font(a11y.font(.corpo, .bold))
+        .frame(width: a11y.bersaglio, height: a11y.bersaglio)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .focusable()
+    .foregroundStyle(palette.foreground)
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+    .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
+    .accessibilityLabel("\(nome): \(titolo)")
+  }
+}
+
+/// Un cursore con accanto due pulsanti grandi.
+///
+/// Il pallino di un cursore è largo una quindicina di punti e va preso al volo:
+/// per una mano che trema è il comando più difficile dell'app. I due pulsanti
+/// fanno la stessa cosa senza chiedere la mira, e il cursore resta per chi lo
+/// preferisce.
+struct CursoreAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var valore: Double
+  var intervallo: ClosedRange<Double>
+  var passo: Double
+  var a11y: EffettiveImpostazioniAccessibilita
+  var descrizione: (Double) -> String
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Metrica.briciola) {
+      HStack {
+        Text(titolo)
+          .font(a11y.font(.corpo))
+          .interlinea(a11y)
+          .foregroundStyle(palette.foreground)
+          .fixedSize(horizontal: false, vertical: true)
+        Spacer(minLength: Metrica.spazioStretto)
+        Text(descrizione(valore))
+          .font(a11y.font(.etichetta))
+          .foregroundStyle(palette.muted)
+          .monospacedDigit()
+      }
+      HStack(spacing: Metrica.spazioPiccolo) {
+        pulsante("minus", "meno", -passo)
+        Slider(value: $valore, in: intervallo, step: passo)
+          .controlSize(.large)
+          .frame(maxWidth: 400, minHeight: a11y.bersaglio)
+          .accessibilityLabel(titolo)
+          .accessibilityValue(descrizione(valore))
+        pulsante("plus", "più", passo)
+        Spacer(minLength: 0)
+      }
+    }
+  }
+
+  private func pulsante(_ simbolo: String, _ nome: String, _ delta: Double) -> some View {
+    Button {
+      valore = min(max(valore + delta, intervallo.lowerBound), intervallo.upperBound)
+    } label: {
+      Image(systemName: simbolo)
+        .font(a11y.font(.corpo, .bold))
+        .frame(width: a11y.bersaglio, height: a11y.bersaglio)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .focusable()
+    .foregroundStyle(palette.foreground)
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+    .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
+    .accessibilityLabel("\(nome): \(titolo)")
+  }
+}
+
+/// Una scelta fra molte: l'elenco a comparsa, ma con un bersaglio vero.
+struct SceltaAccessibile<T: Hashable>: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var scelta: T
+  let opzioni: [T]
+  var a11y: EffettiveImpostazioniAccessibilita
+  let etichetta: (T) -> String
+
+  var body: some View {
+    HStack(spacing: Metrica.spazioPiccolo) {
+      Text(titolo)
+        .font(a11y.font(.corpo))
+        .interlinea(a11y)
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Metrica.spazioStretto)
+      Menu {
+        ForEach(opzioni, id: \.self) { o in
+          Button(etichetta(o)) { scelta = o }
+        }
+      } label: {
+        HStack(spacing: Metrica.spazioMinimo) {
+          Text(etichetta(scelta))
+            .font(a11y.font(.corpo))
+            .lineLimit(1)
+          Image(systemName: "chevron.up.chevron.down")
+            .font(a11y.font(.nota, .semibold))
+        }
+        .padding(.horizontal, Metrica.spazioPiccolo)
+        .frame(minHeight: a11y.bersaglio)
+        .contentShape(Rectangle())
+      }
+      .menuStyle(.borderlessButton)
+      .fixedSize()
+      .foregroundStyle(palette.foreground)
+      .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+      .frame(minHeight: a11y.bersaglio)
+      .accessibilityLabel(titolo)
+      .accessibilityValue(etichetta(scelta))
+    }
+    .frame(minHeight: a11y.bersaglio)
+  }
+}

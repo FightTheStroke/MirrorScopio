@@ -25,9 +25,8 @@ struct AdvancedControls: View {
   var body: some View {
       Form {
         Section("Stimoli") {
-          Picker("Lista", selection: $engine.config.set) {
-            ForEach(StimulusSet.allCases) { Text($0.label).tag($0) }
-          }
+          SceltaAccessibile(titolo: "Lista", scelta: $engine.config.set,
+                            opzioni: StimulusSet.allCases, a11y: a11y) { $0.label }
           if engine.config.set == .personalizzata {
             VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
               Text("Una parola per riga.").font(corpo).foregroundStyle(palette.muted)
@@ -39,18 +38,22 @@ struct AdvancedControls: View {
           if !engine.config.set.isReliableForASR {
             note("Le non-parole non esistono nel vocabolario del riconoscitore: su questa lista il punteggio automatico è indicativo. In modalità Scrivi invece è affidabile.")
           }
-          Toggle("Ordine casuale", isOn: $engine.config.shuffle)
-          Toggle("Tutto MAIUSCOLO", isOn: $engine.config.uppercase)
-          Stepper("Numero di parole: \(engine.config.trials)", value: $engine.config.trials, in: 1...200)
-          Stepper("Parole di riscaldamento: \(engine.config.warmupTrials)",
-                  value: $engine.config.warmupTrials, in: 0...10)
+          InterruttoreAccessibile(titolo: "Ordine casuale", acceso: $engine.config.shuffle, a11y: a11y)
+          InterruttoreAccessibile(titolo: "Tutto MAIUSCOLO", acceso: $engine.config.uppercase, a11y: a11y)
+          PassoAccessibile(titolo: "Numero di parole",
+                           valore: Binding(get: { Double(engine.config.trials) },
+                                           set: { engine.config.trials = Int($0) }),
+                           intervallo: 1...200, a11y: a11y) { "Numero di parole: \(Int($0))" }
+          PassoAccessibile(titolo: "Parole di riscaldamento",
+                           valore: Binding(get: { Double(engine.config.warmupTrials) },
+                                           set: { engine.config.warmupTrials = Int($0) }),
+                           intervallo: 0...10, a11y: a11y) { "Parole di riscaldamento: \(Int($0))" }
         }
 
         Section("Tempi") {
           slider("Quanto resta visibile la parola", $engine.config.exposureMs, 16...1000, unit: "ms")
-          Picker("Come cambia il tempo", selection: $engine.config.staircase) {
-            ForEach(Staircase.allCases) { Text($0.label).tag($0) }
-          }
+          SceltaAccessibile(titolo: "Come cambia il tempo", scelta: $engine.config.staircase,
+                            opzioni: Staircase.allCases, a11y: a11y) { $0.label }
           if engine.config.staircase != .fixed {
             slider("Di quanto cambia ogni volta", $engine.config.stepMs, 5...100, unit: "ms")
           }
@@ -60,9 +63,8 @@ struct AdvancedControls: View {
 
         Section("Maschera") {
           note("La maschera copre la parola subito dopo, così non la si continua a \"vedere\" nella memoria visiva: senza, si misura la memoria e non la lettura.")
-          Picker("Maschera", selection: $engine.config.maskMode) {
-            ForEach(MaskMode.allCases) { Text($0.label).tag($0) }
-          }
+          SceltaAccessibile(titolo: "Maschera", scelta: $engine.config.maskMode,
+                            opzioni: MaskMode.allCases, a11y: a11y) { $0.label }
           if engine.config.maskMode != .none {
             slider("Durata della maschera", $engine.config.maskMs, 0...1000, unit: "ms")
           }
@@ -71,8 +73,8 @@ struct AdvancedControls: View {
         Section("Ascolto") {
           slider("Quanto aspetta la risposta", $engine.config.responseTimeoutMs, 1000...10000, unit: "ms")
           slider("Silenzio che chiude la risposta", $engine.config.endpointSilenceMs, 200...2000, unit: "ms")
-          Toggle("Analisi degli errori con il modello Apple sul dispositivo",
-                 isOn: $engine.config.useAppleIntelligence)
+          InterruttoreAccessibile(titolo: "Analisi degli errori con il modello Apple sul dispositivo",
+                                  acceso: $engine.config.useAppleIntelligence, a11y: a11y)
           if case .unavailable(let reason) = Intelligence.state { note(reason) }
         }
       }
@@ -96,20 +98,11 @@ struct AdvancedControls: View {
 
   private func slider(_ title: String, _ value: Binding<Double>,
                       _ range: ClosedRange<Double>, unit: String) -> some View {
-    VStack(alignment: .leading, spacing: Metrica.filo) {
-      HStack {
-        Text(title).font(corpo)
-        Spacer()
-        Text("\(Int(value.wrappedValue)) \(unit)")
-          .font(corpo)
-          .monospacedDigit()
-          .foregroundStyle(palette.muted)
-      }
-      Slider(value: value, in: range)
-        // Senza nome VoiceOver legge "cursore, 50 per cento": non dice di che
-        // cosa, e la percentuale non e' il numero che l'app mostra accanto.
-        .accessibilityLabel(title)
-        .accessibilityValue("\(Int(value.wrappedValue)) \(unit)")
-    }
+    // Il nome e il valore letti a voce sono quelli che l'app mostra accanto:
+    // senza, VoiceOver direbbe "cursore, 50 per cento", che non e' ne' di che
+    // cosa si tratta ne' il numero scritto sullo schermo.
+    CursoreAccessibile(titolo: title, valore: value, intervallo: range,
+                       passo: max(1, (range.upperBound - range.lowerBound) / 40),
+                       a11y: a11y) { "\(Int($0)) \(unit)" }
   }
 }

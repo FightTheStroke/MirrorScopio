@@ -287,30 +287,17 @@ struct OnboardingView: View {
 
   private func sliderOnb(_ title: String, _ value: Binding<Double>,
                          _ range: ClosedRange<Double>,
-                         _ format: (Double) -> String) -> some View {
-    VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
-      HStack {
-        Text(title)
-          .font(a11y.font(.corpo))
-          .foregroundStyle(palette.foreground)
-        Spacer()
-        Text(format(value.wrappedValue))
-          .font(a11y.font(.etichetta))
-          .foregroundStyle(palette.muted)
-          .monospacedDigit()
-      }
-      Slider(value: value, in: range).frame(maxWidth: 460)
-        .accessibilityLabel(title)
-        .accessibilityValue(format(value.wrappedValue))
-    }
+                         _ format: @escaping (Double) -> String) -> some View {
+    CursoreAccessibile(titolo: title, valore: value, intervallo: range,
+                       passo: (range.upperBound - range.lowerBound) / 40,
+                       a11y: a11y, descrizione: format)
   }
 
   private func toggleOnb(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
     VStack(alignment: .leading, spacing: Metrica.filo) {
-      Toggle(title, isOn: value)
-        .font(a11y.font(.guida))
-        .foregroundStyle(palette.foreground)
+      InterruttoreAccessibile(titolo: title, acceso: value, a11y: a11y)
       Explain(text: hint, a11y: a11y, size: 15)
+        .padding(.horizontal, Metrica.spazioStretto)
     }
   }
 

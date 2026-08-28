@@ -310,15 +310,12 @@ struct SettingsView: View {
              + "non è un conto alla rovescia e non scade mai.")
       slider("Più tempo per rispondere", value: bind(\.extraResponseTime), range: 1.0...3.0,
              format: { String(format: "×%.1f", $0) })
-      Stepper(value: Binding(
-        get: { Double(a11y.pauseEveryNWords) },
-        set: { v in update { $0.pauseEveryNWords = Int(v) } }
-      ), in: 0...20, step: 1) {
-        Text(a11y.pauseEveryNWords == 0
-             ? "Pausa automatica: mai"
-             : "Pausa automatica ogni \(a11y.pauseEveryNWords) parole")
-          .font(a11y.font(.corpo))
-          .foregroundStyle(palette.foreground)
+      PassoAccessibile(titolo: "Pausa automatica",
+                       valore: Binding(
+                         get: { Double(a11y.pauseEveryNWords) },
+                         set: { v in update { $0.pauseEveryNWords = Int(v) } }),
+                       intervallo: 0...20, a11y: a11y) { v in
+        v == 0 ? "Pausa automatica: mai" : "Pausa automatica ogni \(Int(v)) parole"
       }
     }
   }
@@ -412,12 +409,11 @@ struct SettingsView: View {
 
       Divider().padding(.vertical, Metrica.briciola)
 
-      Toggle(isOn: Binding(get: { Updates.enabled },
-                           set: { Updates.enabled = $0; aggiornamentiAccesi = $0 })) {
-        Text("Avvisami quando esce una versione nuova")
-          .font(a11y.font(.corpo))
-      }
-      .toggleStyle(.switch)
+      InterruttoreAccessibile(
+        titolo: "Avvisami quando esce una versione nuova",
+        acceso: Binding(get: { Updates.enabled },
+                        set: { Updates.enabled = $0; aggiornamentiAccesi = $0 }),
+        a11y: a11y)
       Explain(text: "È l'unica cosa che esce da questo Mac: una domanda al giorno a GitHub su qual è l'ultima versione. Non parte nessun nome, nessuna parola, nessun punteggio. Se esce una versione nuova puoi installarla da qui, con un pulsante: non si scarica niente da solo.", a11y: a11y, size: 14)
 
       if aggiornamentiAccesi {
@@ -490,20 +486,19 @@ struct SettingsView: View {
       SectionTitle(text: "Un promemoria ogni giorno", a11y: a11y)
       Explain(text: "L'esercizio rende se si fa un pochino ogni giorno, e la cosa più difficile è ricordarsene. Se vuoi, il Mac manda un invito gentile all'ora che scegli. **È tutto qui sul Mac**: non esce niente, è solo un avviso che compare sullo schermo.", a11y: a11y, size: 15)
 
-      Toggle(isOn: Binding(
-        get: { promemoria.acceso },
-        set: { acceso in
-          if acceso {
-            Task { await promemoria.accendi(giaFattoOggi: giaFattoOggi,
-                                            serieGiorni: store.current.streakCurrent) }
-          } else {
-            promemoria.spegni()
-          }
-        })) {
-        Text("Ricordami di allenarmi")
-          .font(a11y.font(.corpo))
-      }
-      .toggleStyle(.switch)
+      InterruttoreAccessibile(
+        titolo: "Ricordami di allenarmi",
+        acceso: Binding(
+          get: { promemoria.acceso },
+          set: { acceso in
+            if acceso {
+              Task { await promemoria.accendi(giaFattoOggi: giaFattoOggi,
+                                              serieGiorni: store.current.streakCurrent) }
+            } else {
+              promemoria.spegni()
+            }
+          }),
+        a11y: a11y)
 
       if promemoria.acceso {
         if promemoria.permessoNegato {
@@ -517,18 +512,16 @@ struct SettingsView: View {
               .font(a11y.font(.corpo))
           }
           .datePickerStyle(.field)
+          .controlSize(.large)
+          .frame(minHeight: a11y.bersaglio)
 
-          Picker(selection: Binding(
-            get: { promemoria.giorni },
-            set: { g in promemoria.impostaGiorni(g); ripianificaPromemoria() }
-          )) {
-            ForEach(Promemoria.Giorni.allCases) { g in Text(g.label).tag(g) }
-          } label: {
-            Text("Quali giorni")
-              .font(a11y.font(.corpo))
-          }
-          .pickerStyle(.segmented)
-          .frame(maxWidth: 420, alignment: .leading)
+          SceltaAccessibile(titolo: "Quali giorni",
+                            scelta: Binding(
+                              get: { promemoria.giorni },
+                              set: { g in promemoria.impostaGiorni(g); ripianificaPromemoria() }),
+                            opzioni: Promemoria.Giorni.allCases,
+                            a11y: a11y) { $0.label }
+          .frame(maxWidth: 460, alignment: .leading)
 
           Explain(text: "Ti mando un invito alle \(promemoria.orarioTesto), "
                   + (promemoria.giorni == .tutti ? "tutti i giorni" : "dal lunedì al venerdì")
@@ -623,30 +616,16 @@ struct SettingsView: View {
 
   private func toggle(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
     VStack(alignment: .leading, spacing: Metrica.filo) {
-      Toggle(title, isOn: value)
-        .font(a11y.font(.corpo))
-        .foregroundStyle(palette.foreground)
+      InterruttoreAccessibile(titolo: title, acceso: value, a11y: a11y)
       Explain(text: hint, a11y: a11y, size: 14)
+        .padding(.horizontal, Metrica.spazioStretto)
     }
   }
 
   private func slider(_ title: String, value: Binding<Double>,
-                      range: ClosedRange<Double>, format: (Double) -> String) -> some View {
-    VStack(alignment: .leading, spacing: Metrica.briciola) {
-      HStack {
-        Text(title)
-          .font(a11y.font(.corpo))
-          .foregroundStyle(palette.foreground)
-        Spacer()
-        Text(format(value.wrappedValue))
-          .font(a11y.font(.etichetta))
-          .foregroundStyle(palette.muted)
-          .monospacedDigit()
-      }
-      Slider(value: value, in: range)
-        .frame(maxWidth: 460)
-        .accessibilityLabel(title)
-        .accessibilityValue(format(value.wrappedValue))
-    }
+                      range: ClosedRange<Double>, format: @escaping (Double) -> String) -> some View {
+    CursoreAccessibile(titolo: title, valore: value, intervallo: range,
+                       passo: (range.upperBound - range.lowerBound) / 40,
+                       a11y: a11y, descrizione: format)
   }
 }
