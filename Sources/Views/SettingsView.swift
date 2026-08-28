@@ -50,18 +50,9 @@ struct SettingsView: View {
   /// fondo. Ora sono sette pagine corte, una per argomento, con l'elenco
   /// sempre visibile a sinistra: si vede subito che cosa c'è e dove si è.
   var body: some View {
-    VStack(spacing: 0) {
-      header
-      HStack(spacing: 0) {
-        elenco
-        Divider()
-        ScrollView {
-          paginaCorrente
-            .padding(32)
-            .frame(maxWidth: 720, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-      }
+    PaginaConElenco(titolo: "Impostazioni", scelta: $pagina, a11y: a11y,
+                    palette: palette, onClose: onClose) {
+      paginaCorrente
     }
   }
 
@@ -101,11 +92,7 @@ struct SettingsView: View {
     }
   }
 
-  private var elenco: some View {
-    ElencoPagine(scelta: $pagina, a11y: a11y, palette: palette)
-  }
-
-  @ViewBuilder
+    @ViewBuilder
   private var paginaCorrente: some View {
     VStack(alignment: .leading, spacing: 28) {
       switch pagina {
@@ -177,10 +164,6 @@ struct SettingsView: View {
       }
       Explain(text: "macOS non permette a nessuna app di scaricare le voci: quelle in elenco sono tutte quelle installate.", a11y: a11y, size: 14)
     }
-  }
-
-  private var header: some View {
-    IntestazionePagina(titolo: "Impostazioni", a11y: a11y, onClose: onClose)
   }
 
   // MARK: - Chi usa l'app

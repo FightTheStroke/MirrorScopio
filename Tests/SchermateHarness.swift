@@ -199,7 +199,9 @@ struct SchermateHarness {
       var senzaScorrimento: [String] = []
       for nome in intere {
         let testo = (try? String(contentsOfFile: "Sources/Views/\(nome).swift", encoding: .utf8)) ?? ""
-        if !testo.contains("ScrollView") {
+        // «PaginaConElenco» porta con se' il proprio scorrimento: Impostazioni
+        // e Progressi non scrivono piu' «ScrollView» perche' lo fa il guscio.
+        if !testo.contains("ScrollView") && !testo.contains("PaginaConElenco") {
           senzaScorrimento.append(nome)
         }
       }

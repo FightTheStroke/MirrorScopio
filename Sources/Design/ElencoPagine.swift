@@ -58,3 +58,54 @@ struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessColle
     .frame(width: a11y.size(260))
   }
 }
+
+/// Il guscio delle schermate lunghe: titolo in alto, elenco a sinistra,
+/// contenuto che scorre a destra.
+///
+/// Nasce da un difetto vero. Le Impostazioni e i Progressi usavano già lo
+/// stesso elenco e la stessa intestazione, eppure a schermo erano diverse:
+/// il titolo dei Progressi era rientrato di 54 punti invece che di 26, perché
+/// sopra i margini che l'intestazione mette già per conto suo ne erano stati
+/// aggiunti altri; sotto correva una riga di separazione che nelle Impostazioni
+/// non c'era; il contenuto era largo 860 punti invece di 720 e staccato dai
+/// bordi di 28 invece che di 32.
+///
+/// Nessuno di quei numeri era sbagliato da solo. Erano sbagliati insieme: chi
+/// impara a muoversi in una schermata deve ritrovarsi nell'altra senza doverci
+/// pensare, e non ci si riesce se il titolo si sposta e il contenuto cambia
+/// larghezza. Condividere i pezzi non basta, se poi ognuno li monta a modo suo:
+/// va condiviso il modo di montarli.
+struct PaginaConElenco<P: PaginaLaterale, Contenuto: View>: View
+where P.AllCases: RandomAccessCollection {
+  let titolo: String
+  /// Una riga sotto il titolo: il nome di chi sta usando l'app, la data.
+  var sottotitolo: String? = nil
+  @Binding var scelta: P
+  var a11y: A11ySettings
+  var palette: Palette
+  let onClose: () -> Void
+  @ViewBuilder let contenuto: () -> Contenuto
+
+  /// Quanto è larga la colonna del testo. Oltre una certa larghezza le righe
+  /// diventano troppo lunghe e l'occhio perde il capo della riga successiva:
+  /// è la ragione per cui i giornali hanno le colonne strette.
+  static var larghezzaColonna: CGFloat { 720 }
+
+  var body: some View {
+    VStack(spacing: 0) {
+      IntestazionePagina(titolo: titolo, sottotitolo: sottotitolo,
+                         a11y: a11y, onClose: onClose)
+      HStack(spacing: 0) {
+        ElencoPagine(scelta: $scelta, a11y: a11y, palette: palette)
+        Divider()
+        ScrollView {
+          contenuto()
+            .padding(a11y.size(Metrica.margine))
+            .frame(maxWidth: Self.larghezzaColonna, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+      }
+    }
+    .background(palette.background.ignoresSafeArea())
+  }
+}

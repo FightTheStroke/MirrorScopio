@@ -105,6 +105,19 @@ ENT
   fi
 }
 
+# Le prove scritte con swift-testing («swift test»). Stanno in Verifiche/ e sono
+# il posto dove aggiungere prove nuove: danno il nome del caso che fallisce e
+# quale valore si aspettavano, cosa che un banco fatto a mano non fa. I banchi
+# qui sotto restano perche' alcuni hanno bisogno di un .app firmato (microfono,
+# modello vocale), che SwiftPM da solo non sa costruire.
+echo "── prove swift ──"
+if swift test 2>&1 | tail -20; then
+  echo "✓ swift test"
+else
+  echo "✗ swift test"
+  FAILED=1
+fi
+
 run_harness staircase   Tests/StaircaseHarness.swift    fast
 run_harness suoni       Tests/SuoniHarness.swift         fast
 run_harness schermate   Tests/SchermateHarness.swift     fast

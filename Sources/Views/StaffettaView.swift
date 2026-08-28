@@ -96,8 +96,17 @@ struct StaffettaView: View {
         .opacity(0)
         .accessibilityHidden(true)
 
-      scena
-        .allowsHitTesting(false)
+      // Misurata: 988 punti di scena in una finestra da 700, con i caratteri
+      // al massimo ingrandimento. Il pulsante per chiudere sta in alto e resta
+      // raggiungibile, ma la parte bassa della festa — la squadra che corre
+      // con te — finiva fuori schermo proprio per chi aveva ingrandito il
+      // testo. `minHeight` tiene tutto centrato quando lo spazio basta.
+      ScrollView {
+        scena
+          .frame(maxWidth: .infinity, minHeight: 560)
+      }
+      .scrollIndicators(.never)
+      .allowsHitTesting(false)
 
       // Chiudere resta la cosa più facile dello schermo. Ma qui non è un
       // «interrompi»: è un premio, e il rosso di allarme del resto dell'app

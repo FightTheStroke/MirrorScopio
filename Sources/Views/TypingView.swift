@@ -22,7 +22,13 @@ struct TypingView: View {
   var body: some View {
     ZStack {
       palette.background.ignoresSafeArea()
-      palcoscenico
+      // Misurato: 1009 punti di contenuto in una finestra da 700, con i
+      // caratteri al massimo ingrandimento. Senza scorrimento il campo dove si
+      // scrive finiva sotto il bordo, e non c'era modo di arrivarci: colpiva
+      // per primo chi ha ipovisione, cioe' proprio chi aveva usato
+      // l'impostazione fatta per lui. `minHeight` tiene tutto centrato quando
+      // lo spazio basta, quindi a ingrandimento normale non cambia nulla.
+      ScrollView { palcoscenico.frame(maxWidth: .infinity, minHeight: 560) }
       // La barra sta sopra alla scena, come in lettura, e come in lettura
       // sparisce con «togli le distrazioni». Prima era dentro alla colonna:
       // restava sempre, e chi aveva chiesto uno schermo nudo se la trovava lì.

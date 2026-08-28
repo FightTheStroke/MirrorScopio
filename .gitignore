@@ -13,3 +13,4 @@ learners.json
 history.json
 *.log
 PIANO-LAVORI.md
+.build/

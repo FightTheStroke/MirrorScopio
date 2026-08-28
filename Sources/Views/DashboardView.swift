@@ -72,23 +72,11 @@ struct DashboardView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            intestazione
-                .padding(.horizontal, a11y.size(28))
-                .padding(.vertical, a11y.size(16))
-            Divider()
-            HStack(spacing: 0) {
-                ElencoPagine(scelta: $pagina, a11y: a11y, palette: palette)
-                Divider()
-                ScrollView {
-                    paginaCorrente
-                        .padding(a11y.size(28))
-                        .frame(maxWidth: 860, alignment: .leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
+        PaginaConElenco(titolo: "I tuoi progressi", sottotitolo: bambino.name,
+                        scelta: $pagina, a11y: a11y, palette: palette,
+                        onClose: onClose) {
+            paginaCorrente
         }
-        .background(palette.background.ignoresSafeArea())
     }
 
     @ViewBuilder
@@ -112,13 +100,6 @@ struct DashboardView: View {
     }
 
     // MARK: - Intestazione
-
-    private var intestazione: some View {
-        IntestazionePagina(titolo: "I tuoi progressi",
-                           sottotitolo: bambino.name,
-                           a11y: a11y,
-                           onClose: onClose)
-    }
 
     // MARK: - Livello e XP
 
