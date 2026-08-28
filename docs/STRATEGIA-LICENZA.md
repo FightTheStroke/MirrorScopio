@@ -54,7 +54,7 @@ che sono quelle che rendono MirrorScopio uno strumento invece di una demo:
 | **Il protocollo clinico e chi lo firma** | Come si somministra, ogni quanto, che cosa si conclude, e la firma di chi se ne prende la responsabilità | Non esiste. MirrorScopio non è validato |
 | **La rete dei logopedisti** | Chi lo usa davvero, ne riporta i difetti e ne guida l'evoluzione | Da costruire |
 | **I dataset di prova etichettati** | Registrazioni con l'errore già classificato, per misurare quanto sbaglia il riconoscitore | Da costruire |
-| **Il marchio e la fiducia delle famiglie** | «MirrorScopio», il logo, e vent'anni di Fight The Stroke dietro | Esistono, ed è oggi la nostra difesa più forte |
+| **Il marchio e la fiducia delle famiglie** | «MirrorScopio», il logo, e vent'anni di Fight The Stroke dietro | «Fight The Stroke» **è un marchio registrato** (EUIPO 016206179). «MirrorScopio» **no**: vale solo per l'uso che se ne fa. Vedi la sezione 5 |
 
 **La riga scomoda:** delle sei, quattro non esistono ancora e una è da costruire. Oggi il
 vantaggio competitivo è quasi tutto nel repository, ed è stato reso perfettamente leggibile
@@ -124,8 +124,46 @@ può farlo, ma deve chiamare la sua cosa in un altro modo e non può far credere
 nostra o che noi la approviamo. È scritto in [`NOTICE`](../NOTICE) e nel
 [`README`](../README.md).
 
-Questa è, oggi, la protezione più concreta che abbiamo. Ha un limite da verificare: se il
-nome non è registrato come marchio, difenderlo è più difficile e più caro.
+Questa è, oggi, la protezione più concreta che abbiamo. **Verificato il 28 agosto 2026, e
+non è una protezione sola: sono due, e una delle due non c'è.**
+
+| Nome | Come sta davvero |
+|---|---|
+| **«Fight The Stroke»** | **Marchio registrato**, EUIPO n. 016206179, depositato il 27 dicembre 2016, tuttora in vigore. Copre fra le altre le classi 41 (formazione), 42 (servizi informatici e di ricerca) e 44 (assistenza medica). |
+| **«MirrorScopio»** | **Non registrato.** Nessun deposito trovato su EUIPO, USPTO né TMview. |
+
+Che cosa cambia in pratica:
+
+- **Nessuno può spacciare la propria copia per roba della fondazione.** Quella è la difesa
+  forte, ed è già in piedi: il nome della fondazione è registrato proprio nelle classi in
+  cui un software del genere si vende.
+- **Il nome «MirrorScopio», da solo, è difendibile ma male.** In Italia un nome usato senza
+  registrarlo è un *marchio di fatto*: esiste, ma per farlo valere bisogna dimostrare in
+  giudizio da quando lo si usa e quanto è conosciuto. Costa tempo, avvocati e incertezza.
+  Chi lo registrasse per primo — un concorrente, chiunque — partirebbe da una posizione
+  migliore della nostra.
+- **C'è anche un buco nelle classi già registrate**, e va detto: fra quelle di «Fight The
+  Stroke» **non c'è la 9**, che è quella dei programmi *scaricabili*. La 42 copre i servizi
+  informatici, non un'app che si scarica e si installa. Per un'app per Mac distribuita
+  così, è la classe che servirebbe.
+
+**Cosa fare, in ordine di convenienza:**
+
+1. **Depositare «MirrorScopio» come marchio UE in classe 9 e 42.** Un deposito EUIPO in una
+   classe costa 850 € di tassa, più 50 € per la seconda: circa **900 € di tasse**, più
+   l'eventuale parcella. Vale la pena solo se il nome resta questo per anni.
+2. **Estendere «Fight The Stroke» alla classe 9.** Non si aggiunge una classe a un marchio
+   già registrato: si deposita di nuovo. Stesso ordine di costo.
+3. **Non fare niente e tenere le prove d'uso.** Costa zero. Conservare in modo ordinato le
+   date di prima pubblicazione (i commit di questo repository sono già una prova datata e
+   pubblica) è ciò che serve per far valere il marchio di fatto se un giorno servisse.
+
+Nessuna delle tre è urgente finché il progetto non esce dalla cerchia di chi lo prova. La
+terza è quella che stiamo già facendo senza accorgercene.
+
+> Le date e i numeri qui sopra vengono da una banca dati di terze parti che rispecchia
+> EUIPO, non dall'archivio EUIPO interrogato direttamente (serve una credenziale). Prima di
+> spendere soldi su uno dei tre punti, si ricontrolla su `euipo.europa.eu`.
 
 ### La liberatoria di chi contribuisce
 

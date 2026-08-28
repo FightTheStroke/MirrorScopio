@@ -46,6 +46,13 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   dichiara nessun tracciamento, nessun dominio di tracciamento, nessun dato raccolto.
 
 ### Cambiato
+- **Sul marchio adesso c'è un fatto verificato, non un dubbio.** `docs/STRATEGIA-LICENZA.md`
+  diceva «se il nome non è registrato come marchio, difenderlo è più difficile»: era
+  un'ipotesi. Controllato: **«Fight The Stroke» è un marchio UE registrato** (EUIPO
+  016206179, dal 2016, classi 41, 42 e 44), **«MirrorScopio» non lo è**. Il documento adesso
+  dice quale delle due protezioni c'è e quale no, che cosa cambia in pratica, che fra le
+  classi registrate manca la 9 — quella dei programmi che si scaricano — e quanto costerebbe
+  rimediare.
 - **Tre promesse di accessibilità sono state guardate a schermo, e una era sbagliata.**
   Fino alla 0.6.0 `docs/ACCESSIBILITA.md` dichiarava che il tasto Tab non entrava negli
   elenchi a comparsa. Provato sull'app in esecuzione: **entra**, il fuoco si sposta di riga
