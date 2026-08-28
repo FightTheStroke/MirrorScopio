@@ -21,7 +21,7 @@ struct HomeView: View {
     VStack(spacing: 0) {
       topBar
       ScrollView {
-        VStack(spacing: a11y.size(28)) {
+        VStack(spacing: a11y.size(Metrica.spazioLargo)) {
           title
           bannerAggiornamento
           strisciaProgressi
@@ -30,8 +30,8 @@ struct HomeView: View {
           startArea
           warning
         }
-        .padding(.horizontal, 40)
-        .padding(.bottom, 40)
+        .padding(.horizontal, Metrica.spazioEnorme)
+        .padding(.bottom, Metrica.spazioEnorme)
         .frame(maxWidth: 860)
         .frame(maxWidth: .infinity)
       }
@@ -46,10 +46,10 @@ struct HomeView: View {
   // MARK: - Barra in alto
 
   private var topBar: some View {
-    HStack(spacing: 12) {
+    HStack(spacing: Metrica.spazioPiccolo) {
       if !store.current.name.isEmpty {
         Text("Ciao, \(store.current.name)")
-          .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+          .font(a11y.font(.corpo, .semibold))
           .foregroundStyle(palette.foreground)
       }
       Spacer()
@@ -57,17 +57,17 @@ struct HomeView: View {
       iconButton("chart.line.uptrend.xyaxis", "I tuoi progressi", action: openProgress)
       iconButton("gearshape.fill", "Impostazioni", action: openSettings)
     }
-    .padding(.horizontal, 22)
-    .padding(.vertical, 14)
+    .padding(.horizontal, Metrica.spazio)
+    .padding(.vertical, Metrica.spazioPiccolo)
   }
 
   private func iconButton(_ symbol: String, _ label: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
-      HStack(spacing: 7) {
+      HStack(spacing: Metrica.spazioMinimo) {
         Image(systemName: symbol)
-        Text(label).font(a11y.typeface.font(size: a11y.size(15)))
+        Text(label).font(a11y.font(.etichetta))
       }
-      .padding(.horizontal, 12)
+      .padding(.horizontal, Metrica.spazioPiccolo)
       .frame(minHeight: 44)
       .contentShape(Rectangle())
     }
@@ -79,26 +79,26 @@ struct HomeView: View {
   // MARK: - Che cos'è
 
   private var title: some View {
-    VStack(spacing: a11y.size(14)) {
+    VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
       Text("MirrorScopio")
-        .font(a11y.typeface.font(size: a11y.size(48), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
 
       Text(engine.config.mode.childHint)
-        .font(a11y.typeface.font(size: a11y.size(21)))
+        .font(a11y.font(.guida))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
     }
-    .padding(.top, 6)
+    .padding(.top, Metrica.spazioMinimo)
   }
 
   // MARK: - Leggi o scrivi
 
   private var modePicker: some View {
-    VStack(spacing: 10) {
+    VStack(spacing: Metrica.spazioStretto) {
       SectionTitle(text: "Che cosa vuoi allenare?", a11y: a11y)
-      HStack(spacing: 12) {
+      HStack(spacing: Metrica.spazioPiccolo) {
         ForEach(SessionMode.allCases) { mode in
           ChoiceCard(title: mode.label, subtitle: mode.childHint, symbol: mode.symbol,
                      selected: engine.config.mode == mode, a11y: a11y) {
@@ -118,16 +118,16 @@ struct HomeView: View {
   @ViewBuilder
   private var bannerAggiornamento: some View {
     if let r = aggiornamento {
-      HStack(spacing: a11y.size(14)) {
+      HStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
         Image(systemName: "arrow.down.circle.fill")
           .font(.system(size: a11y.size(30)))
           .foregroundStyle(palette.accent)
-        VStack(alignment: .leading, spacing: 3) {
+        VStack(alignment: .leading, spacing: Metrica.filo) {
           Text("C'è MirrorScopio \(r.version)")
-            .font(a11y.typeface.font(size: a11y.size(19), weight: .semibold))
+            .font(a11y.font(.guida, .semibold))
             .foregroundStyle(palette.foreground)
           Text("Tu hai la \(AppVersion.short). Si scarica dalla pagina delle release.")
-            .font(a11y.typeface.font(size: a11y.size(15)))
+            .font(a11y.font(.etichetta))
             .foregroundStyle(palette.muted)
         }
         Spacer(minLength: 0)
@@ -146,7 +146,7 @@ struct HomeView: View {
         .foregroundStyle(palette.muted)
         .accessibilityLabel("nascondi l'avviso")
       }
-      .padding(a11y.size(16))
+      .padding(a11y.size(Metrica.spazioMedio))
       .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.accent.opacity(0.12)))
     }
   }
@@ -172,13 +172,13 @@ struct HomeView: View {
     let l = store.current
     let iniziato = l.xp > 0
     Button(action: openProgress) {
-        HStack(spacing: a11y.size(18)) {
+        HStack(spacing: a11y.size(Metrica.spazioMedio)) {
           medaglia(livello: Gamification.level(xp: l.xp))
 
-          VStack(alignment: .leading, spacing: 6) {
+          VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
             Text(iniziato ? Gamification.levelName(Gamification.level(xp: l.xp))
                           : "Si comincia da qui")
-              .font(a11y.typeface.font(size: a11y.size(22), weight: .bold))
+              .font(a11y.font(.guida, .bold))
               .foregroundStyle(palette.foreground)
 
             ProgressView(value: iniziato ? Gamification.progressInLevel(l.xp) : 0)
@@ -189,7 +189,7 @@ struct HomeView: View {
             Text(iniziato
                  ? "\(Gamification.xpInLevel(l.xp)) punti verso il prossimo livello"
                  : "I primi punti arrivano con la prima sessione. Non serve indovinare tutto: basta arrivare in fondo.")
-              .font(a11y.typeface.font(size: a11y.size(14)))
+              .font(a11y.font(.nota))
               .foregroundStyle(palette.muted)
               .fixedSize(horizontal: false, vertical: true)
           }
@@ -207,7 +207,7 @@ struct HomeView: View {
                       simbolo: "star.fill")
           }
         }
-        .padding(a11y.size(18))
+        .padding(a11y.size(Metrica.spazioMedio))
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: Metrica.raggioGrande).fill(palette.surface))
         .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioGrande))
@@ -227,16 +227,16 @@ struct HomeView: View {
   }
 
   private func datoBreve(numero: String, etichetta: String, simbolo: String) -> some View {
-    VStack(spacing: 2) {
-      HStack(spacing: 5) {
+    VStack(spacing: Metrica.filo) {
+      HStack(spacing: Metrica.briciola) {
         Image(systemName: simbolo)
           .font(.system(size: a11y.size(17)))
         Text(numero)
-          .font(a11y.typeface.font(size: a11y.size(26), weight: .bold))
+          .font(a11y.font(.sezione, .bold))
       }
       .foregroundStyle(palette.accent)
       Text(etichetta)
-        .font(a11y.typeface.font(size: a11y.size(13)))
+        .font(a11y.font(.nota))
         .foregroundStyle(palette.muted)
     }
     .accessibilityElement(children: .combine)
@@ -245,9 +245,9 @@ struct HomeView: View {
   // MARK: - Velocità
 
   private var levels: some View {
-    VStack(spacing: 10) {
+    VStack(spacing: Metrica.spazioStretto) {
       SectionTitle(text: engine.config.mode == .lettura ? "Quanto veloce?" : "Quanto difficile?", a11y: a11y)
-      HStack(spacing: 10) {
+      HStack(spacing: Metrica.spazioStretto) {
         // Leggendo cresce la fretta, scrivendo cresce la complessità: sono due
         // scale diverse perché sono due fatiche diverse.
         if engine.config.mode == .lettura {
@@ -291,14 +291,14 @@ struct HomeView: View {
   // MARK: - Comincia
 
   private var startArea: some View {
-    VStack(spacing: 12) {
+    VStack(spacing: Metrica.spazioPiccolo) {
       BigButton(title: "Via!", symbol: "play.fill", a11y: a11y) {
         persist()
         engine.start()
       }
       .keyboardShortcut(.return, modifiers: [])
 
-      HStack(spacing: 12) {
+      HStack(spacing: Metrica.spazioPiccolo) {
         if let last = store.currentHistory.first, !last.missedWords.isEmpty {
           secondary("Riprendi le \(last.missedWords.count) rimaste", "arrow.counterclockwise") {
             persist()
@@ -316,11 +316,11 @@ struct HomeView: View {
 
   private func secondary(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
-      HStack(spacing: 7) {
+      HStack(spacing: Metrica.spazioMinimo) {
         Image(systemName: symbol)
-        Text(title).font(a11y.typeface.font(size: a11y.size(15)))
+        Text(title).font(a11y.font(.etichetta))
       }
-      .padding(.horizontal, 14)
+      .padding(.horizontal, Metrica.spazioPiccolo)
       .frame(minHeight: 44)
       .contentShape(Rectangle())
     }

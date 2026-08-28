@@ -81,7 +81,7 @@ struct DashboardView: View {
 
     @ViewBuilder
     private var paginaCorrente: some View {
-        VStack(alignment: .leading, spacing: a11y.size(20)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazio)) {
             switch pagina {
             case .adesso:
                 sezionelivello
@@ -109,19 +109,19 @@ struct DashboardView: View {
         let prog    = Gamification.progressInLevel(bambino.xp)
         let xpInLv  = Gamification.xpInLevel(bambino.xp)
 
-        return VStack(alignment: .leading, spacing: a11y.size(10)) {
-            HStack(alignment: .center, spacing: a11y.size(14)) {
+        return VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioStretto)) {
+            HStack(alignment: .center, spacing: a11y.size(Metrica.spazioPiccolo)) {
                 // Il distintivo dà una faccia alla fascia di livello: non più
                 // solo un numero, ma un simbolo che cresce di grado salendo.
                 DistintivoLivello(livello: lv, diametro: 60, a11y: a11y, palette: palette)
 
-                VStack(alignment: .leading, spacing: a11y.size(2)) {
+                VStack(alignment: .leading, spacing: a11y.size(Metrica.filo)) {
                     Text("Livello \(lv)")
-                        .font(a11y.typeface.font(size: a11y.size(40), weight: .heavy))
+                        .font(a11y.font(.titoloGrande, .heavy))
                         .foregroundStyle(palette.accent)
                         .accessibilityHidden(true)
                     Text(nome)
-                        .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
+                        .font(a11y.font(.guida, .semibold))
                         .foregroundStyle(palette.foreground)
                         .accessibilityHidden(true)
                 }
@@ -131,11 +131,11 @@ struct DashboardView: View {
                 .tint(palette.accent)
             if !a11y.hideScore {
                 Text("\(xpInLv) / \(Gamification.xpPerLevel) XP verso il livello \(lv + 1)")
-                    .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                    .font(a11y.font(.nota, .regular))
                     .foregroundStyle(palette.muted)
             }
         }
-        .padding(a11y.size(20))
+        .padding(a11y.size(Metrica.spazio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         // Un unico elemento VoiceOver che legge tutto d'un fiato.
@@ -154,36 +154,36 @@ struct DashboardView: View {
         let streak = bambino.streakCurrent
         let rec    = bambino.streakLongest
 
-        return HStack(spacing: a11y.size(14)) {
+        return HStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
             // La fiamma arancione indica la serie attiva; il significato è
             // ribadito dal testo così chi non distingue i colori capisce lo stesso.
             Image(systemName: streak > 0 ? "flame.fill" : "calendar")
-                .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
+                .font(a11y.font(.titolo, .bold))
                 .foregroundStyle(streak > 0 ? Color.orange : palette.accent)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrica.briciola) {
                 if streak == 0 {
                     Text("Comincia oggi la tua serie")
-                        .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+                        .font(a11y.font(.corpo, .semibold))
                         .foregroundStyle(palette.foreground)
                     Text("Ogni giorno conta")
-                        .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                        .font(a11y.font(.nota, .regular))
                         .foregroundStyle(palette.muted)
                 } else {
                     Text("\(streak) \(streak == 1 ? "giorno di fila" : "giorni di fila")")
-                        .font(a11y.typeface.font(size: a11y.size(20), weight: .bold))
+                        .font(a11y.font(.guida, .bold))
                         .foregroundStyle(palette.foreground)
                     if rec > 0 {
                         Text("Record: \(rec) \(rec == 1 ? "giorno" : "giorni")")
-                            .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                            .font(a11y.font(.nota, .regular))
                             .foregroundStyle(palette.muted)
                     }
                 }
             }
             Spacer()
         }
-        .padding(a11y.size(18))
+        .padding(a11y.size(Metrica.spazioMedio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         .accessibilityElement(children: .ignore)
@@ -208,7 +208,7 @@ struct DashboardView: View {
         let correct = sessioni.reduce(0) { $0 + $1.correct }
         let bestMs  = sessioni.compactMap(\.thresholdMs).min()
 
-        return HStack(spacing: a11y.size(10)) {
+        return HStack(spacing: a11y.size(Metrica.spazioStretto)) {
             _RiquadroRiassuntivo(
                 simbolo: "checkmark.seal.fill",
                 coloreSimbolo: palette.ok,
@@ -257,21 +257,21 @@ struct DashboardView: View {
     private var sezioneGrafici: some View {
         if sessioniGrafico.count < 2 {
             // Stato vuoto invitante: non un errore, ma un'opportunità.
-            HStack(spacing: a11y.size(14)) {
+            HStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .font(a11y.typeface.font(size: a11y.size(30), weight: .light))
+                    .font(a11y.font(.titolo, .light))
                     .foregroundStyle(palette.muted)
                     .accessibilityHidden(true)
                 Text("Fai un'altra sessione e qui comparirà il tuo andamento")
-                    .font(a11y.typeface.font(size: a11y.size(15), weight: .regular))
+                    .font(a11y.font(.etichetta, .regular))
                     .foregroundStyle(palette.muted)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(a11y.size(24))
+            .padding(a11y.size(Metrica.spazioLargo))
             .background(palette.surface)
             .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         } else {
-            VStack(alignment: .leading, spacing: a11y.size(12)) {
+            VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
                 graficoAccuratezza
                 graficoSoglia
             }
@@ -279,9 +279,9 @@ struct DashboardView: View {
     }
 
     private var graficoAccuratezza: some View {
-        VStack(alignment: .leading, spacing: a11y.size(8)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioStretto)) {
             Text("Precisione nel tempo")
-                .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+                .font(a11y.font(.corpo, .semibold))
                 .foregroundStyle(palette.foreground)
 
             Chart(puntiGrafico) { p in
@@ -300,7 +300,7 @@ struct DashboardView: View {
             .chartYAxisLabel("Parole giuste %")
             .frame(minHeight: 160)
         }
-        .padding(a11y.size(18))
+        .padding(a11y.size(Metrica.spazioMedio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         .accessibilityElement(children: .ignore)
@@ -310,22 +310,22 @@ struct DashboardView: View {
     private var graficoSoglia: some View {
         let conSoglia = puntiGrafico.filter { $0.sogliaMs != nil }
 
-        return VStack(alignment: .leading, spacing: a11y.size(8)) {
-            VStack(alignment: .leading, spacing: 3) {
+        return VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioStretto)) {
+            VStack(alignment: .leading, spacing: Metrica.filo) {
                 Text("Soglia di velocità nel tempo")
-                    .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+                    .font(a11y.font(.corpo, .semibold))
                     .foregroundStyle(palette.foreground)
                 // Nota obbligatoria: il grafico migliora verso il basso, non verso l'alto.
                 Text("↓  più in basso = più bravo (meno millisecondi = più veloce)")
-                    .font(a11y.typeface.font(size: a11y.size(12), weight: .regular))
+                    .font(a11y.font(.nota, .regular))
                     .foregroundStyle(palette.muted)
             }
 
             if conSoglia.isEmpty {
                 Text("Nessun dato di soglia ancora. La modalità adattiva li raccoglie in automatico.")
-                    .font(a11y.typeface.font(size: a11y.size(14), weight: .regular))
+                    .font(a11y.font(.nota, .regular))
                     .foregroundStyle(palette.muted)
-                    .padding(.vertical, a11y.size(14))
+                    .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
             } else {
                 Chart(conSoglia) { p in
                     LineMark(
@@ -347,7 +347,7 @@ struct DashboardView: View {
                 )
             }
         }
-        .padding(a11y.size(18))
+        .padding(a11y.size(Metrica.spazioMedio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
     }
@@ -357,12 +357,12 @@ struct DashboardView: View {
     private let colonneObiettivi = [GridItem(.adaptive(minimum: 144, maximum: 220))]
 
     private var sezioneObiettivi: some View {
-        VStack(alignment: .leading, spacing: a11y.size(12)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
             Text("Obiettivi")
-                .font(a11y.typeface.font(size: a11y.size(20), weight: .bold))
+                .font(a11y.font(.guida, .bold))
                 .foregroundStyle(palette.foreground)
 
-            LazyVGrid(columns: colonneObiettivi, spacing: a11y.size(10)) {
+            LazyVGrid(columns: colonneObiettivi, spacing: a11y.size(Metrica.spazioStretto)) {
                 ForEach(Gamification.all) { a in
                     _CellaObiettivo(
                         obiettivo: a,
@@ -373,7 +373,7 @@ struct DashboardView: View {
                 }
             }
         }
-        .padding(a11y.size(18))
+        .padding(a11y.size(Metrica.spazioMedio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
     }
@@ -381,17 +381,17 @@ struct DashboardView: View {
     // MARK: - Sessioni recenti
 
     private var sezioneSessioniRecenti: some View {
-        VStack(alignment: .leading, spacing: a11y.size(6)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMinimo)) {
             Text("Sessioni recenti")
-                .font(a11y.typeface.font(size: a11y.size(20), weight: .bold))
+                .font(a11y.font(.guida, .bold))
                 .foregroundStyle(palette.foreground)
-                .padding(.bottom, a11y.size(4))
+                .padding(.bottom, a11y.size(Metrica.briciola))
 
             if sessioni.isEmpty {
                 Text("Ancora nessuna sessione completata. La prima è quella che conta di più.")
-                    .font(a11y.typeface.font(size: a11y.size(15), weight: .regular))
+                    .font(a11y.font(.etichetta, .regular))
                     .foregroundStyle(palette.muted)
-                    .padding(.vertical, a11y.size(12))
+                    .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
             } else {
                 ForEach(Array(sessioni.prefix(10))) { sessione in
                     VStack(spacing: 0) {
@@ -417,7 +417,7 @@ struct DashboardView: View {
                 }
             }
         }
-        .padding(a11y.size(18))
+        .padding(a11y.size(Metrica.spazioMedio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
     }
@@ -425,7 +425,7 @@ struct DashboardView: View {
     // MARK: - Piede adulto
 
     private var piedePiePage: some View {
-        HStack(spacing: a11y.size(10)) {
+        HStack(spacing: a11y.size(Metrica.spazioStretto)) {
             SmallButton(title: "Esporta PDF", symbol: "doc.fill", a11y: a11y) {
                 let data = Exporter.pdf(sessions: store.currentHistory, learner: store.current)
                 let nome = bambino.name.isEmpty ? "bambino" : bambino.name
@@ -446,7 +446,7 @@ struct DashboardView: View {
                 mostraConfermaReset = true
             }
         }
-        .padding(a11y.size(14))
+        .padding(a11y.size(Metrica.spazioPiccolo))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggio))
         .confirmationDialog(
@@ -511,27 +511,27 @@ private struct _RiquadroRiassuntivo: View {
     let palette: Palette
 
     var body: some View {
-        VStack(alignment: .leading, spacing: a11y.size(6)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMinimo)) {
             Image(systemName: simbolo)
-                .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
+                .font(a11y.font(.guida, .semibold))
                 .foregroundStyle(coloreSimbolo)
                 .accessibilityHidden(true)
             Text(valore)
-                .font(a11y.typeface.font(size: a11y.size(28), weight: .heavy))
+                .font(a11y.font(.titolo, .heavy))
                 .foregroundStyle(palette.foreground)
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             Text(etichetta)
-                .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                .font(a11y.font(.nota, .regular))
                 .foregroundStyle(palette.muted)
             if let sub = sottotitolo {
                 Text(sub)
-                    .font(a11y.typeface.font(size: a11y.size(12), weight: .regular))
+                    .font(a11y.font(.nota, .regular))
                     .foregroundStyle(palette.muted)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(a11y.size(16))
+        .padding(a11y.size(Metrica.spazioMedio))
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
     }
@@ -546,7 +546,7 @@ private struct _CellaObiettivo: View {
     let palette: Palette
 
     var body: some View {
-        VStack(spacing: a11y.size(8)) {
+        VStack(spacing: a11y.size(Metrica.spazioStretto)) {
             // Il distintivo mostra sempre il simbolo dell'obiettivo — tenue
             // finché è da conquistare, pieno quando è tuo — invece del vecchio
             // lucchetto uguale per tutti.
@@ -558,19 +558,19 @@ private struct _CellaObiettivo: View {
             )
 
             Text(obiettivo.title)
-                .font(a11y.typeface.font(size: a11y.size(13), weight: .semibold))
+                .font(a11y.font(.nota, .semibold))
                 .foregroundStyle(sbloccato ? palette.foreground : palette.muted)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
 
             // Il suggerimento è sempre visibile: il bambino deve sapere a cosa puntare.
             Text(obiettivo.hint)
-                .font(a11y.typeface.font(size: a11y.size(11), weight: .regular))
+                .font(a11y.font(.nota, .regular))
                 .foregroundStyle(palette.muted)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
         }
-        .padding(a11y.size(12))
+        .padding(a11y.size(Metrica.spazioPiccolo))
         .frame(maxWidth: .infinity)
         .background(palette.surface.opacity(sbloccato ? 1.0 : 0.65))
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
@@ -618,7 +618,7 @@ private struct _RigaSessione: View {
     }
 
     private var rigaPrincipale: some View {
-        HStack(spacing: a11y.size(10)) {
+        HStack(spacing: a11y.size(Metrica.spazioStretto)) {
             // Indicatore di esito: forma + colore, mai solo il colore.
             //
             // Non una croce. Qui si archiviano le giornate passate, e una X
@@ -628,23 +628,23 @@ private struct _RigaSessione: View {
             // giorno non e' venuta *ancora*.
             let buono = sessione.total > 0 && sessione.accuracy >= 0.6
             Image(systemName: buono ? ColorVision.okSymbol : ColorVision.wrongSymbol)
-                .font(a11y.typeface.font(size: a11y.size(18), weight: .regular))
+                .font(a11y.font(.corpo, .regular))
                 .foregroundStyle(buono ? palette.ok : palette.wrong)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Metrica.filo) {
                 Text(dataItaliana(sessione.date))
-                    .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
+                    .font(a11y.font(.etichetta, .semibold))
                     .foregroundStyle(palette.foreground)
-                HStack(spacing: a11y.size(6)) {
+                HStack(spacing: a11y.size(Metrica.spazioMinimo)) {
                     Label(sessione.mode.label, systemImage: sessione.mode.symbol)
-                        .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                        .font(a11y.font(.nota, .regular))
                         .foregroundStyle(palette.muted)
                     Text("·")
-                        .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                        .font(a11y.font(.nota, .regular))
                         .foregroundStyle(palette.muted)
                     Label(sessione.level.title, systemImage: sessione.level.symbol)
-                        .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                        .font(a11y.font(.nota, .regular))
                         .foregroundStyle(palette.muted)
                 }
             }
@@ -653,47 +653,47 @@ private struct _RigaSessione: View {
 
             // "12 su 15" è più leggibile di una percentuale per i bambini.
             Text("\(sessione.correct) su \(sessione.total)")
-                .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
+                .font(a11y.font(.etichetta, .semibold))
                 .foregroundStyle(palette.foreground)
 
             Image(systemName: aperta ? "chevron.up" : "chevron.down")
-                .font(a11y.typeface.font(size: a11y.size(12), weight: .regular))
+                .font(a11y.font(.nota, .regular))
                 .foregroundStyle(palette.muted)
                 .accessibilityHidden(true)
         }
-        .padding(.vertical, a11y.size(10))
+        .padding(.vertical, a11y.size(Metrica.spazioStretto))
     }
 
     @ViewBuilder
     private var dettaglioParole: some View {
         let mancate = sessione.missedWords
-        VStack(alignment: .leading, spacing: a11y.size(6)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMinimo)) {
             if mancate.isEmpty {
                 Text("Nessuna parola mancata — ottimo lavoro")
-                    .font(a11y.typeface.font(size: a11y.size(13), weight: .regular))
+                    .font(a11y.font(.nota, .regular))
                     .foregroundStyle(palette.muted)
             } else {
                 Text("Parole da ripassare:")
-                    .font(a11y.typeface.font(size: a11y.size(13), weight: .semibold))
+                    .font(a11y.font(.nota, .semibold))
                     .foregroundStyle(palette.muted)
                 // Chips orizzontali: scannable a colpo d'occhio.
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: 80))],
-                    spacing: a11y.size(6)
+                    spacing: a11y.size(Metrica.spazioMinimo)
                 ) {
                     ForEach(Array(mancate.enumerated()), id: \.offset) { _, parola in
                         Text(parola)
-                            .font(a11y.typeface.font(size: a11y.size(14), weight: .semibold))
+                            .font(a11y.font(.nota, .semibold))
                             .foregroundStyle(palette.foreground)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
+                            .padding(.horizontal, Metrica.spazioStretto)
+                            .padding(.vertical, Metrica.briciola)
                             .background(palette.background)
                             .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
                     }
                 }
             }
         }
-        .padding(.bottom, a11y.size(10))
+        .padding(.bottom, a11y.size(Metrica.spazioStretto))
     }
 
     private func dataItaliana(_ data: Date) -> String {

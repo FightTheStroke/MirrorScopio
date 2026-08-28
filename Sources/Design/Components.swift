@@ -23,14 +23,38 @@ enum Metrica {
   /// Pannelli grandi e pulsanti principali.
   static let raggioGrande: CGFloat = 18
 
+  // La scala delle distanze. Dieci passi, e nessun numero fuori scala.
+  //
+  // Prima ogni schermata sceglieva le proprie distanze: 10 qui, 14 la', 22
+  // nella riga accanto. Nessuna di quelle differenze e' una decisione — sono
+  // numeri capitati mentre si guardava una schermata alla volta. Messe
+  // insieme fanno pagine che non hanno lo stesso respiro, e chi legge con
+  // fatica ci si perde: se lo spazio fra due cose non vuol dire sempre la
+  // stessa cosa, non aiuta piu' a capire che cosa sta con che cosa.
+  //
+  // I passi sono radi apposta: due distanze devono essere o uguali o
+  // chiaramente diverse. Due punti di differenza non li decide nessuno.
+
+  /// Due cose attaccate: un'icona e la sua parola.
+  static let filo: CGFloat = 2
+  /// Quasi attaccate.
+  static let briciola: CGFloat = 4
   /// Fra due cose che sono la stessa cosa.
   static let spazioMinimo: CGFloat = 6
+  /// Dentro un elemento: il respiro di un pulsante piccolo.
+  static let spazioStretto: CGFloat = 8
   /// Fra le righe di un gruppo.
   static let spazioPiccolo: CGFloat = 12
+  /// Fra due gruppi vicini.
+  static let spazioMedio: CGFloat = 16
   /// Fra un gruppo e l'altro.
   static let spazio: CGFloat = 20
+  /// Il respiro dentro un riquadro.
+  static let spazioLargo: CGFloat = 24
   /// Fra una sezione e l'altra.
   static let spazioGrande: CGFloat = 32
+  /// Attorno alle cose che devono stare da sole.
+  static let spazioEnorme: CGFloat = 40
   /// Il margine attorno al contenuto di una pagina.
   static let margine: CGFloat = 26
 
@@ -73,13 +97,13 @@ struct SmallButton: View {
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: 9) {
+      HStack(spacing: Metrica.spazioStretto) {
         if let symbol { Image(systemName: symbol) }
         Text(title)
       }
-      .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
-      .padding(.horizontal, a11y.size(18))
-      .padding(.vertical, a11y.size(11))
+      .font(a11y.font(.etichetta, .semibold))
+      .padding(.horizontal, a11y.size(Metrica.spazioMedio))
+      .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -107,13 +131,13 @@ struct BigButton: View {
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: 14) {
+      HStack(spacing: Metrica.spazioPiccolo) {
         if let symbol { Image(systemName: symbol) }
         Text(title)
       }
-      .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
+      .font(a11y.font(.titolo, .bold))
       .frame(maxWidth: .infinity)
-      .padding(.vertical, a11y.size(20))
+      .padding(.vertical, a11y.size(Metrica.spazio))
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -142,24 +166,24 @@ struct ChoiceCard: View {
 
   var body: some View {
     Button(action: action) {
-      VStack(spacing: 8) {
+      VStack(spacing: Metrica.spazioStretto) {
         if let symbol {
           Image(systemName: symbol).font(.system(size: a11y.size(30)))
         }
         Text(title)
-          .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+          .font(a11y.font(.guida, .semibold))
           .multilineTextAlignment(.center)
         if let subtitle {
           Text(subtitle)
-            .font(a11y.typeface.font(size: a11y.size(13)))
+            .font(a11y.font(.nota))
             .foregroundStyle(palette.muted)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
         }
       }
       .frame(maxWidth: .infinity)
-      .padding(.vertical, a11y.size(18))
-      .padding(.horizontal, 10)
+      .padding(.vertical, a11y.size(Metrica.spazioMedio))
+      .padding(.horizontal, Metrica.spazioStretto)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -178,7 +202,7 @@ struct ChoiceCard: View {
         Image(systemName: "checkmark.circle.fill")
           .font(.system(size: a11y.size(18)))
           .foregroundStyle(palette.accent)
-          .padding(8)
+          .padding(Metrica.spazioStretto)
           // Il segno di spunta è un disegno, non un comando: senza questo
           // VoiceOver annunciava un secondo pulsante chiamato «Selezionato»
           // che non faceva niente, subito prima della carta vera.
@@ -199,7 +223,7 @@ struct SectionTitle: View {
 
   var body: some View {
     Text(text)
-      .font(a11y.typeface.font(size: a11y.size(24), weight: .bold))
+      .font(a11y.font(.sezione, .bold))
       .foregroundStyle(palette.foreground)
       .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -229,7 +253,7 @@ struct Verdict: View {
   var size: Double = 20
 
   var body: some View {
-    HStack(spacing: 6) {
+    HStack(spacing: Metrica.spazioMinimo) {
       Image(systemName: correct ? ColorVision.okSymbol : ColorVision.wrongSymbol)
       Text(correct ? "giusta" : "ancora")
     }
@@ -266,7 +290,7 @@ struct StopButton: View {
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: a11y.size(10)) {
+      HStack(spacing: a11y.size(Metrica.spazioStretto)) {
         ZStack {
           Circle().fill(rosso)
           RoundedRectangle(cornerRadius: Metrica.raggioMinimo)
@@ -276,10 +300,10 @@ struct StopButton: View {
         .frame(width: a11y.size(38), height: a11y.size(38))
 
         Text(titolo)
-          .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+          .font(a11y.font(.guida, .semibold))
       }
-      .padding(.horizontal, a11y.size(16))
-      .padding(.vertical, a11y.size(8))
+      .padding(.horizontal, a11y.size(Metrica.spazioMedio))
+      .padding(.vertical, a11y.size(Metrica.spazioStretto))
       // 60 punti: la soglia dei 44 di Apple è il minimo per una mano ferma.
       .frame(minHeight: max(60, a11y.size(56)))
       .contentShape(Capsule())
@@ -372,7 +396,7 @@ struct ProgressoPallini: View {
     if totale > 0 {
       VStack {
         Spacer()
-        HStack(spacing: 8) {
+        HStack(spacing: Metrica.spazioStretto) {
           ForEach(0..<totale, id: \.self) { i in
             Circle()
               .fill(colore(i))
@@ -380,7 +404,7 @@ struct ProgressoPallini: View {
                      height: i == indice - 1 ? 12 : 8)
           }
         }
-        .padding(.bottom, 24)
+        .padding(.bottom, Metrica.spazioLargo)
         .animation(a11y.animation(0.2), value: indice)
         .accessibilityElement()
         .accessibilityLabel("\(nomeDellUnita) \(indice) di \(totale)")
@@ -426,14 +450,14 @@ struct PulsanteChiudi: View {
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: a11y.size(7)) {
+      HStack(spacing: a11y.size(Metrica.spazioMinimo)) {
         Image(systemName: "xmark")
-          .font(a11y.typeface.font(size: a11y.size(14), weight: .bold))
+          .font(a11y.font(.nota, .bold))
         Text("Chiudi")
       }
-      .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
-      .padding(.horizontal, a11y.size(20))
-      .padding(.vertical, a11y.size(11))
+      .font(a11y.font(.corpo, .semibold))
+      .padding(.horizontal, a11y.size(Metrica.spazio))
+      .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
       .frame(minWidth: Metrica.bersaglio, minHeight: Metrica.bersaglio)
       .contentShape(Capsule())
     }
@@ -463,13 +487,13 @@ struct IntestazionePagina: View {
 
   var body: some View {
     HStack(alignment: .firstTextBaseline) {
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: Metrica.filo) {
         Text(titolo)
-          .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
+          .font(a11y.font(.titolo, .bold))
           .foregroundStyle(palette.foreground)
         if let sottotitolo, !sottotitolo.isEmpty {
           Text(.init(sottotitolo))
-            .font(a11y.typeface.font(size: a11y.size(16)))
+            .font(a11y.font(.etichetta))
             .foregroundStyle(palette.muted)
         }
       }

@@ -34,24 +34,24 @@ struct VoiceChooser: View {
   private var vociMancanti: some View {
     let mancanti = ItalianVoices.mancanti()
     if !mancanti.isEmpty {
-      VStack(alignment: .leading, spacing: 10) {
-        Divider().padding(.vertical, 4)
+      VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+        Divider().padding(.vertical, Metrica.briciola)
         Text(ItalianVoices.haUnaVoceBuona
              ? "Su questo Mac si possono aggiungere anche queste"
              : "Le voci di serie vanno bene. Queste si capiscono meglio")
-          .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+          .font(a11y.font(.corpo, .semibold))
           .foregroundStyle(palette.foreground)
 
         ForEach(mancanti.prefix(4), id: \.nome) { v in
-          HStack(alignment: .firstTextBaseline, spacing: 10) {
+          HStack(alignment: .firstTextBaseline, spacing: Metrica.spazioStretto) {
             Image(systemName: "arrow.down.circle")
               .foregroundStyle(palette.muted)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Metrica.filo) {
               Text(v.nome)
-                .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+                .font(a11y.font(.corpo, .semibold))
                 .foregroundStyle(palette.foreground)
               Text(v.descrizione)
-                .font(a11y.typeface.font(size: a11y.size(15)))
+                .font(a11y.font(.etichetta))
                 .foregroundStyle(palette.muted)
                 .fixedSize(horizontal: false, vertical: true)
             }
@@ -69,7 +69,7 @@ struct VoiceChooser: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: a11y.size(14)) {
+    VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
       SectionTitle(text: "La voce che legge", a11y: a11y)
       Explain(text: "Premi ▶︎ per sentirla. Scegli quella che si capisce meglio.", a11y: a11y)
 
@@ -84,11 +84,11 @@ struct VoiceChooser: View {
       vociMancanti
 
       if showsRate {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
           Text("Velocità della voce")
-            .font(a11y.typeface.font(size: a11y.size(19), weight: .semibold))
+            .font(a11y.font(.guida, .semibold))
             .foregroundStyle(palette.foreground)
-          HStack(spacing: 12) {
+          HStack(spacing: Metrica.spazioPiccolo) {
             Image(systemName: "tortoise.fill").foregroundStyle(palette.muted)
               .accessibilityHidden(true)
             Slider(value: Binding(get: { a11y.voiceRate },
@@ -103,7 +103,7 @@ struct VoiceChooser: View {
           Explain(text: "Più a sinistra, più lenta. Per chi legge con fatica, lenta è meglio.",
                   a11y: a11y, size: 16)
         }
-        .padding(.top, 6)
+        .padding(.top, Metrica.spazioMinimo)
       }
     }
     // Ricaricate a ogni comparsa: una voce può essere stata scaricata mentre
@@ -118,21 +118,21 @@ struct VoiceChooser: View {
   @ViewBuilder
   private func riga(_ voce: AVSpeechSynthesisVoice) -> some View {
     let scelta = voce.identifier == sceltaCorrente
-    HStack(spacing: 14) {
+    HStack(spacing: Metrica.spazioPiccolo) {
       Button {
         store.update { $0.a11y.voiceIdentifier = voce.identifier }
         prova(voce)
       } label: {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           Image(systemName: scelta ? "largecircle.fill.circle" : "circle")
             .font(.system(size: a11y.size(22)))
             .foregroundStyle(scelta ? palette.accent : palette.muted)
-          VStack(alignment: .leading, spacing: 2) {
+          VStack(alignment: .leading, spacing: Metrica.filo) {
             Text(voce.name)
-              .font(a11y.typeface.font(size: a11y.size(21), weight: scelta ? .bold : .regular))
+              .font(a11y.font(.guida, scelta ? .bold : .regular))
               .foregroundStyle(palette.foreground)
             Text(Speaker.qualityLabel(voce))
-              .font(a11y.typeface.font(size: a11y.size(15)))
+              .font(a11y.font(.etichetta))
               .foregroundStyle(palette.muted)
           }
           Spacer(minLength: 0)
@@ -149,7 +149,7 @@ struct VoiceChooser: View {
                   a11y: a11y) { prova(voce) }
         .accessibilityLabel("Ascolta \(voce.name)")
     }
-    .padding(.vertical, 4)
+    .padding(.vertical, Metrica.briciola)
   }
 
   private func prova(_ voce: AVSpeechSynthesisVoice) {

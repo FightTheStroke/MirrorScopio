@@ -31,7 +31,7 @@ struct AiutoView: View {
         Divider()
         ScrollView {
           paginaCorrente
-            .padding(32)
+            .padding(Metrica.spazioGrande)
             .frame(maxWidth: 720, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -75,7 +75,7 @@ struct AiutoView: View {
 
   @ViewBuilder
   private var paginaCorrente: some View {
-    VStack(alignment: .leading, spacing: 28) {
+    VStack(alignment: .leading, spacing: Metrica.spazioLargo) {
       switch pagina {
       case .comeFunziona: comeFunziona
       case .modalita: modalita
@@ -90,7 +90,7 @@ struct AiutoView: View {
   // MARK: - Come funziona
 
   private var comeFunziona: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "Come funziona", a11y: a11y)
       testo("Una parola appare sullo schermo per un lampo — pochi millesimi di secondo — e sparisce.")
       testo("Tu la leggi ad alta voce. Il Mac ascolta con il microfono e capisce da solo se l'hai presa.")
@@ -103,7 +103,7 @@ struct AiutoView: View {
   // MARK: - Leggi e Scrivi
 
   private var modalita: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "Leggi e Scrivi", a11y: a11y)
       testo("Sono i due modi di allenarsi. Li scegli nella schermata di casa, prima di cominciare.")
 
@@ -119,7 +119,7 @@ struct AiutoView: View {
   // MARK: - Se non ti sente
 
   private var nonTiSente: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "Se non ti sente", a11y: a11y)
       testo("Prima di tutto: se il Mac non sente, è l'audio che non va, non tu.")
       testo("In alto a destra c'è il microfono. Da lì scegli quale usare e apri «Prova microfono e voce»: dici qualcosa e vedi subito se la barra si muove.")
@@ -133,7 +133,7 @@ struct AiutoView: View {
   // MARK: - Per chi accompagna
 
   private var perChiAccompagna: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "Per chi accompagna", a11y: a11y)
       testo("Per genitori e logopedisti. Il ragazzo non ha bisogno di leggere questa pagina.")
 
@@ -155,7 +155,7 @@ struct AiutoView: View {
   // MARK: - Tasti
 
   private var tasti: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "Tasti", a11y: a11y)
       testo("Le scorciatoie da tastiera, per chi preferisce non usare il mouse.")
       elenco("Esc", "ferma la lettura in corso, o chiude la pagina che stai guardando.")
@@ -169,7 +169,7 @@ struct AiutoView: View {
   // MARK: - Chi siamo
 
   private var chiSiamo: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "Chi siamo", a11y: a11y)
       testo("MirrorScopio è fatto dalla **Fight The Stroke Foundation**, per i ragazzi che imparano a leggere con più fatica.")
       testo("Il codice è aperto, sotto licenza Apache 2.0: chiunque può leggerlo, controllarlo e proporre miglioramenti.")
@@ -177,7 +177,7 @@ struct AiutoView: View {
         if let u = URL(string: repoURL) { NSWorkspace.shared.open(u) }
       }
 
-      Divider().padding(.vertical, 4)
+      Divider().padding(.vertical, Metrica.briciola)
 
       testo("MirrorScopio è gratuito e senza pubblicità. Se vuoi, puoi sostenere Fight The Stroke.")
       SmallButton(title: "Sostieni Fight The Stroke", symbol: "heart", a11y: a11y) {
@@ -198,7 +198,7 @@ struct AiutoView: View {
 
   private func sottotitolo(_ s: String) -> some View {
     Text(s)
-      .font(a11y.typeface.font(size: a11y.size(19), weight: .semibold))
+      .font(a11y.font(.guida, .semibold))
       .foregroundStyle(palette.foreground)
       .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -206,13 +206,13 @@ struct AiutoView: View {
   /// Una riga di elenco: la cosa in grassetto, poi la spiegazione. Il grassetto
   /// da solo non porta l'informazione — c'è sempre anche il pallino e le parole.
   private func elenco(_ voce: String, _ spiega: String) -> some View {
-    HStack(alignment: .firstTextBaseline, spacing: 10) {
+    HStack(alignment: .firstTextBaseline, spacing: Metrica.spazioStretto) {
       Image(systemName: "circle.fill")
         .font(.system(size: a11y.size(6)))
         .foregroundStyle(palette.accent)
         .accessibilityHidden(true)
       (Text("\(Text(voce).fontWeight(.semibold)) — \(spiega)"))
-        .font(a11y.typeface.font(size: a11y.size(17)))
+        .font(a11y.font(.corpo))
         .foregroundStyle(palette.foreground)
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)

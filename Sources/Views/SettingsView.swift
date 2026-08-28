@@ -94,7 +94,7 @@ struct SettingsView: View {
 
     @ViewBuilder
   private var paginaCorrente: some View {
-    VStack(alignment: .leading, spacing: 28) {
+    VStack(alignment: .leading, spacing: Metrica.spazioLargo) {
       switch pagina {
       case .inizio:
         who
@@ -115,9 +115,9 @@ struct SettingsView: View {
       case .suoni:
         suoniPagina
       case .clinico:
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
           Text("Millesimi di secondo, maschera, scala adattiva. Servono a chi\nimposta la riabilitazione; per leggere non serve toccare niente.")
-            .font(a11y.typeface.font(size: a11y.size(15)))
+            .font(a11y.font(.etichetta))
             .foregroundStyle(palette.muted)
             .fixedSize(horizontal: false, vertical: true)
           AdvancedControls(store: store, engine: engine, a11y: a11y)
@@ -132,13 +132,13 @@ struct SettingsView: View {
   /// ragazzo cambia nel giro di mesi, e la velocita di partenza va rifatta:
   /// qui, insieme al nome, e dove si torna quando si vuole ricominciare.
   private var prova: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "La prova di velocità", a11y: a11y)
       Explain(text: store.current.calibratedExposureMs == nil
               ? "Non l'hai ancora fatta. Otto parole, meno di un minuto: servono al Mac per capire da che velocità partire."
               : "Fatta: si parte da \(Int(store.current.calibratedExposureMs ?? 0)) millesimi di secondo. Rifalla ogni tanto — quello che era difficile a settembre può non esserlo più a marzo.",
               a11y: a11y, size: 15)
-      HStack(spacing: 12) {
+      HStack(spacing: Metrica.spazioPiccolo) {
         SmallButton(title: store.current.calibratedExposureMs == nil ? "Fai la prova" : "Rifai la prova",
                     symbol: "wand.and.stars", a11y: a11y) {
           onClose()
@@ -156,7 +156,7 @@ struct SettingsView: View {
   // MARK: - Voce
 
   private var voce: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       VoiceChooser(store: store)
       SmallButton(title: "Altre voci (Impostazioni di Sistema)",
                   symbol: "arrow.up.forward.app", a11y: a11y) {
@@ -169,7 +169,7 @@ struct SettingsView: View {
   // MARK: - Chi usa l'app
 
   private var who: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "Chi usa l'app", a11y: a11y)
       Explain(text: "Il nome serve solo a intestare i progressi e i referti. Resta su questo Mac.", a11y: a11y, size: 15)
       TextField("Nome", text: Binding(
@@ -177,7 +177,7 @@ struct SettingsView: View {
         set: { var l = store.current; l.name = $0; store.current = l }
       ))
       .textFieldStyle(.roundedBorder)
-      .font(a11y.typeface.font(size: a11y.size(18)))
+      .font(a11y.font(.corpo))
       .frame(maxWidth: 360)
     }
   }
@@ -185,11 +185,11 @@ struct SettingsView: View {
   // MARK: - Profili
 
   private var profiles: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "Un profilo imposta tutto in un colpo", a11y: a11y)
       Explain(text: "Scegline uno e carattere, colori, tempi e pause si sistemano da soli. Poi puoi ritoccare quello che vuoi qui sotto.", a11y: a11y, size: 15)
 
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 12)], spacing: 12) {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(A11yProfile.allCases) { p in
           ChoiceCard(title: p.label, subtitle: p.hint, symbol: p.symbol,
                      selected: a11y.profile == p, a11y: a11y) {
@@ -206,9 +206,9 @@ struct SettingsView: View {
   // MARK: - Carattere
 
   private var fonts: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Carattere", a11y: a11y)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(TypefaceChoice.allCases.filter(\.isAvailable)) { t in
           ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.typeface == t, a11y: a11y) {
             update { $0.typeface = t }
@@ -223,14 +223,14 @@ struct SettingsView: View {
   }
 
   private var preview: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
       Explain(text: "Come si vedrà la parola:", a11y: a11y, size: 14)
       Text("farfalla")
         .font(a11y.typeface.font(size: min(CGFloat(a11y.stimulusSize), 90), weight: .semibold))
         .tracking(CGFloat(a11y.letterSpacing))
         .foregroundStyle(palette.foreground)
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.vertical, 18)
+        .padding(.vertical, Metrica.spazioMedio)
         .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
     }
   }
@@ -238,9 +238,9 @@ struct SettingsView: View {
   // MARK: - Colori
 
   private var colors: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Colori", a11y: a11y)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(ThemeChoice.allCases) { t in
           ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
             update { $0.theme = t }
@@ -250,25 +250,25 @@ struct SettingsView: View {
 
       SectionTitle(text: "Come vedi i colori", a11y: a11y)
       Explain(text: "«Giusta» e «ancora» non si distinguono mai solo dal colore: c'è sempre anche un simbolo e una parola. Qui scegli i colori che si distinguono meglio per te.", a11y: a11y, size: 15)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(ColorVision.allCases) { v in
           ChoiceCard(title: v.label, selected: a11y.colorVision == v, a11y: a11y) {
             update { $0.colorVision = v }
           }
         }
       }
-      HStack(spacing: 20) {
+      HStack(spacing: Metrica.spazio) {
         Verdict(correct: true, a11y: a11y)
         Verdict(correct: false, a11y: a11y)
       }
-      .padding(.top, 4)
+      .padding(.top, Metrica.briciola)
     }
   }
 
   // MARK: - Ritmo
 
   private var rhythm: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Ritmo e calma", a11y: a11y)
       toggle("Niente animazioni", bindBool(\.reducedMotion),
              "Tutto compare e sparisce senza movimento.")
@@ -288,7 +288,7 @@ struct SettingsView: View {
         Text(a11y.pauseEveryNWords == 0
              ? "Pausa automatica: mai"
              : "Pausa automatica ogni \(a11y.pauseEveryNWords) parole")
-          .font(a11y.typeface.font(size: a11y.size(17)))
+          .font(a11y.font(.corpo))
           .foregroundStyle(palette.foreground)
       }
     }
@@ -297,7 +297,7 @@ struct SettingsView: View {
   // MARK: - Riscontro
 
   private var feedback: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Che cosa mostrare dopo ogni parola", a11y: a11y)
       toggle("Dire subito se è giusta", bindBool(\.showFeedbackPerWord),
              "Un simbolo grande dopo ogni parola.")
@@ -317,7 +317,7 @@ struct SettingsView: View {
   /// regola il volume e — soprattutto — si provano prima di lasciarli a un
   /// ragazzo: chi imposta l'app deve sentire esattamente ciò che sentirà lui.
   private var suoniPagina: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       SectionTitle(text: "I suoni di conferma", a11y: a11y)
       Explain(text: "Un tocco quando la parola compare, due note che salgono quando è giusta, "
               + "un tocco piatto e neutro quando è «ancora» — mai un suono da errore — e una "
@@ -330,27 +330,27 @@ struct SettingsView: View {
       slider("Volume", value: bind(\.volumeSuoni), range: 0...1,
              format: { "\(Int($0 * 100))%" })
 
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
         SectionTitle(text: "Ascolta ciascun suono", a11y: a11y)
         Explain(text: "Si sentono anche a suoni spenti, così puoi decidere. Suonano come li "
                 + "sentirà chi usa l'app: volume e profilo di accessibilità inclusi.",
                 a11y: a11y, size: 14)
         ForEach(Suoni.Momento.allCases) { momento in
-          HStack(alignment: .top, spacing: 12) {
+          HStack(alignment: .top, spacing: Metrica.spazioPiccolo) {
             SmallButton(title: "Ascolta", symbol: "play.circle.fill", a11y: a11y) {
               // Alla fine passo una quota alta: in anteprima si sente la
               // cadenza piena, quella di una sessione andata bene.
               suoni.anteprima(momento, quota: momento == .fine ? 0.85 : 1, a11y: a11y)
             }
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Metrica.filo) {
               Text(momento.titolo)
-                .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+                .font(a11y.font(.etichetta, .semibold))
                 .foregroundStyle(palette.foreground)
               Explain(text: momento.spiega, a11y: a11y, size: 14)
             }
             Spacer(minLength: 0)
           }
-          .padding(.vertical, 2)
+          .padding(.vertical, Metrica.filo)
         }
       }
 
@@ -362,42 +362,42 @@ struct SettingsView: View {
   }
 
   private var privacy: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "I dati", a11y: a11y)
       Explain(text: "Voce, risposte e progressi non escono mai da questo Mac: niente account, niente rete, niente servizi esterni. I file stanno in una cartella che puoi aprire, leggere o cancellare a mano.", a11y: a11y, size: 15)
       SmallButton(title: "Apri la cartella dei dati", symbol: "folder", a11y: a11y) {
         NSWorkspace.shared.open(store.storageFolder)
       }
 
-      Divider().padding(.vertical, 4)
+      Divider().padding(.vertical, Metrica.briciola)
 
       Toggle(isOn: Binding(get: { Updates.enabled },
                            set: { Updates.enabled = $0; aggiornamentiAccesi = $0 })) {
         Text("Avvisami quando esce una versione nuova")
-          .font(a11y.typeface.font(size: a11y.size(17)))
+          .font(a11y.font(.corpo))
       }
       .toggleStyle(.switch)
       Explain(text: "È l'unica cosa che esce da questo Mac: una domanda al giorno a GitHub su qual è l'ultima versione. Non parte nessun nome, nessuna parola, nessun punteggio, e non si scarica niente da solo.", a11y: a11y, size: 14)
 
       if aggiornamentiAccesi {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           SmallButton(title: "Controlla adesso", symbol: "arrow.clockwise",
                       a11y: a11y) { controllaAdesso() }
             .disabled(controlloInCorso)
           if controlloInCorso { ProgressView().controlSize(.small) }
           if let esito = esitoControllo {
             Text(esito)
-              .font(a11y.typeface.font(size: a11y.size(15)))
+              .font(a11y.font(.etichetta))
               .foregroundStyle(palette.muted)
           }
         }
       }
 
-      Divider().padding(.vertical, 4)
+      Divider().padding(.vertical, Metrica.briciola)
 
       promemoriaSezione
 
-      Divider().padding(.vertical, 4)
+      Divider().padding(.vertical, Metrica.briciola)
 
       SmallButton(title: "Cancella tutti i dati di \(nomeCorrente)", symbol: "trash",
                   a11y: a11y, distruttivo: true) {
@@ -417,17 +417,17 @@ struct SettingsView: View {
       }
       Explain(text: "Serve a esercitare il diritto alla cancellazione senza dover frugare nelle cartelle di sistema.", a11y: a11y, size: 14)
 
-      Divider().padding(.vertical, 4)
+      Divider().padding(.vertical, Metrica.briciola)
 
       Text(AppVersion.display)
-        .font(a11y.typeface.font(size: a11y.size(14), weight: .semibold))
+        .font(a11y.font(.nota, .semibold))
       Text(AppVersion.detail)
-        .font(a11y.typeface.font(size: a11y.size(12)))
+        .font(a11y.font(.nota))
         .foregroundStyle(palette.muted)
         .textSelection(.enabled)
         .fixedSize(horizontal: false, vertical: true)
       Text("Fight The Stroke Foundation")
-        .font(a11y.typeface.font(size: a11y.size(12)))
+        .font(a11y.font(.nota))
         .foregroundStyle(palette.muted)
     }
   }
@@ -444,7 +444,7 @@ struct SettingsView: View {
   }
 
   private var promemoriaSezione: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "Un promemoria ogni giorno", a11y: a11y)
       Explain(text: "L'esercizio rende se si fa un pochino ogni giorno, e la cosa più difficile è ricordarsene. Se vuoi, il Mac manda un invito gentile all'ora che scegli. **È tutto qui sul Mac**: non esce niente, è solo un avviso che compare sullo schermo.", a11y: a11y, size: 15)
 
@@ -459,7 +459,7 @@ struct SettingsView: View {
           }
         })) {
         Text("Ricordami di allenarmi")
-          .font(a11y.typeface.font(size: a11y.size(17)))
+          .font(a11y.font(.corpo))
       }
       .toggleStyle(.switch)
 
@@ -472,7 +472,7 @@ struct SettingsView: View {
             set: { data in promemoria.impostaOrario(da: data); ripianificaPromemoria() }
           ), displayedComponents: .hourAndMinute) {
             Text("A che ora")
-              .font(a11y.typeface.font(size: a11y.size(17)))
+              .font(a11y.font(.corpo))
           }
           .datePickerStyle(.field)
 
@@ -483,7 +483,7 @@ struct SettingsView: View {
             ForEach(Promemoria.Giorni.allCases) { g in Text(g.label).tag(g) }
           } label: {
             Text("Quali giorni")
-              .font(a11y.typeface.font(size: a11y.size(17)))
+              .font(a11y.font(.corpo))
           }
           .pickerStyle(.segmented)
           .frame(maxWidth: 420, alignment: .leading)
@@ -501,13 +501,13 @@ struct SettingsView: View {
   /// Un interruttore acceso che non fa arrivare niente sarebbe una bugia: se il
   /// permesso è negato lo diciamo, e mostriamo dove si rimedia.
   private var promemoriaAvvisoNegato: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack(spacing: 8) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+      HStack(spacing: Metrica.spazioStretto) {
         Image(systemName: "bell.slash.fill")
           .foregroundStyle(palette.wrong)
           .accessibilityHidden(true)
         Text("Le notifiche sono spente per MirrorScopio")
-          .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+          .font(a11y.font(.etichetta, .semibold))
           .foregroundStyle(palette.foreground)
       }
       Explain(text: "L'interruttore è acceso, ma il Mac non mi lascia mostrare l'avviso, quindi non arriverà niente. Si riattiva in Impostazioni di Sistema › Notifiche › MirrorScopio.", a11y: a11y, size: 14)
@@ -518,7 +518,7 @@ struct SettingsView: View {
         }
       }
     }
-    .padding(14)
+    .padding(Metrica.spazioPiccolo)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.wrong.opacity(0.10)))
     .overlay(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).stroke(palette.wrong.opacity(0.4), lineWidth: 1.5))
@@ -547,9 +547,9 @@ struct SettingsView: View {
   }
 
   private func toggle(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
-    VStack(alignment: .leading, spacing: 2) {
+    VStack(alignment: .leading, spacing: Metrica.filo) {
       Toggle(title, isOn: value)
-        .font(a11y.typeface.font(size: a11y.size(17)))
+        .font(a11y.font(.corpo))
         .foregroundStyle(palette.foreground)
       Explain(text: hint, a11y: a11y, size: 14)
     }
@@ -557,14 +557,14 @@ struct SettingsView: View {
 
   private func slider(_ title: String, value: Binding<Double>,
                       range: ClosedRange<Double>, format: (Double) -> String) -> some View {
-    VStack(alignment: .leading, spacing: 4) {
+    VStack(alignment: .leading, spacing: Metrica.briciola) {
       HStack {
         Text(title)
-          .font(a11y.typeface.font(size: a11y.size(17)))
+          .font(a11y.font(.corpo))
           .foregroundStyle(palette.foreground)
         Spacer()
         Text(format(value.wrappedValue))
-          .font(a11y.typeface.font(size: a11y.size(15)))
+          .font(a11y.font(.etichetta))
           .foregroundStyle(palette.muted)
           .monospacedDigit()
       }

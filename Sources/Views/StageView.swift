@@ -13,16 +13,16 @@ struct StageView: View {
 
       switch engine.phase {
       case .preparing:
-        VStack(spacing: 16) {
+        VStack(spacing: Metrica.spazioMedio) {
           ProgressView()
           Text(engine.statusMessage)
-            .font(a11y.typeface.font(size: a11y.size(20)))
+            .font(a11y.font(.guida))
             .foregroundStyle(palette.muted)
         }
 
       case .countdown(let n):
         Text("\(n)")
-          .font(a11y.typeface.font(size: a11y.size(150), weight: .light))
+          .font(a11y.font(.titoloGrande, .light))
           .foregroundStyle(palette.muted)
           .contentTransition(.identity)
           .accessibilityLabel("si comincia fra \(n)")
@@ -77,7 +77,7 @@ struct StageView: View {
   /// fermo e cambia solo il suo contenuto; la fascia dell'ascolto occupa
   /// sempre il suo spazio, anche quando è invisibile, così niente scivola.
   private var palcoscenico: some View {
-    VStack(spacing: a11y.size(28)) {
+    VStack(spacing: a11y.size(Metrica.spazioLargo)) {
       Spacer(minLength: 0)
 
       ZStack {
@@ -99,7 +99,7 @@ struct StageView: View {
 
       Spacer(minLength: 0)
     }
-    .padding(.horizontal, 36)
+    .padding(.horizontal, Metrica.spazioGrande)
   }
 
   private var mostraAscolto: Bool {
@@ -162,9 +162,9 @@ struct StageView: View {
   /// dove guardare. Adesso occupa il suo spazio anche mentre la parola e sullo
   /// schermo, spento e immobile, cosi niente si sposta e niente distrae.
   private var ascolto: some View {
-    VStack(spacing: a11y.size(12)) {
+    VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
       Text(mostraAscolto ? "Leggi ad alta voce" : "Guarda qui sopra")
-        .font(a11y.typeface.font(size: a11y.size(30), weight: .semibold))
+        .font(a11y.font(.titolo, .semibold))
         .foregroundStyle(mostraAscolto ? palette.foreground : palette.muted.opacity(0.45))
 
       Image(systemName: "waveform")
@@ -179,7 +179,7 @@ struct StageView: View {
         .accessibilityHidden(true)
 
       Text(sottotitoloAscolto)
-        .font(a11y.typeface.font(size: a11y.size(24)))
+        .font(a11y.font(.sezione))
         .foregroundStyle(palette.muted.opacity(mostraAscolto ? 1 : 0.4))
         .lineLimit(1)
     }
@@ -195,7 +195,7 @@ struct StageView: View {
   }
 
   private func feedback(_ ok: Bool) -> some View {
-    VStack(spacing: 14) {
+    VStack(spacing: Metrica.spazioPiccolo) {
       Image(systemName: ok ? ColorVision.okSymbol : ColorVision.wrongSymbol)
         .font(.system(size: a11y.size(100)))
         .foregroundStyle(ok ? palette.ok : palette.wrong)
@@ -206,7 +206,7 @@ struct StageView: View {
         // differenza fra le due parole è tutta la differenza fra un difetto e
         // un percorso.
         Text(ok ? (a11y.calmMode ? "Giusta" : "Giusta!") : "Ancora")
-          .font(a11y.typeface.font(size: a11y.size(28), weight: .semibold))
+          .font(a11y.font(.titolo, .semibold))
           .foregroundStyle(palette.foreground)
       }
       // Un turno vuoto ha due cause opposte, e confonderle e crudele: se il
@@ -214,7 +214,7 @@ struct StageView: View {
       // e nessuna colpa da attribuire a chi sta leggendo.
       if let avviso = engine.ascoltoAvviso {
         Text(avviso)
-          .font(a11y.typeface.font(size: a11y.size(18)))
+          .font(a11y.font(.corpo))
           .foregroundStyle(palette.muted)
           .multilineTextAlignment(.center)
           .frame(maxWidth: 460)
@@ -224,13 +224,13 @@ struct StageView: View {
   }
 
   private func failure(_ message: String) -> some View {
-    VStack(spacing: 18) {
+    VStack(spacing: Metrica.spazioMedio) {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: a11y.size(48)))
         .foregroundStyle(palette.wrong)
         .accessibilityHidden(true)
       Text(message)
-        .font(a11y.typeface.font(size: a11y.size(19)))
+        .font(a11y.font(.guida))
         .multilineTextAlignment(.center)
         .frame(maxWidth: 520)
         .foregroundStyle(palette.foreground)

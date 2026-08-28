@@ -23,13 +23,21 @@ import Foundation
 /// al primo avvio, e la cosa è scritta in `SECURITY.md` invece di essere
 /// nascosta in una nota a piè di pagina.
 ///
-/// E non scarica né installa niente da solo. Un aggiornamento automatico
-/// significa che un programma decide di sostituirsi mentre un ragazzo lo sta
-/// usando: qui l'app dice soltanto "ce n'è una nuova", e chi si occupa di lui
-/// decide se e quando. Il pacchetto si prende dalla pagina delle release, dove
-/// è firmato dalla fondazione e timbrato da Apple.
+/// E non scarica **niente da solo**. Da qui l'app sa anche installare la
+/// versione nuova (vedi `Installazione`, in fondo a questo file), ma soltanto
+/// quando un adulto preme il pulsante e mai mentre una sessione è in corso: un
+/// programma che si sostituisce da sé mentre un ragazzo sta leggendo è il modo
+/// più sicuro di rovinargli una prova. Il pacchetto resta quello della pagina
+/// delle release, firmato dalla fondazione e timbrato da Apple, e prima di
+/// toccare qualsiasi cosa quella firma viene ricontrollata qui.
 enum Updates {
   static let repository = "FightTheStroke/MirrorScopio"
+
+  /// Il numero della squadra di sviluppo che Apple ha assegnato a Fight The
+  /// Stroke. È l'unica firma che questo aggiornatore accetta: senza questo
+  /// vincolo basterebbe *una* app timbrata da Apple — di chiunque — per farsi
+  /// installare al posto nostro.
+  static let teamID = "93T3LG4NPG"
 
   /// L'interruttore. Spento finché qualcuno non sceglie: un'app che comincia a
   /// parlare con internet senza averlo chiesto non merita che le si creda
@@ -57,6 +65,12 @@ enum Updates {
     var version: String
     var pageURL: URL
     var notes: String
+    /// Il pacchetto che l'app sa installare da sola: lo `.zip` firmato allegato
+    /// alla release. È `nil` sulle release vecchie, che avevano solo il DMG —
+    /// in quel caso resta la strada di sempre, si apre la pagina.
+    var packageURL: URL?
+    /// Quanto pesa, in byte, così la barra di avanzamento dice il vero.
+    var packageSize: Int64?
   }
 
   enum CheckError: LocalizedError {
@@ -128,8 +142,30 @@ enum Updates {
     let remota = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
     guard isNewer(remota, than: AppVersion.short) else { return nil }
 
+    // Fra gli allegati cerchiamo lo zip firmato: è quello che l'app sa
+    // installare da sola. Il link deve arrivare da GitHub e viaggiare in
+    // HTTPS — un indirizzo qualunque trovato dentro una risposta JSON non è
+    // una buona ragione per scaricare del codice ed eseguirlo.
+    var pacchetto: URL?
+    var peso: Int64?
+    if let assets = json["assets"] as? [[String: Any]] {
+      for a in assets {
+        guard let nome = a["name"] as? String, nome.hasSuffix(".zip"),
+              let link = a["browser_download_url"] as? String,
+              let u = URL(string: link), u.scheme == "https",
+              let host = u.host,
+              host == "github.com" || host.hasSuffix(".github.com")
+                || host.hasSuffix(".githubusercontent.com")
+        else { continue }
+        pacchetto = u
+        peso = (a["size"] as? NSNumber)?.int64Value
+        break
+      }
+    }
+
     return Release(version: remota, pageURL: url,
-                   notes: (json["body"] as? String) ?? "")
+                   notes: (json["body"] as? String) ?? "",
+                   packageURL: pacchetto, packageSize: peso)
   }
 
   /// Confronto numerico fra versioni: `0.10.0` viene **dopo** `0.9.0`, mentre
