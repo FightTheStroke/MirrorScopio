@@ -354,7 +354,7 @@ struct DashboardView: View {
 
     // MARK: - Obiettivi
 
-    private let colonneObiettivi = [GridItem(.adaptive(minimum: 144, maximum: 220))]
+    private var colonneObiettivi: [GridItem] { a11y.colonneAdattive(minimo: 144, massimo: 220) }
 
     private var sezioneObiettivi: some View {
         VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
@@ -565,15 +565,23 @@ private struct _CellaObiettivo: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
 
-            // Il suggerimento è sempre visibile: il bambino deve sapere a cosa puntare.
+            // Il suggerimento è sempre visibile: il bambino deve sapere a cosa
+            // puntare — e per saperlo deve poterlo leggere fino in fondo.
+            //
+            // Aveva `lineLimit(3)`, e tre righe non bastavano nemmeno a
+            // grandezza normale: «Occhio da falco» si leggeva «Hai letto parole
+            // comparse per meno di 200 millesimi di s…». Un obiettivo di cui non
+            // si capisce la regola non è un obiettivo, è una figurina grigia.
+            // Adesso il testo va a capo quanto serve e sono le celle a
+            // pareggiarsi in altezza, non il testo a farsi tagliare.
             Text(obiettivo.hint)
                 .font(a11y.font(.nota, .regular))
                 .foregroundStyle(palette.muted)
                 .multilineTextAlignment(.center)
-                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(a11y.size(Metrica.spazioPiccolo))
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(palette.surface.opacity(sbloccato ? 1.0 : 0.65))
         .clipShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
         .overlay {
@@ -680,7 +688,7 @@ private struct _RigaSessione: View {
                     .foregroundStyle(palette.muted)
                 // Chips orizzontali: scannable a colpo d'occhio.
                 LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 80))],
+                    columns: a11y.colonneAdattive(minimo: 80),
                     spacing: a11y.size(Metrica.spazioMinimo)
                 ) {
                     ForEach(Array(mancate.enumerated()), id: \.offset) { _, parola in

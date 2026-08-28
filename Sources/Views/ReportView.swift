@@ -393,7 +393,7 @@ struct ReportView: View {
       VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
         Explain(text: plainLanguage, a11y: a11y, size: 16)
 
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+        LazyVGrid(columns: a11y.colonneAdattive(minimo: 160, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
           stat("\(record.total)", "parole mostrate")
           stat("\(Int(record.accuracy * 100))%", "lette giuste (\(record.correct) su \(record.total))")
           stat(record.thresholdMs.map { "\(Int($0)) ms" } ?? "—", "tempo minimo per leggere")

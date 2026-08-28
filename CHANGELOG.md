@@ -107,6 +107,21 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   giorno ci sarà una chiave API di Apple non ci sarà nemmeno più quella: sarà un file.
 
 ### Corretto
+- **Col testo ingrandito, i nomi degli obiettivi erano tagliati a metà.** Guardando l'app
+  con «Dimensione di tutto» a ×2, la pagina «Obiettivi» diceva «Una settima…», «Più
+  veloce…», «Hai letto giuste tutte le…». Sette obiettivi su nove col nome mozzato. La
+  causa: ogni griglia dell'app aveva una larghezza minima di colonna scritta a mano che
+  **non cresceva insieme al testo** — il testo raddoppiava, la colonna restava ferma, e
+  quello che non ci stava spariva sotto i puntini. È il difetto peggiore che possa esserci
+  qui, perché non colpisce tutti allo stesso modo: colpisce **solo** chi ha alzato il testo
+  perché vede poco, cioè esattamente la persona per cui quella manopola esiste. Chi legge
+  bene non l'avrebbe mai visto. Adesso tutte e undici le griglie crescono insieme al testo,
+  e sei prove nuove impediscono che il numero torni fisso.
+- **Un obiettivo non si leggeva per intero nemmeno a grandezza normale.** «Occhio da falco»
+  diceva «Hai letto parole comparse per meno di 200 millesimi di s…»: il suggerimento era
+  limitato a tre righe e tre righe non bastavano. Un obiettivo di cui non si capisce la
+  regola non è un obiettivo, è una figurina grigia. Ora il testo va a capo quanto serve e
+  sono le celle a pareggiarsi in altezza.
 - **Il microfono poteva restare occupato dopo che la sessione era finita.** Le strade che
   spengono il microfono sono tre — «Esci», il cambio di microfono a metà sessione, la fine
   della sessione — e potevano partire tutte insieme: due spegnimenti sovrapposti lasciavano

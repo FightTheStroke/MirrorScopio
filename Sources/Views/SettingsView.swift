@@ -213,7 +213,7 @@ struct SettingsView: View {
       SectionTitle(text: "Un profilo imposta tutto in un colpo", a11y: a11y)
       Explain(text: "Scegline uno e carattere, colori, tempi, pause e grandezza dei comandi si sistemano da soli. Poi puoi ritoccare quello che vuoi qui sotto.", a11y: a11y, size: 15)
 
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+      LazyVGrid(columns: a11y.colonneAdattive(minimo: 250, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
         ForEach(A11yProfile.allCases) { p in
           // La frase, non la diagnosi: le stesse parole dell'avvio guidato, così
           // chi ha già scelto lì ritrova qui esattamente quello che aveva scelto.
@@ -233,7 +233,7 @@ struct SettingsView: View {
   private var fonts: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Carattere", a11y: a11y)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+      LazyVGrid(columns: a11y.colonneAdattive(minimo: 230, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
         ForEach(TypefaceChoice.allCases.filter(\.isAvailable)) { t in
           ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.typeface == t, a11y: a11y) {
             update { $0.typeface = t }
@@ -270,7 +270,7 @@ struct SettingsView: View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Colori", a11y: a11y)
       avvisoDelMac
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+      LazyVGrid(columns: a11y.colonneAdattive(minimo: 230, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
         ForEach(ThemeChoice.allCases) { t in
           ChoiceCard(title: t.label,
                      subtitle: t == .auto ? sottotitoloComeIlMac : t.hint,
@@ -282,7 +282,7 @@ struct SettingsView: View {
 
       SectionTitle(text: "Come vedi i colori", a11y: a11y)
       Explain(text: "«Giusta» e «ancora» non si distinguono mai solo dal colore: c'è sempre anche un simbolo e una parola. Qui scegli i colori che si distinguono meglio per te.", a11y: a11y, size: 15)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
+      LazyVGrid(columns: a11y.colonneAdattive(minimo: 230, spazio: Metrica.spazioPiccolo), spacing: Metrica.spazioPiccolo) {
         ForEach(ColorVision.allCases) { v in
           ChoiceCard(title: v.label, selected: a11y.colorVision == v, a11y: a11y) {
             update { $0.colorVision = v }
