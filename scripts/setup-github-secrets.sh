@@ -156,13 +156,43 @@ fi
 echo
 read -r -s -p "Password per app: " APPLE_APP_PASSWORD
 echo
-APPLE_APP_PASSWORD="$(echo "$APPLE_APP_PASSWORD" | tr -d '[:space:]')"
+# Si tolgono spazi *e* i caratteri invisibili che i browser infilano quando si
+# copia da una pagina web: uno spazio unificatore o un a-capo bastavano a far
+# rifiutare una password giusta, e lo schermo dava la colpa a chi la incollava.
+APPLE_APP_PASSWORD="$(printf '%s' "$APPLE_APP_PASSWORD" | tr -d '[:space:]' | LC_ALL=C tr -d '\302\240')"
+# Apple le scrive minuscole, ma un gestore di password puo' restituirle in
+# maiuscolo: la sostanza non cambia, quindi si accettano e si abbassano.
+APPLE_APP_PASSWORD="$(printf '%s' "$APPLE_APP_PASSWORD" | LC_ALL=C tr 'A-Z' 'a-z')"
 export APPLE_APP_PASSWORD
+
 if [[ ! "$APPLE_APP_PASSWORD" =~ ^[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}$ ]]; then
-  echo "✗ Quella che hai incollato non ha la forma  abcd-efgh-ijkl-mnop ."
-  echo "  Sono quattro gruppi di quattro lettere minuscole con i trattini."
-  echo "  Se hai incollato la password del tuo Apple ID: non e' quella, serve"
-  echo "  proprio una \"password per app\" generata apposta."
+  # Un rifiuto che non dice *cosa* ha ricevuto costringe a indovinare. Qui si
+  # mostra la forma senza mostrare la password: le lettere diventano «x», i
+  # trattini restano, e cosi' si vede subito se mancava un pezzo o se erano
+  # arrivati caratteri strani.
+  FORMA="$(printf '%s' "$APPLE_APP_PASSWORD" | LC_ALL=C sed 's/[a-z]/x/g; s/[0-9]/9/g')"
+  echo
+  echo "✗ Non e' colpa tua: e' questo script che non riconosce quello che gli e' arrivato."
+  echo
+  echo "  Mi aspettavo:  xxxx-xxxx-xxxx-xxxx   (16 lettere, tre trattini)"
+  echo "  Ho ricevuto:   $FORMA   ($((${#APPLE_APP_PASSWORD})) caratteri)"
+  echo
+  if [ ${#APPLE_APP_PASSWORD} -eq 0 ]; then
+    echo "  Non e' arrivato niente. Se hai incollato col tasto destro, prova"
+    echo "  invece con Cmd-V: alcuni terminali ignorano l'altro modo."
+  elif [[ ! "$APPLE_APP_PASSWORD" =~ ^[a-z-]+$ ]]; then
+    echo "  Ci sono numeri o simboli: questa non e' una password per app."
+    echo "  Quelle sono fatte di sole lettere. Quella del tuo Apple ID qui non"
+    echo "  funziona: ne serve una generata apposta da"
+    echo "  account.apple.com → Accesso e sicurezza → Password per app."
+  elif [[ "$APPLE_APP_PASSWORD" != *-* ]]; then
+    echo "  Mancano i trattini. Vanno incollati anche quelli, non solo le lettere."
+  else
+    echo "  Sono sedici lettere in quattro gruppi da quattro. Qui i gruppi non"
+    echo "  tornano: probabilmente si e' persa qualche lettera nel copia-incolla."
+    echo "  Riprova a copiarla, oppure fanne una nuova: costa un minuto."
+  fi
+  echo
   exit 1
 fi
 
