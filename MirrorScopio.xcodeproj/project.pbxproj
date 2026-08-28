@@ -146,6 +146,7 @@
 		7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiVecchi.swift; sourceTree = "<group>"; };
 		8118DA5BFB5F8F8654C02D65 /* PER-I-GENITORI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "PER-I-GENITORI.md"; sourceTree = "<group>"; };
 		83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
+		88143617BDBF3A3CCBD54AAE /* numero-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "numero-build.sh"; sourceTree = "<group>"; };
 		8888C9020BCA62BDC6CCD7F8 /* DESIGN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DESIGN.md; sourceTree = "<group>"; };
 		88AA1E26779A757F2BA6651E /* Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
 		9068F88405B9013EE54895E4 /* Promemoria.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Promemoria.swift; sourceTree = "<group>"; };
@@ -333,6 +334,7 @@
 				3FE6F239472A53F627C76B21 /* estrai-identita.py */,
 				58753B38D847282FA447479E /* genera-progetto.sh */,
 				B6887C5C0A199DF522448407 /* icona.swift */,
+				88143617BDBF3A3CCBD54AAE /* numero-build.sh */,
 				1698977E8B9928438DF5F3DE /* package.sh */,
 				2A44049637BC6FFAEB421A64 /* release.sh */,
 				55D0FA8229599D99D3E41B01 /* setup-github-secrets.sh */,

@@ -156,6 +156,38 @@ else
   FAILED=1
 fi
 
+# Il numero di build deve salire sempre, altrimenti un Mac fermo a un numero
+# più alto non vedrà mai arrivare le versioni successive — ed è successo: il
+# 28/08 la copia installata diceva 103 e il ramo principale ne produceva 94,
+# perché il numero era il conto dei commit e schiacciare le modifiche in un
+# unico salvataggio lo fa scendere. Qui si controlla che il calcolo nuovo
+# ordini le versioni come ci si aspetta, e che rifiuti quello che non sa fare.
+CRESCE=1
+PRECEDENTE=-1
+for v in 0.0.1 0.5.9 0.6.0 0.6.1 0.7.0 1.0.0 1.0.1 2.13.4; do
+  n="$(printf '%s' "$v" > /tmp/mirrorscopio-versione-prova \
+       && VERSION_FILE=/tmp/mirrorscopio-versione-prova ./scripts/numero-build.sh 2>/dev/null)" || n=""
+  if [ -z "$n" ] || [ "$n" -le "$PRECEDENTE" ]; then
+    echo "✗ numero di build: da $v esce «${n:-niente}», che non sale rispetto a $PRECEDENTE"
+    CRESCE=0
+    break
+  fi
+  PRECEDENTE="$n"
+done
+# Una versione con una cifra da 100 in su romperebbe l'ordine: deve protestare,
+# non inventare un numero.
+printf '%s' "1.100.0" > /tmp/mirrorscopio-versione-prova
+if VERSION_FILE=/tmp/mirrorscopio-versione-prova ./scripts/numero-build.sh >/dev/null 2>&1; then
+  echo "✗ numero di build: 1.100.0 doveva essere rifiutata e invece è passata"
+  CRESCE=0
+fi
+rm -f /tmp/mirrorscopio-versione-prova
+if [ "$CRESCE" = 1 ]; then
+  echo "✓ numero di build: sale sempre ($(./scripts/numero-build.sh) per la $ATTESA)"
+else
+  FAILED=1
+fi
+
 # La scala adattiva e i suoni stanno in Verifiche/, sotto xcodebuild, dove
 # girano anche in CI: qui c'erano due copie delle stesse prove e potevano
 # dire cose diverse. «schermate» adesso disegna e basta, non boccia piu'

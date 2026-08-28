@@ -33,8 +33,9 @@ DERIVED="$PWD/.build/xcode"
 
 # Unica fonte di verità per la versione: il file VERSION alla radice.
 VERSION="$(tr -d ' \n' < VERSION)"
-# Il numero di build è il conto dei commit: cresce da solo e non si scorda mai.
-BUILD_NUMBER="$(git rev-list --count HEAD 2>/dev/null || echo 0)"
+# Il numero di build nasce dalla versione, non dal conto dei commit: vedi
+# scripts/numero-build.sh per il perché (il conto dei commit può scendere).
+BUILD_NUMBER="$(./scripts/numero-build.sh)"
 GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo sconosciuto)"
 if [ -n "$(git status --porcelain 2>/dev/null)" ]; then GIT_DIRTY="si"; else GIT_DIRTY="no"; fi
 BUILD_DATE="$(date '+%d/%m/%Y %H:%M')"
