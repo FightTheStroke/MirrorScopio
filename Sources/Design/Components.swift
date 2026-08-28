@@ -111,6 +111,17 @@ struct StilePulsante: ButtonStyle {
         // dopo. Non è un movimento, è un cambio di opacità, quindi resta anche
         // con «meno animazioni».
         .opacity(configuration.isPressed ? 0.55 : 1)
+        // Il Tab arriva qui **per costruzione**, non perche' qualcuno si e'
+        // ricordato di scriverlo al momento giusto. Sui Mac in cui
+        // «Navigazione da tastiera» e' spenta — cioe' quelli appena usciti
+        // dalla scatola — un pulsante SwiftUI non e' raggiungibile col Tab se
+        // non lo si dichiara. Era dichiarato su 8 pulsanti su 19: gli altri 11
+        // (l'elenco laterale delle Impostazioni, le schermate di prova, la
+        // scelta della voce) restavano fuori dal giro, mentre il documento
+        // prometteva che ogni schermata si percorre senza mouse. Messo qui,
+        // vale per chiunque usi lo stile dell'app, anche per chi lo scrivera'
+        // domani.
+        .focusable()
         .overlay { if aFuoco { bordo(palette.background, spessore: 2, fuori: 2) } }
         .overlay { if aFuoco { bordo(palette.accent, spessore: 3, fuori: 5) } }
         .animation(a11y.animation(0.12), value: aFuoco)
@@ -173,12 +184,6 @@ struct SmallButton: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
-    // Senza questo, sui Mac in cui «Navigazione da tastiera» è spenta i
-    // pulsanti non sono nemmeno raggiungibili col Tab: la promessa «ogni
-    // schermata è percorribile senza mouse» valeva solo per chi aveva già
-    // acceso un'impostazione di sistema che nessuno gli aveva detto di
-    // accendere. Qui i mattoncini dell'app sono raggiungibili sempre.
-    .focusable()
     .foregroundStyle(prominente ? palette.onAccent
                      : (distruttivo ? palette.wrong : palette.foreground))
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
@@ -213,7 +218,6 @@ struct BigButton: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
-    .focusable()
     .foregroundStyle(prominent ? palette.onAccent : palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -262,7 +266,6 @@ struct ChoiceCard: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
-    .focusable()
     .foregroundStyle(palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -383,7 +386,6 @@ struct StopButton: View {
       .contentShape(Capsule())
     }
     .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
-    .focusable()
     .foregroundStyle(palette.foreground)
     .background(Capsule().fill(palette.surface))
     .overlay(Capsule().stroke(rosso.opacity(0.55), lineWidth: 2))
@@ -505,12 +507,18 @@ struct ProgressoPallini: View {
   }
 
   /// Era l'unico posto dell'app in cui il colore portava un'informazione da
-  /// solo: pallino verde o pallino rosso, stessa forma. Quando il Mac chiede di
-  /// non distinguere le cose dal colore, le parole che non sono venute ancora
-  /// diventano un anello vuoto — una forma diversa, non una tinta diversa.
+  /// solo: pallino verde o pallino rosso, stessa forma. Le parole che non sono
+  /// venute ancora sono un anello vuoto — una forma diversa, non una tinta
+  /// diversa.
+  ///
+  /// La forma diversa c'era già, ma **solo se il Mac chiedeva di non
+  /// distinguere dal colore**. Chi confonde il verde e il rosso senza aver
+  /// acceso quell'impostazione — cioè quasi tutti quelli a cui succede —
+  /// vedeva due pallini identici. La regola scritta in AGENTS.md non è
+  /// «quando il Mac lo chiede»: è sempre.
   @ViewBuilder
   private func pallino(_ i: Int) -> some View {
-    if a11y.senzaColore, a11y.showFeedbackPerWord, !a11y.hideScore,
+    if a11y.showFeedbackPerWord, !a11y.hideScore,
        i < fatte.count, i < indice, !fatte[i].correct {
       Circle().strokeBorder(colore(i), lineWidth: 2.5)
     } else {
@@ -558,7 +566,6 @@ struct PulsanteChiudi: View {
       .contentShape(Capsule())
     }
     .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
-    .focusable()
     .foregroundStyle(palette.onAccent)
     .background(Capsule().fill(palette.accent))
     .keyboardShortcut(.escape, modifiers: [])
@@ -655,7 +662,6 @@ struct InterruttoreAccessibile: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
-    .focusable()
     .foregroundStyle(palette.foreground)
     .accessibilityRepresentation { Toggle(titolo, isOn: $acceso) }
   }
@@ -699,7 +705,6 @@ struct PassoAccessibile: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
-    .focusable()
     .foregroundStyle(palette.foreground)
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
     .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
@@ -759,7 +764,6 @@ struct CursoreAccessibile: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
-    .focusable()
     .foregroundStyle(palette.foreground)
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
     .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
@@ -776,6 +780,8 @@ struct SceltaAccessibile<T: Hashable>: View {
   var a11y: EffettiveImpostazioniAccessibilita
   let etichetta: (T) -> String
 
+  @State private var aperto = false
+
   var body: some View {
     HStack(spacing: Metrica.spazioPiccolo) {
       Text(titolo)
@@ -784,11 +790,19 @@ struct SceltaAccessibile<T: Hashable>: View {
         .foregroundStyle(palette.foreground)
         .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Metrica.spazioStretto)
-      Menu {
-        ForEach(opzioni, id: \.self) { o in
-          Button(etichetta(o)) { scelta = o }
-        }
-      } label: {
+      // Perche' non e' un `Menu`.
+      //
+      // Su macOS un `Menu` si fa dare l'altezza dal controllo AppKit che ha
+      // sotto, e nessun `frame` scritto in SwiftUI la sposta: qui c'era gia'
+      // `.frame(minHeight: a11y.bersaglio)` due volte, e l'area davvero
+      // premibile restava di 19 punti sui 44 promessi. Misurato sull'app in
+      // esecuzione. La prova in `Verifiche/Bersagli.swift` non se ne accorgeva
+      // perche' misurava la riga esterna, che il frame allargava davvero.
+      // Le voci **dentro** il menu avevano lo stesso difetto un piano sotto.
+      //
+      // Un pulsante normale con un pannello a comparsa e' fatto di viste
+      // nostre: l'altezza e' quella che scriviamo, qui e in ogni riga.
+      Button { aperto.toggle() } label: {
         HStack(spacing: Metrica.spazioMinimo) {
           Text(etichetta(scelta))
             .font(a11y.font(.corpo))
@@ -798,13 +812,47 @@ struct SceltaAccessibile<T: Hashable>: View {
         }
         .padding(.horizontal, Metrica.spazioPiccolo)
         .frame(minHeight: a11y.bersaglio)
-        .contentShape(Rectangle())
+        .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+        .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
       }
-      .menuStyle(.borderlessButton)
-      .fixedSize()
+      .buttonStyle(.plain)
+      .focusable()
       .foregroundStyle(palette.foreground)
-      .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
-      .frame(minHeight: a11y.bersaglio)
+      .popover(isPresented: $aperto, arrowEdge: .bottom) {
+        ScrollView {
+          VStack(alignment: .leading, spacing: Metrica.briciola) {
+            ForEach(opzioni, id: \.self) { o in
+              Button {
+                scelta = o
+                aperto = false
+              } label: {
+                HStack(spacing: Metrica.spazioStretto) {
+                  // Mai il colore da solo: il segno di spunta c'e' anche a
+                  // parole per chi ascolta con VoiceOver.
+                  Image(systemName: o == scelta ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(o == scelta ? palette.accent : palette.muted)
+                  Text(etichetta(o))
+                    .font(a11y.font(.corpo, o == scelta ? .semibold : .regular))
+                    .foregroundStyle(palette.foreground)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
+                  Spacer(minLength: 0)
+                }
+                .padding(.horizontal, Metrica.spazioStretto)
+                .frame(maxWidth: .infinity, minHeight: a11y.bersaglio, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+                  .fill(o == scelta ? palette.accent.opacity(0.12) : .clear))
+                .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
+              }
+              .buttonStyle(.plain)
+              .accessibilityLabel(o == scelta ? "\(etichetta(o)), scelto adesso" : etichetta(o))
+            }
+          }
+          .padding(Metrica.spazioPiccolo)
+        }
+        .frame(minWidth: 260, maxHeight: 460)
+        .background(palette.surface)
+      }
       .accessibilityLabel(titolo)
       .accessibilityValue(etichetta(scelta))
     }

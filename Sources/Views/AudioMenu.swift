@@ -32,48 +32,47 @@ struct AudioMenu: View {
     return "Audio"
   }
 
+  @State private var aperto = false
+
   var body: some View {
-    Menu {
-      Section("Microfono — da dove ti sento") {
-        ForEach(ingressi) { d in
-          Button {
-            scegliIngresso(d.id)
-            leggi()
-          } label: {
-            Label(d.name, systemImage: d.id == ingressoAttivo ? "checkmark" : "circle")
-          }
-        }
-      }
-      Section("Altoparlanti — da dove esce la voce") {
-        ForEach(uscite) { d in
-          Button {
-            _ = AudioDevices.setDefaultOutput(d.id)
-            leggi()
-          } label: {
-            Label(d.name, systemImage: d.id == uscitaAttiva ? "checkmark" : "circle")
-          }
-        }
-      }
-      if let openAudioCheck {
-        Divider()
-        Button("Prova microfono e voce…", systemImage: "waveform.badge.mic", action: openAudioCheck)
-      }
-    } label: {
+    Button { aperto.toggle() } label: {
       HStack(spacing: Metrica.spazioMinimo) {
         Image(systemName: inAttesa ? "hourglass" : "headphones")
         Text(inAttesa ? "cambio microfono…" : etichetta)
           .font(a11y.font(.etichetta))
           .lineLimit(1)
+        Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))
       }
-      .frame(minHeight: 44)
+      .padding(.horizontal, Metrica.spazioPiccolo)
+      .frame(minHeight: a11y.bersaglio)
+      .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
     }
-    .menuStyle(.borderlessButton)
-    .fixedSize()
+    // Perche' non e' piu' un `Menu`.
+    //
+    // Su macOS un `Menu` si fa dare l'altezza dal controllo AppKit che ha
+    // sotto, e nessun `frame` scritto in SwiftUI la sposta. Misurato sull'app
+    // in esecuzione, non dedotto: 19 punti con lo stile senza bordo, 24 con
+    // `.accessoryBar`, di nuovo 19 con `.plain`. I 44 punti promessi non
+    // arrivavano da nessuna parte, e le voci **dentro** il menu avevano lo
+    // stesso difetto un piano piu' sotto.
+    //
+    // Un pulsante normale con un pannello a comparsa e' fatto tutto di viste
+    // nostre: l'altezza e' quella che scriviamo, qui e in ogni riga dell'elenco.
+    .buttonStyle(.plain)
     .foregroundStyle(palette.muted)
+    .popover(isPresented: $aperto, arrowEdge: .bottom) {
+      PannelloAudio(a11y: a11y, palette: palette,
+                    ingressi: ingressi, uscite: uscite,
+                    ingressoAttivo: ingressoAttivo, uscitaAttiva: uscitaAttiva,
+                    scegliIngresso: { scegliIngresso($0); leggi() },
+                    scegliUscita: { _ = AudioDevices.setDefaultOutput($0); leggi() },
+                    openAudioCheck: openAudioCheck.map { azione in { aperto = false; azione() } })
+    }
     .help("Scegli microfono e altoparlanti, o fai una prova")
     .accessibilityLabel(inAttesa
       ? "Sto passando all'altro microfono"
       : "Audio. Adesso ti sento da \(etichetta)")
+    .accessibilityHint("Apre l'elenco dei microfoni e degli altoparlanti")
     .onAppear(perform: leggi)
     // Le cuffie si attaccano mentre l'app e aperta: l'elenco va riletto,
     // altrimenti mostra un mondo che non esiste piu.
@@ -85,5 +84,87 @@ struct AudioMenu: View {
     uscite = AudioDevices.outputs()
     ingressoAttivo = AudioDevices.defaultInput()
     uscitaAttiva = AudioDevices.defaultOutput()
+  }
+}
+
+/// L'elenco che si apre sotto il pulsante.
+///
+/// Ogni riga e' alta quanto un bersaglio intero, e dice a parole se e' quella
+/// attiva: il segno di spunta da solo e' un simbolo, e un simbolo da solo non
+/// basta a chi usa VoiceOver.
+private struct PannelloAudio: View {
+  var a11y: EffettiveImpostazioniAccessibilita
+  var palette: Palette
+  var ingressi: [AudioDevice]
+  var uscite: [AudioDevice]
+  var ingressoAttivo: AudioDeviceID?
+  var uscitaAttiva: AudioDeviceID?
+  var scegliIngresso: (AudioDeviceID) -> Void
+  var scegliUscita: (AudioDeviceID) -> Void
+  var openAudioCheck: (() -> Void)?
+
+  var body: some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
+        gruppo("Microfono — da dove ti sento", ingressi, attivo: ingressoAttivo, scegli: scegliIngresso)
+        gruppo("Altoparlanti — da dove esce la voce", uscite, attivo: uscitaAttiva, scegli: scegliUscita)
+        if let openAudioCheck {
+          Divider()
+          riga(testo: "Prova microfono e voce…", simbolo: "waveform.badge.mic",
+               attiva: false, etichettaVoce: "Prova microfono e voce", azione: openAudioCheck)
+        }
+      }
+      .padding(Metrica.spazioMedio)
+    }
+    .frame(minWidth: 320, maxHeight: 460)
+    .background(palette.surface)
+  }
+
+  @ViewBuilder
+  private func gruppo(_ titolo: String, _ elenco: [AudioDevice],
+                      attivo: AudioDeviceID?, scegli: @escaping (AudioDeviceID) -> Void) -> some View {
+    VStack(alignment: .leading, spacing: Metrica.briciola) {
+      Text(titolo)
+        .font(a11y.font(.etichetta, .semibold))
+        .foregroundStyle(palette.muted)
+        .fixedSize(horizontal: false, vertical: true)
+      if elenco.isEmpty {
+        // Un elenco vuoto senza una parola sopra sembra un difetto dell'app.
+        Text("Nessuno collegato.")
+          .font(a11y.font(.etichetta))
+          .foregroundStyle(palette.muted)
+          .frame(minHeight: a11y.bersaglio, alignment: .leading)
+      }
+      ForEach(elenco) { d in
+        riga(testo: d.name,
+             simbolo: d.id == attivo ? "checkmark.circle.fill" : "circle",
+             attiva: d.id == attivo,
+             etichettaVoce: d.id == attivo ? "\(d.name), in uso adesso" : d.name,
+             azione: { scegli(d.id) })
+      }
+    }
+  }
+
+  private func riga(testo: String, simbolo: String, attiva: Bool,
+                    etichettaVoce: String, azione: @escaping () -> Void) -> some View {
+    Button(action: azione) {
+      HStack(spacing: Metrica.spazioStretto) {
+        Image(systemName: simbolo)
+          .foregroundStyle(attiva ? palette.accent : palette.muted)
+        Text(testo)
+          .font(a11y.font(.etichetta, attiva ? .semibold : .regular))
+          .foregroundStyle(palette.foreground)
+          .fixedSize(horizontal: false, vertical: true)
+          .multilineTextAlignment(.leading)
+        Spacer(minLength: 0)
+      }
+      .padding(.horizontal, Metrica.spazioStretto)
+      .frame(maxWidth: .infinity, minHeight: a11y.bersaglio, alignment: .leading)
+      .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+        .fill(attiva ? palette.accent.opacity(0.12) : .clear))
+      .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(etichettaVoce)
   }
 }

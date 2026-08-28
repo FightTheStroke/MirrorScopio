@@ -244,6 +244,10 @@ struct SettingsView: View {
       slider("Dimensione di tutto", value: bind(\.textScale), range: 0.8...2.0, format: { String(format: "×%.1f", $0) })
       slider("Grandezza della parola che lampeggia", value: bind(\.stimulusSize), range: 40...320, format: { "\(Int($0)) punti" })
       slider("Spazio fra le lettere", value: bind(\.letterSpacing), range: 0...24, format: { "\(Int($0)) punti" })
+      toggle("Più aria fra le righe", bindBool(\.righeDistanziate),
+             "Righe troppo vicine si scavalcano con l'occhio: si rilegge la stessa o si salta la successiva.")
+      toggle("Comandi più grandi", bindBool(\.bersagliGrandi),
+             "Tutto quello che si preme diventa più alto, per prenderlo senza sbagliare mira.")
     }
   }
 
@@ -299,10 +303,18 @@ struct SettingsView: View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Ritmo e calma", a11y: a11y)
       avvisoDelMac
-      toggle("Niente animazioni", bindBool(\.reducedMotion),
+      // Quando è il Mac a chiedere meno movimento, l'app è ferma comunque:
+      // l'interruttore deve mostrarlo acceso, non spento. Prima diceva «spento»
+      // — e VoiceOver lo annunciava «spento» — mentre non si muoveva niente:
+      // il comando raccontava il contrario di quello che stava facendo.
+      toggle("Niente animazioni",
+             a11y.mac.menoMovimento
+             ? .constant(true)
+             : bindBool(\.reducedMotion),
              a11y.mac.menoMovimento
              ? "Il Mac lo sta già chiedendo, quindi qui non si muove niente comunque. Per rivedere le animazioni si cambia nelle Impostazioni di Sistema, dove l'hai chiesto."
              : "Tutto compare e sparisce senza movimento.")
+      .disabled(a11y.mac.menoMovimento)
       toggle("Modalità calma", bindBool(\.calmMode),
              "Niente esclamazioni, niente festeggiamenti, tono sempre uguale.")
       toggle("Schermo pulito durante la prova", bindBool(\.distractionFree),

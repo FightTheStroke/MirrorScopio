@@ -16,6 +16,46 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Corretto
+- **I comandi grandi sparivano appena si toccava qualcos'altro.** Chi sceglieva
+  «Paralisi cerebrale» otteneva pulsanti alti 60 punti invece di 44; poi bastava
+  alzare di un filo la dimensione del testo e tornavano a 44, in silenzio,
+  perché quella modifica riporta il profilo su «su misura». La cosa che rende
+  l'app usabile veniva annullata senza una parola. Ora «Comandi più grandi» e
+  «Più aria fra le righe» sono due interruttori veri in Impostazioni: il profilo
+  li accende, e restano accesi.
+- **Il menu dell'audio e le scelte a tendina erano alti 19 punti su 44
+  promessi.** Non era un numero sbagliato nel codice: su macOS quel tipo di
+  menu si fa dare l'altezza dal sistema e non ascolta quello che gli si chiede.
+  Ora sono pulsanti normali con un elenco a comparsa, e ogni riga dell'elenco è
+  alta quanto un bersaglio intero. Misurato sull'app in esecuzione: 246×44 il
+  pulsante, 282×44 ogni riga.
+- **Il Tab non arrivava su undici pulsanti su diciannove.** Sui Mac in cui
+  «Navigazione da tastiera» è spenta — quelli appena usciti dalla scatola —
+  l'elenco laterale delle Impostazioni, la scelta della voce e le schermate di
+  prova non erano raggiungibili senza mouse, mentre il documento prometteva il
+  contrario.
+- **Giusto e «ancora» si distinguevano solo dal colore**, a meno che il Mac
+  avesse acceso «Differenzia senza colore». Chi confonde verde e rosso senza
+  saperlo vedeva due pallini identici. La forma diversa adesso c'è sempre.
+- **«Niente animazioni» diceva «spento» mentre niente si muoveva.** Quando è il
+  Mac a chiedere meno movimento, ora l'interruttore lo mostra acceso.
+- **Lo stesso avviso, ripetuto, restava muto.** Il microfono che si azzittiva,
+  tornava e si azzittiva di nuovo lo diceva una volta sola a voce.
+- **Il testo grande sfondava la colonna laterale prima di quanto si credesse.**
+  La soglia oltre la quale l'elenco si mette in fila era 1,6 per numero tondo,
+  non per misura: misurata, la colonna sfonda già a ×1,45. Ora è 1,4, e la prova
+  automatica non salta più i valori che rompono.
+- **Aggiornando l'app si perdevano tutti i propri dati.** Bastava che una
+  versione nuova aggiungesse una sola impostazione perché l'elenco delle
+  persone, le sessioni e i progressi salvati prima diventassero illeggibili in
+  blocco — non quel campo: tutto. È successo davvero, su un Mac che aveva mesi
+  di lavoro dentro. Niente è andato perduto (la copia di sicurezza ha retto e
+  l'app lo ha detto a schermo), ma era inutilizzabile. Ora un'impostazione che
+  ancora non esisteva quando i dati sono stati salvati prende semplicemente il
+  suo valore predefinito, e tutto il resto si legge come prima. Un campo che
+  invece c'è ma è rovinato continua a essere segnalato come errore: quello non
+  è un formato vecchio, è un file rotto, e leggerlo lo stesso vorrebbe dire
+  mettere un numero inventato dentro un referto.
 - **Un file di dati illeggibile faceva sparire tutto in silenzio.** Se il
   salvataggio precedente era rimasto a metà — disco pieno, Mac spento a metà
   scrittura, aggiornamento andato storto — l'app ripartiva vuota come al primo

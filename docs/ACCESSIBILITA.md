@@ -143,8 +143,14 @@ finale parla di quello che è migliorato prima di quello che manca.
   `StilePulsante` (`Sources/Design/Components.swift`), che disegna un doppio anello
   attorno a quello che ha il fuoco. `.buttonStyle(.plain)`, che l'anello lo cancella,
   resta in un punto solo — il pulsante a schermo intero della staffetta, che coincide
-  con lo schermo. Ogni schermata è percorribile senza mouse e il fuoco parte dal
-  pulsante principale, non dal primo controllo che capita.
+  con lo schermo. Il Tab li raggiunge tutti anche sui Mac in cui «Navigazione da
+  tastiera» è spenta — cioè quelli appena usciti dalla scatola — perché la
+  dichiarazione sta dentro `StilePulsante`, una volta sola, e non nei singoli
+  pulsanti: prima ce l'avevano otto su diciannove, e gli altri undici restavano
+  fuori dal giro senza che si vedesse.
+  Il fuoco **parte** dal pulsante principale in Home, nel riepilogo, nell'avvio e
+  nella scrittura; nelle altre schermate parte da dove capita. È un lavoro non
+  finito, scritto qui perché non sembri fatto.
 - Etichette VoiceOver su ogni controllo; le decorazioni sono nascoste allo screen reader.
 - Le dimensioni si moltiplicano fino a ×2 sopra il valore già grande di partenza.
 

@@ -73,9 +73,17 @@ struct Bersagli {
       scelta: Binding(get: { s }, set: { s = $0 }),
       opzioni: ThemeChoice.allCases, a11y: a) { $0.label }
       .environment(\.palette, tema)
-    let h = altezza(v)
-    #expect(h >= a.bersaglio,
-      "con il profilo «\(profilo.label)» la scelta a comparsa è alta \(Int(h)) punti invece di \(Int(a.bersaglio))")
+    // Anche qui: misurare tutta la riga (titolo a sinistra + comando a destra)
+    // fa passare la prova per costruzione, perche' il `frame(minHeight:)` sulla
+    // riga la allarga davvero mentre il menu dentro resta di 19 punti. Il
+    // confronto giusto e' fra la riga intera e il solo titolo: se il comando
+    // non regge il bersaglio, la riga si appiattisce sul titolo.
+    let intero = altezza(v)
+    let soloTitolo = altezza(Text("Colori").font(a.font(.corpo))
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .environment(\.palette, tema))
+    #expect(intero >= a.bersaglio && intero > soloTitolo,
+      "con il profilo «\(profilo.label)» la scelta a comparsa è alta \(Int(intero)) punti (il solo titolo ne occupa \(Int(soloTitolo))) invece di \(Int(a.bersaglio))")
   }
 
   @Test("Il cursore ha accanto due pulsanti grandi", arguments: profili)
@@ -87,11 +95,18 @@ struct Bersagli {
       valore: Binding(get: { valore }, set: { valore = $0 }),
       intervallo: 0.3...0.6, passo: 0.01, a11y: a) { _ in "media" }
       .environment(\.palette, tema)
-    // Il cursore ha il titolo sopra e la riga dei comandi sotto: quello che
-    // deve reggere il bersaglio è la riga, non il tutto.
-    let h = altezza(v)
-    #expect(h >= a.bersaglio,
-      "con il profilo «\(profilo.label)» la riga del cursore è alta \(Int(h)) punti invece di \(Int(a.bersaglio))")
+    // Il cursore ha il titolo sopra e la riga dei comandi sotto. La prova
+    // diceva di misurare la riga e misurava il tutto: cosi' non poteva fallire
+    // per il motivo che dichiarava, perche' titolo piu' riga supera 60 punti
+    // anche se la riga ne ha 19. Ora si misura la differenza fra il tutto e il
+    // solo titolo, che e' quello che resta ai comandi.
+    let intero = altezza(v)
+    let soloTitolo = altezza(Text("Velocità della voce").font(a.font(.corpo))
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .environment(\.palette, tema))
+    let riga = intero - soloTitolo - Metrica.briciola
+    #expect(riga >= a.bersaglio,
+      "con il profilo «\(profilo.label)» la riga del cursore è alta \(Int(riga)) punti invece di \(Int(a.bersaglio))")
   }
 
   /// Chi sceglie «Paralisi cerebrale» ha chiesto bersagli grandi: se il profilo
@@ -100,6 +115,39 @@ struct Bersagli {
   func profiloIngrandisce() {
     #expect(impostazioni(.paralisiCerebrale).bersaglio >= 60)
     #expect(impostazioni(.paralisiCerebrale).bersaglio > impostazioni(.nessuno).bersaglio)
+  }
+
+  /// Il caso vero: si sceglie il profilo, poi si tocca una manopola qualunque.
+  ///
+  /// Toccare una manopola riporta il profilo a «nessuno» — è voluto, perché da
+  /// lì in poi le scelte sono su misura — e prima questo faceva tornare i
+  /// bersagli da 60 a 44 **senza dirlo**: bastava alzare di un filo la
+  /// dimensione del testo e l'app smetteva di essere usabile per la persona che
+  /// aveva appena dichiarato di non riuscire a prendere i comandi piccoli.
+  @Test("I bersagli grandi restano anche dopo aver toccato un'altra manopola")
+  func bersagliGrandiSopravvivono() {
+    var s = A11ySettings()
+    A11yProfile.paralisiCerebrale.apply(to: &s)
+    #expect(EffettiveImpostazioniAccessibilita(s).bersaglio >= 60)
+
+    // Quello che fa `SettingsView.update` a ogni modifica manuale.
+    s.textScale += 0.05
+    s.profile = .nessuno
+    #expect(EffettiveImpostazioniAccessibilita(s).bersaglio >= 60,
+      "dopo aver toccato una manopola i bersagli sono tornati a \(Int(EffettiveImpostazioniAccessibilita(s).bersaglio)) punti: la scelta di chi non riesce a prenderli piccoli è stata annullata in silenzio")
+  }
+
+  /// Stessa storia per le righe distanziate, che si salvavano solo per caso:
+  /// il profilo Dislessia sceglie anche il carattere, e il carattere restava.
+  @Test("Le righe distanziate restano anche cambiando carattere")
+  func interlineaSopravvive() {
+    var s = A11ySettings()
+    A11yProfile.dislessia.apply(to: &s)
+    #expect(EffettiveImpostazioniAccessibilita(s).interlinea > 0)
+    s.typeface = .arrotondato
+    s.profile = .nessuno
+    #expect(EffettiveImpostazioniAccessibilita(s).interlinea > 0,
+      "cambiando carattere si è persa la spaziatura fra le righe, che nessuno aveva chiesto di togliere")
   }
 
   /// Un controllo che non sa fallire non sta controllando niente: l'interruttore

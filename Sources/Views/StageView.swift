@@ -61,7 +61,15 @@ struct StageView: View {
     .onChange(of: engine.phase) { _, nuova in annuncia(fraseDellaFase(nuova)) }
     // Un turno vuoto e un microfono muto sono due cose opposte, e a voce si
     // somigliavano entrambe al silenzio.
-    .onChange(of: engine.ascoltoAvviso) { _, avviso in annuncia(avviso ?? "") }
+    .onChange(of: engine.ascoltoAvviso) { _, avviso in
+      // Quando l'avviso sparisce si dimentica anche che era stato detto: il
+      // microfono che si azzittisce, torna e si azzittisce di nuovo e' lo
+      // stesso avviso due volte, e la seconda va detta. Il guardiano contro le
+      // ripetizioni serve alle fasi, che si susseguono; qui rendeva muto
+      // proprio il caso in cui l'app sa una cosa e deve dirla.
+      guard let avviso else { ultimaVoce = ""; return }
+      annuncia(avviso)
+    }
     .onChange(of: engine.statusMessage) { _, messaggio in
       if case .preparing = engine.phase { annuncia(messaggio) }
     }

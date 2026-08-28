@@ -64,6 +64,8 @@
 		F2C051E4F8E84357CD4821B0 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = D8646662164AD4791D60BEEA /* AppIcon.icns */; };
 		F36FF08907A415E74FF6B574 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46FEA212903673E620DC8AB /* SettingsView.swift */; };
 		F378FEE4D123DE1C5130FB95 /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AA1E26779A757F2BA6651E /* Accessibility.swift */; };
+		F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */; };
+		F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */; };
 		F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */; };
 		FC1B24A65A23FC69979C350F /* AdvancedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09713107D20503A97DEDEFFB /* AdvancedControls.swift */; };
 /* End PBXBuildFile section */
@@ -138,6 +140,7 @@
 		75A2D0B3E406F655BB9F9A57 /* AiutoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiutoView.swift; sourceTree = "<group>"; };
 		782CD46D1240E0B2B5792AD0 /* MirrorScopio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MirrorScopio.entitlements; sourceTree = "<group>"; };
 		7873929AD1C523DB5A9983D2 /* Intelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intelligence.swift; sourceTree = "<group>"; };
+		7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiVecchi.swift; sourceTree = "<group>"; };
 		83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
 		8888C9020BCA62BDC6CCD7F8 /* DESIGN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DESIGN.md; sourceTree = "<group>"; };
 		88AA1E26779A757F2BA6651E /* Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
@@ -151,6 +154,7 @@
 		9ECE751B5B9046C21B3BF993 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
 		A077275B6401CB89DC6AF421 /* Gamification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gamification.swift; sourceTree = "<group>"; };
 		A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigazione.swift; sourceTree = "<group>"; };
+		A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetturaTollerante.swift; sourceTree = "<group>"; };
 		A958020209EA93F4F0FD7F9F /* impeccable.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = impeccable.json; sourceTree = "<group>"; };
 		AA0591D0D9F9413B2552345C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiAlSicuro.swift; sourceTree = "<group>"; };
@@ -294,6 +298,7 @@
 			children = (
 				B7881F340E73C7624D53AD46 /* Exporter.swift */,
 				A077275B6401CB89DC6AF421 /* Gamification.swift */,
+				A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */,
 				13555804BBBA01C19839D573 /* Store.swift */,
 			);
 			path = Data;
@@ -379,6 +384,7 @@
 				3E94B8AD368179CF019AEB21 /* Contrasto.swift */,
 				AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */,
 				EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */,
+				7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */,
 				4A96C5C670CCAC577809191C /* Interlinea.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
@@ -586,6 +592,7 @@
 				3E30DE05D870317961F53BA8 /* InstructionsView.swift in Sources */,
 				A8A1E4A76D3B0FCA62A87C05 /* Intelligence.swift in Sources */,
 				D28CA7DF39B385E1A6449D37 /* ItalianVoices.swift in Sources */,
+				F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */,
 				30195BC95FAF28CFF5A7EED4 /* Log.swift in Sources */,
 				7AA8D0FF6EAD344E137560BF /* Model.swift in Sources */,
 				F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */,
@@ -623,6 +630,7 @@
 				B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */,
 				2F41E13250A0EB9AEE1777DE /* DatiAlSicuro.swift in Sources */,
 				5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */,
+				F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */,
 				61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,

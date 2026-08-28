@@ -67,6 +67,7 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
     case .nessuno:
       break
     case .dislessia:
+      s.righeDistanziate = true
       s.typeface = .openDyslexic
       s.letterSpacing = 6
       s.textScale = 1.15
@@ -92,10 +93,7 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
       s.speakCorrectWord = true
       s.letterSpacing = 4
     case .paralisiCerebrale:
-      // I bersagli grandi non stanno qui perché non sono una preferenza
-      // memorizzata: li calcola `EffettiveImpostazioniAccessibilita.bersaglio`
-      // a partire dal profilo, così tutti i comandi dell'app li seguono senza
-      // che nessuno debba ricordarsi di leggerli.
+      s.bersagliGrandi = true
       s.textScale = 1.3
       s.extraResponseTime = 1.6
       s.reducedMotion = true
@@ -166,6 +164,16 @@ struct A11ySettings: Codable, Equatable {
   /// prudente: anche a 1 il suono non satura.
   var volumeSuoni: Double = 0.7
 
+  /// Tutto quello che si preme diventa alto almeno 60 punti invece di 44.
+  ///
+  /// È una manopola vera e non un effetto del profilo: chi la accende
+  /// scegliendo «I comandi piccoli sono difficili da prendere» se la tiene
+  /// anche dopo aver toccato qualunque altra cosa. Vedi `bersaglio`.
+  var bersagliGrandi = false
+
+  /// Più aria fra una riga e l'altra, per non scavalcare la riga sotto.
+  var righeDistanziate = false
+
   /// Dimensione di un testo dell'interfaccia, già scalata.
   func size(_ base: Double) -> CGFloat { CGFloat(base * textScale) }
 
@@ -208,6 +216,7 @@ struct A11ySettings: Codable, Equatable {
   func animation(_ base: Double = 0.25) -> Animation? {
     reducedMotion ? nil : .easeOut(duration: base)
   }
+
 }
 
 // MARK: - Le manopole dell'app messe insieme a quelle del Mac
@@ -264,6 +273,8 @@ struct EffettiveImpostazioniAccessibilita: Equatable {
   var hideScore: Bool { scelte.hideScore }
   var speakCorrectWord: Bool { scelte.speakCorrectWord }
   var volumeSuoni: Double { scelte.volumeSuoni }
+  var bersagliGrandi: Bool { scelte.bersagliGrandi }
+  var righeDistanziate: Bool { scelte.righeDistanziate }
 
   // MARK: Quello che nasce dalle due cose insieme
 
@@ -304,8 +315,15 @@ struct EffettiveImpostazioniAccessibilita: Equatable {
   /// cerebrale un bersaglio di 44 punti lo colpisce a fatica: nel suo profilo
   /// il minimo sale a 60, ed è la differenza fra un'app che si usa e una che si
   /// abbandona. Prima il profilo lo prometteva a parole e non lo faceva.
+  ///
+  /// Prima questo numero si leggeva dal *profilo*, e sembrava comodo. Ma
+  /// toccare una qualunque altra manopola riporta il profilo a «nessuno» — è
+  /// voluto, perché le combinazioni le decide chi usa l'app — e i bersagli
+  /// tornavano a 44 **in silenzio**: si alzava di un filo la dimensione del
+  /// testo e l'app smetteva di essere usabile, senza che una parola lo dicesse.
+  /// Ora è una manopola vera, che il profilo accende e che resta accesa da sola.
   var bersaglio: CGFloat {
-    profile == .paralisiCerebrale ? 60 : Metrica.bersaglio
+    bersagliGrandi ? 60 : Metrica.bersaglio
   }
 
   /// Il testo è cresciuto abbastanza da non stare più in colonne affiancate.
@@ -316,7 +334,15 @@ struct EffettiveImpostazioniAccessibilita: Equatable {
   /// decidere fra «uno accanto all'altro» e «uno sotto l'altro», e sta scritta
   /// qui una volta sola perché non se ne inventino altre due leggermente
   /// diverse fra sei mesi.
-  var testoGrande: Bool { textScale >= 1.6 }
+  ///
+  /// La soglia era 1,6 e non veniva da una misura: veniva da un numero tondo.
+  /// Misurata davvero, la colonna da 260 punti su una finestra da 1100 ne
+  /// chiede 364 a ×1,40 (ne restano 366: passa per due), 377 a ×1,45 e 403 a
+  /// ×1,55 — cioe' sfonda molto prima di 1,6. E il cursore in Impostazioni ha
+  /// passo 0,03: quei valori si raggiungono senza nemmeno accorgersene. La
+  /// prova non se n'era mai accorta perche' provava sei scale tonde e saltava
+  /// esattamente quelle che rompono.
+  var testoGrande: Bool { textScale >= 1.4 }
 
   /// Lo spazio in più fra una riga e l'altra.
   ///
@@ -324,8 +350,11 @@ struct EffettiveImpostazioniAccessibilita: Equatable {
   /// salta la successiva. È la fatica che il profilo Dislessia prometteva di
   /// togliere da quando esiste, senza che nel codice ci fosse una sola riga che
   /// la togliesse davvero.
+  /// Anche questa era legata al profilo, e si salvava solo per caso: il profilo
+  /// Dislessia sceglie anche il carattere, e il carattere restava. Chi cambiava
+  /// carattere perdeva la spaziatura senza saperlo.
   var interlinea: CGFloat {
-    let base: Double = profile == .dislessia || typeface == .openDyslexic ? 6 : 0
+    let base: Double = righeDistanziate || typeface == .openDyslexic ? 6 : 0
     return CGFloat(base * textScale)
   }
 
@@ -372,3 +401,36 @@ extension View {
     lineSpacing(a11y.interlinea)
   }
 }
+
+extension A11ySettings {
+  /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
+  /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    profile = try c.valore(.profile, profile)
+    theme = try c.valore(.theme, theme)
+    colorVision = try c.valore(.colorVision, colorVision)
+    typeface = try c.valore(.typeface, typeface)
+    textScale = try c.valore(.textScale, textScale)
+    letterSpacing = try c.valore(.letterSpacing, letterSpacing)
+    stimulusSize = try c.valore(.stimulusSize, stimulusSize)
+    reducedMotion = try c.valore(.reducedMotion, reducedMotion)
+    calmMode = try c.valore(.calmMode, calmMode)
+    distractionFree = try c.valore(.distractionFree, distractionFree)
+    showTimer = try c.valore(.showTimer, showTimer)
+    soundsEnabled = try c.valore(.soundsEnabled, soundsEnabled)
+    voiceIdentifier = try c.valore(.voiceIdentifier, voiceIdentifier)
+    voiceRate = try c.valore(.voiceRate, voiceRate)
+    pauseEveryNWords = try c.valore(.pauseEveryNWords, pauseEveryNWords)
+    shorterSessions = try c.valore(.shorterSessions, shorterSessions)
+    extraResponseTime = try c.valore(.extraResponseTime, extraResponseTime)
+    showFeedbackPerWord = try c.valore(.showFeedbackPerWord, showFeedbackPerWord)
+    hideScore = try c.valore(.hideScore, hideScore)
+    speakCorrectWord = try c.valore(.speakCorrectWord, speakCorrectWord)
+    volumeSuoni = try c.valore(.volumeSuoni, volumeSuoni)
+    bersagliGrandi = try c.valore(.bersagliGrandi, bersagliGrandi)
+    righeDistanziate = try c.valore(.righeDistanziate, righeDistanziate)
+  }
+}
+

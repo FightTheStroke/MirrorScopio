@@ -278,7 +278,12 @@ struct LarghezzaColTestoGrande {
   @Test("La colonna laterale non si mangia la finestra")
   func colonnaNonSiMangiaLaFinestra() {
     var scelta = PaginaDiProva.prima
-    for scala in [1.0, 1.2, 1.4, 1.6, 1.8, 2.0] {
+    // Il cursore in Impostazioni ha passo 0,03 su 0,8…2,0: le scale possibili
+    // sono un continuo, non sei valori tondi. La prova provava solo i sei, e
+    // saltava proprio quelli che rompono: a ×1,4 la colonna misura 364 punti su
+    // 366 disponibili — passa per due punti — e a ×1,5, che si raggiunge
+    // benissimo, ne chiede 390. Ora si prova tutto l'intervallo.
+    for scala in stride(from: 0.8, through: 2.0, by: 0.05) {
       let a = impostazioni(scala: scala)
       // Sopra la soglia l'elenco non sta più di fianco al contenuto: sta sopra,
       // in fila, e la larghezza gliela dà la finestra. Lì la misura giusta è
@@ -315,8 +320,13 @@ struct LarghezzaColTestoGrande {
   /// di quello che ha chiesto. Se un numero non ci sta, va a capo.
   @Test("Nessuna scritta si rimpicciolisce per stare dentro")
   func nienteRimpicciolimenti() throws {
+    // Il file si legge dal percorso, non dall'URL: leggere da un URL accetta
+    // anche un indirizzo di rete, e il cancello che difende la regola «niente
+    // esce da questo Mac» lo vieta ovunque, prove comprese. Giustamente: una
+    // prova che porta fuori i dati li porta fuori uguale.
     let trovati = try file(sotto: Self.sorgenti).filter {
-      try String(contentsOf: $0, encoding: .utf8).contains("minimumScaleFactor")
+      guard let dati = FileManager.default.contents(atPath: $0.path) else { return false }
+      return String(decoding: dati, as: UTF8.self).contains("minimumScaleFactor")
     }
     #expect(trovati.isEmpty,
       "\(trovati.map(\.lastPathComponent).joined(separator: ", ")): il testo si rimpicciolisce da solo invece di andare a capo")
@@ -326,8 +336,11 @@ struct LarghezzaColTestoGrande {
   /// cresce con l'ingrandimento, la colonna no, e la parola finisce fuori.
   @Test("Il riepilogo non ha colonne a larghezza fissa")
   func nienteColonneFisse() throws {
-    let testo = try String(
-      contentsOf: Self.sorgenti.appendingPathComponent("Views/ReportView.swift"), encoding: .utf8)
+    // Come sopra: dal percorso, non dall'URL.
+    let dati = FileManager.default.contents(
+      atPath: Self.sorgenti.appendingPathComponent("Views/ReportView.swift").path)
+    let testo = String(decoding: dati ?? Data(), as: UTF8.self)
+    #expect(dati != nil, "ReportView.swift non si legge: la prova qui sotto non proverebbe niente")
     // `frame(width: 0, height: 0)` è il pulsante invisibile delle scorciatoie:
     // non contiene testo e non è una colonna.
     let colonne = testo.split(separator: "\n").filter {
