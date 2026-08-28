@@ -46,6 +46,14 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   dichiara nessun tracciamento, nessun dominio di tracciamento, nessun dato raccolto.
 
 ### Cambiato
+- **Tre promesse di accessibilità sono state guardate a schermo, e una era sbagliata.**
+  Fino alla 0.6.0 `docs/ACCESSIBILITA.md` dichiarava che il tasto Tab non entrava negli
+  elenchi a comparsa. Provato sull'app in esecuzione: **entra**, il fuoco si sposta di riga
+  in riga con l'anello ben visibile, e Esc chiude il pannello. Verificati anche l'anello di
+  fuoco e l'impaginazione col testo a ×2, che regge su casa e impostazioni senza troncare né
+  sovrapporre. Resta un difetto estetico scritto nero su bianco (le schede dei profili si
+  sfalsano a ×2) e una sola promessa ancora non verificata: gli annunci a voce, che per
+  toglierli dall'elenco bisogna sentirli.
 - **I conti del referto si possono finalmente provare.** Le due regole cliniche più
   delicate dell'app — il riscaldamento non conta, le prove interrotte non contano — stavano
   dentro un oggetto di mille righe legato a un microfono acceso e a un orologio che gira:
