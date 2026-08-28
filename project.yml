@@ -3,8 +3,15 @@
 # Perché un file di testo e non il progetto Xcode vero: un `.xcodeproj` è una
 # cartella piena di riferimenti generati, che si sporca da sola a ogni apertura
 # e che nei conflitti di merge non si riesce a leggere. Questo file invece si
-# legge, si confronta e si corregge. Il progetto si rigenera con `xcodegen`
-# quando serve, ed è per questo che il `.xcodeproj` non sta nel repository.
+# legge, si confronta e si corregge.
+#
+# Il progetto generato sta comunque nel repository, ma non è la sorgente: è un
+# risultato. Ci sta perché Xcode Cloud controlla che il `.xcodeproj` esista al
+# momento del clone, prima di eseguire qualsiasi script — quindi generarlo al
+# volo là non è possibile. Per evitare che i due si scollino in silenzio,
+# `scripts/genera-progetto.sh` produce sempre lo stesso file byte per byte e un
+# controllo su GitHub rifiuta ogni modifica in cui i due non corrispondono.
+# Regola pratica: si cambia questo file, poi si rigenera. Mai il contrario.
 #
 # Prima di questo file l'app veniva costruita da ~120 righe di bash che
 # scrivevano l'Info.plist a mano, chiamavano `swiftc` e firmavano a mano.
@@ -45,6 +52,15 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: NO
     GCC_TREAT_WARNINGS_AS_ERRORS: NO
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
+
+    # Toglie dal programma finito il codice che nessuno chiama. Lo consiglia
+    # Xcode, e qui vale doppio: l'app si scarica, e ogni megabyte in meno e'
+    # un'attesa in meno per chi ha una linea lenta.
+    #
+    # Sta scritto qui e non nelle impostazioni di Xcode perche' il progetto
+    # Xcode e' generato da questo file: una spunta messa a mano nella finestra
+    # «Update to recommended settings» sparirebbe alla prima ricostruzione.
+    DEAD_CODE_STRIPPING: YES
 
 # File che non si compilano ma che fanno parte del progetto: documentazione,
 # script, configurazioni. Senza questo elenco Xcode mostra solo il codice, e

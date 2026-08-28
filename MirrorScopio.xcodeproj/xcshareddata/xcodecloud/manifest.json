@@ -1,0 +1,9 @@
+{
+  "id" : "684a40aa-42fb-4c1c-8185-5b79be528e35",
+  "targets" : [
+    {
+      "id" : "6ce8e1be-3569-415b-bda3-3c3d4845d94a",
+      "name" : "MirrorScopio"
+    }
+  ]
+}

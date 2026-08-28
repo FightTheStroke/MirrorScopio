@@ -15,8 +15,14 @@ history.json
 PIANO-LAVORI.md
 .build/
 
-# Generato da xcodegen a partire da project.yml: la sorgente e project.yml.
-MirrorScopio.xcodeproj/
+# Il progetto Xcode STA nel repository, ma la sorgente resta project.yml: si
+# rigenera con scripts/genera-progetto.sh e un controllo su GitHub verifica che
+# i due restino allineati. Sta qui perche' Xcode Cloud pretende di trovarlo gia'
+# pronto al momento del clone: controlla che esista prima di eseguire qualsiasi
+# script, quindi generarlo al volo non e' possibile.
+# Di suo Xcode ci scrive dentro le preferenze personali di chi lo apre: quelle no.
+MirrorScopio.xcodeproj/xcuserdata/
+MirrorScopio.xcodeproj/project.xcworkspace/xcuserdata/
 
 # Generato da scripts/genera-progetto.sh a partire dal file VERSION.
 Versione.xcconfig
