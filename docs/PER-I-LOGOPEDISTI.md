@@ -99,10 +99,28 @@ Due avvertenze sull'esportazione:
   errore: dove lo salvate e a chi lo mandate è una vostra responsabilità, e nessuna
   impostazione dell'app può proteggerlo una volta uscito.
 
+### Che cosa il PDF e il CSV non dicono ancora
+
+L'app registra per ogni parola tre cose che nelle esportazioni **non compaiono**, e che
+restano solo dentro i file dei dati (`~/Library/Application Support/MirrorScopio/`):
+
+- **Se il turno è stato interrotto** — il Mac che si addormenta, la finestra che passa
+  dietro a un'altra, il microfono staccato. L'app fa la cosa giusta nei conti: un turno
+  interrotto non entra nell'accuratezza e non sposta la difficoltà. Ma **nel CSV quella
+  riga c'è comunque, con esito «ancora» e senza niente che la distingua**. Se contate gli
+  «ancora» a mano sul CSV, vi verrà un numero peggiore di quello vero: fidatevi
+  dell'accuratezza in intestazione, che è calcolata bene.
+- **La frequenza dello schermo** (`refreshHz`) e **il fotogramma saltato**
+  (`frameSaltato`). Servono a interpretare i millesimi: su uno schermo a 60 Hz
+  un'esposizione di 30 ms non può esistere.
+
+Se vi servono, sono nel file `history.json`, che è leggibile a occhio. Portarli anche nelle
+esportazioni è un lavoro aperto.
+
 ## Le tre colonne che si leggono per prime
 
 - **Esposizione**: la colonna `esposizione_ms` riporta la durata **effettivamente misurata**
-  sullo schermo, al fotogramma, non quella richiesta (`SessionEngine.swift:663`). Se la
+  sullo schermo, al fotogramma, non quella richiesta (`SessionEngine.swift:945`). Se la
   misura non è disponibile, ripiega sulla richiesta. È il motivo per cui questa app usa
   `CVDisplayLink` invece di un timer di sistema: a 120 Hz la differenza fra i due criteri
   vale 8 ms su un'esposizione che può valerne 33.

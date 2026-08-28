@@ -44,7 +44,7 @@ Sources/
     Store.swift          profili e storico, JSON su disco
     Gamification.swift   punti, serie, obiettivi, proposta di livello
     Exporter.swift       referto PDF e CSV
-  Views/                 una schermata per file (17)
+  Views/                 una schermata per file (18)
 ```
 
 ## Le prove
@@ -53,7 +53,9 @@ Tre cartelle, tre mestieri diversi:
 
 ```
 Verifiche/          Swift Testing, senza aprire l'app: scala adattiva,
-                    contrasto dei colori, suoni, confronto fra versioni
+                    contrasto dei colori, suoni, confronto fra versioni,
+                    e i due banchi sui dati — che il salvataggio non perda
+                    niente e che il referto non alteri le parole
 ProveDaTastiera/    XCUITest: apre l'app vera e la usa solo da tastiera,
                     leggendo l'albero di accessibilità
 Tests/              banchi di prova eseguibili a mano (`@main`), non XCTest:

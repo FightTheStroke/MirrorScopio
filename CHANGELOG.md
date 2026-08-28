@@ -82,10 +82,11 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - **La durata delle parole era misurata sullo schermo sbagliato.** Con due
   schermi a frequenza diversa — un portatile accanto a un monitor — l'app
   chiedeva la frequenza a quello dove c'era il cursore, non a quello dove
-  stava la finestra. Adesso la chiede a chi disegna davvero. Nel referto ci
-  sono anche la frequenza dello schermo, i fotogrammi chiesti e quelli
-  ottenuti: senza quei numeri «30 millesimi» non vuol dire niente, perché su
-  uno schermo a 60 Hz un'esposizione di 30 millesimi non esiste.
+  stava la finestra. Adesso la chiede a chi disegna davvero. La frequenza dello
+  schermo e il fotogramma saltato vengono **salvati** insieme a ogni parola:
+  senza quei numeri «30 millesimi» non vuol dire niente, perché su uno schermo
+  a 60 Hz un'esposizione di 30 millesimi non esiste. Restano però dentro i file
+  dei dati: **nel PDF e nel CSV esportati non compaiono ancora**.
 - **Un turno interrotto veniva contato come una parola non letta.** Il Mac che
   si addormenta, la finestra che passa dietro a un'altra, le cuffie staccate a
   metà: succede, e non dice niente su chi sta leggendo. Ora quel turno è

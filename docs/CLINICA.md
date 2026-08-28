@@ -205,10 +205,10 @@ sono scelte ragionevoli, provate a mano, mai confrontate con un'alternativa.
 | Parametro | Valore | Dove sta | Perché quel valore |
 |---|---|---|---|
 | Parole di riscaldamento | 3 | `Core/Model.swift:202` | Abbastanza per prendere la mano senza allungare la seduta. Scelto a occhio. |
-| Quanto durano di più | ×3, tetto 1500 ms | `Core/SessionEngine.swift:119` | Devono vedersi «benissimo». Il tetto evita attese noiose ai livelli lenti. |
-| Parole della calibrazione | 8 (7 contano) | `Core/SessionEngine.swift:183-184` | Compromesso fra precisione e pazienza di un ragazzo al primo avvio. **Troppo poche per una soglia stabile**, come detto sopra. |
-| Partenza della calibrazione | 800 ms, passo 90 ms, minimo 60 ms | `Core/SessionEngine.swift:185-188` | Scendere in fretta per finire in fretta. |
-| Margine sul punto di partenza | soglia × 1,25 | `Core/SessionEngine.swift:677` | Allenarsi al limite scoraggia: si parte appena sopra. Il 25% è una scelta, non una misura. |
+| Quanto durano di più | ×3, tetto 1500 ms | `Core/SessionEngine.swift:140` | Devono vedersi «benissimo». Il tetto evita attese noiose ai livelli lenti. |
+| Parole della calibrazione | 8 (7 contano) | `Core/SessionEngine.swift:330-331` | Compromesso fra precisione e pazienza di un ragazzo al primo avvio. **Troppo poche per una soglia stabile**, come detto sopra. |
+| Partenza della calibrazione | 800 ms, passo 90 ms, minimo 60 ms | `Core/SessionEngine.swift:332-335` | Scendere in fretta per finire in fretta. |
+| Margine sul punto di partenza | soglia × 1,25 | `Core/SessionEngine.swift:962` | Allenarsi al limite scoraggia: si parte appena sopra. Il 25% è una scelta, non una misura. |
 | Fascia di comfort | 60%–90% | `Data/Gamification.swift:164-165` | Più larga dell'85% della letteratura, di proposito: proporre un cambio di livello a ogni piccola oscillazione sarebbe fastidioso. Sotto le 5 parole contate l'app non propone niente (`:168`). |
 | Passo della scala | 15 ms di serie; 40 / 30 / 20 / 15 ms per i quattro livelli | `Core/Model.swift:206`, `:87-93` | Passi più grandi dove le esposizioni sono lunghe. Proporzione scelta a mano. |
 | Esposizione iniziale dei livelli | 900 / 600 / 300 / 150 ms | `Core/Model.swift:87-93` | Corrisponde alla difficoltà delle liste (sillabe piane → quadrisillabe). Nessuna taratura su dati. |

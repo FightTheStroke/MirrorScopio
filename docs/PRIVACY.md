@@ -43,6 +43,7 @@ di quello che è stato capito. Nessun file audio viene scritto sul disco, in nes
 | Per ogni parola: quella mostrata, quella capita, giusta o «ancora», millesimi di esposizione, ritardo della voce, tipo di errore | Il referto e il confronto fra una seduta e l'altra | `history.json` | Finché non lo cancellate |
 | Data e ora di ogni sessione | Mettere in fila i progressi | `history.json` | Finché non lo cancellate |
 | Se il controllo versione è acceso, e quando è stato fatto l'ultimo | Non chiedere a GitHub più di una volta al giorno | Preferenze di sistema dell'app | Finché non disinstallate |
+| **Copia di sicurezza di un file rovinato**, quando capita | Se un salvataggio è rimasto a metà, l'app **non ci scrive sopra**: ne mette da parte una copia con la data, così quel che c'era non va perso. Contiene le stesse cose del file da cui viene | Nella stessa cartella, con nome `learners.<data>.illeggibile.json` o `history.<data>.illeggibile.json` | **Finché non la cancellate voi**: l'app non la tocca più. Il nome vi dice qual è; si butta come qualunque file |
 | **La voce** | — | **Da nessuna parte** | **Non viene mai salvata** |
 
 Nessuna di queste righe esce dal Mac. Nessuna viene usata per profilare, misurare o
@@ -83,7 +84,7 @@ aprendo l'app o la cartella, senza chiedere niente a nessuno e senza aspettare r
 | **Vedere** i dati | I due file JSON si aprono con TextEdit e si leggono. Sono fatti apposta per essere leggibili a occhio. |
 | **Portarli via** | I due file si copiano. Dentro l'app: «I tuoi progressi» → esporta il PDF con **tutto lo storico**, o il CSV dell'ultima sessione. |
 | **Correggerli** | Il nome si cambia nelle Impostazioni. Il resto si modifica nei file. |
-| **Cancellarli** | Impostazioni › I dati › «Cancella tutti i dati di…». Oppure si butta la cartella: non resta nessuna copia. |
+| **Cancellarli** | Impostazioni › I dati › «Cancella tutti i dati di…». Oppure si butta la cartella: non resta nessuna copia. Se in passato è comparso l'avviso di un file rovinato, controllate che non sia rimasto un file con `illeggibile` nel nome: quello va buttato a mano. |
 | **Opporsi** / limitare | Non c'è niente a cui opporsi: nessun trattamento nostro è in corso. Il controllo versione si spegne dalle Impostazioni. |
 | **Reclamare** | Verso di noi, per il funzionamento dell'app: **info@fightthestroke.org**. Per problemi di sicurezza: **security@fightthestroke.org**. |
 
@@ -145,10 +146,10 @@ scritto l'app ha comunque la responsabilità di non renderlo peggiore del necess
 
 | # | Rischio | Quanto è probabile | Quanto farebbe male | Che cosa c'è oggi | Che cosa manca |
 |---|---|---|---|---|---|
-| 1 | I dati escono dal Mac verso un servizio | Molto bassa | Gravissimo | Un solo file tocca la rete (`Updates.swift`), e un controllo automatico boccia una rete aggiunta altrove. Nessun account, nessuna telemetria | Il controllo automatico oggi è una lista di divieti: una tecnica di rete nuova, non ancora nell'elenco, passerebbe. Va rovesciato in lista di permessi |
+| 1 | I dati escono dal Mac verso un servizio | Molto bassa | Gravissimo | Un solo file tocca la rete (`Updates.swift`), e un controllo automatico boccia una rete aggiunta altrove. Il controllo guarda **riga per riga**, non file per file, e copre anche le vie di servizio (scaricare un indirizzo senza `URLSession`, o lanciare `curl`); guarda pure il codice delle prove automatiche | Resta una lista di divieti: una tecnica di rete nuova, non ancora nell'elenco, passerebbe. Va rovesciata in lista di permessi |
 | 2 | Un'altra persona che usa lo stesso Mac legge i dati | Bassa | Alto | Cartella con permessi `700`, file `600`: un altro utente non li apre | Niente da fare in più, è la garanzia del sistema |
 | 3 | **Un altro programma avviato dallo stesso utente legge i dati** | Media | Alto | Nessuna difesa: l'app non gira in una scatola chiusa, per poter cambiare il microfono di sistema. È dichiarato in `SECURITY.md` | Accendere la sandbox, o cifrare i due file con una chiave nel portachiavi. È un lavoro aperto |
-| 4 | I dati vengono persi per un guasto | Media | Medio | I file sono JSON leggibili e copiabili a mano | Se il file si corrompe, oggi l'app riparte vuota **senza dirlo**. È un difetto aperto e va corretto: mai perdere dati in silenzio |
+| 4 | I dati vengono persi per un guasto | Media | Medio | I file sono JSON leggibili e copiabili a mano. Se un file risulta illeggibile l'app **non ci scrive sopra**: ne mette da parte una copia con la data, lo dice a schermo e aspetta che decida una persona | Resta che la copia è nella stessa cartella e quindi sullo stesso disco: contro la perdita del disco non protegge. Una copia fuori dal Mac la deve fare la famiglia |
 | 5 | Un referto esportato finisce dove non deve | Media | Alto | L'esportazione è sempre un'azione volontaria di un adulto, con la finestra «dove lo salvo» | Sta a chi esporta. Va detto nel documento per i logopedisti, ed è detto |
 | 6 | Un dato clinico sbagliato porta a una decisione sbagliata | Media | Alto | Il verdetto giusto/sbagliato è deterministico, il modello linguistico non può ribaltarlo. I limiti sono dichiarati in `CLINICA.md` | I limiti vanno letti davvero: nessun numero di quest'app è normato |
 | 7 | Un ragazzo si sente giudicato dai propri dati | Media | Medio | Punteggi nascondibili, mai la parola «sbagliato», mai una croce | Il *Dettaglio per l'adulto* non è ancora protetto: un ragazzo può aprirlo |
@@ -157,9 +158,11 @@ scritto l'app ha comunque la responsabilità di non renderlo peggiore del necess
 ### Il giudizio
 
 Il rischio principale **non è la fuga in rete** — quella è tenuta stretta e verificata — ma
-il fatto che i file stiano in chiaro dentro la cartella dell'utente (rischio 3) e che una
-perdita possa avvenire in silenzio (rischio 4). Sono due lavori aperti e dichiarati, non due
-sorprese.
+il fatto che i file stiano in chiaro dentro la cartella dell'utente (rischio 3): un altro
+programma avviato dalla stessa persona li può leggere, e oggi non c'è niente che glielo
+impedisca. È un lavoro aperto e dichiarato, non una sorpresa. La perdita silenziosa
+(rischio 4) era il secondo, ed è stata chiusa: adesso un file rovinato viene messo da parte
+e detto, invece di sparire.
 
 Questa valutazione va rifatta ogni volta che: si aggiunge una connessione di rete, si cambia
 dove stanno i dati, si aggiunge un dato nuovo alla tabella qui sopra, o si porta l'app su
