@@ -449,8 +449,8 @@ struct ReportView: View {
                           suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).pdf")
           }
           SmallButton(title: "Esporta CSV", symbol: "tablecells", a11y: a11y) {
-            Exporter.save(text: Exporter.csv(record, learner: store.current),
-                          suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).csv")
+            Exporter.salvaFoglioDiCalcolo(text: Exporter.csv(record, learner: store.current),
+                                          suggested: "mirrorscopio-\(Gamification.dayKey(record.date)).csv")
           }
         }
         Explain(text: "Il file contiene il nome e le parole che non sono venute: trattalo come un documento clinico.", a11y: a11y, size: 14)

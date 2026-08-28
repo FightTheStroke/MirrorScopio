@@ -26,6 +26,23 @@ MARKETING_VERSION = $VERSION
 CURRENT_PROJECT_VERSION = $BUILD_NUMBER
 CONF
 
+# Il team di firma non sta dentro project.yml di proposito: chi scarica questa
+# cartella senza il certificato della fondazione deve poter costruire lo
+# stesso. Se però il certificato su questo Mac c'è, si scrive qui — così Xcode
+# apre il progetto già firmato come si deve, invece di mostrare «None» e
+# costringere a metterlo a mano in una finestra che la prossima generazione
+# cancellerebbe.
+if security find-identity -v -p codesigning 2>/dev/null | grep -q "93T3LG4NPG"; then
+  cat >> Versione.xcconfig <<'FIRMA'
+
+// Il certificato della fondazione è su questo Mac: Xcode lo usa.
+DEVELOPMENT_TEAM = 93T3LG4NPG
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = Apple Development
+FIRMA
+  echo "Certificato della fondazione trovato: Xcode firmerà come Fight The Stroke."
+fi
+
 if ! command -v xcodegen >/dev/null 2>&1; then
   echo "Manca xcodegen: installalo con  brew install xcodegen"
   exit 1

@@ -19,4 +19,15 @@ enum Log {
   static func warn(_ messaggio: String) {
     logger.warning("\(messaggio, privacy: .public)")
   }
+
+  /// Come `warn`, ma tiene fuori dalla parte leggibile ciò che riguarda questo
+  /// Mac e questa persona: percorsi di cartelle, nomi di file, messaggi del
+  /// sistema. Il registro di sistema lo possono leggere altri programmi, e un
+  /// percorso contiene il nome dell'utente.
+  ///
+  /// La parte `motivo` resta visibile solo a chi ha il Mac davanti e attiva la
+  /// diagnostica di proposito.
+  static func warn(_ messaggio: String, motivo: String) {
+    logger.warning("\(messaggio, privacy: .public): \(motivo, privacy: .private)")
+  }
 }

@@ -436,7 +436,7 @@ struct DashboardView: View {
                 guard let ultima = sessioni.first else { return }
                 let csv  = Exporter.csv(ultima, learner: store.current)
                 let nome = bambino.name.isEmpty ? "sessione" : bambino.name
-                Exporter.save(text: csv, suggested: "sessione-\(nome).csv")
+                Exporter.salvaFoglioDiCalcolo(text: csv, suggested: "sessione-\(nome).csv")
             }
 
             Spacer()

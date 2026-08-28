@@ -87,16 +87,11 @@ cp -R "$COSTRUITA" "$APP"
 # si sa ancora leggere.
 strip -rSTx "$APP/Contents/MacOS/MirrorScopio" 2>/dev/null
 
-cat > build/entitlements.plist <<ENT
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>com.apple.security.device.audio-input</key><true/>
-  <key>com.apple.security.files.user-selected.read-write</key><true/>
-</dict>
-</plist>
-ENT
+# I permessi si leggono dall'unico file che li contiene. Prima erano scritti
+# due volte — qui e in `MirrorScopio.entitlements` — e due copie della stessa
+# verita' si allontanano in silenzio: bastava aggiungere un permesso in un posto
+# solo per firmare l'app con permessi diversi da quelli dichiarati nel progetto.
+cp MirrorScopio.entitlements build/entitlements.plist
 
 if security find-identity -v -p codesigning | grep -q "93T3LG4NPG"; then
   echo "Firmo come Fight The Stroke Foundation…"
@@ -110,6 +105,7 @@ if security find-identity -v -p codesigning | grep -q "93T3LG4NPG"; then
     --entitlements build/entitlements.plist \
     --sign "$TEAM_IDENTITY" "$APP"
 else
+  FIRMA_ALLA_BUONA=1
   echo "Certificato della fondazione non trovato — firmo alla buona."
   # Stesso hardened runtime del ramo firmato: se una restrizione rompe
   # qualcosa, deve rompersi qui, non sul Mac di una famiglia.
@@ -121,3 +117,16 @@ codesign --verify --verbose=1 "$APP" 2>&1 | tail -2
 
 echo "Fatto: $APP  —  $VERSION ($BUILD_NUMBER)"
 echo "Avvia con:  open $APP"
+
+# Una firma alla buona cambia a ogni costruzione, e macOS considera «un'altra
+# app» ogni copia. Il permesso del microfono concesso ieri smette di valere, e
+# a schermo sembra un pulsante «Consenti» che non fa niente: è già successo, ci
+# sono volute ore per capirlo. Se capita, va detto qui, come ultima riga, dove
+# si guarda — non a metà di duecento righe di compilazione.
+if [[ "${FIRMA_ALLA_BUONA:-0}" == "1" ]]; then
+  echo
+  echo "  ATTENZIONE: questa copia è firmata alla buona, non con il certificato"
+  echo "  della fondazione. macOS la tratterà come un'app diversa da quella di"
+  echo "  ieri: il permesso del microfono andrà concesso di nuovo, e se non"
+  echo "  compare nessuna richiesta serve  tccutil reset Microphone $BUNDLE_ID"
+fi

@@ -76,7 +76,10 @@ final class AudioCheck: ObservableObject {
         try await listener.start(locale: Locale(identifier: "it_IT"),
                                  vocabulary: Self.testWords,
                                  preferredInput: selectedInput)
-        listener.beginWindow()
+        // Qui non c'è nessuna prova in corso: è la schermata «Mi senti?», che
+        // ascolta e basta. Zero è l'identificativo di questa finestra unica,
+        // e nessuna prova vera userà mai quel numero.
+        listener.beginWindow(trialID: 0)
         self.running = true
         self.startPolling()
       } catch {
