@@ -53,6 +53,14 @@ jobs:
           rm -f "$RUNNER_TEMP/cert.p12"
           security find-identity -v -p codesigning "$KEYCHAIN"
 
+      # build.sh non compila piu' da solo: chiama xcodebuild sul progetto
+      # generato da project.yml, quindi qui serve xcodegen esattamente come
+      # serve alla Verifica. Senza, il rilascio si fermava dopo un decimo di
+      # secondo con «Manca xcodegen» — ed e' successo davvero, sul tag v0.6.0:
+      # la release e' nata senza pacchetto e nessuno avrebbe potuto scaricarla.
+      - name: Preparo xcodegen
+        run: brew install xcodegen
+
       - name: Compilo, firmo, faccio timbrare da Apple
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
