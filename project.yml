@@ -19,15 +19,23 @@ options:
   deploymentTarget:
     macOS: "26.0"
   createIntermediateGroups: true
-  # Il numero di build lo passa build.sh (è il conto dei commit): qui non si
-  # inventa niente, così l'unica fonte di verità resta il file VERSION.
   generateEmptyDirectories: true
+
+# La versione non si scrive qui. Prima c'erano due segnaposto fissi ("0.0.0" e
+# "0") con scritto accanto che li avrebbe sovrascritti build.sh: non è mai
+# successo, perché build.sh compila per conto suo e il progetto Xcode non lo
+# apre nemmeno. Risultato: chi costruiva da Xcode otteneva un'applicazione che
+# si dichiarava 0.0.0. Ora i due numeri arrivano da Versione.xcconfig, che
+# `scripts/genera-progetto.sh` riscrive dal file VERSION prima di generare il
+# progetto. Attenzione: se un numero torna qui sotto in `settings`, vince su
+# quello del file e il difetto ricomincia.
+configFiles:
+  Debug: Versione.xcconfig
+  Release: Versione.xcconfig
 
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.0.0"      # sovrascritto da build.sh con il file VERSION
-    CURRENT_PROJECT_VERSION: "0"    # sovrascritto da build.sh col conto dei commit
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Manual
     # Di serie si firma alla buona: così una copia appena scaricata compila su
