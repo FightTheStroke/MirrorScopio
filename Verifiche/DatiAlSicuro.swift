@@ -209,4 +209,27 @@ struct EsportazioneFedele {
       #expect(csv.contains("\"'\(inizio)DDE()\""), "manca l'apostrofo che la disinnesca")
     }
   }
+
+  @Test("Con dati scritti da una versione più nuova, «ricomincia» non cancella niente")
+  func ricominciaNonCancellaIlFuturo() throws {
+    let cartella = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: cartella, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: cartella) }
+
+    let futuro = cartella.appendingPathComponent("formato.json")
+    try #"{"versione": 99}"#.data(using: .utf8)!.write(to: futuro)
+    let dati = cartella.appendingPathComponent("learners.json")
+    try "IO SONO IL FUTURO".data(using: .utf8)!.write(to: dati)
+
+    let store = Store(folder: cartella)
+    #expect(store.scritturaSospesa)
+    #expect(store.ricominciareÈPossibile == false)
+
+    store.ricominciaDaCapo()
+
+    let dopo = try String(contentsOf: dati, encoding: .utf8)
+    #expect(dopo == "IO SONO IL FUTURO")
+    #expect(store.scritturaSospesa)
+  }
 }

@@ -381,6 +381,11 @@ final class Store: ObservableObject {
   /// Ricomincia da zero, di proposito. È l'unica strada che cancella qualcosa,
   /// e la sceglie una persona dopo aver letto che cosa è successo.
   func ricominciaDaCapo() {
+    // Barriera, non decorazione: `ricominciareÈPossibile` è falso anche quando
+    // la scrittura è sospesa perché sul disco c'è roba scritta da una versione
+    // più nuova dell'app. Lì non c'è nessun guasto e nessuna copia: cancellare
+    // vorrebbe dire distruggere dati integri di qualcun altro.
+    guard ricominciareÈPossibile else { return }
     guastoNeiDati = nil
     scritturaSospesa = false
     ricominciareÈPossibile = false
