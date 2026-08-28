@@ -187,4 +187,36 @@ struct A11ySettings: Codable, Equatable {
   func animation(_ base: Double = 0.25) -> Animation? {
     reducedMotion ? nil : .easeOut(duration: base)
   }
+
 }
+
+extension A11ySettings {
+  /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
+  /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    profile = try c.valore(.profile, profile)
+    theme = try c.valore(.theme, theme)
+    colorVision = try c.valore(.colorVision, colorVision)
+    typeface = try c.valore(.typeface, typeface)
+    textScale = try c.valore(.textScale, textScale)
+    letterSpacing = try c.valore(.letterSpacing, letterSpacing)
+    stimulusSize = try c.valore(.stimulusSize, stimulusSize)
+    reducedMotion = try c.valore(.reducedMotion, reducedMotion)
+    calmMode = try c.valore(.calmMode, calmMode)
+    distractionFree = try c.valore(.distractionFree, distractionFree)
+    showTimer = try c.valore(.showTimer, showTimer)
+    soundsEnabled = try c.valore(.soundsEnabled, soundsEnabled)
+    voiceIdentifier = try c.valore(.voiceIdentifier, voiceIdentifier)
+    voiceRate = try c.valore(.voiceRate, voiceRate)
+    pauseEveryNWords = try c.valore(.pauseEveryNWords, pauseEveryNWords)
+    shorterSessions = try c.valore(.shorterSessions, shorterSessions)
+    extraResponseTime = try c.valore(.extraResponseTime, extraResponseTime)
+    showFeedbackPerWord = try c.valore(.showFeedbackPerWord, showFeedbackPerWord)
+    hideScore = try c.valore(.hideScore, hideScore)
+    speakCorrectWord = try c.valore(.speakCorrectWord, speakCorrectWord)
+    volumeSuoni = try c.valore(.volumeSuoni, volumeSuoni)
+  }
+}
+

@@ -249,7 +249,40 @@ struct SessionConfig: Codable, Equatable {
     let slice = Array(out.prefix(trials))
     return uppercase ? slice.map { $0.uppercased() } : slice
   }
+
 }
+
+extension SessionConfig {
+  /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
+  /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    mode = try c.valore(.mode, mode)
+    level = try c.valore(.level, level)
+    writingLevel = try c.valore(.writingLevel, writingLevel)
+    set = try c.valore(.set, set)
+    customList = try c.valore(.customList, customList)
+    shuffle = try c.valore(.shuffle, shuffle)
+    uppercase = try c.valore(.uppercase, uppercase)
+    trials = try c.valore(.trials, trials)
+    warmupTrials = try c.valore(.warmupTrials, warmupTrials)
+    exposureMs = try c.valore(.exposureMs, exposureMs)
+    staircase = try c.valore(.staircase, staircase)
+    stepMs = try c.valore(.stepMs, stepMs)
+    minExposureMs = try c.valore(.minExposureMs, minExposureMs)
+    maxExposureMs = try c.valore(.maxExposureMs, maxExposureMs)
+    fixationMs = try c.valore(.fixationMs, fixationMs)
+    maskMode = try c.valore(.maskMode, maskMode)
+    maskMs = try c.valore(.maskMs, maskMs)
+    interTrialMs = try c.valore(.interTrialMs, interTrialMs)
+    responseTimeoutMs = try c.valore(.responseTimeoutMs, responseTimeoutMs)
+    endpointSilenceMs = try c.valore(.endpointSilenceMs, endpointSilenceMs)
+    useAppleIntelligence = try c.valore(.useAppleIntelligence, useAppleIntelligence)
+    lampeggioVeloceConsentito = try c.valore(.lampeggioVeloceConsentito, lampeggioVeloceConsentito)
+  }
+}
+
 
 // MARK: - Quanto lampeggia lo schermo
 

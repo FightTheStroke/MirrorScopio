@@ -27,7 +27,44 @@ struct ItemRecord: Codable, Identifiable {
   /// fidarsi dei millesimi di secondo dichiarati.
   var refreshHz: Double?
   var frameSaltato: Bool = false
+
 }
+
+extension ItemRecord {
+  /// Come sopra, ma qui cinque campi sono obbligatori davvero: una prova senza
+  /// lo stimolo o senza l'esito non è una prova incompleta, è un dato che non
+  /// significa niente.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    id = try c.valore(.id, UUID())
+    stimulus = try c.decode(String.self, forKey: .stimulus)
+    response = try c.decode(String.self, forKey: .response)
+    correct = try c.decode(Bool.self, forKey: .correct)
+    exposureMs = try c.decode(Double.self, forKey: .exposureMs)
+    latencyMs = try c.valore(.latencyMs, nil)
+    errorKind = try c.decode(String.self, forKey: .errorKind)
+    warmup = try c.valore(.warmup, false)
+    interrotto = try c.valore(.interrotto, false)
+    refreshHz = try c.valore(.refreshHz, nil)
+    frameSaltato = try c.valore(.frameSaltato, false)
+  }
+
+  init(stimulus: String, response: String, correct: Bool, exposureMs: Double,
+       latencyMs: Double?, errorKind: String, warmup: Bool = false,
+       interrotto: Bool = false, refreshHz: Double? = nil, frameSaltato: Bool = false) {
+    self.stimulus = stimulus
+    self.response = response
+    self.correct = correct
+    self.exposureMs = exposureMs
+    self.latencyMs = latencyMs
+    self.errorKind = errorKind
+    self.warmup = warmup
+    self.interrotto = interrotto
+    self.refreshHz = refreshHz
+    self.frameSaltato = frameSaltato
+  }
+}
+
 
 /// Una sessione conclusa. È quello che alimenta dashboard, progressi e PDF.
 struct SessionRecord: Codable, Identifiable {
@@ -57,7 +94,29 @@ struct SessionRecord: Codable, Identifiable {
     Dictionary(grouping: items.filter { !$0.correct && !$0.interrotto }, by: \.errorKind)
       .mapValues(\.count)
   }
+
 }
+
+extension SessionRecord {
+  /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
+  /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    id = try c.valore(.id, id)
+    learnerID = try c.valore(.learnerID, learnerID)
+    date = try c.valore(.date, date)
+    mode = try c.valore(.mode, mode)
+    level = try c.valore(.level, level)
+    setLabel = try c.valore(.setLabel, setLabel)
+    correct = try c.valore(.correct, correct)
+    total = try c.valore(.total, total)
+    thresholdMs = try c.valore(.thresholdMs, thresholdMs)
+    meanLatencyMs = try c.valore(.meanLatencyMs, meanLatencyMs)
+    items = try c.valore(.items, items)
+  }
+}
+
 
 /// Chi usa l'app. Il modello dei dati regge più persone sullo stesso Mac
 /// (fratelli, più pazienti di un logopedista), ma **oggi l'interfaccia ne
@@ -79,7 +138,30 @@ struct Learner: Codable, Identifiable, Equatable {
   /// Quante sessioni sono state portate a termine, in tutto.
   var sessionsCompleted: Int = 0
   var unlockedAchievements: [String] = []
+
 }
+
+extension Learner {
+  /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
+  /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    id = try c.valore(.id, id)
+    name = try c.valore(.name, name)
+    a11y = try c.valore(.a11y, a11y)
+    config = try c.valore(.config, config)
+    calibratedExposureMs = try c.valore(.calibratedExposureMs, calibratedExposureMs)
+    calibratedAt = try c.valore(.calibratedAt, calibratedAt)
+    xp = try c.valore(.xp, xp)
+    streakCurrent = try c.valore(.streakCurrent, streakCurrent)
+    streakLongest = try c.valore(.streakLongest, streakLongest)
+    lastSessionDay = try c.valore(.lastSessionDay, lastSessionDay)
+    sessionsCompleted = try c.valore(.sessionsCompleted, sessionsCompleted)
+    unlockedAchievements = try c.valore(.unlockedAchievements, unlockedAchievements)
+  }
+}
+
 
 // MARK: - Archivio su disco
 
