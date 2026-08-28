@@ -52,6 +52,7 @@ struct RootView: View {
     .environment(\.palette, palette)
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))
+    .avvisoDati(store)
     .onAppear {
       syncEngine()
       // Al primo avvio si controlla da soli che il Mac abbia microfono, modello

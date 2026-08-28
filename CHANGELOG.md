@@ -15,6 +15,22 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Corretto
+- **Un file di dati illeggibile faceva sparire tutto in silenzio.** Se il
+  salvataggio precedente era rimasto a metà — disco pieno, Mac spento a metà
+  scrittura, aggiornamento andato storto — l'app ripartiva vuota come al primo
+  giorno e alla fine dell'allenamento successivo ci scriveva sopra. Mesi di
+  lavoro sparivano senza un messaggio. Adesso l'app **non scrive più niente**
+  finché non lo dici tu, mette da parte una copia del file con la data e
+  spiega a schermo che cosa è successo e dove sono i file.
+- **Un salvataggio che non riusciva non lo diceva a nessuno.** Ora compare
+  l'avviso con il motivo e la cartella.
+- **Le parole esportate nel file di numeri potevano essere cambiate.** Un punto
+  e virgola dentro una parola veniva sostituito con una virgola per non rompere
+  le colonne: il file si apriva bene e diceva una cosa diversa da quella letta
+  davvero. In un referto clinico non è ammissibile. Ora il testo arriva
+  identico, virgolette e a capo compresi.
+
 ### Sicurezza
 - **Lo schermo non lampeggia più di tre volte al secondo.** Le parole ad alto
   contrasto che si alternano alla maschera sono esattamente il tipo di
@@ -51,7 +67,17 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   una parola della sessione di prima poteva comparire fra i dati di quella
   nuova. Adesso ogni cosa che arriva in ritardo sa a quale sessione
   apparteneva, e se non è più quella viva viene lasciata cadere.
-
+- **Il file esportato non può più eseguire formule.** Una parola che comincia
+  per `=`, `+`, `-` o `@` veniva eseguita come formula da Excel e Numbers
+  all'apertura. Adesso viene disinnescata.
+- **Il controllo automatico che tiene la rete fuori dall'app ora guarda riga
+  per riga**, e non salta più un file intero: ogni riga che parla di rete deve
+  dichiararsi, e la deroga vale solo dove è stata concordata. Guarda anche il
+  codice delle prove automatiche.
+- **I permessi con cui l'app viene firmata sono scritti in un posto solo.**
+  Erano due copie della stessa cosa, e due copie si allontanano in silenzio.
+- **Nel registro di sistema non finiscono più percorsi e messaggi del Mac in
+  chiaro.** Un percorso di cartella contiene il nome dell'utente.
 ## [0.6.0] — 2026-08-28
 
 ### Aggiunto

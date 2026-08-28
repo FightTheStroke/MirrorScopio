@@ -87,16 +87,11 @@ cp -R "$COSTRUITA" "$APP"
 # si sa ancora leggere.
 strip -rSTx "$APP/Contents/MacOS/MirrorScopio" 2>/dev/null
 
-cat > build/entitlements.plist <<ENT
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>com.apple.security.device.audio-input</key><true/>
-  <key>com.apple.security.files.user-selected.read-write</key><true/>
-</dict>
-</plist>
-ENT
+# I permessi si leggono dall'unico file che li contiene. Prima erano scritti
+# due volte — qui e in `MirrorScopio.entitlements` — e due copie della stessa
+# verita' si allontanano in silenzio: bastava aggiungere un permesso in un posto
+# solo per firmare l'app con permessi diversi da quelli dichiarati nel progetto.
+cp MirrorScopio.entitlements build/entitlements.plist
 
 if security find-identity -v -p codesigning | grep -q "93T3LG4NPG"; then
   echo "Firmo come Fight The Stroke Foundation…"

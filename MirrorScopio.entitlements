@@ -2,9 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <!-- Il microfono serve a sentire la lettura ad alta voce. Non c'è nessun
-       permesso di rete: i dati del bambino non escono da quel Mac, e la CI lo
-       verifica a ogni push cercando URLSession dentro Sources/. -->
+  <!-- Il microfono serve a sentire la lettura ad alta voce.
+       Il permesso di rete **non c'è**, e non perché sia stato dimenticato:
+       questa app non è ancora in scatola chiusa (App Sandbox), quindi questi
+       permessi descrivono cosa chiede, non cosa il sistema le impedisce. La
+       promessa che i dati non escono da quel Mac è tenuta dal codice e dal
+       controllo automatico che a ogni push cerca ogni riga di rete dentro
+       `Sources/` e `Verifiche/`: l'unica ammessa è quella che chiede a GitHub
+       qual è l'ultima versione, e deve dichiararsi riga per riga.
+       Mettere l'app in scatola chiusa è una decisione aperta: sposterebbe i
+       dati già salvati in un'altra cartella e toglierebbe all'app la possibilità
+       di aggiornarsi da sola. Vedi docs/ARCHITETTURA.md. -->
   <key>com.apple.security.device.audio-input</key><true/>
   <key>com.apple.security.files.user-selected.read-write</key><true/>
 </dict>

@@ -38,10 +38,30 @@ enum Exporter {
     """
   }
 
-  /// I separatori dentro un campo romperebbero il file: li neutralizziamo.
+  /// Mette un campo dentro il file rispettando la regola dei CSV (RFC 4180) e
+  /// disinnescando le formule.
+  ///
+  /// Prima qui si sostituiva il punto e virgola con una virgola: il file
+  /// restava leggibile, ma **il dato cambiava**. La parola che il bambino ha
+  /// letto davvero non è un dettaglio da correggere di nascosto in un referto
+  /// clinico. Ora il campo si racchiude fra virgolette e le virgolette interne
+  /// si raddoppiano, come vuole lo standard: il testo arriva identico.
+  ///
+  /// L'apostrofo davanti a `= + - @ tab` non è pignoleria: Excel e Numbers
+  /// eseguono come formula un campo che comincia così, e in una lista di parole
+  /// scritte da un ragazzo ci finisce di tutto.
+  ///
+  /// L'apostrofo però **entra nel dato** per chi legge il file con un
+  /// programma invece che con un foglio di calcolo. Quindi si mette solo dove
+  /// serve davvero: un numero negativo — `-120` fra le latenze — non è una
+  /// formula, ed era l'unico modo in cui questa protezione poteva a sua volta
+  /// falsificare un numero.
   private static func escape(_ s: String) -> String {
-    s.replacingOccurrences(of: ";", with: ",")
-      .replacingOccurrences(of: "\n", with: " ")
+    var campo = s
+    if let primo = campo.first, "=+-@\t\r".contains(primo), Double(s) == nil {
+      campo = "'" + campo
+    }
+    return "\"" + campo.replacingOccurrences(of: "\"", with: "\"\"") + "\""
   }
 
   // MARK: - PDF
@@ -219,6 +239,19 @@ enum Exporter {
 
   static func save(text: String, suggested: String) {
     save(data: Data(text.utf8), suggested: suggested)
+  }
+
+  /// Come `save(text:)`, ma per i file di numeri destinati a un foglio di
+  /// calcolo: davanti ci mette il contrassegno che dice «questo è UTF-8».
+  ///
+  /// Senza, Excel su Mac apre il file con la codifica di sistema e «perché»
+  /// diventa «perchÃ©». In un referto clinico è lo stesso difetto della
+  /// sostituzione dei punti e virgola: il file si apre e mostra una parola
+  /// diversa da quella che il bambino ha letto davvero.
+  static func salvaFoglioDiCalcolo(text: String, suggested: String) {
+    var dati = Data([0xEF, 0xBB, 0xBF])
+    dati.append(Data(text.utf8))
+    save(data: dati, suggested: suggested)
   }
 
   static func fileStem(_ s: SessionRecord, learner: Learner) -> String {
