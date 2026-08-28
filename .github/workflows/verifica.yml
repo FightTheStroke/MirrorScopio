@@ -105,11 +105,6 @@ jobs:
       - name: Accendo la navigazione da tastiera
         run: defaults write -g AppleKeyboardUIMode -int 3
 
-      # Nota onesta su quello che questo cancello NON controlla: le due prove sul
-      # fuoco della tastiera hanno bisogno del permesso di accessibilita', che su
-      # una macchina senza nessuno davanti non si puo' concedere. Li' si fermano
-      # dichiarando perche', invece di passare a vuoto. Quelle le lancia Roberto
-      # sul suo Mac.
       - name: Eseguo le prove di accessibilita'
         run: |
           set -euo pipefail

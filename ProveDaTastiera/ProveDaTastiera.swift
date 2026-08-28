@@ -118,7 +118,7 @@ final class ProveDaTastiera: XCTestCase {
     var raggiunti: Set<String> = []
     for _ in 0..<10 {
       finestra.typeKey(XCUIKeyboardKey.tab, modifierFlags: [])
-      if let messoAFuoco = elementoAFuoco() { raggiunti.insert(messoAFuoco) }
+      if let messoAFuoco = elementoAFuoco(in: finestra) { raggiunti.insert(messoAFuoco) }
     }
 
     XCTAssertFalse(raggiunti.isEmpty, """
@@ -136,7 +136,7 @@ final class ProveDaTastiera: XCTestCase {
     var raggiunti: Set<String> = []
     for _ in 0..<12 {
       finestra.typeKey(XCUIKeyboardKey.tab, modifierFlags: [])
-      if let messoAFuoco = elementoAFuoco() { raggiunti.insert(messoAFuoco) }
+      if let messoAFuoco = elementoAFuoco(in: finestra) { raggiunti.insert(messoAFuoco) }
     }
 
     XCTAssertGreaterThanOrEqual(raggiunti.count, 2, """
@@ -174,16 +174,6 @@ final class ProveDaTastiera: XCTestCase {
   /// di una prova che manca, perché la prima volta che qualcuno rompe la
   /// navigazione da tastiera la spunta resterebbe verde.
   func richiedeNavigazioneDaTastiera() throws {
-    guard Accessibilita.permessoConcesso else {
-      throw XCTSkip("""
-        Chi esegue le prove non ha il permesso di accessibilità, quindi lo
-        sportello risponde «nessun fuoco» a prescindere da come sta l'app.
-        Fermarsi qui: dare la colpa all'applicazione per un permesso mancante
-        insegnerebbe a non fidarsi di queste prove.
-        Si concede in Impostazioni di Sistema › Privacy e sicurezza ›
-        Accessibilità, al programma che lancia le prove.
-        """)
-    }
     guard Accessibilita.navigazioneDaTastieraAttiva else {
       throw XCTSkip("""
         Su questo Mac «Navigazione da tastiera» è spenta, quindi Tab non
@@ -215,12 +205,24 @@ final class ProveDaTastiera: XCTestCase {
     return (elemento.placeholderValue ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
-  /// Chi ha il fuoco della tastiera, chiesto all'accessibilità di sistema —
-  /// cioè allo stesso sportello di VoiceOver. Vedi `Accessibilita.swift` per il
-  /// perché non si usa XCUITest.
-  func elementoAFuoco() -> String? {
-    guard let pid = Accessibilita.processo(bundleID: Self.bundleID) else { return nil }
-    return Accessibilita.comandoAFuoco(pid: pid)
+  /// Chi ha il fuoco della tastiera, chiesto a XCUITest.
+  ///
+  /// `hasFocus` esiste su iPhone e iPad ma non su Mac: nell'intestazione di
+  /// sistema è racchiuso in `#if !TARGET_OS_OSX`. La prima strada tentata era
+  /// chiederlo all'accessibilità di sistema, lo stesso sportello di VoiceOver —
+  /// ma quello sportello vuole un permesso, e il permesso andrebbe concesso al
+  /// lanciatore delle prove, che viene ricostruito a ogni compilazione. Una
+  /// prova che ha bisogno di un permesso da riconcedere ogni volta è una prova
+  /// che smette di girare, e nessuno se ne accorge.
+  ///
+  /// La fotografia che XCUITest scatta dell'albero, invece, il fuoco lo dice
+  /// già: ogni riga porta scritto «Keyboard Focused». Nessun permesso, quindi
+  /// funziona anche sulla macchina che esegue le prove a ogni push.
+  func elementoAFuoco(in finestra: XCUIElement) -> String? {
+    finestra.debugDescription
+      .split(separator: "\n")
+      .first { $0.contains("Keyboard Focused") }
+      .map { $0.trimmingCharacters(in: .whitespaces) }
   }
 
   /// Come si chiama, in italiano, il tipo di comando.
