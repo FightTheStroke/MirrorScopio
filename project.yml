@@ -54,12 +54,20 @@ settings:
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
 
     # Toglie dal programma finito il codice che nessuno chiama. Lo consiglia
-    # Xcode, e qui vale doppio: l'app si scarica, e ogni megabyte in meno e'
-    # un'attesa in meno per chi ha una linea lenta.
+    # Xcode dalla finestra «Update to recommended settings».
     #
     # Sta scritto qui e non nelle impostazioni di Xcode perche' il progetto
     # Xcode e' generato da questo file: una spunta messa a mano nella finestra
-    # «Update to recommended settings» sparirebbe alla prima ricostruzione.
+    # sparirebbe alla prima ricostruzione.
+    #
+    # Attenzione a che cosa promette: **niente**, sull'app che si scarica.
+    # Misurato accendendolo e spegnendolo: il programma prodotto da `build.sh`
+    # pesa 4944 KB in tutti e due i casi, identico. Il motivo e' che `build.sh`
+    # non apre nemmeno questo file — compila con `swiftc` per conto suo. Questa
+    # impostazione vale solo per chi costruisce da Xcode.
+    #
+    # Cioe': ci sono due modi di costruire l'app e non si somigliano. Finche'
+    # restano due, ogni impostazione scritta qui vale per meta' del mondo.
     DEAD_CODE_STRIPPING: YES
 
 # File che non si compilano ma che fanno parte del progetto: documentazione,
