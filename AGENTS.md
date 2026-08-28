@@ -84,12 +84,20 @@ Aggiungere una dipendenza è una decisione da discutere, non da fare di passaggi
 ## Versioni
 
 `VERSION` alla radice è l'unica fonte di verità. `build.sh` la scrive nell'Info.plist
-insieme al numero di build (il conto dei commit) e al commit da cui è nato il binario;
+insieme al numero di build e al commit da cui è nato il binario;
 `AppVersion` la rilegge dal bundle e la mostra nelle impostazioni. Per la strada che passa
 da Xcode fa lo stesso `scripts/genera-progetto.sh`, che scrive `Versione.xcconfig` dal file
 `VERSION` prima di generare il progetto. **Non scrivere mai un numero di versione dentro il
 codice Swift, né dentro `project.yml`, né a mano nella scheda «General» di Xcode** (quella
 lavora su un progetto generato: sparisce alla rigenerazione successiva).
+
+Anche il numero di build nasce da `VERSION`, e da un posto solo:
+`scripts/numero-build.sh` (0.6.0 → 600, 0.7.0 → 700, 1.0.0 → 10000). **Non è più il conto
+dei commit**: quel conto può *scendere*, perché unire una serie di modifiche schiacciandole
+in un unico salvataggio toglie salvataggi alla storia. È successo il 28/08 — la copia
+installata diceva 103 e il ramo principale ne produceva 94 — e macOS pretende invece che
+quel numero salga sempre, altrimenti un Mac fermo a un numero più alto non vedrebbe mai
+arrivare le versioni successive. `test.sh` controlla che salga.
 
 Per rilasciare: scrivi che cosa cambia sotto `## [Non ancora rilasciato]` nel
 [CHANGELOG](CHANGELOG.md), poi `./scripts/release.sh 0.2.0`. Lo script rifiuta di partire
