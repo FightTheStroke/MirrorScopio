@@ -16,6 +16,17 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Corretto
+- **Aggiornando l'app si perdevano tutti i propri dati.** Bastava che una
+  versione nuova aggiungesse una sola impostazione perché l'elenco delle
+  persone, le sessioni e i progressi salvati prima diventassero illeggibili in
+  blocco — non quel campo: tutto. È successo davvero, su un Mac che aveva mesi
+  di lavoro dentro. Niente è andato perduto (la copia di sicurezza ha retto e
+  l'app lo ha detto a schermo), ma era inutilizzabile. Ora un'impostazione che
+  ancora non esisteva quando i dati sono stati salvati prende semplicemente il
+  suo valore predefinito, e tutto il resto si legge come prima. Un campo che
+  invece c'è ma è rovinato continua a essere segnalato come errore: quello non
+  è un formato vecchio, è un file rotto, e leggerlo lo stesso vorrebbe dire
+  mettere un numero inventato dentro un referto.
 - **Un file di dati illeggibile faceva sparire tutto in silenzio.** Se il
   salvataggio precedente era rimasto a metà — disco pieno, Mac spento a metà
   scrittura, aggiornamento andato storto — l'app ripartiva vuota come al primo
