@@ -38,6 +38,20 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.tag || github.ref }}
 
+      - name: Preparo Xcode
+        run: |
+          set -euo pipefail
+          # Senza questo il rilascio si ferma con «Manca xcodegen» dopo aver
+          # gia' aperto il portachiavi di firma: e' esattamente com'e' fallita
+          # la 0.6.0. `build.sh` genera il progetto da project.yml prima di
+          # compilare, e senza xcodegen non ha con che cosa farlo.
+          brew install xcodegen
+          ATTESA="$(cat .xcodegen-version)"
+          TROVATA="$(xcodegen --version | sed 's/^Version: //')"
+          if [ "$ATTESA" != "$TROVATA" ]; then
+            echo "::warning::XcodeGen qui è $TROVATA, il progetto committato è stato generato con $ATTESA."
+          fi
+
       - name: Metto il certificato in un portachiavi usa-e-getta
         env:
           CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
