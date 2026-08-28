@@ -73,6 +73,14 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   (`Gamification.swift:88`, `Fonts.swift:73-74`) restano da correggere.
 
 ### Corretto
+- **Il microfono poteva restare occupato dopo che la sessione era finita.** Le strade che
+  spengono il microfono sono tre — «Esci», il cambio di microfono a metà sessione, la fine
+  della sessione — e potevano partire tutte insieme: due spegnimenti sovrapposti lasciavano
+  acceso il motore audio, e da lì in poi il microfono risultava occupato finché non si
+  chiudeva l'app. Ora accendere e spegnere passano da una coda sola e in ordine, spegnere si
+  può chiedere quante volte si vuole, e un'accensione superata da un'altra si toglie di mezzo
+  invece di sovrascriverla. Sette prove nuove lo mettono alla frusta: cinquanta spegnimenti
+  di fila, venti insieme, accensioni e spegnimenti mescolati.
 - **Gli aggiornamenti potevano smettere di arrivare senza che nessuno se ne accorgesse.**
   L'app portava un numero di build ricavato dal conto delle modifiche salvate, e quel
   conto può *scendere* quando una serie di modifiche viene unita in un salvataggio solo.
