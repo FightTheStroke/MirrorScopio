@@ -154,8 +154,8 @@ affermazioni su sei erano ferme alle intenzioni.
 | Contrasto WCAG 2.1 AA sui testi | **Vero e verificato**: `Verifiche/Contrasto.swift` misura il rapporto in tutti i temi e in tutte le viste dei colori. |
 | AAA (7:1) nelle schermate del ragazzo | **Vero e verificato** su tutte e venti le combinazioni di tema e vista dei colori. Le forme che portano informazione senza essere testo stanno a 3:1, la soglia che la WCAG chiede per loro. |
 | Etichette VoiceOver su ogni controllo, decorazioni nascoste | **Vero per i controlli provati** (vedi sotto). Non è dimostrato che valga per ogni controllo di ogni schermata. |
-| Le dimensioni si moltiplicano fino a ×2 | **Vero come manopola, e ora provato più a fondo.** La prova sulla larghezza saltava le scale che rompono davvero: misurata, la colonna laterale sfonda già a ×1,45, non a ×1,6 come si credeva. La soglia oltre la quale l'elenco si mette in fila è stata abbassata a 1,4 e la prova percorre tutto l'intervallo. Resta non guardata a occhio, schermata per schermata. |
-| Focus da tastiera sempre visibile | **Vero nel codice, non ancora guardato in esecuzione.** L'anello lo disegna `StilePulsante`, che contiene anche la dichiarazione che rende i pulsanti raggiungibili col Tab sui Mac in cui «Navigazione da tastiera» è spenta: prima ce l'avevano otto pulsanti su diciannove. Il fuoco **parte** dal pulsante principale in quattro schermate su dieci; nelle altre parte da dove capita. |
+| Le dimensioni si moltiplicano fino a ×2 | **Vero come manopola, e ora provato più a fondo.** La prova sulla larghezza saltava le scale che rompono davvero: misurata, la colonna laterale sfonda già a ×1,45, non a ×1,6 come si credeva. La soglia oltre la quale l'elenco si mette in fila è stata abbassata a 1,4 e la prova percorre tutto l'intervallo. Guardata a occhio su casa e impostazioni il 28 agosto 2026: niente troncato, niente sovrapposto. Non su tutte e nove le schermate. |
+| Focus da tastiera sempre visibile | **Vero, e guardato in esecuzione** (28 agosto 2026: anello visibile nell'elenco dei microfoni, e il Tab lo sposta di riga in riga). L'anello lo disegna `StilePulsante`, che contiene anche la dichiarazione che rende i pulsanti raggiungibili col Tab sui Mac in cui «Navigazione da tastiera» è spenta: prima ce l'avevano otto pulsanti su diciannove. Il fuoco **parte** dal pulsante principale in quattro schermate su dieci; nelle altre parte da dove capita. |
 
 ## Tastiera e VoiceOver: che cosa è stato verificato
 
@@ -191,17 +191,33 @@ prova esegue. Sono state spostate qui.
 Sta scritto qui perché una promessa non verificata, in un documento di accessibilità,
 vale meno di zero: chi lo legge ci conta.
 
-- **L'anello di fuoco** è nel codice e compila, ma non è ancora stato guardato in
-  esecuzione con «Navigazione da tastiera» accesa nelle Impostazioni di Sistema.
-- **Il Tab dentro gli elenchi a comparsa** (audio, scelte delle impostazioni). Le righe
-  usano lo stile dell'app, quindi dichiarano di volere il fuoco e disegnano l'anello; ma
-  provando a schermo il Tab non è entrato nel pannello, e non sono riuscito a stabilire se
-  sia un limite di SwiftUI su macOS o un difetto nostro. Le righe restano premibili col
-  mouse e alte 44 punti: quello è misurato. Il resto no, ed è scritto qui perché non
-  sembri fatto.
 - **Gli annunci a voce durante l'esercizio** (fase, inizio ascolto, esito, microfono
   muto, fine turno) sono nel codice e non sono ancora stati ascoltati con VoiceOver
-  acceso.
-- **L'impaginazione col testo a ×2** è misurata dalle prove in `Verifiche/`, ma non è
-  ancora stata guardata a occhio schermata per schermata.
+  acceso. È l'unica voce rimasta in questo elenco, e resta qui perché per toglierla
+  bisogna **sentire** — un albero di accessibilità non dice se una frase è stata
+  pronunciata, e nemmeno se è arrivata al momento giusto.
+
+## Che cosa è stato guardato a schermo, e quando
+
+Le tre righe che seguono stavano nell'elenco qui sopra fino alla 0.6.0. Sono state
+verificate sull'app in esecuzione il 28 agosto 2026, leggendo l'albero di accessibilità e
+guardando le schermate, e sono scese qui perché adesso sono vere.
+
+- **L'anello di fuoco si vede.** Aperto l'elenco dei microfoni e premuto Tab: l'anello
+  compare intorno alla prima riga. Premuto ancora: passa alla seconda. È stato guardato,
+  non dedotto dal codice.
+- **Il Tab entra negli elenchi a comparsa.** Nella 0.6.0 questo documento diceva il
+  contrario — «provando a schermo il Tab non è entrato nel pannello». **Era sbagliato.**
+  Il Tab entra, il fuoco si sposta di riga in riga e Esc chiude il pannello. Le nove
+  righe dell'elenco audio sono alte 44 punti, misurate sull'albero reso, e ognuna dice a
+  voce a che cosa serve e se è quella in uso adesso («Microfono di Studio Display, in uso
+  adesso»).
+- **Il testo a ×2 non rompe niente, ed è stato guardato.** Sulla schermata di casa e
+  sulle impostazioni: nessuna parola troncata, nessuna sovrapposizione, tutto
+  raggiungibile scorrendo. La colonna laterale delle impostazioni fa quello che la prova
+  promette: sopra ×1,4 si mette in fila orizzontale invece di stringersi fino a
+  spezzare le parole. Resta un difetto **estetico**: nella pagina «Si comincia da qui» le
+  sei schede dei profili, che a grandezza normale stanno in griglia, a ×2 si sfalsano in
+  verticale. Nulla è illeggibile né irraggiungibile, ma è brutto, ed è scritto qui perché
+  non si dica poi che nessuno se n'era accorto.
 
