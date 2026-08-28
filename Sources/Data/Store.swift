@@ -12,6 +12,21 @@ struct ItemRecord: Codable, Identifiable {
   var latencyMs: Double?
   var errorKind: String
   var warmup: Bool = false
+
+  /// Il turno si è fermato per una ragione che non riguarda chi legge: il Mac
+  /// si è addormentato, il microfono è sparito.
+  ///
+  /// Senza questo campo l'informazione moriva dentro il motore, e la parola
+  /// arrivava nel referto come «nessuna risposta» — cioè come un errore del
+  /// ragazzo. Un referto clinico che attribuisce a un bambino un'omissione
+  /// causata dal Mac dice una cosa falsa su di lui.
+  var interrotto: Bool = false
+
+  /// Quanti fotogrammi al secondo mostrava lo schermo, e se il Mac ne ha persi
+  /// durante l'esposizione. Servono a chi legge il referto per sapere quanto
+  /// fidarsi dei millesimi di secondo dichiarati.
+  var refreshHz: Double?
+  var frameSaltato: Bool = false
 }
 
 /// Una sessione conclusa. È quello che alimenta dashboard, progressi e PDF.
@@ -30,13 +45,16 @@ struct SessionRecord: Codable, Identifiable {
 
   var accuracy: Double { total == 0 ? 0 : Double(correct) / Double(total) }
 
-  /// Le parole sbagliate, per poterle ripassare subito dopo.
+  /// Le parole che non sono venute, per poterle ripassare subito dopo.
+  ///
+  /// Le interrotte non ci sono: far ripetere una parola che non è mai
+  /// comparsa sullo schermo è chiedere conto di una cosa mai successa.
   var missedWords: [String] {
-    items.filter { !$0.correct && !$0.warmup }.map(\.stimulus)
+    items.filter { !$0.correct && !$0.warmup && !$0.interrotto }.map(\.stimulus)
   }
 
   var errorCounts: [String: Int] {
-    Dictionary(grouping: items.filter { !$0.correct }, by: \.errorKind)
+    Dictionary(grouping: items.filter { !$0.correct && !$0.interrotto }, by: \.errorKind)
       .mapValues(\.count)
   }
 }

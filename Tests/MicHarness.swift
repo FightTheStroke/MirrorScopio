@@ -99,7 +99,7 @@ struct MicHarness {
     try? await Task.sleep(for: .milliseconds(1500))
     say("livello a riposo: \(String(format: "%.5f", listener.read().level))")
 
-    listener.beginWindow()
+    listener.beginWindow(trialID: 1)
 
     let synth = AVSpeechSynthesizer()
     let u = AVSpeechUtterance(string: "farfalla")
