@@ -84,6 +84,11 @@ struct StaffettaView: View {
       Button(action: premi) {
         Color.clear.contentShape(Rectangle())
       }
+      // L'unico `.plain` rimasto in tutta l'app, e a ragion veduta: questo
+      // pulsante è lo schermo intero, e un anello di fuoco lungo tutti e
+      // quattro i bordi non direbbe «sei qui», direbbe soltanto che c'è una
+      // cornice. Qui dove si è si vede dal gioco, e il gesto è uno solo: un
+      // tasto qualsiasi, o un clic in un punto qualsiasi.
       .buttonStyle(.plain)
       .keyboardShortcut(.space, modifiers: [])
       .accessibilityLabel(etichettaVoce)

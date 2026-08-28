@@ -139,7 +139,7 @@ struct VoiceChooser: View {
         }
         .contentShape(Rectangle())
       }
-      .buttonStyle(.plain)
+      .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
 
       // Era alto 40 punti e in stile di sistema. Quaranta e' sotto il minimo
       // di Apple, e questo e' proprio il tasto con cui si sceglie la voce che

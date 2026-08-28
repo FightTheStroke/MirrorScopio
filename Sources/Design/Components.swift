@@ -66,6 +66,72 @@ enum Metrica {
   static let bersaglio: CGFloat = 44
 }
 
+// MARK: - Il fuoco della tastiera
+
+/// La forma di un pulsante: serve all'anello di fuoco per stare aderente.
+enum FormaPulsante {
+  case capsula
+  case arrotondata(CGFloat)
+  case rettangolo
+}
+
+/// Lo stile di **tutti** i pulsanti disegnati a mano nell'app.
+///
+/// Nasce da un difetto vero e diffuso: diciassette pulsanti usavano
+/// `.buttonStyle(.plain)`, che toglie di mezzo lo stile di sistema — e con lui
+/// l'anello che dice dov'è arrivata la tastiera. Il risultato era un'app
+/// percorribile senza mouse in cui **non si vedeva dove si era**: si premeva
+/// Invio alla cieca. Per chi usa solo la tastiera, o pochi tasti, è la
+/// differenza fra un'app che si usa e una in cui ci si perde.
+///
+/// L'anello è spesso, sta fuori dal pulsante e ha un distacco chiaro dallo
+/// sfondo del pulsante stesso: un filo sottile dello stesso colore del bordo si
+/// confonde proprio con chi ha più bisogno di vederlo.
+struct StilePulsante: ButtonStyle {
+  var forma: FormaPulsante = .rettangolo
+  var a11y: EffettiveImpostazioniAccessibilita = EffettiveImpostazioniAccessibilita()
+
+  func makeBody(configuration: Configuration) -> some View {
+    Corpo(configuration: configuration, forma: forma, a11y: a11y)
+  }
+
+  private struct Corpo: View {
+    let configuration: Configuration
+    let forma: FormaPulsante
+    let a11y: EffettiveImpostazioniAccessibilita
+    // `isFocused` dice se il pulsante che sta usando questo stile ha il fuoco:
+    // è il solo modo che uno stile ha di saperlo, perché la configurazione
+    // racconta soltanto se è premuto.
+    @Environment(\.isFocused) private var aFuoco
+    @Environment(\.palette) private var palette
+
+    var body: some View {
+      configuration.label
+        // Premuto si vede: prima l'unico riscontro era che qualcosa succedeva
+        // dopo. Non è un movimento, è un cambio di opacità, quindi resta anche
+        // con «meno animazioni».
+        .opacity(configuration.isPressed ? 0.55 : 1)
+        .overlay { if aFuoco { bordo(palette.background, spessore: 2, fuori: 2) } }
+        .overlay { if aFuoco { bordo(palette.accent, spessore: 3, fuori: 5) } }
+        .animation(a11y.animation(0.12), value: aFuoco)
+    }
+
+    @ViewBuilder
+    private func bordo(_ colore: Color, spessore: CGFloat, fuori: CGFloat) -> some View {
+      switch forma {
+      case .capsula:
+        Capsule().strokeBorder(colore, lineWidth: spessore).padding(-fuori)
+      case .arrotondata(let raggio):
+        RoundedRectangle(cornerRadius: raggio + fuori)
+          .strokeBorder(colore, lineWidth: spessore).padding(-fuori)
+      case .rettangolo:
+        RoundedRectangle(cornerRadius: Metrica.raggioMinimo + fuori)
+          .strokeBorder(colore, lineWidth: spessore).padding(-fuori)
+      }
+    }
+  }
+}
+
 // MARK: - Mattoncini condivisi
 
 /// Il pulsante principale di una schermata: enorme, con un'icona e una parola sola.
@@ -106,7 +172,13 @@ struct SmallButton: View {
       .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    // Senza questo, sui Mac in cui «Navigazione da tastiera» è spenta i
+    // pulsanti non sono nemmeno raggiungibili col Tab: la promessa «ogni
+    // schermata è percorribile senza mouse» valeva solo per chi aveva già
+    // acceso un'impostazione di sistema che nessuno gli aveva detto di
+    // accendere. Qui i mattoncini dell'app sono raggiungibili sempre.
+    .focusable()
     .foregroundStyle(prominente ? palette.onAccent
                      : (distruttivo ? palette.wrong : palette.foreground))
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
@@ -140,7 +212,8 @@ struct BigButton: View {
       .padding(.vertical, a11y.size(Metrica.spazio))
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
+    .focusable()
     .foregroundStyle(prominent ? palette.onAccent : palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -188,7 +261,8 @@ struct ChoiceCard: View {
       .padding(.horizontal, Metrica.spazioStretto)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
+    .focusable()
     .foregroundStyle(palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -312,7 +386,8 @@ struct StopButton: View {
       .frame(minHeight: max(60, a11y.size(56)))
       .contentShape(Capsule())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
+    .focusable()
     .foregroundStyle(palette.foreground)
     .background(Capsule().fill(palette.surface))
     .overlay(Capsule().stroke(rosso.opacity(0.55), lineWidth: 2))
@@ -479,7 +554,8 @@ struct PulsanteChiudi: View {
       .frame(minWidth: Metrica.bersaglio, minHeight: Metrica.bersaglio)
       .contentShape(Capsule())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
+    .focusable()
     .foregroundStyle(palette.onAccent)
     .background(Capsule().fill(palette.accent))
     .keyboardShortcut(.escape, modifiers: [])

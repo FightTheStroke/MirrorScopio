@@ -610,7 +610,7 @@ private struct _RigaSessione: View {
                 if aperta { dettaglioParole }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
         .frame(minHeight: 44)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

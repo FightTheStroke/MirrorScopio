@@ -19,6 +19,12 @@ struct OnboardingView: View {
   /// Deciso una volta sola all'apertura e non ricalcolato: se sparisse appena
   /// risposto, i passi si rinumererebbero sotto i piedi di chi li sta facendo.
   @State private var chiediPromemoria = false
+  /// La tastiera arriva sul pulsante che porta avanti, non sul primo controllo
+  /// che capita: qui dentro si sceglie anche il profilo di chi «usa solo la
+  /// voce o pochi tasti», e chiedergli il mouse proprio qui sarebbe il modo
+  /// peggiore di cominciare.
+  @FocusState private var fuoco: Fuoco?
+  private enum Fuoco: Hashable { case avanti }
 
   @Environment(\.impostazioni) private var a11y
 
@@ -66,6 +72,7 @@ struct OnboardingView: View {
         .frame(maxWidth: 820, alignment: .leading)
     }
     .frame(maxWidth: .infinity)
+    .defaultFocus($fuoco, .avanti)
     .task {
       await readiness.controlla()
       // Il permesso delle notifiche si chiede qui, dove c'e' lo spazio per
@@ -349,6 +356,7 @@ struct OnboardingView: View {
             BigButton(title: "Facciamo la prova", symbol: "wand.and.stars", a11y: a11y,
                       action: onCalibrate)
               .frame(maxWidth: 320)
+              .focused($fuoco, equals: .avanti)
               .keyboardShortcut(.defaultAction)
             BigButton(title: "Salta, comincio e basta", symbol: "play.fill", a11y: a11y,
                       prominent: false, action: onFinish)
@@ -356,6 +364,7 @@ struct OnboardingView: View {
           } else {
             BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
               .frame(maxWidth: 320)
+              .focused($fuoco, equals: .avanti)
               .keyboardShortcut(.defaultAction)
           }
         } else {
@@ -364,12 +373,13 @@ struct OnboardingView: View {
             passo = min(passi.count - 1, passo + 1)
           }
           .frame(maxWidth: 280)
+          .focused($fuoco, equals: .avanti)
           .keyboardShortcut(.defaultAction)
         }
         Spacer(minLength: 0)
         Button("Salta") { onFinish() }
           .font(a11y.font(.etichetta))
-          .buttonStyle(.plain)
+          .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
           .foregroundStyle(palette.muted)
           .frame(minHeight: Metrica.bersaglio)
           .keyboardShortcut(.escape, modifiers: [])

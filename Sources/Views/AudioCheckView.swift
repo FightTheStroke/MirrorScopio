@@ -284,7 +284,7 @@ struct AudioCheckView: View {
           .font(a11y.font(.corpo, .semibold))
           .padding(.horizontal, Metrica.spazio).padding(.vertical, Metrica.spazioMedio)
       }
-      .buttonStyle(.plain)
+      .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
       .background(pal.surface, in: .rect(cornerRadius: Metrica.raggio))
       .frame(minHeight: 44)
       Text("Serve per la modalità Scrivi, dove è il Mac a dire la parola.")

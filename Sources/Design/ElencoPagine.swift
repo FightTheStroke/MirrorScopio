@@ -48,7 +48,7 @@ struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessColle
                 .fill(scelta == p ? palette.accent.opacity(0.15) : .clear))
             .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
           }
-          .buttonStyle(.plain)
+          .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
           .accessibilityAddTraits(scelta == p ? [.isSelected] : [])
         }
       }

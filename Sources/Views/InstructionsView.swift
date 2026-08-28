@@ -214,7 +214,7 @@ struct PauseView: View {
         .keyboardShortcut(.space, modifiers: [])
 
       Button("Ho finito per oggi") { engine.abort() }
-        .buttonStyle(.plain)
+        .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
         .font(a11y.font(.etichetta))
         .foregroundStyle(palette.muted)
         .frame(minHeight: 44)

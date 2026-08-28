@@ -12,6 +12,9 @@ struct ReportView: View {
   @State private var showDetail = false
   /// Il premio è opzionale: chi non lo vuole non lo vede aprirsi da solo.
   @State private var showStaffetta = false
+  /// La tastiera arriva sul pulsante che quasi tutti premono: «Ancora».
+  @FocusState private var fuoco: Fuoco?
+  private enum Fuoco: Hashable { case ancora }
 
   @Environment(\.impostazioni) private var a11y
   private var record: SessionRecord { engine.finishedRecord ?? SessionRecord() }
@@ -38,6 +41,7 @@ struct ReportView: View {
       .frame(maxWidth: 820)
       .frame(maxWidth: .infinity)
     }
+    .defaultFocus($fuoco, .ancora)
     // I coriandoli stanno sopra a tutto ma non intercettano niente: si vede la
     // festa e si può continuare a usare la schermata mentre cade.
     .overlay(alignment: .top) {
@@ -330,6 +334,7 @@ struct ReportView: View {
           engine.reset()
           engine.start()
         }
+        .focused($fuoco, equals: .ancora)
         .keyboardShortcut(.return, modifiers: [])
 
         if !record.missedWords.isEmpty {

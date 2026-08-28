@@ -150,7 +150,7 @@ struct TypingView: View {
               .frame(minHeight: 44)
               .contentShape(Capsule())
           }
-          .buttonStyle(.plain)
+          .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
           .accessibilityLabel("risenti la parola \(parola)")
         }
       }
