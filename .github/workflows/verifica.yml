@@ -37,10 +37,14 @@ jobs:
           # AGENTS.md, regola 2: "una URLSession in questo codice è un bug".
           # Finché era solo una frase, bastava una distrazione a tradirla.
           # Adesso è un cancello: se rientra la rete, la build si ferma.
-          # Un'eccezione sola, dichiarata: Updates.swift chiede a GitHub qual è
-          # l'ultima versione. È una domanda su di noi, non su chi usa l'app.
-          # Ovunque altro la rete resta vietata, e questo cancello lo dimostra
-          # a ogni push senza che nessuno debba fidarsi della nostra parola.
+          # Le eccezioni non sono più un file intero ma **la singola riga**, che
+          # deve dirlo di sé scrivendo `// rete-consentita` in fondo. Prima
+          # bastava stare dentro Updates.swift per essere fuori dal controllo:
+          # un file scusato è una porta aperta larga quanto il file, e quel file
+          # cresce. Ora ogni riga di rete si dichiara, e aggiungerne una si vede
+          # nella differenza del codice.
+          # Il cancello guarda anche `Verifiche/`: una prova automatica che
+          # porta fuori i dati li porta fuori uguale.
           # L'elenco copre anche le vie di servizio: scaricare un URL con
           # Data(contentsOf:) o lanciare curl da un Process non passa da
           # URLSession, ma porta i dati fuori esattamente allo stesso modo.
@@ -48,8 +52,18 @@ jobs:
           VIETATI='URLSession|URLRequest|NWConnection|CFReadStream|import Network'
           VIETATI="$VIETATI"'|Data\(contentsOf:|String\(contentsOf:|Data\(contentsOfURL'
           VIETATI="$VIETATI"'|Process\(|NSTask|/usr/bin/curl|CFURLCreateData'
-          TROVATO="$(grep -rnE "$VIETATI" Sources/ \
+          TROVATO="$(grep -rnE "$VIETATI" Sources/ Verifiche/ \
+            | grep -v '// rete-consentita' || true)"
+          # E la deroga vale solo dove è stata concordata: una riga
+          # `// rete-consentita` fuori da Updates.swift non è un'eccezione, è
+          # qualcuno che si è scritto il permesso da solo.
+          ABUSI="$(grep -rn '// rete-consentita' Sources/ Verifiche/ \
             | grep -v '^Sources/Core/Updates.swift:' || true)"
+          if [ -n "$ABUSI" ]; then
+            echo "$ABUSI"
+            echo "::error::La deroga alla rete vale solo dentro Sources/Core/Updates.swift."
+            exit 1
+          fi
           if [ -n "$TROVATO" ]; then
             echo "$TROVATO"
             echo "::error::I dati del bambino non escono da quel Mac. Qui c'è del codice di rete."

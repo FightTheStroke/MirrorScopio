@@ -38,10 +38,24 @@ enum Exporter {
     """
   }
 
-  /// I separatori dentro un campo romperebbero il file: li neutralizziamo.
+  /// Mette un campo dentro il file rispettando la regola dei CSV (RFC 4180) e
+  /// disinnescando le formule.
+  ///
+  /// Prima qui si sostituiva il punto e virgola con una virgola: il file
+  /// restava leggibile, ma **il dato cambiava**. La parola che il bambino ha
+  /// letto davvero non è un dettaglio da correggere di nascosto in un referto
+  /// clinico. Ora il campo si racchiude fra virgolette e le virgolette interne
+  /// si raddoppiano, come vuole lo standard: il testo arriva identico.
+  ///
+  /// L'apostrofo davanti a `= + - @ tab` non è pignoleria: Excel e Numbers
+  /// eseguono come formula un campo che comincia così, e in una lista di parole
+  /// scritte da un ragazzo ci finisce di tutto.
   private static func escape(_ s: String) -> String {
-    s.replacingOccurrences(of: ";", with: ",")
-      .replacingOccurrences(of: "\n", with: " ")
+    var campo = s
+    if let primo = campo.first, "=+-@\t\r".contains(primo) {
+      campo = "'" + campo
+    }
+    return "\"" + campo.replacingOccurrences(of: "\"", with: "\"\"") + "\""
   }
 
   // MARK: - PDF

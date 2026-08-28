@@ -3,9 +3,12 @@ import Security
 
 /// **L'unico file di tutta l'app che tocca la rete.**
 ///
-/// Ogni altra riga di `Sources/` è vincolata a non contenere una `URLSession`:
-/// il controllo in integrazione continua fa fallire la build se ne compare una
-/// altrove. Quel vincolo esiste perché la promessa di MirrorScopio — quello che
+/// Ogni riga che parla di rete, qui dentro come altrove, deve dichiararsi con
+/// un `// rete-consentita` in fondo, e quella dichiarazione vale **solo in
+/// questo file**: il controllo in integrazione continua fa fallire la build sia
+/// per una riga di rete non dichiarata, sia per una dichiarazione scritta
+/// altrove. Prima l'eccezione era il file intero, e un file scusato cresce.
+/// Quel vincolo esiste perché la promessa di MirrorScopio — quello che
 /// dice un bambino non esce da quel Mac — deve essere verificabile da chiunque
 /// in dieci secondi, senza fidarsi di noi.
 ///
@@ -108,7 +111,7 @@ enum Updates {
       return nil
     }
 
-    var request = URLRequest(url: URL(string: "https://api.github.com/repos/\(repository)/releases/latest")!)
+    var request = URLRequest(url: URL(string: "https://api.github.com/repos/\(repository)/releases/latest")!)  // rete-consentita
     request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
     // Ci presentiamo con il nome dell'app e basta: nessun identificativo che
     // permetta di riconoscere un Mac da una richiesta all'altra.
@@ -117,11 +120,11 @@ enum Updates {
 
     // Configurazione effimera: niente cache su disco, niente cookie, niente
     // credenziali. Sul Mac non resta traccia della richiesta.
-    let config = URLSessionConfiguration.ephemeral
+    let config = URLSessionConfiguration.ephemeral  // rete-consentita
     config.httpCookieStorage = nil
     config.urlCache = nil
     config.httpShouldSetCookies = false
-    let session = URLSession(configuration: config)
+    let session = URLSession(configuration: config)  // rete-consentita
     defer { session.invalidateAndCancel() }
 
     let (data, response) = try await session.data(for: request)
@@ -344,14 +347,14 @@ final class Installazione: ObservableObject {
   // MARK: Scaricare
 
   func scarica(_ da: URL, in destinazione: URL, peso: Int64?) async throws {
-    let config = URLSessionConfiguration.ephemeral
+    let config = URLSessionConfiguration.ephemeral  // rete-consentita
     config.httpCookieStorage = nil
     config.urlCache = nil
     config.timeoutIntervalForResource = 60 * 30
-    let session = URLSession(configuration: config)
+    let session = URLSession(configuration: config)  // rete-consentita
     defer { session.invalidateAndCancel() }
 
-    var request = URLRequest(url: da)
+    var request = URLRequest(url: da)  // rete-consentita
     request.setValue("MirrorScopio/\(AppVersion.short)", forHTTPHeaderField: "User-Agent")
 
     let (stream, response) = try await session.bytes(for: request)
@@ -395,7 +398,7 @@ final class Installazione: ObservableObject {
   /// manomessa. Gira su un file già sul disco, non parla con la rete.
   static func apri(_ zip: URL, in cartella: URL) throws {
     try FileManager.default.createDirectory(at: cartella, withIntermediateDirectories: true)
-    let p = Process()
+    let p = Process()  // rete-consentita
     p.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
     p.arguments = ["-x", "-k", zip.path, cartella.path]
     p.standardOutput = FileHandle.nullDevice
@@ -453,7 +456,7 @@ final class Installazione: ObservableObject {
   /// certificato viene revocato dopo un furto, e l'unico che sa rispondere è
   /// `spctl`: guarda il timbro attaccato al pacchetto e le regole di sistema.
   static func verificaTimbroApple(_ app: URL) throws {
-    let p = Process()
+    let p = Process()  // rete-consentita
     p.executableURL = URL(fileURLWithPath: "/usr/sbin/spctl")
     p.arguments = ["--assess", "--type", "execute", "-vv", app.path]
     let tubo = Pipe()
@@ -472,7 +475,7 @@ final class Installazione: ObservableObject {
   /// combacia qualcosa non torna, e in quel caso non si tocca niente.
   static func verificaVersione(_ app: URL, attesa: String) throws {
     let plist = app.appendingPathComponent("Contents/Info.plist")
-    guard let dati = try? Data(contentsOf: plist),
+    guard let dati = try? Data(contentsOf: plist),  // rete-consentita
           let info = try? PropertyListSerialization.propertyList(
             from: dati, format: nil) as? [String: Any],
           let trovata = info["CFBundleShortVersionString"] as? String
