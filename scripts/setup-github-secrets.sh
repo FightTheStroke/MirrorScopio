@@ -14,7 +14,8 @@ echo "════════════════════════�
 echo "  Insegno a GitHub a costruire il pacchetto da solo"
 echo "════════════════════════════════════════════════════════"
 echo
-echo "Servono quattro cose. Te le chiedo una alla volta."
+echo "Servono tre cose. Il certificato lo prendo da solo: a te restano"
+echo "l'Apple ID e la password per app."
 echo
 
 if ! command -v gh >/dev/null 2>&1; then
@@ -32,58 +33,90 @@ if ! security find-identity -v -p codesigning | grep -q "$TEAM_ID"; then
 fi
 
 # ── 1. Il certificato ───────────────────────────────────────────────────────
-echo "COSA 1 di 4 — il certificato di firma."
+#
+# Qui prima si chiedeva di esportare il certificato a mano da Accesso
+# Portachiavi e poi di ridigitare la password inventata durante l'esportazione.
+# Due passaggi che sbagliavano in silenzio, e un controllo che dava la colpa
+# alla persona invece che a sé stesso: «openssl pkcs12» su un file esportato da
+# macOS fallisce con «RC2-40-CBC unsupported», perché OpenSSL 3 ha tolto quegli
+# algoritmi. L'errore vero finiva in /dev/null e a schermo compariva «il file e
+# la password non vanno d'accordo». La password era giusta tutte le volte.
+#
+# Adesso il certificato lo tira fuori questo script, con una password che
+# inventa lui e che nessuno deve ricordare.
+echo "COSA 1 di 3 — il certificato di firma."
 echo
-echo "Va esportato a mano: macOS non lascia che un comando tiri fuori una"
-echo "chiave privata senza il tuo consenso, ed è giusto così."
+echo "Lo prendo io dal portachiavi. Se macOS chiede il permesso, dai «Consenti»."
 echo
-echo "  a) Ti apro «Accesso Portachiavi»."
-echo "  b) In alto a sinistra scegli «Accesso» → categoria «Certificati»."
-echo "  c) Cerca:  Developer ID Application: Fight The Stroke Foundation"
-echo "  d) Tasto destro sopra → «Esporta \"Developer ID Application…\"»"
-echo "  e) Salvalo sulla Scrivania come  mirrorscopio.p12  (formato .p12)"
-echo "  f) Ti chiederà una password NUOVA, inventata da te, per proteggere"
-echo "     il file. Scrivitela: te la chiedo fra un momento."
-echo
-read -r -p "Premi Invio per aprire Accesso Portachiavi… " _
-open -a "Keychain Access" || open -a "Accesso Portachiavi" || true
 
-echo
-DEFAULT_P12="$HOME/Desktop/mirrorscopio.p12"
-read -r -p "Dov'è il file? [$DEFAULT_P12] " P12_PATH
-P12_PATH="${P12_PATH:-$DEFAULT_P12}"
-P12_PATH="${P12_PATH/#\~/$HOME}"
-if [ ! -f "$P12_PATH" ]; then
-  echo "✗ Non trovo «$P12_PATH». Rilancia quando il file c'è."
-  exit 1
-fi
+# «-legacy» esiste solo su OpenSSL 3: la LibreSSL che macOS installa di serie
+# quegli algoritmi li legge ancora, e l'opzione non la conosce.
+LEGACY=()
+if openssl version | grep -q "^OpenSSL 3"; then LEGACY=(-legacy); fi
 
-echo
-echo "COSA 2 di 4 — la password che hai appena inventato per quel file."
-read -r -s -p "Password del file .p12: " P12_PASSWORD
-echo
-if [ -z "$P12_PASSWORD" ]; then
-  echo "✗ Password vuota: senza, GitHub non riesce ad aprire il certificato."
-  exit 1
-fi
-# Controllo subito che la coppia file+password funzioni: meglio scoprirlo qui
-# che dentro un workflow che fallisce fra dieci minuti.
-# `env:` invece di `pass:`: gli argomenti di un processo si leggono con `ps aux`.
+TEMPDIR="$(mktemp -d)"
+trap 'rm -rf "$TEMPDIR"' EXIT
+P12_PATH="$TEMPDIR/firma.p12"
+# Una password lunga e casuale: vive dentro questo script e dentro la cassaforte
+# di GitHub, e nessun essere umano deve mai ridigitarla.
+P12_PASSWORD="$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 40)"
 export P12_PASSWORD
-if ! openssl pkcs12 -in "$P12_PATH" -passin env:P12_PASSWORD -noout 2>/dev/null; then
-  echo "✗ Il file e la password non vanno d'accordo. Riprova."
+
+TUTTE="$TEMPDIR/tutte.p12"
+PASS_TUTTE="$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 40)"
+if ! security export -k login.keychain-db -t identities -f pkcs12 \
+     -P "$PASS_TUTTE" -o "$TUTTE" >/dev/null 2>&1; then
+  echo "✗ Il portachiavi non mi ha lasciato esportare i certificati."
+  echo "  Sblocca il portachiavi «login» e riprova."
   exit 1
 fi
-echo "✓ Certificato leggibile."
+
+# «security export» tira fuori *tutte* le identità del portachiavi — comprese
+# quelle di sviluppo e le installer. A GitHub deve arrivare solo quella che
+# serve a firmare: una chiave privata in più su un server è una chiave privata
+# in più da perdere.
+#
+# «-legacy» non è un dettaglio: senza, OpenSSL 3 non sa nemmeno aprire il file
+# che macOS ha appena scritto.
+if ! openssl pkcs12 "${LEGACY[@]}" -in "$TUTTE" -passin "pass:$PASS_TUTTE" \
+     -nodes -out "$TEMPDIR/tutte.pem" 2>/dev/null; then
+  echo "✗ Non riesco a leggere quello che il portachiavi ha esportato."
+  exit 1
+fi
+
+if ! ESITO="$(python3 scripts/estrai-identita.py "$TEMPDIR" "$IDENTITY")"; then
+  echo "✗ $ESITO"
+  exit 1
+fi
+
+openssl pkcs12 -export "${LEGACY[@]}" -inkey "$TEMPDIR/solo.key" -in "$TEMPDIR/solo.crt" \
+  -name "$IDENTITY" -passout env:P12_PASSWORD -out "$P12_PATH" 2>/dev/null
+
+# La prova che conta non è che OpenSSL sappia aprire il file: è che macOS sappia
+# importarlo e ci veda dentro un'identità buona per firmare. È esattamente
+# quello che farà GitHub fra dieci minuti, quindi lo facciamo adesso, qui, dove
+# si può ancora rimediare.
+PORTACHIAVI="$TEMPDIR/prova.keychain-db"
+security create-keychain -p prova "$PORTACHIAVI" >/dev/null 2>&1
+security unlock-keychain -p prova "$PORTACHIAVI" >/dev/null 2>&1
+security import "$P12_PATH" -k "$PORTACHIAVI" -P "$P12_PASSWORD" \
+  -T /usr/bin/codesign >/dev/null 2>&1 || true
+if ! security find-identity -v -p codesigning "$PORTACHIAVI" | grep -q "$TEAM_ID"; then
+  echo "✗ Il certificato che ho preparato non si lascia importare."
+  security delete-keychain "$PORTACHIAVI" >/dev/null 2>&1 || true
+  exit 1
+fi
+security delete-keychain "$PORTACHIAVI" >/dev/null 2>&1 || true
+echo "✓ Certificato pronto: $IDENTITY"
 
 # ── 3. Le credenziali Apple ─────────────────────────────────────────────────
 echo
-echo "COSA 3 di 4 — la tua Apple ID (la stessa usata per la notarizzazione)."
+echo "COSA 2 di 3 — la tua Apple ID (la stessa usata per la notarizzazione)."
 read -r -p "Apple ID (email): " APPLE_ID
 [ -z "$APPLE_ID" ] && { echo "✗ Serve l'Apple ID."; exit 1; }
 
 echo
-echo "COSA 4 di 4 — la password per app, quella con i trattini."
+echo "COSA 3 di 3 — la password per app, quella con i trattini."
 echo "              È la stessa di ./scripts/setup-notarizzazione.sh."
 read -r -s -p "Password per app: " APPLE_APP_PASSWORD
 echo
@@ -118,20 +151,9 @@ gh secret list --repo "$REPO"
 
 echo
 # Il consiglio stampato a schermo non viene seguito. Lo facciamo noi.
-echo "Resta una cosa: il file .p12 contiene la chiave privata di firma della"
-echo "fondazione. Su GitHub c'è gia': sulla Scrivania non serve piu' a niente."
-echo ""
-read -r -p "Lo cancello adesso? [S/n] " RISPOSTA
-if [[ ! "$RISPOSTA" =~ ^[nN] ]]; then
-  rm -P "$P12_PATH" 2>/dev/null || rm -f "$P12_PATH"
-  echo "✓ Cancellato: ${P12_PATH}"
-else
-  chmod 600 "$P12_PATH"
-  echo "! Lasciato dov'e', leggibile solo da te. Cancellalo appena puoi:"
-  echo "    rm -P \"${P12_PATH}\""
-fi
-echo "    rm \"$P12_PATH\""
+echo "Il certificato è passato da una cartella temporanea che si cancella da"
+echo "sola: sulla Scrivania non resta niente da dimenticare."
 echo
 echo "Da ora in poi, per pubblicare una versione basta:"
-echo "    ./scripts/release.sh 0.3.0"
+echo "    ./scripts/release.sh 0.5.0"
 echo "e il pacchetto compare da solo nella pagina delle release."

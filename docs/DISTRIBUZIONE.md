@@ -8,6 +8,12 @@ Una volta sola, per insegnare a GitHub a firmare:
 ./scripts/setup-github-secrets.sh
 ```
 
+Chiede due sole cose: l'Apple ID e la password per app. Il certificato di firma
+lo prende da solo dal portachiavi, tiene **soltanto** il «Developer ID
+Application» (le altre identità restano dov'erano) e prima di spedire niente
+prova a importarlo in un portachiavi usa-e-getta — la stessa cosa che farà
+GitHub, fatta qui dove si può ancora rimediare.
+
 Da quel momento ogni tag `v*` fa partire il workflow **Rilascio**: GitHub
 compila su un Mac vero (macOS 26), firma con il certificato di Fight The Stroke,
 manda l'app ad Apple per la notarizzazione, attacca il timbro, controlla che
