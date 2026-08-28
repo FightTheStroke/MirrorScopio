@@ -269,6 +269,7 @@ Come si insegnano le chiavi a GitHub: [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIO
 | [`docs/DESIGN.md`](docs/DESIGN.md) | I mattoncini condivisi, le misure, i colori e le parole: come si resta coerenti |
 | [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) | Punti, serie, obiettivi — e perché si possono spegnere |
 | [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md) | Firma, notarizzazione, pacchetto, automazione su GitHub |
+| [`docs/STRATEGIA-LICENZA.md`](docs/STRATEGIA-LICENZA.md) | Perché Apache 2.0, dove sta il valore che non è nel codice, quando la licenza si rivede |
 | [`roadmap.md`](roadmap.md) | Piano tracciabile per iPhone, iPad, TestFlight e App Store |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Come si lavora qui e cosa non è negoziabile |
 | [`SECURITY.md`](SECURITY.md) | Dove stanno i dati, come segnalare un problema |
@@ -291,6 +292,14 @@ Contributi benvenuti, soprattutto da chi fa questo mestiere: leggi
 Codice sotto [Apache License 2.0](LICENSE) — vedi anche [`NOTICE`](NOTICE).
 Caratteri sotto SIL Open Font License 1.1, vedi
 [`Resources/Fonts/LICENSES.md`](Resources/Fonts/LICENSES.md).
+
+Vuol dire che chiunque può usare questo codice, anche per farci business, purché
+tenga la licenza e dichiari che cosa ha modificato. **Il nome no**: «MirrorScopio», il
+logo e «Fight The Stroke» non sono coperti dalla licenza, e un prodotto derivato deve
+chiamarsi in un altro modo.
+
+Perché abbiamo scelto così, che cosa non sta in questo repository e a quali condizioni
+la licenza si rivedrebbe: [`docs/STRATEGIA-LICENZA.md`](docs/STRATEGIA-LICENZA.md).
 
 <div align="center">
 
