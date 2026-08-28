@@ -144,9 +144,11 @@ else
   FAILED=1
 fi
 
-run_harness staircase   Tests/StaircaseHarness.swift    fast
-run_harness suoni       Tests/SuoniHarness.swift         fast
-run_harness schermate   Tests/SchermateHarness.swift     fast
+# La scala adattiva e i suoni stanno in Verifiche/, sotto xcodebuild, dove
+# girano anche in CI: qui c'erano due copie delle stesse prove e potevano
+# dire cose diverse. «schermate» adesso disegna e basta, non boccia piu'
+# niente: contrasto e scorrimento sono in Verifiche/Contrasto.swift.
+run_harness schermate   scripts/disegna-schermate.swift  fast
 run_harness microfono   Tests/MicHarness.swift          slow
 run_harness punteggio   Tests/ScoringHarness.swift      slow
 run_harness intelligenza Tests/IntelligenceHarness.swift slow
