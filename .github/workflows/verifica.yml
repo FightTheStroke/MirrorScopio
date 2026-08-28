@@ -1,8 +1,16 @@
 name: Verifica
 
-# A ogni push si controlla che l'app compili ancora. Non serve nessun
-# certificato: qui si firma alla buona, tanto il pacchetto vero lo fa il
-# workflow di rilascio.
+# A ogni push si controlla che l'app compili ancora **e che le prove passino**.
+# Non serve nessun certificato: qui si firma alla buona, tanto il pacchetto vero
+# lo fa il workflow di rilascio.
+#
+# Per settimane questo workflow ha solo compilato: `./test.sh` non veniva
+# invocato ne' su push ne' su pull request, e il badge verde nel README voleva
+# dire soltanto «compila». Le prove esistevano e passavano, ma passavano sul Mac
+# di chi le lanciava a mano — cioe' esattamente la garanzia che una CI serve a
+# non dover chiedere a nessuno. Chi apriva una pull request non aveva nessun
+# cancello: poteva rompere la scala adattiva o il contrasto dei colori e vedere
+# comunque la spunta verde.
 # Serve solo leggere il codice: nessun permesso di scrittura.
 permissions:
   contents: read
@@ -71,3 +79,13 @@ jobs:
             exit 1
           fi
           grep -q "## \[$VERSION\]\|## \[Non ancora rilasciato\]" CHANGELOG.md
+
+      # Le prove che si possono fare senza un essere umano davanti: la scala
+      # adattiva, il contrasto dei colori in tutti i temi, il confronto fra
+      # versioni, e il fatto che nessuna schermata nasconda i propri pulsanti.
+      # Restano fuori microfono, punteggio e modello vocale: hanno bisogno di un
+      # microfono vero e del modello di sistema, che qui non esistono. Quelle le
+      # lancia Roberto con `./test.sh --all`, ed e' scritto qui perche' si sappia
+      # che cosa questo cancello non controlla.
+      - name: Eseguo le prove
+        run: ./test.sh
