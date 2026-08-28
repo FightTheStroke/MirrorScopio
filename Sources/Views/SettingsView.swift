@@ -23,7 +23,7 @@ struct SettingsView: View {
   /// «Ascolta», e sente le impostazioni correnti così l'anteprima è fedele.
   @StateObject private var suoni = Suoni()
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   private func controllaAdesso() {
     controlloInCorso = true
@@ -211,16 +211,17 @@ struct SettingsView: View {
   private var profiles: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       SectionTitle(text: "Un profilo imposta tutto in un colpo", a11y: a11y)
-      Explain(text: "Scegline uno e carattere, colori, tempi e pause si sistemano da soli. Poi puoi ritoccare quello che vuoi qui sotto.", a11y: a11y, size: 15)
+      Explain(text: "Scegline uno e carattere, colori, tempi, pause e grandezza dei comandi si sistemano da soli. Poi puoi ritoccare quello che vuoi qui sotto.", a11y: a11y, size: 15)
 
       LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(A11yProfile.allCases) { p in
-          ChoiceCard(title: p.label, subtitle: p.hint, symbol: p.symbol,
+          // La frase, non la diagnosi: le stesse parole dell'avvio guidato, così
+          // chi ha già scelto lì ritrova qui esattamente quello che aveva scelto.
+          ChoiceCard(title: p.frase, subtitle: p.hint, symbol: p.symbol,
                      selected: a11y.profile == p, a11y: a11y) {
             var l = store.current
             p.apply(to: &l.a11y)
             store.current = l
-            engine.a11y = l.a11y
           }
         }
       }
@@ -243,6 +244,10 @@ struct SettingsView: View {
       slider("Dimensione di tutto", value: bind(\.textScale), range: 0.8...2.0, format: { String(format: "×%.1f", $0) })
       slider("Grandezza della parola che lampeggia", value: bind(\.stimulusSize), range: 40...320, format: { "\(Int($0)) punti" })
       slider("Spazio fra le lettere", value: bind(\.letterSpacing), range: 0...24, format: { "\(Int($0)) punti" })
+      toggle("Più aria fra le righe", bindBool(\.righeDistanziate),
+             "Righe troppo vicine si scavalcano con l'occhio: si rilegge la stessa o si salta la successiva.")
+      toggle("Comandi più grandi", bindBool(\.bersagliGrandi),
+             "Tutto quello che si preme diventa più alto, per prenderlo senza sbagliare mira.")
     }
   }
 
@@ -264,9 +269,12 @@ struct SettingsView: View {
   private var colors: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Colori", a11y: a11y)
+      avvisoDelMac
       LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
         ForEach(ThemeChoice.allCases) { t in
-          ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
+          ChoiceCard(title: t.label,
+                     subtitle: t == .auto ? sottotitoloComeIlMac : t.hint,
+                     selected: a11y.manopole.theme == t, a11y: a11y) {
             update { $0.theme = t }
           }
         }
@@ -294,8 +302,19 @@ struct SettingsView: View {
   private var rhythm: some View {
     VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       SectionTitle(text: "Ritmo e calma", a11y: a11y)
-      toggle("Niente animazioni", bindBool(\.reducedMotion),
-             "Tutto compare e sparisce senza movimento.")
+      avvisoDelMac
+      // Quando è il Mac a chiedere meno movimento, l'app è ferma comunque:
+      // l'interruttore deve mostrarlo acceso, non spento. Prima diceva «spento»
+      // — e VoiceOver lo annunciava «spento» — mentre non si muoveva niente:
+      // il comando raccontava il contrario di quello che stava facendo.
+      toggle("Niente animazioni",
+             a11y.mac.menoMovimento
+             ? .constant(true)
+             : bindBool(\.reducedMotion),
+             a11y.mac.menoMovimento
+             ? "Il Mac lo sta già chiedendo, quindi qui non si muove niente comunque. Per rivedere le animazioni si cambia nelle Impostazioni di Sistema, dove l'hai chiesto."
+             : "Tutto compare e sparisce senza movimento.")
+      .disabled(a11y.mac.menoMovimento)
       toggle("Modalità calma", bindBool(\.calmMode),
              "Niente esclamazioni, niente festeggiamenti, tono sempre uguale.")
       toggle("Schermo pulito durante la prova", bindBool(\.distractionFree),
@@ -305,15 +324,12 @@ struct SettingsView: View {
              + "non è un conto alla rovescia e non scade mai.")
       slider("Più tempo per rispondere", value: bind(\.extraResponseTime), range: 1.0...3.0,
              format: { String(format: "×%.1f", $0) })
-      Stepper(value: Binding(
-        get: { Double(a11y.pauseEveryNWords) },
-        set: { v in update { $0.pauseEveryNWords = Int(v) } }
-      ), in: 0...20, step: 1) {
-        Text(a11y.pauseEveryNWords == 0
-             ? "Pausa automatica: mai"
-             : "Pausa automatica ogni \(a11y.pauseEveryNWords) parole")
-          .font(a11y.font(.corpo))
-          .foregroundStyle(palette.foreground)
+      PassoAccessibile(titolo: "Pausa automatica",
+                       valore: Binding(
+                         get: { Double(a11y.pauseEveryNWords) },
+                         set: { v in update { $0.pauseEveryNWords = Int(v) } }),
+                       intervallo: 0...20, a11y: a11y) { v in
+        v == 0 ? "Pausa automatica: mai" : "Pausa automatica ogni \(Int(v)) parole"
       }
     }
   }
@@ -364,7 +380,7 @@ struct SettingsView: View {
             SmallButton(title: "Ascolta", symbol: "play.circle.fill", a11y: a11y) {
               // Alla fine passo una quota alta: in anteprima si sente la
               // cadenza piena, quella di una sessione andata bene.
-              suoni.anteprima(momento, quota: momento == .fine ? 0.85 : 1, a11y: a11y)
+              suoni.anteprima(momento, quota: momento == .fine ? 0.85 : 1, a11y: a11y.perIlMotore)
             }
             VStack(alignment: .leading, spacing: Metrica.filo) {
               Text(momento.titolo)
@@ -407,12 +423,11 @@ struct SettingsView: View {
 
       Divider().padding(.vertical, Metrica.briciola)
 
-      Toggle(isOn: Binding(get: { Updates.enabled },
-                           set: { Updates.enabled = $0; aggiornamentiAccesi = $0 })) {
-        Text("Avvisami quando esce una versione nuova")
-          .font(a11y.font(.corpo))
-      }
-      .toggleStyle(.switch)
+      InterruttoreAccessibile(
+        titolo: "Avvisami quando esce una versione nuova",
+        acceso: Binding(get: { Updates.enabled },
+                        set: { Updates.enabled = $0; aggiornamentiAccesi = $0 }),
+        a11y: a11y)
       Explain(text: "È l'unica cosa che esce da questo Mac: una domanda al giorno a GitHub su qual è l'ultima versione. Non parte nessun nome, nessuna parola, nessun punteggio. Se esce una versione nuova puoi installarla da qui, con un pulsante: non si scarica niente da solo.", a11y: a11y, size: 14)
 
       if aggiornamentiAccesi {
@@ -485,20 +500,19 @@ struct SettingsView: View {
       SectionTitle(text: "Un promemoria ogni giorno", a11y: a11y)
       Explain(text: "L'esercizio rende se si fa un pochino ogni giorno, e la cosa più difficile è ricordarsene. Se vuoi, il Mac manda un invito gentile all'ora che scegli. **È tutto qui sul Mac**: non esce niente, è solo un avviso che compare sullo schermo.", a11y: a11y, size: 15)
 
-      Toggle(isOn: Binding(
-        get: { promemoria.acceso },
-        set: { acceso in
-          if acceso {
-            Task { await promemoria.accendi(giaFattoOggi: giaFattoOggi,
-                                            serieGiorni: store.current.streakCurrent) }
-          } else {
-            promemoria.spegni()
-          }
-        })) {
-        Text("Ricordami di allenarmi")
-          .font(a11y.font(.corpo))
-      }
-      .toggleStyle(.switch)
+      InterruttoreAccessibile(
+        titolo: "Ricordami di allenarmi",
+        acceso: Binding(
+          get: { promemoria.acceso },
+          set: { acceso in
+            if acceso {
+              Task { await promemoria.accendi(giaFattoOggi: giaFattoOggi,
+                                              serieGiorni: store.current.streakCurrent) }
+            } else {
+              promemoria.spegni()
+            }
+          }),
+        a11y: a11y)
 
       if promemoria.acceso {
         if promemoria.permessoNegato {
@@ -512,18 +526,16 @@ struct SettingsView: View {
               .font(a11y.font(.corpo))
           }
           .datePickerStyle(.field)
+          .controlSize(.large)
+          .frame(minHeight: a11y.bersaglio)
 
-          Picker(selection: Binding(
-            get: { promemoria.giorni },
-            set: { g in promemoria.impostaGiorni(g); ripianificaPromemoria() }
-          )) {
-            ForEach(Promemoria.Giorni.allCases) { g in Text(g.label).tag(g) }
-          } label: {
-            Text("Quali giorni")
-              .font(a11y.font(.corpo))
-          }
-          .pickerStyle(.segmented)
-          .frame(maxWidth: 420, alignment: .leading)
+          SceltaAccessibile(titolo: "Quali giorni",
+                            scelta: Binding(
+                              get: { promemoria.giorni },
+                              set: { g in promemoria.impostaGiorni(g); ripianificaPromemoria() }),
+                            opzioni: Promemoria.Giorni.allCases,
+                            a11y: a11y) { $0.label }
+          .frame(maxWidth: 460, alignment: .leading)
 
           Explain(text: "Ti mando un invito alle \(promemoria.orarioTesto), "
                   + (promemoria.giorni == .tutti ? "tutti i giorni" : "dal lunedì al venerdì")
@@ -563,6 +575,36 @@ struct SettingsView: View {
 
   // MARK: - Utilità
 
+  /// «Come il Mac» segue il Mac fino in fondo, compreso «Aumenta contrasto».
+  /// Dirlo qui evita di far cercare a qualcuno perché lo schermo è nero pieno.
+  private var sottotitoloComeIlMac: String {
+    a11y.mac.piuContrasto
+      ? "Segue l'impostazione del Mac. Adesso il Mac chiede più contrasto: si vede l'altissimo contrasto."
+      : ThemeChoice.auto.hint
+  }
+
+  /// Che cosa sta già arrivando dalle Impostazioni di Sistema.
+  ///
+  /// Una manopola accesa che nessuno ricorda di aver acceso è un piccolo
+  /// mistero, e i misteri in un'app di accessibilità si pagano cari: si finisce
+  /// per cercare un guasto che non c'è. Se l'app lo sa, lo dice.
+  @ViewBuilder
+  private var avvisoDelMac: some View {
+    if let frase = a11y.mac.frase {
+      HStack(alignment: .top, spacing: Metrica.spazioStretto) {
+        Image(systemName: "desktopcomputer")
+          .font(a11y.font(.corpo))
+          .foregroundStyle(palette.accent)
+          .accessibilityHidden(true)
+        Explain(text: frase, a11y: a11y, size: 14)
+      }
+      .padding(Metrica.spazioPiccolo)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+        .fill(palette.accent.opacity(a11y.velo(0.10))))
+    }
+  }
+
   private func update(_ change: (inout A11ySettings) -> Void) {
     var l = store.current
     change(&l.a11y)
@@ -570,7 +612,10 @@ struct SettingsView: View {
     // questa persona: si passa a "su misura" senza perdere niente di quello che era impostato.
     if l.a11y.profile != .nessuno { l.a11y.profile = .nessuno }
     store.current = l
-    engine.a11y = l.a11y
+    // Il motore lo rimette in riga `App.swift`, che è l'unico posto in cui le
+    // manopole si sommano a quello che chiede il Mac. Scriverlo anche qui
+    // significava dare al motore metà della verità, e a caso: le due scritture
+    // arrivavano una dopo l'altra e vinceva l'ultima.
   }
 
   private func bind(_ key: WritableKeyPath<A11ySettings, Double>) -> Binding<Double> {
@@ -585,30 +630,16 @@ struct SettingsView: View {
 
   private func toggle(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
     VStack(alignment: .leading, spacing: Metrica.filo) {
-      Toggle(title, isOn: value)
-        .font(a11y.font(.corpo))
-        .foregroundStyle(palette.foreground)
+      InterruttoreAccessibile(titolo: title, acceso: value, a11y: a11y)
       Explain(text: hint, a11y: a11y, size: 14)
+        .padding(.horizontal, Metrica.spazioStretto)
     }
   }
 
   private func slider(_ title: String, value: Binding<Double>,
-                      range: ClosedRange<Double>, format: (Double) -> String) -> some View {
-    VStack(alignment: .leading, spacing: Metrica.briciola) {
-      HStack {
-        Text(title)
-          .font(a11y.font(.corpo))
-          .foregroundStyle(palette.foreground)
-        Spacer()
-        Text(format(value.wrappedValue))
-          .font(a11y.font(.etichetta))
-          .foregroundStyle(palette.muted)
-          .monospacedDigit()
-      }
-      Slider(value: value, in: range)
-        .frame(maxWidth: 460)
-        .accessibilityLabel(title)
-        .accessibilityValue(format(value.wrappedValue))
-    }
+                      range: ClosedRange<Double>, format: @escaping (Double) -> String) -> some View {
+    CursoreAccessibile(titolo: title, valore: value, intervallo: range,
+                       passo: (range.upperBound - range.lowerBound) / 40,
+                       a11y: a11y, descrizione: format)
   }
 }

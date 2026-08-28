@@ -20,41 +20,59 @@ protocol PaginaLaterale: Identifiable, Hashable, CaseIterable {
 /// distingue.
 struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessCollection {
   @Binding var scelta: P
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
 
+  /// Sopra il testo grande la colonna laterale diventa una barra in alto.
+  ///
+  /// La larghezza cresceva col testo: 260 punti diventavano più di 500, e a
+  /// quel punto la colonna si mangiava metà finestra proprio a chi aveva
+  /// chiesto testo grande perché lo spazio gli serviva per leggere. Adesso
+  /// sopra quella soglia le voci si mettono in fila in alto e il contenuto si
+  /// riprende tutta la larghezza.
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: Metrica.briciola) {
-        ForEach(Array(P.allCases)) { p in
-          Button { scelta = p } label: {
-            HStack(spacing: Metrica.spazioPiccolo) {
-              Image(systemName: p.simbolo)
-                .font(.system(size: a11y.size(17)))
-                .frame(width: a11y.size(26))
-              Text(p.titolo)
-                .font(a11y.font(.corpo, scelta == p ? .semibold : .regular))
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-              Spacer(minLength: 0)
-            }
-            .foregroundStyle(scelta == p ? palette.accent : palette.foreground)
-            .padding(.horizontal, Metrica.spazioPiccolo)
-            .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: 48)
-            .background(
-              RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
-                .fill(scelta == p ? palette.accent.opacity(0.15) : .clear))
-            .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
-          }
-          .buttonStyle(.plain)
-          .accessibilityAddTraits(scelta == p ? [.isSelected] : [])
+    if a11y.testoGrande {
+      ScrollView(.horizontal) {
+        HStack(spacing: Metrica.briciola) {
+          ForEach(Array(P.allCases)) { p in voce(p, larga: false) }
         }
+        .padding(Metrica.spazioStretto)
       }
-      .padding(Metrica.spazioStretto)
+    } else {
+      ScrollView {
+        VStack(alignment: .leading, spacing: Metrica.briciola) {
+          ForEach(Array(P.allCases)) { p in voce(p, larga: true) }
+        }
+        .padding(Metrica.spazioStretto)
+      }
+      .frame(width: a11y.size(260))
     }
-    .frame(width: a11y.size(260))
+  }
+
+  private func voce(_ p: P, larga: Bool) -> some View {
+    Button { scelta = p } label: {
+      HStack(spacing: Metrica.spazioPiccolo) {
+        Image(systemName: p.simbolo)
+          .font(.system(size: a11y.size(17)))
+          .frame(width: a11y.size(26))
+        Text(p.titolo)
+          .font(a11y.font(.corpo, scelta == p ? .semibold : .regular))
+          .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
+        if larga { Spacer(minLength: 0) }
+      }
+      .foregroundStyle(scelta == p ? palette.accent : palette.foreground)
+      .padding(.horizontal, Metrica.spazioPiccolo)
+      .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
+      .frame(maxWidth: larga ? .infinity : nil, alignment: .leading)
+      .frame(minHeight: max(48, a11y.bersaglio))
+      .background(
+        RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+          .fill(scelta == p ? palette.accent.opacity(a11y.velo(0.15)) : .clear))
+      .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .accessibilityAddTraits(scelta == p ? [.isSelected] : [])
   }
 }
 
@@ -80,7 +98,7 @@ where P.AllCases: RandomAccessCollection {
   /// Una riga sotto il titolo: il nome di chi sta usando l'app, la data.
   var sottotitolo: String? = nil
   @Binding var scelta: P
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var palette: Palette
   let onClose: () -> Void
   @ViewBuilder let contenuto: () -> Contenuto
@@ -94,17 +112,32 @@ where P.AllCases: RandomAccessCollection {
     VStack(spacing: 0) {
       IntestazionePagina(titolo: titolo, sottotitolo: sottotitolo,
                          a11y: a11y, onClose: onClose)
-      HStack(spacing: 0) {
-        ElencoPagine(scelta: $scelta, a11y: a11y, palette: palette)
-        Divider()
-        ScrollView {
-          contenuto()
-            .padding(a11y.size(Metrica.margine))
-            .frame(maxWidth: Self.larghezzaColonna, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .leading)
+      if a11y.testoGrande {
+        VStack(spacing: 0) {
+          ElencoPagine(scelta: $scelta, a11y: a11y, palette: palette)
+          Divider()
+          corpo
+        }
+      } else {
+        HStack(spacing: 0) {
+          ElencoPagine(scelta: $scelta, a11y: a11y, palette: palette)
+          Divider()
+          corpo
         }
       }
     }
     .background(palette.background.ignoresSafeArea())
+  }
+
+  private var corpo: some View {
+    ScrollView {
+      contenuto()
+        .padding(a11y.size(Metrica.margine))
+        // La colonna del testo non si allarga oltre la misura leggibile, ma con
+        // il testo grande quella misura cresce insieme al testo: tenerla a 720
+        // punti fissi vorrebbe dire righe da tre parole.
+        .frame(maxWidth: a11y.size(Self.larghezzaColonna), alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
   }
 }

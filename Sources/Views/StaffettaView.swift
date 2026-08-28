@@ -19,7 +19,7 @@ import SwiftUI
 /// il tifo: è la frase con cui finisce la canzone del camp — *now walk it by
 /// yourself*, adesso camminaci da solo.
 struct StaffettaView: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Chi ha aperto il premio lo chiude quando vuole: il premio non trattiene.
   let onClose: () -> Void
 
@@ -84,6 +84,11 @@ struct StaffettaView: View {
       Button(action: premi) {
         Color.clear.contentShape(Rectangle())
       }
+      // L'unico `.plain` rimasto in tutta l'app, e a ragion veduta: questo
+      // pulsante è lo schermo intero, e un anello di fuoco lungo tutti e
+      // quattro i bordi non direbbe «sei qui», direbbe soltanto che c'è una
+      // cornice. Qui dove si è si vede dal gioco, e il gesto è uno solo: un
+      // tasto qualsiasi, o un clic in un punto qualsiasi.
       .buttonStyle(.plain)
       .keyboardShortcut(.space, modifiers: [])
       .accessibilityLabel(etichettaVoce)
@@ -530,6 +535,8 @@ struct StaffettaView: View {
   private let simboliCompagni = [
     "figure.roll", "figure.walk", "figure.run", "figure.and.child.holdinghands",
   ]
+  // Decorazione: i compagni di corsa si distinguono dalla posizione e dal
+  // simbolo, il colore serve solo a farli sembrare persone diverse.
   private let coloriCompagni: [Color] = [
     Color(red: 0.98, green: 0.75, blue: 0.14),
     Color(red: 0.38, green: 0.80, blue: 0.45),
@@ -589,7 +596,7 @@ private enum Fase: Equatable {
 /// un allarme: si spegne del tutto quando il movimento va evitato.
 private struct RespiroDolce: ViewModifier {
   let attivo: Bool
-  let a11y: A11ySettings
+  let a11y: EffettiveImpostazioniAccessibilita
   @State private var grande = false
 
   func body(content: Content) -> some View {

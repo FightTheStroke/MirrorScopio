@@ -19,14 +19,14 @@ struct DistintivoObiettivo: View {
   let simbolo: String
   let conquistato: Bool
   var diametro: CGFloat = 56
-  let a11y: A11ySettings
+  let a11y: EffettiveImpostazioniAccessibilita
   let palette: Palette
 
   /// Oro quando l'obiettivo è tuo; in modalità calma niente ori accesi, si usa
   /// il colore del testo — perché la modalità calma toglie i festeggiamenti, non
   /// il senso di aver conquistato qualcosa. La forma continua a parlare da sola.
   private var coloreConquistato: Color {
-    a11y.calmMode ? palette.foreground : Color(red: 0.85, green: 0.63, blue: 0.10)
+    a11y.calmMode ? palette.foreground : palette.premio
   }
 
   private var lato: CGFloat { a11y.size(diametro) }
@@ -104,7 +104,7 @@ struct DistintivoLivello: View {
   /// Quando presente, mostra il numero di livello in un gettone: serve dove il
   /// numero non è già scritto accanto (in home), si omette dove c'è già.
   var numero: Int? = nil
-  let a11y: A11ySettings
+  let a11y: EffettiveImpostazioniAccessibilita
   let palette: Palette
 
   private var lato: CGFloat { a11y.size(diametro) }
@@ -164,7 +164,7 @@ struct DistintivoLivello: View {
 // Vive solo nelle build di debug: non finisce mai nell'app che si consegna.
 #Preview("Distintivi") {
   let palette = Palette.resolve(theme: .chiaro, vision: .standard, system: .light)
-  let a11y = A11ySettings()
+  let a11y = EffettiveImpostazioniAccessibilita()
   return VStack(spacing: Metrica.spazioLargo) {
     HStack(spacing: Metrica.spazioLargo) {
       DistintivoObiettivo(simbolo: "bolt.fill", conquistato: false, a11y: a11y, palette: palette)

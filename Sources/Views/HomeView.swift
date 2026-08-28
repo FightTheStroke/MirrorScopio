@@ -14,8 +14,16 @@ struct HomeView: View {
 
   @State private var showCalibrationIntro = false
   @State private var aggiornamento: Updates.Release?
+  /// Dove arriva la tastiera appena si apre la schermata.
+  ///
+  /// Prima non arrivava da nessuna parte: si apriva l'app, si premeva Tab e il
+  /// primo salto finiva su un'icona di servizio in alto a destra. Chi usa solo
+  /// la tastiera doveva attraversare mezza pagina per trovare «Via!», che è
+  /// l'unica cosa che quella schermata serve a fare.
+  @FocusState private var fuoco: Fuoco?
+  private enum Fuoco: Hashable { case via }
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   var body: some View {
     VStack(spacing: 0) {
@@ -36,6 +44,7 @@ struct HomeView: View {
         .frame(maxWidth: .infinity)
       }
     }
+    .defaultFocus($fuoco, .via)
     .task {
       // In silenzio e senza fretta: se non c'è niente di nuovo, o il controllo
       // è spento, non se ne accorge nessuno.
@@ -71,7 +80,7 @@ struct HomeView: View {
       .frame(minHeight: 44)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
     .foregroundStyle(palette.muted)
     .accessibilityLabel(label)
   }
@@ -143,7 +152,7 @@ struct HomeView: View {
             .frame(width: Metrica.bersaglio, height: Metrica.bersaglio)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
         .foregroundStyle(palette.muted)
         .accessibilityLabel("nascondi l'avviso")
       }
@@ -213,7 +222,7 @@ struct HomeView: View {
         .background(RoundedRectangle(cornerRadius: Metrica.raggioGrande).fill(palette.surface))
         .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioGrande))
       }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioGrande), a11y: a11y))
     .accessibilityLabel(iniziato
       ? "i tuoi progressi: \(Gamification.levelName(Gamification.level(xp: l.xp))), \(l.xp) punti in tutto"
       : "i tuoi progressi: non hai ancora cominciato")
@@ -297,6 +306,7 @@ struct HomeView: View {
         persist()
         engine.start()
       }
+      .focused($fuoco, equals: .via)
       .keyboardShortcut(.return, modifiers: [])
 
       HStack(spacing: Metrica.spazioPiccolo) {
@@ -325,7 +335,7 @@ struct HomeView: View {
       .frame(minHeight: 44)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
     .foregroundStyle(palette.muted)
   }
 

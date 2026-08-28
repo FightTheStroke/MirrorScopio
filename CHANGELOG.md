@@ -58,6 +58,46 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   (`Gamification.swift:88`, `Fonts.swift:73-74`) restano da correggere.
 
 ### Corretto
+- **I comandi grandi sparivano appena si toccava qualcos'altro.** Chi sceglieva
+  «Paralisi cerebrale» otteneva pulsanti alti 60 punti invece di 44; poi bastava
+  alzare di un filo la dimensione del testo e tornavano a 44, in silenzio,
+  perché quella modifica riporta il profilo su «su misura». La cosa che rende
+  l'app usabile veniva annullata senza una parola. Ora «Comandi più grandi» e
+  «Più aria fra le righe» sono due interruttori veri in Impostazioni: il profilo
+  li accende, e restano accesi.
+- **Il menu dell'audio e le scelte a tendina erano alti 19 punti su 44
+  promessi.** Non era un numero sbagliato nel codice: su macOS quel tipo di
+  menu si fa dare l'altezza dal sistema e non ascolta quello che gli si chiede.
+  Ora sono pulsanti normali con un elenco a comparsa, e ogni riga dell'elenco è
+  alta quanto un bersaglio intero. Misurato sull'app in esecuzione: 246×44 il
+  pulsante, 282×44 ogni riga.
+- **Il Tab non arrivava su undici pulsanti su diciannove.** Sui Mac in cui
+  «Navigazione da tastiera» è spenta — quelli appena usciti dalla scatola —
+  l'elenco laterale delle Impostazioni, la scelta della voce e le schermate di
+  prova non erano raggiungibili senza mouse, mentre il documento prometteva il
+  contrario.
+- **Giusto e «ancora» si distinguevano solo dal colore**, a meno che il Mac
+  avesse acceso «Differenzia senza colore». Chi confonde verde e rosso senza
+  saperlo vedeva due pallini identici. La forma diversa adesso c'è sempre.
+- **«Niente animazioni» diceva «spento» mentre niente si muoveva.** Quando è il
+  Mac a chiedere meno movimento, ora l'interruttore lo mostra acceso.
+- **Lo stesso avviso, ripetuto, restava muto.** Il microfono che si azzittiva,
+  tornava e si azzittiva di nuovo lo diceva una volta sola a voce.
+- **Il testo grande sfondava la colonna laterale prima di quanto si credesse.**
+  La soglia oltre la quale l'elenco si mette in fila era 1,6 per numero tondo,
+  non per misura: misurata, la colonna sfonda già a ×1,45. Ora è 1,4, e la prova
+  automatica non salta più i valori che rompono.
+- **Aggiornando l'app si perdevano tutti i propri dati.** Bastava che una
+  versione nuova aggiungesse una sola impostazione perché l'elenco delle
+  persone, le sessioni e i progressi salvati prima diventassero illeggibili in
+  blocco — non quel campo: tutto. È successo davvero, su un Mac che aveva mesi
+  di lavoro dentro. Niente è andato perduto (la copia di sicurezza ha retto e
+  l'app lo ha detto a schermo), ma era inutilizzabile. Ora un'impostazione che
+  ancora non esisteva quando i dati sono stati salvati prende semplicemente il
+  suo valore predefinito, e tutto il resto si legge come prima. Un campo che
+  invece c'è ma è rovinato continua a essere segnalato come errore: quello non
+  è un formato vecchio, è un file rotto, e leggerlo lo stesso vorrebbe dire
+  mettere un numero inventato dentro un referto.
 - **Un file di dati illeggibile faceva sparire tutto in silenzio.** Se il
   salvataggio precedente era rimasto a metà — disco pieno, Mac spento a metà
   scrittura, aggiornamento andato storto — l'app ripartiva vuota come al primo
@@ -140,13 +180,59 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
     una cartella dove non si può scrivere — succede a scuola — l'app lo dice e
     si ferma, invece di chiedere privilegi che non dovrebbe avere.
 
+- **Il primo avvio comincia chiedendo che cosa succede quando leggi.** I profili
+  di accessibilità esistevano da sempre e non li proponeva nessuno: bisognava
+  sapere che erano lì e andarli a cercare nelle impostazioni. Adesso è il primo
+  passo, e le scelte sono frasi — «Le lettere si mescolano e saltano di riga»,
+  «I comandi piccoli sono difficili da prendere» — non diagnosi. Chi non si
+  riconosce in nessuna salta, e non cambia niente.
+- **L'app dice a voce che cosa sta succedendo durante l'esercizio.** Con
+  VoiceOver acceso si sentiva solo silenzio: adesso si sente quando comincia
+  l'ascolto, com'è andato il turno, e — dopo due secondi di niente — che il
+  microfono non sta ricevendo. La parola da leggere non viene mai detta: sarebbe
+  suggerire la risposta.
+
 ### Cambiato
+- **L'app segue le impostazioni di accessibilità del Mac.** Chi aveva già acceso
+  «Riduci movimento», «Aumenta contrasto», «Riduci trasparenza» o «Differenzia
+  senza colore» nelle Impostazioni di Sistema doveva riaccenderli qui dentro, uno
+  per uno. Adesso partono da lì, e le impostazioni dell'app lo dicono invece di
+  lasciare il mistero di una manopola accesa da sola.
+- **I comandi si possono colpire anche quando li disegna macOS.** Interruttori,
+  cursori, frecce su e giù ed elenchi a comparsa erano alti fra i sedici e i
+  ventisei punti — proprio nelle impostazioni, cioè dove un adulto prepara l'app
+  per un ragazzo che i bersagli piccoli non li prende. Ora rispettano i 44 punti
+  promessi, e 60 nel profilo «I comandi piccoli sono difficili da prendere», che
+  prima li prometteva grandi senza ingrandirne nemmeno uno. I cursori hanno
+  accanto due pulsanti per chi il pallino non riesce a prenderlo.
+- **Si vede dove è arrivata la tastiera.** Diciassette pulsanti cancellavano
+  l'anello di fuoco: chi si muove a tasti non sapeva dove fosse. Adesso l'anello
+  c'è, e il fuoco parte dal pulsante principale della schermata.
+- **Il testo grande sta anche in larghezza.** La colonna laterale delle
+  schermate lunghe cresceva col testo fino a mangiarsi mezzo schermo; la tabella
+  del riepilogo aveva colonne a larghezza fissa e le parole finivano fuori.
+  Adesso sopra una certa misura la colonna si mette in fila in alto e la tabella
+  si apre in schede. E i numeri dei progressi non si rimpiccioliscono più per
+  stare in una riga.
+- **Le righe sono più larghe per chi salta di riga leggendo.** Il profilo per la
+  dislessia lo prometteva da sempre e non lo faceva.
+- **I colori sono più decisi.** Tutto quello che l'app scrive sta al livello alto
+  del contrasto, non a quello minimo, in tutti e quattro i temi e per tutti e
+  cinque i modi di vedere i colori.
 - **Il pacchetto da scaricare pesa la metà** (5,8 MB → 3,3 MB): dentro il
   programma c'erano i nomi interni delle funzioni, che servono solo a chi cerca
   un difetto col debugger e restano comunque nel file di diagnostica accanto.
   Sono megabyte che ogni famiglia doveva scaricare.
 
 ### Corretto
+- **«Nascondi punteggi e percentuali» adesso li nasconde davvero.** Alla fine
+  della sessione comparivano lo stesso, tutti insieme: percentuali, millesimi di
+  secondo, la tabella parola per parola. Chi aveva chiesto di non vedersi
+  misurato si vedeva misurato proprio quando la sessione era ancora addosso. Ora
+  quel pezzo sta dietro una porta, come le altre parti «per l'adulto».
+- **Rifare il primo avvio e cambiare le impostazioni lasciano l'app nello stesso
+  stato.** Toccando una manopola a mano il profilo torna a «su misura» in tutti e
+  due i posti: prima lo faceva solo uno dei due.
 - **L'app costruita da Xcode dichiarava di essere la versione 0.0.0.** Il numero
   vero, quello del file `VERSION`, arrivava solo nell'app costruita da `build.sh`:
   chi apriva il progetto in Xcode otteneva un pacchetto con un numero sbagliato che

@@ -32,6 +32,22 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
     }
   }
 
+  /// Che cosa succede guardando lo schermo.
+  ///
+  /// I nomi qui sopra sono diagnosi, e una diagnosi dice a una persona che cosa
+  /// le manca. Chi apre questa app quelle parole le ha già sentite abbastanza:
+  /// per scegliere basta riconoscersi in quello che si vede, non in un'etichetta.
+  var frase: String {
+    switch self {
+    case .nessuno: "Comincio così e vediamo"
+    case .dislessia: "Le lettere si mescolano e saltano di riga"
+    case .autismo: "Le cose che si muovono e i colori accesi disturbano"
+    case .adhd: "Lo sguardo scappa da un'altra parte"
+    case .ipovisione: "Le parole sono troppo piccole per vederle"
+    case .paralisiCerebrale: "I comandi piccoli sono difficili da prendere"
+    }
+  }
+
   /// Che cosa cambia davvero, detto senza gergo.
   var hint: String {
     switch self {
@@ -51,6 +67,7 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
     case .nessuno:
       break
     case .dislessia:
+      s.righeDistanziate = true
       s.typeface = .openDyslexic
       s.letterSpacing = 6
       s.textScale = 1.15
@@ -76,10 +93,12 @@ enum A11yProfile: String, CaseIterable, Identifiable, Codable {
       s.speakCorrectWord = true
       s.letterSpacing = 4
     case .paralisiCerebrale:
+      s.bersagliGrandi = true
       s.textScale = 1.3
       s.extraResponseTime = 1.6
       s.reducedMotion = true
       s.speakCorrectWord = true
+      s.stimulusSize = 150
     }
     s.profile = self
   }
@@ -145,6 +164,16 @@ struct A11ySettings: Codable, Equatable {
   /// prudente: anche a 1 il suono non satura.
   var volumeSuoni: Double = 0.7
 
+  /// Tutto quello che si preme diventa alto almeno 60 punti invece di 44.
+  ///
+  /// È una manopola vera e non un effetto del profilo: chi la accende
+  /// scegliendo «I comandi piccoli sono difficili da prendere» se la tiene
+  /// anche dopo aver toccato qualunque altra cosa. Vedi `bersaglio`.
+  var bersagliGrandi = false
+
+  /// Più aria fra una riga e l'altra, per non scavalcare la riga sotto.
+  var righeDistanziate = false
+
   /// Dimensione di un testo dell'interfaccia, già scalata.
   func size(_ base: Double) -> CGFloat { CGFloat(base * textScale) }
 
@@ -187,4 +216,221 @@ struct A11ySettings: Codable, Equatable {
   func animation(_ base: Double = 0.25) -> Animation? {
     reducedMotion ? nil : .easeOut(duration: base)
   }
+
 }
+
+// MARK: - Le manopole dell'app messe insieme a quelle del Mac
+
+/// Quello che l'app deve davvero fare, dopo aver messo insieme due cose: le
+/// preferenze che chi usa l'app ha già dato **al Mac**, e le manopole di
+/// MirrorScopio.
+///
+/// Il punto di partenza è il Mac. Se lì è già stato chiesto meno movimento,
+/// qui il movimento non c'è, senza doverlo ripetere. Le manopole dell'app
+/// vengono dopo e possono **aggiungere**, mai togliere: se il Mac chiede meno
+/// movimento e nell'app la casella è spenta, il movimento resta tolto. Togliere
+/// in silenzio una cosa che qualcuno ha chiesto al proprio computer sarebbe
+/// esattamente il difetto che questo tipo è nato per riparare — e la scelta
+/// consapevole di fare diversamente esiste già dove ha senso: il tema si può
+/// mettere a mano su «Chiaro» invece di lasciarlo su «Come il Mac».
+///
+/// Le viste ricevono questo, non `A11ySettings`: così nessuna schermata può
+/// decidere come disegnarsi guardando solo metà della verità. Le manopole
+/// grezze restano raggiungibili con `manopole`, ma servono a un caso solo —
+/// le due schermate che le *scrivono*.
+struct EffettiveImpostazioniAccessibilita: Equatable {
+  private let scelte: A11ySettings
+  /// Che cosa sta chiedendo il Mac in questo momento.
+  let mac: StatoAccessibilitaDelMac
+
+  init(_ scelte: A11ySettings = A11ySettings(),
+       mac: StatoAccessibilitaDelMac = .nessunaRichiesta) {
+    self.scelte = scelte
+    self.mac = mac
+  }
+
+  /// Le manopole così come sono salvate. Solo per chi le cambia.
+  var manopole: A11ySettings { scelte }
+
+  // MARK: Quello che arriva tale e quale dalle manopole
+
+  var profile: A11yProfile { scelte.profile }
+  var colorVision: ColorVision { scelte.colorVision }
+  var typeface: TypefaceChoice { scelte.typeface }
+  var textScale: Double { scelte.textScale }
+  var letterSpacing: Double { scelte.letterSpacing }
+  var stimulusSize: Double { scelte.stimulusSize }
+  var calmMode: Bool { scelte.calmMode }
+  var distractionFree: Bool { scelte.distractionFree }
+  var showTimer: Bool { scelte.showTimer }
+  var soundsEnabled: Bool { scelte.soundsEnabled }
+  var voiceIdentifier: String? { scelte.voiceIdentifier }
+  var voiceRate: Double { scelte.voiceRate }
+  var pauseEveryNWords: Int { scelte.pauseEveryNWords }
+  var shorterSessions: Bool { scelte.shorterSessions }
+  var extraResponseTime: Double { scelte.extraResponseTime }
+  var showFeedbackPerWord: Bool { scelte.showFeedbackPerWord }
+  var hideScore: Bool { scelte.hideScore }
+  var speakCorrectWord: Bool { scelte.speakCorrectWord }
+  var volumeSuoni: Double { scelte.volumeSuoni }
+  var bersagliGrandi: Bool { scelte.bersagliGrandi }
+  var righeDistanziate: Bool { scelte.righeDistanziate }
+
+  // MARK: Quello che nasce dalle due cose insieme
+
+  /// Niente si muove: o perché l'ha chiesto il Mac, o perché l'ha chiesto qui.
+  var reducedMotion: Bool { scelte.reducedMotion || mac.menoMovimento }
+
+  /// Il tema da usare davvero.
+  ///
+  /// «Come il Mac» vuol dire come il Mac fino in fondo: se lì è acceso
+  /// «Aumenta contrasto», qui arriva «Altissimo contrasto» invece del chiaro o
+  /// dello scuro di serie. Un tema scelto a mano resta quello scelto a mano:
+  /// è la scelta consapevole, e non si scavalca.
+  var theme: ThemeChoice {
+    if scelte.theme == .auto, mac.piuContrasto { return .altoContrasto }
+    return scelte.theme
+  }
+
+  /// Il Mac chiede di non usare velature e trasparenze.
+  var menoTrasparenza: Bool { mac.menoTrasparenza }
+
+  /// Il Mac chiede che niente si distingua **solo** dal colore.
+  ///
+  /// Nell'app giusto e sbagliato hanno già simbolo e parola. Restava un posto
+  /// dove il colore era solo: la fila di pallini che dice a che punto si è.
+  var senzaColore: Bool { mac.senzaColore }
+
+  /// Quanto deve essere opaco uno sfondo velato.
+  ///
+  /// Le velature servono a dire «questo è sullo sfondo», ma per chi ha chiesto
+  /// meno trasparenze sono solo un contrasto in meno: qui diventano piene.
+  func velo(_ quanto: Double) -> Double { menoTrasparenza ? 1 : quanto }
+
+  // MARK: Misure che dipendono da chi usa l'app
+
+  /// Il lato minimo di qualunque cosa si possa premere.
+  ///
+  /// I 44 punti di Apple sono il minimo per una mano ferma. Chi ha paralisi
+  /// cerebrale un bersaglio di 44 punti lo colpisce a fatica: nel suo profilo
+  /// il minimo sale a 60, ed è la differenza fra un'app che si usa e una che si
+  /// abbandona. Prima il profilo lo prometteva a parole e non lo faceva.
+  ///
+  /// Prima questo numero si leggeva dal *profilo*, e sembrava comodo. Ma
+  /// toccare una qualunque altra manopola riporta il profilo a «nessuno» — è
+  /// voluto, perché le combinazioni le decide chi usa l'app — e i bersagli
+  /// tornavano a 44 **in silenzio**: si alzava di un filo la dimensione del
+  /// testo e l'app smetteva di essere usabile, senza che una parola lo dicesse.
+  /// Ora è una manopola vera, che il profilo accende e che resta accesa da sola.
+  var bersaglio: CGFloat {
+    bersagliGrandi ? 60 : Metrica.bersaglio
+  }
+
+  /// Il testo è cresciuto abbastanza da non stare più in colonne affiancate.
+  ///
+  /// Sopra questa soglia una sidebar da 260 punti ne occupa più di 400 e le
+  /// tabelle a colonne fisse cominciano a tagliare le parole. Le colonne non si
+  /// stringono: si impilano. È la stessa soglia che usa il resto dell'app per
+  /// decidere fra «uno accanto all'altro» e «uno sotto l'altro», e sta scritta
+  /// qui una volta sola perché non se ne inventino altre due leggermente
+  /// diverse fra sei mesi.
+  ///
+  /// La soglia era 1,6 e non veniva da una misura: veniva da un numero tondo.
+  /// Misurata davvero, la colonna da 260 punti su una finestra da 1100 ne
+  /// chiede 364 a ×1,40 (ne restano 366: passa per due), 377 a ×1,45 e 403 a
+  /// ×1,55 — cioe' sfonda molto prima di 1,6. E il cursore in Impostazioni ha
+  /// passo 0,03: quei valori si raggiungono senza nemmeno accorgersene. La
+  /// prova non se n'era mai accorta perche' provava sei scale tonde e saltava
+  /// esattamente quelle che rompono.
+  var testoGrande: Bool { textScale >= 1.4 }
+
+  /// Lo spazio in più fra una riga e l'altra.
+  ///
+  /// Righe troppo vicine si scavalcano con l'occhio: si rilegge la stessa o si
+  /// salta la successiva. È la fatica che il profilo Dislessia prometteva di
+  /// togliere da quando esiste, senza che nel codice ci fosse una sola riga che
+  /// la togliesse davvero.
+  /// Anche questa era legata al profilo, e si salvava solo per caso: il profilo
+  /// Dislessia sceglie anche il carattere, e il carattere restava. Chi cambiava
+  /// carattere perdeva la spaziatura senza saperlo.
+  var interlinea: CGFloat {
+    let base: Double = righeDistanziate || typeface == .openDyslexic ? 6 : 0
+    return CGFloat(base * textScale)
+  }
+
+  // MARK: Le stesse funzioni di prima
+
+  func size(_ base: Double) -> CGFloat { scelte.size(base) }
+
+  func font(_ testo: A11ySettings.Testo, _ weight: Font.Weight = .regular) -> Font {
+    scelte.font(testo, weight)
+  }
+
+  func animation(_ base: Double = 0.25) -> Animation? {
+    reducedMotion ? nil : .easeOut(duration: base)
+  }
+
+  /// Le manopole da dare al motore della sessione, con dentro già quello che
+  /// chiede il Mac: `Core` non conosce le Impostazioni di Sistema, e i suoni si
+  /// adattano a «meno movimento» esattamente come si adatta lo schermo.
+  var perIlMotore: A11ySettings {
+    var s = scelte
+    s.reducedMotion = reducedMotion
+    s.theme = theme
+    return s
+  }
+}
+
+/// Le impostazioni effettive viaggiano nell'ambiente, come la palette: una
+/// vista non deve poterle ricostruire per conto suo e sbagliarsi.
+private struct ImpostazioniKey: EnvironmentKey {
+  static let defaultValue = EffettiveImpostazioniAccessibilita()
+}
+
+extension EnvironmentValues {
+  var impostazioni: EffettiveImpostazioniAccessibilita {
+    get { self[ImpostazioniKey.self] }
+    set { self[ImpostazioniKey.self] = newValue }
+  }
+}
+
+extension View {
+  /// L'interlinea giusta per chi legge con fatica, applicata dove c'è del testo
+  /// che scorre su più righe.
+  func interlinea(_ a11y: EffettiveImpostazioniAccessibilita) -> some View {
+    lineSpacing(a11y.interlinea)
+  }
+}
+
+extension A11ySettings {
+  /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
+  /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    profile = try c.valore(.profile, profile)
+    theme = try c.valore(.theme, theme)
+    colorVision = try c.valore(.colorVision, colorVision)
+    typeface = try c.valore(.typeface, typeface)
+    textScale = try c.valore(.textScale, textScale)
+    letterSpacing = try c.valore(.letterSpacing, letterSpacing)
+    stimulusSize = try c.valore(.stimulusSize, stimulusSize)
+    reducedMotion = try c.valore(.reducedMotion, reducedMotion)
+    calmMode = try c.valore(.calmMode, calmMode)
+    distractionFree = try c.valore(.distractionFree, distractionFree)
+    showTimer = try c.valore(.showTimer, showTimer)
+    soundsEnabled = try c.valore(.soundsEnabled, soundsEnabled)
+    voiceIdentifier = try c.valore(.voiceIdentifier, voiceIdentifier)
+    voiceRate = try c.valore(.voiceRate, voiceRate)
+    pauseEveryNWords = try c.valore(.pauseEveryNWords, pauseEveryNWords)
+    shorterSessions = try c.valore(.shorterSessions, shorterSessions)
+    extraResponseTime = try c.valore(.extraResponseTime, extraResponseTime)
+    showFeedbackPerWord = try c.valore(.showFeedbackPerWord, showFeedbackPerWord)
+    hideScore = try c.valore(.hideScore, hideScore)
+    speakCorrectWord = try c.valore(.speakCorrectWord, speakCorrectWord)
+    volumeSuoni = try c.valore(.volumeSuoni, volumeSuoni)
+    bersagliGrandi = try c.valore(.bersagliGrandi, bersagliGrandi)
+    righeDistanziate = try c.valore(.righeDistanziate, righeDistanziate)
+  }
+}
+

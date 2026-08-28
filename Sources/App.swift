@@ -31,10 +31,16 @@ struct RootView: View {
   @ObservedObject var readiness: Readiness
   @ObservedObject var nav: Navigazione
   @StateObject private var promemoria = Promemoria()
+  /// Quello che chi usa il Mac ha già chiesto al Mac. Vive qui, in cima, così
+  /// nessuna schermata può dimenticarsene: da qui scende nell'ambiente e ci
+  /// arriva da sola.
+  @StateObject private var mac = AccessibilitaDelMac()
   @Environment(\.colorScheme) private var systemScheme
   @Environment(\.scenePhase) private var scenePhase
 
-  private var a11y: A11ySettings { store.current.a11y }
+  private var a11y: EffettiveImpostazioniAccessibilita {
+    EffettiveImpostazioniAccessibilita(store.current.a11y, mac: mac.stato)
+  }
 
   private var palette: Palette {
     Palette.resolve(theme: a11y.theme, vision: a11y.colorVision, system: systemScheme)
@@ -50,6 +56,13 @@ struct RootView: View {
     .background(FrameClock(attivo: engine.serveIlBattito) { engine.tick($0, durataFrame: $1) }
       .frame(width: 0, height: 0))
     .environment(\.palette, palette)
+    .environment(\.impostazioni, a11y)
+    // L'interlinea si imposta qui una volta sola e scende in tutto quello che
+    // c'è sotto: righe troppo vicine si scavalcano con l'occhio — si rilegge
+    // la stessa o si salta la successiva — ed è la fatica che il profilo
+    // Dislessia prometteva di togliere da quando esiste, senza che nel codice
+    // ci fosse una riga che la togliesse davvero.
+    .interlinea(a11y)
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))
     .avvisoDati(store)
@@ -88,6 +101,11 @@ struct RootView: View {
       }
     }
     .onChange(of: store.currentID) { _, _ in syncEngine() }
+    .onChange(of: store.current.a11y) { _, _ in syncEngine() }
+    // Il Mac può cambiare idea mentre l'app è aperta — «Riduci movimento» si
+    // accende dalle Impostazioni di Sistema senza chiudere niente. Anche i
+    // suoni devono accorgersene, non solo lo schermo.
+    .onChange(of: mac.stato) { _, _ in syncEngine() }
     // La finestra è passata dietro a un'altra mentre una parola era sullo
     // schermo: quello che succede da qui in poi non lo sta guardando nessuno.
     // Il turno si ferma e viene marcato interrotto, invece di finire nei dati
@@ -99,10 +117,6 @@ struct RootView: View {
       // della lista a ogni distrazione, senza restituirla.
       guard nuova == .background else { return }
       engine.interrompi(motivo: "L'app è passata in secondo piano: questa parola non conta. Quando torni, si riprende da qui.")
-    }
-    .onChange(of: store.current.a11y) { _, new in
-      engine.a11y = new
-      readiness.voceScelta = new.voiceIdentifier
     }
   }
 
@@ -166,7 +180,8 @@ struct RootView: View {
   }
 
   private func syncEngine() {
-    engine.a11y = store.current.a11y
+    engine.a11y = a11y.perIlMotore
     engine.config = store.current.config
+    readiness.voceScelta = a11y.voiceIdentifier
   }
 }

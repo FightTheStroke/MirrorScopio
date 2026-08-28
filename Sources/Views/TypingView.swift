@@ -11,7 +11,7 @@ import SwiftUI
 /// chi passa da Leggi a Scrivi non deve reimparare dove stanno le cose.
 struct TypingView: View {
   @ObservedObject var engine: SessionEngine
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   @Environment(\.palette) private var palette
   @FocusState private var focused: Bool
 
@@ -150,7 +150,7 @@ struct TypingView: View {
               .frame(minHeight: 44)
               .contentShape(Capsule())
           }
-          .buttonStyle(.plain)
+          .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
           .accessibilityLabel("risenti la parola \(parola)")
         }
       }

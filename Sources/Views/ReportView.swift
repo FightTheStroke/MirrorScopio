@@ -10,10 +10,17 @@ struct ReportView: View {
   @State private var saved = false
   @State private var unlocked: [Achievement] = []
   @State private var showDetail = false
+  /// Con «Nascondi punteggi» acceso il dettaglio numerico resta chiuso finché
+  /// non lo chiede qualcuno, adesso, in modo esplicito.
+  @State private var numeriChiesti = false
+  @State private var chiedeINumeri = false
   /// Il premio è opzionale: chi non lo vuole non lo vede aprirsi da solo.
   @State private var showStaffetta = false
+  /// La tastiera arriva sul pulsante che quasi tutti premono: «Ancora».
+  @FocusState private var fuoco: Fuoco?
+  private enum Fuoco: Hashable { case ancora }
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
   private var record: SessionRecord { engine.finishedRecord ?? SessionRecord() }
 
   var body: some View {
@@ -38,6 +45,7 @@ struct ReportView: View {
       .frame(maxWidth: 820)
       .frame(maxWidth: .infinity)
     }
+    .defaultFocus($fuoco, .ancora)
     // I coriandoli stanno sopra a tutto ma non intercettano niente: si vede la
     // festa e si può continuare a usare la schermata mentre cade.
     .overlay(alignment: .top) {
@@ -152,7 +160,7 @@ struct ReportView: View {
           ForEach(0..<5, id: \.self) { i in
             Image(systemName: i < stars ? "star.fill" : "star")
               .font(.system(size: a11y.size(34)))
-              .foregroundStyle(i < stars ? Color.yellow : palette.muted.opacity(0.4))
+              .foregroundStyle(i < stars ? palette.premio : palette.muted.opacity(a11y.velo(0.4)))
           }
         }
         .accessibilityElement(children: .ignore)
@@ -330,6 +338,7 @@ struct ReportView: View {
           engine.reset()
           engine.start()
         }
+        .focused($fuoco, equals: .ancora)
         .keyboardShortcut(.return, modifiers: [])
 
         if !record.missedWords.isEmpty {
@@ -347,7 +356,42 @@ struct ReportView: View {
 
   // MARK: - Per l'adulto
 
+  /// Chi ha chiesto di non vedere i numeri non li vedeva da nessuna parte —
+  /// tranne qui, in fondo al riepilogo, dove comparivano tutti insieme:
+  /// percentuali, millesimi di secondo, la tabella parola per parola. Era la
+  /// schermata in cui quella richiesta contava di più, ed era l'unica in cui
+  /// non veniva rispettata.
+  ///
+  /// Adesso la porta è chiusa come le altre porte «per l'adulto» dell'app: si
+  /// apre chiedendolo, e la domanda dice che cosa si sta per far comparire.
+  @ViewBuilder
   private var adultDetail: some View {
+    if a11y.hideScore && !numeriChiesti {
+      portaDeiNumeri
+    } else {
+      dettaglioPerLAdulto
+    }
+  }
+
+  private var portaDeiNumeri: some View {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+      SmallButton(title: "Dettaglio per l'adulto", symbol: "gearshape", a11y: a11y) {
+        chiedeINumeri = true
+      }
+      Explain(text: "Hai chiesto di non vedere punteggi e percentuali, e qui dentro ci sono. Si aprono solo se lo chiedi adesso.", a11y: a11y, size: 14)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.top, Metrica.spazioStretto)
+    .confirmationDialog("Far comparire punteggi e percentuali?",
+                        isPresented: $chiedeINumeri, titleVisibility: .visible) {
+      Button("Sì, mostrali") { numeriChiesti = true; showDetail = true }
+      Button("Lascia stare", role: .cancel) {}
+    } message: {
+      Text("Compaiono le parole prese su quelle mostrate, i millesimi di secondo e la tabella parola per parola. Restano visibili fino alla fine di questa schermata.")
+    }
+  }
+
+  private var dettaglioPerLAdulto: some View {
     DisclosureGroup(isExpanded: $showDetail) {
       VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
         Explain(text: plainLanguage, a11y: a11y, size: 16)
@@ -420,35 +464,75 @@ struct ReportView: View {
     .padding(.top, Metrica.spazioStretto)
   }
 
+  /// La tabella parola per parola.
+  ///
+  /// Le colonne erano larghe 130, 120 e 80 punti fissi. Il testo dentro cresce
+  /// con l'ingrandimento, la colonna no: a testo doppio «Ancora» e la parola
+  /// che descrive la difficoltà finivano fuori dalla loro casella, e finivano
+  /// fuori proprio per chi aveva ingrandito il testo per riuscire a leggerle.
+  /// Adesso nessuna colonna ha una larghezza scritta a mano, e sopra la soglia
+  /// del testo grande le righe si aprono in schede: una sotto l'altra, con
+  /// scritto accanto a ogni valore di che cosa si tratta.
   private var trialTable: some View {
-    VStack(spacing: 0) {
+    VStack(spacing: a11y.testoGrande ? Metrica.spazioStretto : 0) {
       ForEach(record.items) { item in
-        HStack(spacing: Metrica.spazioPiccolo) {
-          Text(item.stimulus)
-            .font(a11y.font(.etichetta, .medium))
-            .frame(maxWidth: .infinity, alignment: .leading)
-          Text(item.response.isEmpty ? "—" : item.response)
-            .font(a11y.font(.etichetta))
-            .foregroundStyle(palette.muted)
-            .frame(maxWidth: .infinity, alignment: .leading)
-          Verdict(correct: item.correct, a11y: a11y, size: 15)
-            .frame(width: 130, alignment: .leading)
-          Text(item.errorKind)
-            .font(a11y.font(.nota))
-            .foregroundStyle(palette.muted)
-            .frame(width: 120, alignment: .leading)
-          Text("\(Int(item.exposureMs)) ms")
-            .font(a11y.font(.nota))
-            .foregroundStyle(palette.muted)
-            .monospacedDigit()
-            .frame(width: 80, alignment: .trailing)
+        Group {
+          if a11y.testoGrande { schedaTurno(item) } else { rigaTurno(item) }
         }
         .padding(.vertical, Metrica.spazioMinimo)
         .padding(.horizontal, Metrica.spazioStretto)
-        .background(item.warmup ? palette.surface.opacity(0.5) : Color.clear)
+        .background(item.warmup ? palette.surface.opacity(a11y.velo(0.5)) : Color.clear)
       }
     }
-    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface.opacity(0.35)))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+      .fill(palette.surface.opacity(a11y.velo(0.35))))
+  }
+
+  private func rigaTurno(_ item: ItemRecord) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: Metrica.spazioPiccolo) {
+      Text(item.stimulus)
+        .font(a11y.font(.etichetta, .medium))
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Text(item.response.isEmpty ? "—" : item.response)
+        .font(a11y.font(.etichetta))
+        .foregroundStyle(palette.muted)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Verdict(correct: item.correct, a11y: a11y, size: 15)
+        .fixedSize(horizontal: true, vertical: false)
+      Text(item.errorKind)
+        .font(a11y.font(.nota))
+        .foregroundStyle(palette.muted)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Text("\(Int(item.exposureMs)) ms")
+        .font(a11y.font(.nota))
+        .foregroundStyle(palette.muted)
+        .monospacedDigit()
+        .fixedSize(horizontal: true, vertical: false)
+    }
+    .accessibilityElement(children: .combine)
+  }
+
+  private func schedaTurno(_ item: ItemRecord) -> some View {
+    VStack(alignment: .leading, spacing: Metrica.filo) {
+      Text(item.stimulus)
+        .font(a11y.font(.corpo, .semibold))
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Verdict(correct: item.correct, a11y: a11y, size: 15)
+      vocePergamena("Ha detto", item.response.isEmpty ? "niente" : item.response)
+      if !item.errorKind.isEmpty { vocePergamena("Che cosa è successo", item.errorKind) }
+      vocePergamena("Quanto è rimasta visibile", "\(Int(item.exposureMs)) millesimi di secondo")
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .accessibilityElement(children: .contain)
+  }
+
+  private func vocePergamena(_ che: String, _ valore: String) -> some View {
+    Text("\(che): \(valore)")
+      .font(a11y.font(.etichetta))
+      .interlinea(a11y)
+      .foregroundStyle(palette.muted)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   /// I numeri qui sopra, detti in italiano.

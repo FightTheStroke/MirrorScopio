@@ -18,7 +18,7 @@ struct DashboardView: View {
     @State private var mostraConfermaReset = false
     @State private var pagina: Pagina = .adesso
 
-    private var a11y: A11ySettings { store.current.a11y }
+    @Environment(\.impostazioni) private var a11y
     private var bambino: Learner { store.current }
     private var sessioni: [SessionRecord] { store.currentHistory }
 
@@ -159,7 +159,7 @@ struct DashboardView: View {
             // ribadito dal testo così chi non distingue i colori capisce lo stesso.
             Image(systemName: streak > 0 ? "flame.fill" : "calendar")
                 .font(a11y.font(.titolo, .bold))
-                .foregroundStyle(streak > 0 ? Color.orange : palette.accent)
+                .foregroundStyle(streak > 0 ? palette.serie : palette.accent)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: Metrica.briciola) {
@@ -507,7 +507,7 @@ private struct _RiquadroRiassuntivo: View {
     let etichetta: String
     let valore: String
     let sottotitolo: String?
-    let a11y: A11ySettings
+    let a11y: EffettiveImpostazioniAccessibilita
     let palette: Palette
 
     var body: some View {
@@ -516,11 +516,13 @@ private struct _RiquadroRiassuntivo: View {
                 .font(a11y.font(.guida, .semibold))
                 .foregroundStyle(coloreSimbolo)
                 .accessibilityHidden(true)
+            // Il numero non si rimpicciolisce per stare in una riga:
+            // rimpicciolire il testo di chi ha chiesto testo grande è l'esatto
+            // contrario di quello che ha chiesto. Se non ci sta, va a capo.
             Text(valore)
                 .font(a11y.font(.titolo, .heavy))
                 .foregroundStyle(palette.foreground)
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
             Text(etichetta)
                 .font(a11y.font(.nota, .regular))
                 .foregroundStyle(palette.muted)
@@ -542,7 +544,7 @@ private struct _RiquadroRiassuntivo: View {
 private struct _CellaObiettivo: View {
     let obiettivo: Achievement
     let sbloccato: Bool
-    let a11y: A11ySettings
+    let a11y: EffettiveImpostazioniAccessibilita
     let palette: Palette
 
     var body: some View {
@@ -579,8 +581,8 @@ private struct _CellaObiettivo: View {
             // colore grazie allo spessore: in modalità calma niente oro acceso.
             if sbloccato {
                 let cornice = a11y.calmMode
-                    ? palette.foreground.opacity(0.5)
-                    : Color(red: 0.85, green: 0.63, blue: 0.10).opacity(0.55)
+                    ? palette.foreground.opacity(a11y.velo(0.5))
+                    : palette.premio
                 RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
                     .strokeBorder(cornice, lineWidth: 2)
             }
@@ -599,7 +601,7 @@ private struct _CellaObiettivo: View {
 private struct _RigaSessione: View {
     let sessione: SessionRecord
     let aperta: Bool
-    let a11y: A11ySettings
+    let a11y: EffettiveImpostazioniAccessibilita
     let palette: Palette
     let onTap: () -> Void
 
@@ -610,7 +612,7 @@ private struct _RigaSessione: View {
                 if aperta { dettaglioParole }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
         .frame(minHeight: 44)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

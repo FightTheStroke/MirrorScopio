@@ -18,7 +18,7 @@ struct VoiceChooser: View {
   @State private var inProva: String?
   @State private var synth = AVSpeechSynthesizer()
 
-  private var a11y: A11ySettings { store.current.a11y }
+  @Environment(\.impostazioni) private var a11y
 
   private var sceltaCorrente: String? {
     a11y.voiceIdentifier ?? Speaker.bestItalianVoice?.identifier
@@ -85,18 +85,15 @@ struct VoiceChooser: View {
 
       if showsRate {
         VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
-          Text("Velocità della voce")
-            .font(a11y.font(.guida, .semibold))
-            .foregroundStyle(palette.foreground)
           HStack(spacing: Metrica.spazioPiccolo) {
             Image(systemName: "tortoise.fill").foregroundStyle(palette.muted)
               .accessibilityHidden(true)
-            Slider(value: Binding(get: { a11y.voiceRate },
-                                  set: { v in store.update { $0.a11y.voiceRate = v } }),
-                   in: 0.30...0.60)
-              .accessibilityLabel("Velocita' della voce")
-              .accessibilityValue(a11y.voiceRate < 0.40 ? "lenta"
-                                  : a11y.voiceRate < 0.50 ? "normale" : "veloce")
+            CursoreAccessibile(titolo: "Velocità della voce",
+                               valore: Binding(get: { a11y.voiceRate },
+                                               set: { v in store.update { $0.a11y.voiceRate = v } }),
+                               intervallo: 0.30...0.60, passo: 0.01, a11y: a11y) { v in
+              v < 0.40 ? "lenta" : v < 0.50 ? "media" : "veloce"
+            }
             Image(systemName: "hare.fill").foregroundStyle(palette.muted)
               .accessibilityHidden(true)
           }
@@ -139,7 +136,7 @@ struct VoiceChooser: View {
         }
         .contentShape(Rectangle())
       }
-      .buttonStyle(.plain)
+      .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
 
       // Era alto 40 punti e in stile di sistema. Quaranta e' sotto il minimo
       // di Apple, e questo e' proprio il tasto con cui si sceglie la voce che

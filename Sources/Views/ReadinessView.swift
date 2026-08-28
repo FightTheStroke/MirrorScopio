@@ -9,7 +9,7 @@ import SwiftUI
 struct ReadinessView: View {
   @Environment(\.palette) private var palette
   @ObservedObject var readiness: Readiness
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Mostrata come schermata d'avvio (niente "Chiudi") o aperta dalle impostazioni.
   var onClose: (() -> Void)?
   var onContinue: (() -> Void)?

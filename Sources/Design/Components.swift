@@ -66,6 +66,83 @@ enum Metrica {
   static let bersaglio: CGFloat = 44
 }
 
+// MARK: - Il fuoco della tastiera
+
+/// La forma di un pulsante: serve all'anello di fuoco per stare aderente.
+enum FormaPulsante {
+  case capsula
+  case arrotondata(CGFloat)
+  case rettangolo
+}
+
+/// Lo stile di **tutti** i pulsanti disegnati a mano nell'app.
+///
+/// Nasce da un difetto vero e diffuso: diciassette pulsanti usavano
+/// `.buttonStyle(.plain)`, che toglie di mezzo lo stile di sistema — e con lui
+/// l'anello che dice dov'è arrivata la tastiera. Il risultato era un'app
+/// percorribile senza mouse in cui **non si vedeva dove si era**: si premeva
+/// Invio alla cieca. Per chi usa solo la tastiera, o pochi tasti, è la
+/// differenza fra un'app che si usa e una in cui ci si perde.
+///
+/// L'anello è spesso, sta fuori dal pulsante e ha un distacco chiaro dallo
+/// sfondo del pulsante stesso: un filo sottile dello stesso colore del bordo si
+/// confonde proprio con chi ha più bisogno di vederlo.
+struct StilePulsante: ButtonStyle {
+  var forma: FormaPulsante = .rettangolo
+  var a11y: EffettiveImpostazioniAccessibilita = EffettiveImpostazioniAccessibilita()
+
+  func makeBody(configuration: Configuration) -> some View {
+    Corpo(configuration: configuration, forma: forma, a11y: a11y)
+  }
+
+  private struct Corpo: View {
+    let configuration: Configuration
+    let forma: FormaPulsante
+    let a11y: EffettiveImpostazioniAccessibilita
+    // `isFocused` dice se il pulsante che sta usando questo stile ha il fuoco:
+    // è il solo modo che uno stile ha di saperlo, perché la configurazione
+    // racconta soltanto se è premuto.
+    @Environment(\.isFocused) private var aFuoco
+    @Environment(\.palette) private var palette
+
+    var body: some View {
+      configuration.label
+        // Premuto si vede: prima l'unico riscontro era che qualcosa succedeva
+        // dopo. Non è un movimento, è un cambio di opacità, quindi resta anche
+        // con «meno animazioni».
+        .opacity(configuration.isPressed ? 0.55 : 1)
+        // Il Tab arriva qui **per costruzione**, non perche' qualcuno si e'
+        // ricordato di scriverlo al momento giusto. Sui Mac in cui
+        // «Navigazione da tastiera» e' spenta — cioe' quelli appena usciti
+        // dalla scatola — un pulsante SwiftUI non e' raggiungibile col Tab se
+        // non lo si dichiara. Era dichiarato su 8 pulsanti su 19: gli altri 11
+        // (l'elenco laterale delle Impostazioni, le schermate di prova, la
+        // scelta della voce) restavano fuori dal giro, mentre il documento
+        // prometteva che ogni schermata si percorre senza mouse. Messo qui,
+        // vale per chiunque usi lo stile dell'app, anche per chi lo scrivera'
+        // domani.
+        .focusable()
+        .overlay { if aFuoco { bordo(palette.background, spessore: 2, fuori: 2) } }
+        .overlay { if aFuoco { bordo(palette.accent, spessore: 3, fuori: 5) } }
+        .animation(a11y.animation(0.12), value: aFuoco)
+    }
+
+    @ViewBuilder
+    private func bordo(_ colore: Color, spessore: CGFloat, fuori: CGFloat) -> some View {
+      switch forma {
+      case .capsula:
+        Capsule().strokeBorder(colore, lineWidth: spessore).padding(-fuori)
+      case .arrotondata(let raggio):
+        RoundedRectangle(cornerRadius: raggio + fuori)
+          .strokeBorder(colore, lineWidth: spessore).padding(-fuori)
+      case .rettangolo:
+        RoundedRectangle(cornerRadius: Metrica.raggioMinimo + fuori)
+          .strokeBorder(colore, lineWidth: spessore).padding(-fuori)
+      }
+    }
+  }
+}
+
 // MARK: - Mattoncini condivisi
 
 /// Il pulsante principale di una schermata: enorme, con un'icona e una parola sola.
@@ -84,7 +161,7 @@ struct SmallButton: View {
   @Environment(\.palette) private var palette
   let title: String
   var symbol: String? = nil
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var distruttivo = false
   /// Riempito col colore d'accento: per l'azione che sblocca la schermata.
   ///
@@ -106,7 +183,7 @@ struct SmallButton: View {
       .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
     .foregroundStyle(prominente ? palette.onAccent
                      : (distruttivo ? palette.wrong : palette.foreground))
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
@@ -125,7 +202,7 @@ struct BigButton: View {
   @Environment(\.palette) private var palette
   let title: String
   var symbol: String? = nil
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var prominent = true
   let action: () -> Void
 
@@ -140,7 +217,7 @@ struct BigButton: View {
       .padding(.vertical, a11y.size(Metrica.spazio))
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
     .foregroundStyle(prominent ? palette.onAccent : palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -161,7 +238,7 @@ struct ChoiceCard: View {
   var subtitle: String? = nil
   var symbol: String? = nil
   let selected: Bool
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   let action: () -> Void
 
   var body: some View {
@@ -172,10 +249,12 @@ struct ChoiceCard: View {
         }
         Text(title)
           .font(a11y.font(.guida, .semibold))
+          .interlinea(a11y)
           .multilineTextAlignment(.center)
         if let subtitle {
           Text(subtitle)
             .font(a11y.font(.nota))
+            .interlinea(a11y)
             .foregroundStyle(palette.muted)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
@@ -186,11 +265,12 @@ struct ChoiceCard: View {
       .padding(.horizontal, Metrica.spazioStretto)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggio), a11y: a11y))
     .foregroundStyle(palette.foreground)
     .background(
       RoundedRectangle(cornerRadius: Metrica.raggio)
-        .fill(selected ? palette.accent.opacity(palette.isDark ? 0.32 : 0.16) : palette.surface)
+        .fill(selected ? palette.accent.opacity(a11y.velo(palette.isDark ? 0.32 : 0.16))
+                       : palette.surface)
     )
     .overlay(
       RoundedRectangle(cornerRadius: Metrica.raggio)
@@ -219,7 +299,7 @@ struct ChoiceCard: View {
 struct SectionTitle: View {
   @Environment(\.palette) private var palette
   let text: String
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
 
   var body: some View {
     Text(text)
@@ -233,12 +313,13 @@ struct SectionTitle: View {
 struct Explain: View {
   @Environment(\.palette) private var palette
   let text: String
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var size: Double = 17
 
   var body: some View {
     Text(.init(text))
       .font(a11y.typeface.font(size: a11y.size(size)))
+      .interlinea(a11y)
       .foregroundStyle(palette.muted)
       .fixedSize(horizontal: false, vertical: true)
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -249,7 +330,7 @@ struct Explain: View {
 struct Verdict: View {
   @Environment(\.palette) private var palette
   let correct: Bool
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var size: Double = 20
 
   var body: some View {
@@ -278,15 +359,11 @@ struct Verdict: View {
 /// somigliarsi.
 struct StopButton: View {
   @Environment(\.palette) private var palette
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   var titolo = "Basta"
   let action: () -> Void
 
-  private var rosso: Color {
-    palette.isDark
-      ? Color(red: 1.0, green: 0.36, blue: 0.36)
-      : Color(red: 0.85, green: 0.13, blue: 0.16)
-  }
+  private var rosso: Color { palette.stop }
 
   var body: some View {
     Button(action: action) {
@@ -308,7 +385,7 @@ struct StopButton: View {
       .frame(minHeight: max(60, a11y.size(56)))
       .contentShape(Capsule())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
     .foregroundStyle(palette.foreground)
     .background(Capsule().fill(palette.surface))
     .overlay(Capsule().stroke(rosso.opacity(0.55), lineWidth: 2))
@@ -327,12 +404,15 @@ struct StopButton: View {
 /// ipersensibilità sensoriale una pioggia di colori non è un premio, è
 /// un'aggressione. In quel caso resta il testo, che dice le stesse cose.
 struct Celebrazione: View {
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Da 0 a 1: quanti coriandoli. Il minimo non è mai zero.
   var intensita: Double = 1
 
   @State private var partita = false
 
+  // Decorazione pura: i coriandoli non dicono niente che non sia già scritto
+  // sopra a parole, e nessuno deve distinguerli fra loro. Restano fuori dalla
+  // palette apposta — colorare di tema una festa la spegne.
   private let colori: [Color] = [
     Color(red: 0.98, green: 0.75, blue: 0.14),
     Color(red: 0.28, green: 0.66, blue: 0.96),
@@ -388,7 +468,7 @@ struct ProgressoPallini: View {
   let fatte: [Trial]
   let indice: Int
   let totale: Int
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// «parola» o «frase»: cambia il compito, non la forma.
   var nomeDellUnita: String = "parola"
 
@@ -398,8 +478,7 @@ struct ProgressoPallini: View {
         Spacer()
         HStack(spacing: Metrica.spazioStretto) {
           ForEach(0..<totale, id: \.self) { i in
-            Circle()
-              .fill(colore(i))
+            pallino(i)
               .frame(width: i == indice - 1 ? 12 : 8,
                      height: i == indice - 1 ? 12 : 8)
           }
@@ -415,15 +494,36 @@ struct ProgressoPallini: View {
   }
 
   private func colore(_ i: Int) -> Color {
-    guard i < fatte.count, i < indice else { return palette.muted.opacity(0.25) }
+    guard i < fatte.count, i < indice else { return palette.muted.opacity(a11y.velo(0.25)) }
     // Una parola interrotta dal Mac non è un risultato: resta neutra, come
     // quelle non ancora arrivate. Colorarla di rosso sarebbe dire al ragazzo
     // che ha sbagliato una parola che non ha mai visto.
-    guard !fatte[i].interrotto else { return palette.muted.opacity(0.4) }
+    guard !fatte[i].interrotto else { return palette.muted.opacity(a11y.velo(0.4)) }
     guard a11y.showFeedbackPerWord, !a11y.hideScore else {
-      return palette.muted.opacity(0.75)
+      return palette.muted.opacity(a11y.velo(0.75))
     }
-    return fatte[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
+    return fatte[i].correct ? palette.ok.opacity(a11y.velo(0.8))
+                            : palette.wrong.opacity(a11y.velo(0.8))
+  }
+
+  /// Era l'unico posto dell'app in cui il colore portava un'informazione da
+  /// solo: pallino verde o pallino rosso, stessa forma. Le parole che non sono
+  /// venute ancora sono un anello vuoto — una forma diversa, non una tinta
+  /// diversa.
+  ///
+  /// La forma diversa c'era già, ma **solo se il Mac chiedeva di non
+  /// distinguere dal colore**. Chi confonde il verde e il rosso senza aver
+  /// acceso quell'impostazione — cioè quasi tutti quelli a cui succede —
+  /// vedeva due pallini identici. La regola scritta in AGENTS.md non è
+  /// «quando il Mac lo chiede»: è sempre.
+  @ViewBuilder
+  private func pallino(_ i: Int) -> some View {
+    if a11y.showFeedbackPerWord, !a11y.hideScore,
+       i < fatte.count, i < indice, !fatte[i].correct {
+      Circle().strokeBorder(colore(i), lineWidth: 2.5)
+    } else {
+      Circle().fill(colore(i))
+    }
   }
 }
 
@@ -446,7 +546,7 @@ struct ProgressoPallini: View {
 /// proprio sul comando più importante della schermata.
 struct PulsanteChiudi: View {
   @Environment(\.palette) private var palette
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   /// Che cosa si sta chiudendo. Serve a VoiceOver, che altrimenti annuncia
   /// quattro pulsanti identici chiamati «Chiudi» in quattro schermate diverse.
   var cosa: String
@@ -465,7 +565,7 @@ struct PulsanteChiudi: View {
       .frame(minWidth: Metrica.bersaglio, minHeight: Metrica.bersaglio)
       .contentShape(Capsule())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
     .foregroundStyle(palette.onAccent)
     .background(Capsule().fill(palette.accent))
     .keyboardShortcut(.escape, modifiers: [])
@@ -486,7 +586,7 @@ struct IntestazionePagina: View {
   let titolo: String
   /// Una riga sotto il titolo: il nome di chi sta usando l'app, la data.
   var sottotitolo: String? = nil
-  var a11y: A11ySettings
+  var a11y: EffettiveImpostazioniAccessibilita
   let onClose: () -> Void
 
   var body: some View {
@@ -516,5 +616,246 @@ struct IntestazionePagina: View {
     }
     .padding(.horizontal, Metrica.margine)
     .padding(.vertical, Metrica.spazioPiccolo)
+  }
+}
+
+// MARK: - I controlli di sistema, portati alla misura promessa
+
+/// I controlli che macOS disegna per conto suo — interruttori, cursori, elenchi
+/// a comparsa, frecce su e giù — sono alti fra i 16 e i 26 punti.
+///
+/// L'app prometteva 44 punti «ovunque», e su ogni pulsante scritto a mano lo
+/// manteneva; poi bastava aprire le impostazioni e i comandi veri erano
+/// bersagli di venti punti, esattamente lì dove un adulto prepara l'app per un
+/// ragazzo con paralisi cerebrale. Un `Toggle` non si può ingrandire: si può
+/// però rendere premibile **tutta la riga**, e mettere accanto ai cursori due
+/// pulsanti grandi per chi il pallino non riesce a prenderlo.
+///
+/// Nel profilo «Paralisi cerebrale» il minimo sale a 60 punti: prima quel
+/// profilo prometteva bersagli grandi e non ne ingrandiva nemmeno uno.
+
+/// Un interruttore che si accende premendo la riga intera.
+struct InterruttoreAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var acceso: Bool
+  var a11y: EffettiveImpostazioniAccessibilita
+
+  var body: some View {
+    Button { acceso.toggle() } label: {
+      HStack(spacing: Metrica.spazioPiccolo) {
+        Text(titolo)
+          .font(a11y.font(.corpo))
+          .interlinea(a11y)
+          .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
+        Spacer(minLength: Metrica.spazioPiccolo)
+        // L'interruttore resta quello di sistema — si riconosce a colpo
+        // d'occhio — ma non intercetta niente: a rispondere è la riga.
+        Toggle("", isOn: $acceso)
+          .labelsHidden()
+          .allowsHitTesting(false)
+      }
+      .padding(.horizontal, Metrica.spazioStretto)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .frame(minHeight: a11y.bersaglio)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .foregroundStyle(palette.foreground)
+    .accessibilityRepresentation { Toggle(titolo, isOn: $acceso) }
+  }
+}
+
+/// Un numero che si alza e si abbassa con due pulsanti grandi.
+struct PassoAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var valore: Double
+  var intervallo: ClosedRange<Double>
+  var passo: Double = 1
+  var a11y: EffettiveImpostazioniAccessibilita
+  /// Come si dice il valore a voce e a schermo: mai un numero nudo.
+  var descrizione: (Double) -> String
+
+  var body: some View {
+    HStack(spacing: Metrica.spazioPiccolo) {
+      Text(descrizione(valore))
+        .font(a11y.font(.corpo))
+        .interlinea(a11y)
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Metrica.spazioPiccolo)
+      pulsante("minus", "meno", -passo)
+      pulsante("plus", "più", passo)
+    }
+    .frame(minHeight: a11y.bersaglio)
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(titolo)
+    .accessibilityValue(descrizione(valore))
+  }
+
+  private func pulsante(_ simbolo: String, _ nome: String, _ delta: Double) -> some View {
+    Button {
+      valore = min(max(valore + delta, intervallo.lowerBound), intervallo.upperBound)
+    } label: {
+      Image(systemName: simbolo)
+        .font(a11y.font(.corpo, .bold))
+        .frame(width: a11y.bersaglio, height: a11y.bersaglio)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .foregroundStyle(palette.foreground)
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+    .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
+    .accessibilityLabel("\(nome): \(titolo)")
+  }
+}
+
+/// Un cursore con accanto due pulsanti grandi.
+///
+/// Il pallino di un cursore è largo una quindicina di punti e va preso al volo:
+/// per una mano che trema è il comando più difficile dell'app. I due pulsanti
+/// fanno la stessa cosa senza chiedere la mira, e il cursore resta per chi lo
+/// preferisce.
+struct CursoreAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var valore: Double
+  var intervallo: ClosedRange<Double>
+  var passo: Double
+  var a11y: EffettiveImpostazioniAccessibilita
+  var descrizione: (Double) -> String
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Metrica.briciola) {
+      HStack {
+        Text(titolo)
+          .font(a11y.font(.corpo))
+          .interlinea(a11y)
+          .foregroundStyle(palette.foreground)
+          .fixedSize(horizontal: false, vertical: true)
+        Spacer(minLength: Metrica.spazioStretto)
+        Text(descrizione(valore))
+          .font(a11y.font(.etichetta))
+          .foregroundStyle(palette.muted)
+          .monospacedDigit()
+      }
+      HStack(spacing: Metrica.spazioPiccolo) {
+        pulsante("minus", "meno", -passo)
+        Slider(value: $valore, in: intervallo, step: passo)
+          .controlSize(.large)
+          .frame(maxWidth: 400, minHeight: a11y.bersaglio)
+          .accessibilityLabel(titolo)
+          .accessibilityValue(descrizione(valore))
+        pulsante("plus", "più", passo)
+        Spacer(minLength: 0)
+      }
+    }
+  }
+
+  private func pulsante(_ simbolo: String, _ nome: String, _ delta: Double) -> some View {
+    Button {
+      valore = min(max(valore + delta, intervallo.lowerBound), intervallo.upperBound)
+    } label: {
+      Image(systemName: simbolo)
+        .font(a11y.font(.corpo, .bold))
+        .frame(width: a11y.bersaglio, height: a11y.bersaglio)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .foregroundStyle(palette.foreground)
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+    .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
+    .accessibilityLabel("\(nome): \(titolo)")
+  }
+}
+
+/// Una scelta fra molte: l'elenco a comparsa, ma con un bersaglio vero.
+struct SceltaAccessibile<T: Hashable>: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var scelta: T
+  let opzioni: [T]
+  var a11y: EffettiveImpostazioniAccessibilita
+  let etichetta: (T) -> String
+
+  @State private var aperto = false
+
+  var body: some View {
+    HStack(spacing: Metrica.spazioPiccolo) {
+      Text(titolo)
+        .font(a11y.font(.corpo))
+        .interlinea(a11y)
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Metrica.spazioStretto)
+      // Perche' non e' un `Menu`.
+      //
+      // Su macOS un `Menu` si fa dare l'altezza dal controllo AppKit che ha
+      // sotto, e nessun `frame` scritto in SwiftUI la sposta: qui c'era gia'
+      // `.frame(minHeight: a11y.bersaglio)` due volte, e l'area davvero
+      // premibile restava di 19 punti sui 44 promessi. Misurato sull'app in
+      // esecuzione. La prova in `Verifiche/Bersagli.swift` non se ne accorgeva
+      // perche' misurava la riga esterna, che il frame allargava davvero.
+      // Le voci **dentro** il menu avevano lo stesso difetto un piano sotto.
+      //
+      // Un pulsante normale con un pannello a comparsa e' fatto di viste
+      // nostre: l'altezza e' quella che scriviamo, qui e in ogni riga.
+      Button { aperto.toggle() } label: {
+        HStack(spacing: Metrica.spazioMinimo) {
+          Text(etichetta(scelta))
+            .font(a11y.font(.corpo))
+            .lineLimit(1)
+          Image(systemName: "chevron.up.chevron.down")
+            .font(a11y.font(.nota, .semibold))
+        }
+        .padding(.horizontal, Metrica.spazioPiccolo)
+        .frame(minHeight: a11y.bersaglio)
+        .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+        .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
+      }
+      .buttonStyle(.plain)
+      .focusable()
+      .foregroundStyle(palette.foreground)
+      .popover(isPresented: $aperto, arrowEdge: .bottom) {
+        ScrollView {
+          VStack(alignment: .leading, spacing: Metrica.briciola) {
+            ForEach(opzioni, id: \.self) { o in
+              Button {
+                scelta = o
+                aperto = false
+              } label: {
+                HStack(spacing: Metrica.spazioStretto) {
+                  // Mai il colore da solo: il segno di spunta c'e' anche a
+                  // parole per chi ascolta con VoiceOver.
+                  Image(systemName: o == scelta ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(o == scelta ? palette.accent : palette.muted)
+                  Text(etichetta(o))
+                    .font(a11y.font(.corpo, o == scelta ? .semibold : .regular))
+                    .foregroundStyle(palette.foreground)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
+                  Spacer(minLength: 0)
+                }
+                .padding(.horizontal, Metrica.spazioStretto)
+                .frame(maxWidth: .infinity, minHeight: a11y.bersaglio, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+                  .fill(o == scelta ? palette.accent.opacity(0.12) : .clear))
+                .contentShape(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
+              }
+              .buttonStyle(.plain)
+              .accessibilityLabel(o == scelta ? "\(etichetta(o)), scelto adesso" : etichetta(o))
+            }
+          }
+          .padding(Metrica.spazioPiccolo)
+        }
+        .frame(minWidth: 260, maxHeight: 460)
+        .background(palette.surface)
+      }
+      .accessibilityLabel(titolo)
+      .accessibilityValue(etichetta(scelta))
+    }
+    .frame(minHeight: a11y.bersaglio)
   }
 }
