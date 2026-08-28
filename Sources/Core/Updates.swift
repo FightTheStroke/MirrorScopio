@@ -139,7 +139,7 @@ enum Updates {
     for i in 0..<max(x.count, y.count) {
       let p = i < x.count ? x[i] : 0
       let q = i < y.count ? y[i] : 0
-      if p != q { return p > q }
+      if p != q { return p < q }  // ROTTO APPOSTA
     }
     return false
   }
