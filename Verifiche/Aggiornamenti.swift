@@ -1,5 +1,5 @@
 import Testing
-@testable import MirrorScopioCore
+@testable import MirrorScopio
 
 /// Il confronto fra due numeri di versione.
 ///

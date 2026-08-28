@@ -14,3 +14,6 @@ history.json
 *.log
 PIANO-LAVORI.md
 .build/
+
+# Generato da xcodegen a partire da project.yml: la sorgente e project.yml.
+MirrorScopio.xcodeproj/

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Il microfono serve a sentire la lettura ad alta voce. Non c'è nessun
+       permesso di rete: i dati del bambino non escono da quel Mac, e la CI lo
+       verifica a ogni push cercando URLSession dentro Sources/. -->
+  <key>com.apple.security.device.audio-input</key><true/>
+  <key>com.apple.security.files.user-selected.read-write</key><true/>
+</dict>
+</plist>

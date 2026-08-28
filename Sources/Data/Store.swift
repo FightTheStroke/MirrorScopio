@@ -77,10 +77,26 @@ final class Store: ObservableObject {
   private let learnersURL: URL
   private let historyURL: URL
 
-  init(folder: URL? = nil) {
-    let base = folder ?? FileManager.default
+  /// Dove finiscono i dati quando nessuno dice il contrario.
+  ///
+  /// Le prove che aprono l'applicazione vera hanno bisogno di scrivere da
+  /// un'altra parte, e non è un dettaglio tecnico: qui dentro c'è il nome di un
+  /// bambino e ogni suo errore di lettura. Una prova automatica che gira mille
+  /// volte non deve poter sfiorare quel file — nemmeno per sbaglio, nemmeno una
+  /// volta. La variabile d'ambiente la imposta il fascio di prove; nell'uso
+  /// normale non esiste, e la cartella resta quella di sempre.
+  static var cartellaPredefinita: URL {
+    if let percorso = ProcessInfo.processInfo.environment["MIRRORSCOPIO_CARTELLA_DATI"],
+       !percorso.isEmpty {
+      return URL(fileURLWithPath: percorso, isDirectory: true)
+    }
+    return FileManager.default
       .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
       .appendingPathComponent("MirrorScopio", isDirectory: true)
+  }
+
+  init(folder: URL? = nil) {
+    let base = folder ?? Self.cartellaPredefinita
     self.folder = base
     self.learnersURL = base.appendingPathComponent("learners.json")
     self.historyURL = base.appendingPathComponent("history.json")

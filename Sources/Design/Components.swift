@@ -473,6 +473,12 @@ struct IntestazionePagina: View {
             .foregroundStyle(palette.muted)
         }
       }
+      // Il tratto «intestazione» va messo su un elemento che ha un nome. Messo
+      // sul contenitore e basta, VoiceOver annunciava un'intestazione vuota e
+      // il titolo della pagina spariva: chi non vede lo schermo non sapeva più
+      // dove si trovava. `combine` unisce titolo e sottotitolo in una frase
+      // sola, che è anche come la leggerebbe una persona ad alta voce.
+      .accessibilityElement(children: .combine)
       .accessibilityAddTraits(.isHeader)
       Spacer(minLength: Metrica.spazio)
       PulsanteChiudi(a11y: a11y, cosa: titolo.lowercased(), action: onClose)

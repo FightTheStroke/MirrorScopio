@@ -1,7 +1,7 @@
 import Testing
 import SwiftUI
 import AppKit
-@testable import MirrorScopioCore
+@testable import MirrorScopio
 
 /// Il rapporto di contrasto fra due colori, come lo definisce la WCAG.
 /// Sotto 4,5 a 1 un testo normale non si legge, se si vede poco.

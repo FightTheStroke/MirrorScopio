@@ -1,0 +1,118 @@
+# Da qui nasce MirrorScopio.xcodeproj.
+#
+# Perché un file di testo e non il progetto Xcode vero: un `.xcodeproj` è una
+# cartella piena di riferimenti generati, che si sporca da sola a ogni apertura
+# e che nei conflitti di merge non si riesce a leggere. Questo file invece si
+# legge, si confronta e si corregge. Il progetto si rigenera con `xcodegen`
+# quando serve, ed è per questo che il `.xcodeproj` non sta nel repository.
+#
+# Prima di questo file l'app veniva costruita da ~120 righe di bash che
+# scrivevano l'Info.plist a mano, chiamavano `swiftc` e firmavano a mano.
+# Funzionava, ma tutto quello che Xcode fa da solo — eseguire le prove,
+# misurare, guardare l'albero di accessibilità — non c'era, e ogni guasto
+# nasceva nel bash invece che nel codice dell'app.
+
+name: MirrorScopio
+
+options:
+  bundleIdPrefix: org.fightthestroke
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+  # Il numero di build lo passa build.sh (è il conto dei commit): qui non si
+  # inventa niente, così l'unica fonte di verità resta il file VERSION.
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.0.0"      # sovrascritto da build.sh con il file VERSION
+    CURRENT_PROJECT_VERSION: "0"    # sovrascritto da build.sh col conto dei commit
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Manual
+    # Di serie si firma alla buona: così una copia appena scaricata compila su
+    # qualsiasi Mac, anche senza il certificato della fondazione. Il pacchetto
+    # vero lo firma `scripts/package.sh` con l'identità della fondazione.
+    CODE_SIGN_IDENTITY: "-"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    GCC_TREAT_WARNINGS_AS_ERRORS: NO
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
+
+targets:
+
+  MirrorScopio:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Resources/AppIcon.icns
+        buildPhase: resources
+      # Cartella intera, non file sciolti: dentro il pacchetto deve restare una
+      # cartella «Fonts», perché è lì che ATSApplicationFontsPath va a cercare.
+      - path: Resources/Fonts
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.fightthestroke.mirrorscopio
+        PRODUCT_NAME: MirrorScopio
+        INFOPLIST_FILE: MirrorScopio.plist
+        CODE_SIGN_ENTITLEMENTS: MirrorScopio.entitlements
+        # Serve alle prove: le classi dell'app devono essere visibili al fascio
+        # di prove senza doverle marcare `public` una per una.
+        ENABLE_TESTABILITY: YES
+        COMBINE_HIDPI_IMAGES: YES
+        # Le stesse restrizioni del pacchetto firmato valgono anche qui: se una
+        # restrizione rompe qualcosa deve rompersi sul mio Mac, non su quello di
+        # una famiglia. Sta sull'applicazione e basta: messo in fondo a tutto
+        # finiva anche sul lanciatore delle prove, e un lanciatore blindato si
+        # rifiuta di caricare un pacchetto firmato da qualcun altro — errore
+        # «different Team IDs», che manda a cercare il problema nei certificati
+        # invece che qui.
+        ENABLE_HARDENED_RUNTIME: YES
+
+  # Le prove che non hanno bisogno di aprire l'applicazione: la scala adattiva,
+  # il contrasto dei colori in tutti i temi, il confronto fra versioni.
+  Verifiche:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [Verifiche]
+    dependencies:
+      - target: MirrorScopio
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: org.fightthestroke.mirrorscopio.verifiche
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MirrorScopio.app/Contents/MacOS/MirrorScopio"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  # Le prove che aprono l'applicazione vera e la usano come la userebbe una
+  # persona: solo tastiera, e leggendo l'albero di accessibilità — cioè
+  # esattamente quello che VoiceOver pronuncia ad alta voce.
+  ProveDaTastiera:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [ProveDaTastiera]
+    dependencies:
+      - target: MirrorScopio
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: org.fightthestroke.mirrorscopio.tastiera
+        TEST_TARGET_NAME: MirrorScopio
+
+schemes:
+  MirrorScopio:
+    build:
+      targets:
+        MirrorScopio: all
+        Verifiche: [test]
+        ProveDaTastiera: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      targets:
+        - Verifiche
+        - ProveDaTastiera

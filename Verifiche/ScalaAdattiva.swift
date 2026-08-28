@@ -1,5 +1,5 @@
 import Testing
-@testable import MirrorScopioCore
+@testable import MirrorScopio
 
 /// La scala adattiva: quanto a lungo resta scritta la parola sullo schermo.
 ///
