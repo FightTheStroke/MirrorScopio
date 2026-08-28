@@ -15,6 +15,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.6.0] — 2026-08-28
+
 ### Aggiunto
 - **Le versioni nuove si installano dall'app.** Fino a ieri MirrorScopio sapeva
   dire che c'era una versione nuova e lì si fermava: toccava andare sulla pagina,
@@ -427,7 +429,8 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.4.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.6.0...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
+[0.6.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.6.0

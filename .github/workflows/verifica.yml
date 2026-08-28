@@ -60,8 +60,23 @@ jobs:
       # XcodeGen genera il progetto da project.yml: senza, `./test.sh` non ha
       # con che cosa lanciare le prove. Va installato **prima** di lanciarle:
       # messo dopo, il primo giro e' fallito dicendo «manca xcodegen».
+      #
+      # La versione conta. XcodeGen genera il progetto: se qui arriva una
+      # versione diversa da quella con cui il progetto committato è stato
+      # generato, il controllo qui sotto trova differenze che nessuno ha
+      # scritto, e chi legge l'errore va a cercare un difetto che non esiste.
+      # Il numero atteso sta in `.xcodegen-version`.
       - name: Preparo Xcode
-        run: brew install xcodegen
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          ATTESA="$(cat .xcodegen-version)"
+          TROVATA="$(xcodegen --version | sed 's/^Version: //')"
+          if [ "$ATTESA" != "$TROVATA" ]; then
+            echo "::error::XcodeGen qui è $TROVATA, ma il progetto committato è stato generato con $ATTESA. Rigenera il progetto con la versione nuova e scrivi $TROVATA in .xcodegen-version, oppure blocca la versione qui."
+            exit 1
+          fi
+          echo "XcodeGen $TROVATA, come atteso."
 
       # Il progetto Xcode adesso sta nel repository, perche' Xcode Cloud
       # pretende di trovarlo gia' pronto al momento del clone. Ma la sorgente

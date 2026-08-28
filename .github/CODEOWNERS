@@ -1,0 +1,26 @@
+# Chi risponde di che cosa.
+#
+# Questo file esisteva già come regola sul ramo principale — "serve
+# l'approvazione di chi possiede il codice" — ma il file che dice *chi* possiede
+# il codice non c'era. Una regola che punta a un elenco vuoto non ferma niente:
+# sembrava un cancello e non lo era. Adesso l'elenco c'è.
+
+# Tutto, salvo quanto specificato sotto.
+*                       @Roberdan
+
+# Le tre parti dove un errore non si vede compilando.
+
+# Il verdetto giusto/sbagliato, i tempi di esposizione e la scala adattiva:
+# qui un difetto non fa fallire nessuna prova, falsa i dati di un bambino.
+/Sources/Core/          @Roberdan
+/docs/CLINICA.md        @Roberdan
+
+# Quello che il bambino ha detto e quello che di lui viene salvato.
+/Sources/Data/          @Roberdan
+
+# Le regole che tengono in piedi tutto il resto: il cancello della rete, la
+# firma del pacchetto, i permessi dei workflow.
+/.github/               @Roberdan
+/scripts/               @Roberdan
+/ci_scripts/            @Roberdan
+/MirrorScopio.entitlements @Roberdan

@@ -116,6 +116,18 @@ ENT
 # I banchi qui sotto restano perche' hanno bisogno di un .app firmato
 # (microfono, modello vocale), che le prove unitarie non costruiscono.
 echo "── prove swift ──"
+# Le prove da tastiera aprono l'app vera e devono portarla in primo piano. Se
+# ne e' rimasta aperta una di un giro precedente — anche compilata altrove — il
+# sistema rifiuta di attivarne una seconda e cinque prove falliscono con
+# «Failed to activate application». Non c'entra niente con il codice, ma chi
+# legge l'errore ci perde mezz'ora. Quindi si chiude prima, e lo si dice.
+RIMASTE="$(pgrep -f 'MirrorScopio.app/Contents/MacOS/MirrorScopio' || true)"
+if [ -n "$RIMASTE" ]; then
+  echo "  chiudo un'istanza di MirrorScopio rimasta aperta (pid $(echo "$RIMASTE" | tr '\n' ' '))"
+  # shellcheck disable=SC2086
+  kill $RIMASTE 2>/dev/null || true
+  sleep 2
+fi
 if ! command -v xcodegen >/dev/null 2>&1; then
   echo "✗ manca xcodegen (brew install xcodegen)"
   FAILED=1
