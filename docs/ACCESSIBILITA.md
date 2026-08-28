@@ -139,7 +139,12 @@ finale parla di quello che è migliorato prima di quello che manca.
   conquistato, la fiamma dei giorni di fila, il rosso del comando che ferma) stanno a
   3:1, che è la soglia che la WCAG chiede per loro. Misurato da `Verifiche/Contrasto.swift`
   su tutte e venti le combinazioni, non a occhio.
-- Focus da tastiera sempre visibile; ogni schermata è percorribile senza mouse.
+- Focus da tastiera sempre visibile: i pulsanti dell'app passano tutti da
+  `StilePulsante` (`Sources/Design/Components.swift`), che disegna un doppio anello
+  attorno a quello che ha il fuoco. `.buttonStyle(.plain)`, che l'anello lo cancella,
+  resta in un punto solo — il pulsante a schermo intero della staffetta, che coincide
+  con lo schermo. Ogni schermata è percorribile senza mouse e il fuoco parte dal
+  pulsante principale, non dal primo controllo che capita.
 - Etichette VoiceOver su ogni controllo; le decorazioni sono nascoste allo screen reader.
 - Le dimensioni si moltiplicano fino a ×2 sopra il valore già grande di partenza.
 
@@ -163,3 +168,16 @@ Queste righe raccontano prove fatte, non intenzioni.
   «Selezionato», che non faceva niente.
 - **Quello che conta parla.** Il segno di esito resta leggibile a voce quando
   il punteggio è nascosto: lì è l'unica cosa che dice «Giusta» o «Ancora».
+
+## Che cosa non è ancora stato verificato a schermo
+
+Sta scritto qui perché una promessa non verificata, in un documento di accessibilità,
+vale meno di zero: chi lo legge ci conta.
+
+- **L'anello di fuoco** è nel codice e compila, ma non è ancora stato guardato in
+  esecuzione con «Navigazione da tastiera» accesa nelle Impostazioni di Sistema.
+- **Gli annunci a voce durante l'esercizio** (fase, inizio ascolto, esito, microfono
+  muto, fine turno) sono nel codice e non sono ancora stati ascoltati con VoiceOver
+  acceso.
+- **L'impaginazione col testo a ×2** è misurata dalle prove in `Verifiche/`, ma non è
+  ancora stata guardata a occhio schermata per schermata.
