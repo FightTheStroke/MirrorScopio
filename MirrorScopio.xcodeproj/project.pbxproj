@@ -26,6 +26,7 @@
 		3E30DE05D870317961F53BA8 /* InstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */; };
 		3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */; };
 		457E7F5797CE815907CB5F27 /* Gamification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077275B6401CB89DC6AF421 /* Gamification.swift */; };
+		4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */ = {isa = PBXBuildFile; fileRef = 112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */; };
 		5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */; };
 		5EB25C7BFA9CD4050FC5DF3A /* StageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031F620CCEB5656D46BD0DE9 /* StageView.swift */; };
 		5ED5293352158029B96B4749 /* FrameClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C0BAC75B45E720D4EC713C /* FrameClock.swift */; };
@@ -97,6 +98,7 @@
 		09CF05A39638296A9A050E2E /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		0B3333AA93860F8602E33C45 /* GAMIFICATION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GAMIFICATION.md; sourceTree = "<group>"; };
 		0F57E1D80616BA24DF09FD6C /* TrainingBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingBar.swift; sourceTree = "<group>"; };
+		112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrofonoARaffica.swift; sourceTree = "<group>"; };
 		13555804BBBA01C19839D573 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		14CAFA9574BE93A0B1255A09 /* ItalianVoices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItalianVoices.swift; sourceTree = "<group>"; };
 		1698977E8B9928438DF5F3DE /* package.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = package.sh; sourceTree = "<group>"; };
@@ -394,6 +396,7 @@
 				EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */,
 				7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */,
 				4A96C5C670CCAC577809191C /* Interlinea.swift */,
+				112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
 			);
@@ -646,6 +649,7 @@
 				5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */,
 				F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */,
 				61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */,
+				4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,
 			);
