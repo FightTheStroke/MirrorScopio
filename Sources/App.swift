@@ -32,6 +32,7 @@ struct RootView: View {
   @ObservedObject var nav: Navigazione
   @StateObject private var promemoria = Promemoria()
   @Environment(\.colorScheme) private var systemScheme
+  @Environment(\.scenePhase) private var scenePhase
 
   private var a11y: A11ySettings { store.current.a11y }
 
@@ -46,7 +47,7 @@ struct RootView: View {
     }
     // L'orologio dei frame vive qui e non nella schermata di presentazione, così
     // il livello del microfono si vede già durante la prova iniziale.
-    .background(FrameClock(attivo: engine.serveIlBattito) { engine.tick($0) }
+    .background(FrameClock(attivo: engine.serveIlBattito) { engine.tick($0, durataFrame: $1) }
       .frame(width: 0, height: 0))
     .environment(\.palette, palette)
     .tint(palette.accent)
@@ -86,6 +87,18 @@ struct RootView: View {
       }
     }
     .onChange(of: store.currentID) { _, _ in syncEngine() }
+    // La finestra è passata dietro a un'altra mentre una parola era sullo
+    // schermo: quello che succede da qui in poi non lo sta guardando nessuno.
+    // Il turno si ferma e viene marcato interrotto, invece di finire nei dati
+    // come una parola non letta.
+    .onChange(of: scenePhase) { _, nuova in
+      // Solo `.background`, non `.inactive`. Su macOS la scena diventa
+      // `.inactive` anche solo perdendo il fuoco — un clic sul Finder, una
+      // finestra di sistema che compare — e fermarsi lì bruciava una parola
+      // della lista a ogni distrazione, senza restituirla.
+      guard nuova == .background else { return }
+      engine.interrompi(motivo: "L'app è passata in secondo piano: questa parola non conta. Quando torni, si riprende da qui.")
+    }
     .onChange(of: store.current.a11y) { _, new in
       engine.a11y = new
       readiness.voceScelta = new.voiceIdentifier

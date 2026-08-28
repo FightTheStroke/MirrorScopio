@@ -170,3 +170,91 @@ enum AudioDevices {
     return Unmanaged<CFString>.fromOpaque(grezzo).takeRetainedValue() as String
   }
 }
+
+/// Tiene d'occhio il microfono mentre la sessione è in corso.
+///
+/// Staccare le cuffie a metà allenamento è normalissimo. Quello che non va
+/// bene è che l'app continui a mostrare parole a un ragazzo che parla in un
+/// microfono che non c'è più: le sue risposte finiscono nei dati come
+/// "nessuna risposta", cioè come se non avesse letto. Il Mac lo sa subito che
+/// il dispositivo è sparito, quindi lo si chiede al Mac.
+@MainActor
+final class SorveglianzaMicrofono {
+
+  /// Chiamata quando il microfono su cui si stava ascoltando non c'è più.
+  var suMicrofonoSparito: (() -> Void)?
+
+  private var sorvegliato: AudioDeviceID?
+  private var attiva = false
+  private var indirizzo = AudioObjectPropertyAddress(
+    mSelector: kAudioHardwarePropertyDevices,
+    mScope: kAudioObjectPropertyScopeGlobal,
+    mElement: kAudioObjectPropertyElementMain)
+
+  /// Il blocco che CoreAudio richiama: arriva su una coda sua, quindi si
+  /// rimbalza sul thread principale prima di toccare qualunque cosa.
+  ///
+  /// `nonisolated(unsafe)` perché serve anche a `deinit`, che non gira sul
+  /// main actor: è una `let` assegnata una volta sola alla nascita e mai più
+  /// toccata, quindi non c'è niente da proteggere.
+  private nonisolated(unsafe) let ascoltatore: AudioObjectPropertyListenerBlock
+
+  init() {
+    var richiama: (() -> Void)?
+    ascoltatore = { _, _ in
+      Task { @MainActor in richiama?() }
+    }
+    richiama = { [weak self] in self?.controlla() }
+  }
+
+  func inizia(su dispositivo: AudioDeviceID?) {
+    fermati()
+    sorvegliato = dispositivo ?? AudioDevices.defaultInput()
+    guard sorvegliato != nil else { return }
+    let esito = AudioObjectAddPropertyListenerBlock(
+      AudioObjectID(kAudioObjectSystemObject), &indirizzo, .main, ascoltatore)
+    attiva = esito == noErr
+    if !attiva {
+      // Non si può fallire in silenzio: senza questa sorveglianza un microfono
+      // staccato diventa una fila di risposte mancate nel referto di un
+      // bambino, e nessuno saprebbe perché.
+      Log.warn("Non riesco a sorvegliare i dispositivi audio (errore \(esito)): un microfono staccato non verrà segnalato.")
+    }
+  }
+
+  func fermati() {
+    guard attiva else { return }
+    AudioObjectRemovePropertyListenerBlock(
+      AudioObjectID(kAudioObjectSystemObject), &indirizzo, .main, ascoltatore)
+    attiva = false
+    sorvegliato = nil
+  }
+
+  private func controlla() {
+    guard attiva, let atteso = sorvegliato else { return }
+    let presenti = AudioDevices.inputs().map(\.id)
+    guard !presenti.contains(atteso) else { return }
+    // Si smette di guardare **questo** microfono, che non c'è più, ma il
+    // collegamento con CoreAudio resta acceso: chi riprende ne sceglie un
+    // altro e `inizia(su:)` ricomincia da lì. Prima qui si chiamava
+    // `fermati()`, e la sorveglianza restava spenta per tutto il resto della
+    // sessione: il secondo microfono staccato non lo vedeva più nessuno.
+    sorvegliato = nil
+    suMicrofonoSparito?()
+  }
+
+  /// CoreAudio tiene il blocco finché non glielo si toglie: se questo oggetto
+  /// muore senza togliersi di mezzo, il blocco resta registrato e continua a
+  /// essere chiamato. Oggi non morde, perché la sorveglianza vive quanto
+  /// l'app; diventa un difetto il giorno in cui il motore viene ricreato, ed è
+  /// il tipo di difetto che si trova mesi dopo.
+  deinit {
+    guard attiva else { return }
+    var indirizzo = AudioObjectPropertyAddress(
+      mSelector: kAudioHardwarePropertyDevices,
+      mScope: kAudioObjectPropertyScopeGlobal,
+      mElement: kAudioObjectPropertyElementMain)
+    AudioObjectRemovePropertyListenerBlock(
+      AudioObjectID(kAudioObjectSystemObject), &indirizzo, .main, ascoltatore)
+  }
+}

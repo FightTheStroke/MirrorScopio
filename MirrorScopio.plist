@@ -20,6 +20,10 @@
   <key>NSHighResolutionCapable</key><true/>
   <key>NSMicrophoneUsageDescription</key>
   <string>Il microfono serve a sentire la lettura ad alta voce e capire da solo se la parola è giusta. L'audio resta su questo Mac.</string>
+  <!-- Senza questa chiave macOS non sa che cosa dire quando l'app chiede di
+       usare il riconoscimento vocale, e la richiesta muore in silenzio. -->
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>Il riconoscimento vocale serve a capire la parola letta ad alta voce. Avviene interamente su questo Mac: niente audio esce di qui.</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>ATSApplicationFontsPath</key><string>Fonts</string>
 </dict>

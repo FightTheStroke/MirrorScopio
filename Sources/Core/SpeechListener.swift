@@ -24,6 +24,17 @@ struct VoiceWindowSnapshot {
   /// Vero quando il riconoscitore ha già consegnato qualcosa almeno una volta
   /// da quando è stato acceso: prima di allora sta ancora caricando il modello.
   var caldo = false
+  /// Identifica la prova a cui questa finestra di risposta appartiene.
+  ///
+  /// Il riconoscitore consegna quando gli pare, e una consegna in ritardo
+  /// arrivava dentro la prova successiva: la parola detta per «casa» finiva
+  /// giudicata contro «mare». Con l'identificativo la consegna in ritardo si
+  /// riconosce e si scarta, invece di essere attribuita a chi non l'ha detta.
+  var trialID: Int?
+  /// Quante consegne sono state scartate perché arrivate fuori tempo. Non è
+  /// un numero da mostrare a un ragazzo, ma tacerlo vorrebbe dire non sapere
+  /// mai quanto spesso succede.
+  var consegneFuoriTempo = 0
   /// Quanto ha impiegato la prima parola a comparire, in secondi. L'app lo sa,
   /// quindi lo dice invece di lasciar credere che sia colpa di chi parla.
   var primaRispostaSec: Double?
@@ -59,6 +70,8 @@ final class SpeechListener: @unchecked Sendable {
   private let lock = NSLock()
   private var snapshot = VoiceWindowSnapshot()
   private var windowActive = false
+  /// La prova a cui appartiene la finestra aperta adesso.
+  private var provaCorrente: Int?
   private var windowStart: CMTime = .zero
   private var framesFed: Int64 = 0
   /// Vedi `senzaLeParoleGiaDette`.
@@ -230,23 +243,52 @@ final class SpeechListener: @unchecked Sendable {
 
   // MARK: - Finestra di risposta
 
-  func beginWindow() {
+  /// Apre la finestra di risposta per una prova precisa.
+  ///
+  /// `trialID` non è un dettaglio contabile: è quello che permette di
+  /// riconoscere una consegna arrivata in ritardo. Senza, il testo di una
+  /// parola poteva finire attribuito a quella dopo, e nessuno se ne accorgeva
+  /// — né chi legge, né chi guarda il referto.
+  func beginWindow(trialID: Int) {
     lock.lock()
     // Quello che è stato consegnato fin qui non appartiene alla prova che sta
     // per cominciare: si mette da parte per poterlo togliere.
     if !snapshot.text.isEmpty { paroleGiaDette = (paroleGiaDette + " " + snapshot.text).trimmed() }
     let caldoPrima = snapshot.caldo
     let primaPrima = snapshot.primaRispostaSec
+    let scartatePrima = snapshot.consegneFuoriTempo
     snapshot = VoiceWindowSnapshot()
     snapshot.caldo = caldoPrima
     snapshot.primaRispostaSec = primaPrima
+    snapshot.consegneFuoriTempo = scartatePrima
+    snapshot.trialID = trialID
     windowStart = CMTime(value: framesFed, timescale: CMTimeScale(analyzerFormat?.sampleRate ?? 16000))
     windowActive = true
+    provaCorrente = trialID
     lock.unlock()
   }
 
+  /// Chiude la trascrizione fino a questo punto per una prova precisa.
+  ///
+  /// Se nel frattempo la finestra è passata alla prova successiva, la richiesta
+  /// non ha più senso: chiuderla adesso vorrebbe dire consegnare alla prova
+  /// nuova l'audio di quella vecchia.
+  func flush(trialID: Int) async -> Bool {
+    lock.lock()
+    let attuale = provaCorrente
+    let ancoraSua = attuale == trialID
+    if !ancoraSua { snapshot.consegneFuoriTempo += 1 }
+    lock.unlock()
+    guard ancoraSua else {
+      Log.warn("Chiusura della trascrizione arrivata fuori tempo: era per la prova \(trialID), ora siamo alla \(attuale.map(String.init) ?? "nessuna"). Scartata.")
+      return false
+    }
+    await flush()
+    return true
+  }
+
   func endWindow() {
-    lock.lock(); windowActive = false; lock.unlock()
+    lock.lock(); windowActive = false; provaCorrente = nil; lock.unlock()
   }
 
   /// Testo consegnato nelle prove precedenti, da non riportare dentro questa.
