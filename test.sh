@@ -147,6 +147,11 @@ fi
 run_harness staircase   Tests/StaircaseHarness.swift    fast
 run_harness suoni       Tests/SuoniHarness.swift         fast
 run_harness schermate   Tests/SchermateHarness.swift     fast
+# Vuole build/MirrorScopio.app: se non c'è, lo dice e si ferma. È il banco che
+# prova l'aggiornamento dall'app su un pacchetto vero, non su un'idea di
+# pacchetto.
+[ -d build/MirrorScopio.app ] || ./build.sh >/dev/null
+run_harness aggiornamento Tests/AggiornamentoHarness.swift fast
 run_harness microfono   Tests/MicHarness.swift          slow
 run_harness punteggio   Tests/ScoringHarness.swift      slow
 run_harness intelligenza Tests/IntelligenceHarness.swift slow

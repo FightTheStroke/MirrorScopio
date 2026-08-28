@@ -69,6 +69,23 @@ jobs:
           hdiutil detach "/Volumes/MirrorScopio $VERSION" -quiet
           grep -q "source=Notarized Developer ID" /tmp/spctl.txt
 
+      - name: Verifico che l'app dentro lo zip si aggiorni davvero
+        run: |
+          set -euo pipefail
+          # Lo zip è il pacchetto che le versioni già installate scaricano da
+          # sole. Qui si controlla esattamente quello che controllerà l'app sul
+          # Mac di una famiglia: la firma è la nostra, e il timbro di Apple è
+          # attaccato addosso — se manca, l'aggiornamento si fermerebbe lì.
+          VERSION="$(cat VERSION)"
+          PROVA="$(mktemp -d)"
+          ditto -x -k "build/MirrorScopio-$VERSION.zip" "$PROVA"
+          codesign --verify --strict --deep "$PROVA/MirrorScopio.app"
+          codesign --verify -R '=anchor apple generic and certificate leaf[subject.OU] = "93T3LG4NPG" and identifier "org.fightthestroke.mirrorscopio"' "$PROVA/MirrorScopio.app"
+          spctl --assess --type execute -vv "$PROVA/MirrorScopio.app" 2>&1 | tee /tmp/spctl-zip.txt
+          grep -q "source=Notarized Developer ID" /tmp/spctl-zip.txt
+          xcrun stapler validate "$PROVA/MirrorScopio.app"
+          rm -rf "$PROVA"
+
       - name: Allego il pacchetto alla release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -82,11 +99,14 @@ jobs:
           TAG="$TAG_INPUT"
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --title "MirrorScopio $VERSION" --generate-notes
-          gh release upload "$TAG" "build/MirrorScopio-$VERSION.dmg" --clobber
+          gh release upload "$TAG" "build/MirrorScopio-$VERSION.dmg" \
+            "build/MirrorScopio-$VERSION.zip" --clobber
 
       - name: Tengo da parte il pacchetto anche qui
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: MirrorScopio-dmg
-          path: build/*.dmg
+          path: |
+            build/*.dmg
+            build/*.zip
           retention-days: 30

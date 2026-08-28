@@ -16,6 +16,9 @@ struct SettingsView: View {
   @State private var aggiornamentiAccesi = Updates.enabled
   @State private var controlloInCorso = false
   @State private var esitoControllo: String?
+  /// La versione nuova trovata dall'ultimo controllo, se c'è.
+  @State private var novita: Updates.Release?
+  @StateObject private var installazione = Installazione()
   /// Un motore dei suoni tutto per le impostazioni: serve solo al pulsante
   /// «Ascolta», e sente le impostazioni correnti così l'anteprima è fedele.
   @StateObject private var suoni = Suoni()
@@ -29,13 +32,34 @@ struct SettingsView: View {
       defer { controlloInCorso = false }
       do {
         if let r = try await Updates.check(force: true) {
-          esitoControllo = "C'è la \(r.version)."
-          NSWorkspace.shared.open(r.pageURL)
+          novita = r
+          esitoControllo = nil
         } else {
+          novita = nil
           esitoControllo = "Sei già aggiornato."
         }
       } catch {
         esitoControllo = error.localizedDescription
+      }
+    }
+  }
+
+  /// Scarica, verifica e sostituisce; poi riapre l'app nuova e chiude questa.
+  ///
+  /// Il riavvio sta qui e non dentro `Installazione` perché aprire finestre non
+  /// è mestiere di `Core`. E succede solo dopo che la sostituzione è riuscita:
+  /// se qualcosa va storto, l'app che stai usando resta quella di prima.
+  private func aggiornaEriavvia(_ r: Updates.Release) {
+    Task {
+      guard await installazione.installa(r) else { return }
+      let dove = Bundle.main.bundleURL
+      let config = NSWorkspace.OpenConfiguration()
+      config.createsNewApplicationInstance = true
+      do {
+        try await NSWorkspace.shared.openApplication(at: dove, configuration: config)
+        NSApp.terminate(nil)
+      } catch {
+        esitoControllo = "La versione nuova è installata. Chiudi e riapri MirrorScopio."
       }
     }
   }
@@ -361,6 +385,18 @@ struct SettingsView: View {
     }
   }
 
+  @ViewBuilder
+  private var aggiornamentoDisponibile: some View {
+    if let r = novita {
+      RiquadroAggiornamento(release: r, fase: installazione.fase,
+                            sessioneInCorso: engine.isRunning,
+                            puòInstallare: Installazione.puòInstallare,
+                            a11y: a11y,
+                            onAggiorna: { aggiornaEriavvia(r) },
+                            onPagina: { NSWorkspace.shared.open(r.pageURL) })
+    }
+  }
+
   private var privacy: some View {
     VStack(alignment: .leading, spacing: 10) {
       SectionTitle(text: "I dati", a11y: a11y)
@@ -377,13 +413,13 @@ struct SettingsView: View {
           .font(a11y.typeface.font(size: a11y.size(17)))
       }
       .toggleStyle(.switch)
-      Explain(text: "È l'unica cosa che esce da questo Mac: una domanda al giorno a GitHub su qual è l'ultima versione. Non parte nessun nome, nessuna parola, nessun punteggio, e non si scarica niente da solo.", a11y: a11y, size: 14)
+      Explain(text: "È l'unica cosa che esce da questo Mac: una domanda al giorno a GitHub su qual è l'ultima versione. Non parte nessun nome, nessuna parola, nessun punteggio. Se esce una versione nuova puoi installarla da qui, con un pulsante: non si scarica niente da solo.", a11y: a11y, size: 14)
 
       if aggiornamentiAccesi {
         HStack(spacing: 12) {
           SmallButton(title: "Controlla adesso", symbol: "arrow.clockwise",
                       a11y: a11y) { controllaAdesso() }
-            .disabled(controlloInCorso)
+            .disabled(controlloInCorso || installazione.inCorso)
           if controlloInCorso { ProgressView().controlSize(.small) }
           if let esito = esitoControllo {
             Text(esito)
@@ -391,6 +427,7 @@ struct SettingsView: View {
               .foregroundStyle(palette.muted)
           }
         }
+        aggiornamentoDisponibile
       }
 
       Divider().padding(.vertical, 4)

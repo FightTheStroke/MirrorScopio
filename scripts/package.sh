@@ -4,7 +4,11 @@
 # addosso, così si apre anche senza internet e senza tasto destro.
 #
 #   ./scripts/package.sh              → DMG firmato, non notarizzato
-#   ./scripts/package.sh --notarize   → DMG notarizzato e stapled
+#   ./scripts/package.sh --notarize   → DMG notarizzato e "stapled"
+#
+# Escono due file dallo stesso binario: il DMG, per chi installa la prima volta
+# e trascina l'icona nelle Applicazioni, e uno zip, che serve a MirrorScopio
+# stesso quando si aggiorna da solo.
 #
 # Per notarizzare serve una credenziale salvata una volta sola:
 #   xcrun notarytool store-credentials mirrorscopio \
@@ -17,6 +21,7 @@ cd "$(dirname "$0")/.."
 APP="build/MirrorScopio.app"
 VERSION="$(cat VERSION)"
 DMG="build/MirrorScopio-$VERSION.dmg"
+ZIP="build/MirrorScopio-$VERSION.zip"
 PROFILE="${NOTARY_PROFILE:-mirrorscopio}"
 NOTARIZE=0
 [[ "${1:-}" == "--notarize" ]] && NOTARIZE=1
@@ -46,8 +51,7 @@ IDENTITY="${SIGN_IDENTITY:-Developer ID Application: Fight The Stroke Foundation
 codesign --force --sign "$IDENTITY" --timestamp "$DMG"
 
 if [[ $NOTARIZE -eq 1 ]]; then
-  echo "→ Mando ad Apple per la notarizzazione (qualche minuto)"
-  # Sul Mac di casa le credenziali stanno nel portachiavi; su GitHub arrivano
+  echo "→ Mando ad Apple per la notarizzazione (qualche minuto)"  # Sul Mac di casa le credenziali stanno nel portachiavi; su GitHub arrivano
   # dalle variabili segrete. Stessa strada, due modi di autenticarsi.
   if [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
     # Qui c'era «--password "@env:APPLE_APP_PASSWORD"», con il commento
@@ -68,11 +72,32 @@ if [[ $NOTARIZE -eq 1 ]]; then
   echo "→ Attacco il timbro al DMG"
   xcrun stapler staple "$DMG"
   xcrun stapler validate "$DMG"
+  # E anche all'app: il timbro attaccato addosso è quello che l'aggiornatore
+  # dentro MirrorScopio controlla prima di sostituire la versione vecchia.
+  # Senza, l'app nuova sarebbe pur sempre notarizzata, ma dimostrarlo
+  # richiederebbe internet proprio nel momento in cui non lo si ha.
+  echo "→ Attacco il timbro all'app"
+  xcrun stapler staple "$APP"
+  xcrun stapler validate "$APP"
 else
   echo "⚠︎ DMG non notarizzato: su un altro Mac Gatekeeper lo bloccherà."
   echo "  Rilancia con --notarize dopo aver salvato le credenziali."
 fi
 
+# Lo zip accanto al DMG. Il DMG serve a chi installa la prima volta e trascina
+# l'icona; lo zip serve a MirrorScopio stesso, che sa aggiornarsi da solo e per
+# farlo deve poter aprire il pacchetto senza montare un disco.
+#
+# `ditto` e non `zip`: la firma di un'app vive anche nei permessi e nei
+# collegamenti interni, e `zip` li perde. Un pacchetto così arriverebbe a
+# destinazione con la firma rotta, e l'aggiornatore — giustamente — lo
+# rifiuterebbe.
+echo "→ Preparo lo zip per l'aggiornamento dall'app"
+rm -f "$ZIP"
+ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+
 echo
 echo "Fatto: $DMG"
 ls -lh "$DMG" | awk '{print "  " $5}'
+echo "Fatto: $ZIP"
+ls -lh "$ZIP" | awk '{print "  " $5}'

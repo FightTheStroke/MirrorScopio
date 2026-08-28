@@ -173,6 +173,55 @@ struct SchermateHarness {
               nome: "mattoncini-ingranditi", larghezza: 1100, altezza: 900)
 
       print("")
+      print("── Il riquadro dell'aggiornamento, nei suoi quattro stati ──")
+      // Questo riquadro compare solo quando qualcuno pubblica una versione
+      // nuova: senza queste immagini nessuno lo guarderebbe mai prima che lo
+      // guardi una famiglia. Gli stati sono quelli che contano — pronto,
+      // mentre scarica, quando c'è una sessione in corso, quando l'app sta
+      // dove non si può scrivere.
+      let finta = Updates.Release(
+        version: "0.6.0",
+        pageURL: URL(string: "https://github.com/FightTheStroke/MirrorScopio/releases")!,
+        notes: "La lettura ad alta voce sente meglio le parole corte, e le impostazioni si aprono dove le avevi lasciate.",
+        packageURL: URL(string: "https://github.com/x/y/releases/download/v0.6.0/MirrorScopio-0.6.0.zip")!,
+        packageSize: 2_000_000)
+      let statiRiquadro: [(String, Installazione.Fase, Bool, Bool)] = [
+        ("pronto", .ferma, false, true),
+        ("scarico", .scarico(0.42), false, true),
+        ("sessione-in-corso", .ferma, true, true),
+        ("cartella-non-scrivibile", .ferma, false, false),
+      ]
+      for (nome, fase, inSessione, scrivibile) in statiRiquadro {
+        disegna(
+          RiquadroAggiornamento(release: finta, fase: fase,
+                                sessioneInCorso: inSessione,
+                                puòInstallare: scrivibile,
+                                a11y: A11ySettings())
+            .padding(24)
+            .frame(width: 720, alignment: .leading)
+            .background(Palette.resolve(theme: .chiaro, vision: .standard, system: .light).background)
+            .environment(\.palette, Palette.resolve(theme: .chiaro, vision: .standard, system: .light)),
+          nome: "aggiornamento-\(nome)", larghezza: 720, altezza: 300)
+      }
+      // Anche ingrandito e con il carattere per la dislessia: è la prova che
+      // il riquadro regge il testo grande senza tagliare le parole.
+      var grande = A11ySettings()
+      grande.textScale = 2.0
+      grande.typeface = .openDyslexic
+      // L'altezza la decide il contenuto: se la foto fosse più corta le righe
+      // si accavallerebbero nell'immagine e non nella realtà, e allora la foto
+      // racconterebbe un difetto che non c'è — o ne nasconderebbe uno che c'è.
+      let riquadroGrande = RiquadroAggiornamento(
+        release: finta, fase: .verifico, sessioneInCorso: false,
+        puòInstallare: true, a11y: grande)
+        .padding(24)
+        .frame(width: 900, alignment: .leading)
+        .background(Palette.resolve(theme: .chiaro, vision: .standard, system: .light).background)
+        .environment(\.palette, Palette.resolve(theme: .chiaro, vision: .standard, system: .light))
+      disegna(riquadroGrande, nome: "aggiornamento-ingrandito", larghezza: 900,
+              altezza: altezzaNaturale(riquadroGrande, larghezza: 900))
+
+      print("")
       print("── Le schermate vere, quando si ingrandisce tutto ──")
       // La finestra piu' piccola in cui l'app puo' trovarsi su un portatile.
       let finestra: CGFloat = 700

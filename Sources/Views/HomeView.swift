@@ -113,8 +113,9 @@ struct HomeView: View {
   // MARK: - Aggiornamenti
 
   /// Compare solo quando c'è davvero una versione nuova, e non fa niente da
-  /// solo: dice che c'è e apre la pagina. Un programma che si sostituisce da
-  /// sé mentre un ragazzo lo sta usando non è un servizio, è un'interruzione.
+  /// solo. Non installa neanche da qui: questa è la schermata del ragazzo, e
+  /// scegliere di sostituire l'app non è una cosa che tocca a lui. Il pulsante
+  /// porta dove quella decisione ha senso, cioè nelle impostazioni dell'adulto.
   @ViewBuilder
   private var bannerAggiornamento: some View {
     if let r = aggiornamento {
@@ -126,13 +127,13 @@ struct HomeView: View {
           Text("C'è MirrorScopio \(r.version)")
             .font(a11y.typeface.font(size: a11y.size(19), weight: .semibold))
             .foregroundStyle(palette.foreground)
-          Text("Tu hai la \(AppVersion.short). Si scarica dalla pagina delle release.")
+          Text("Tu hai la \(AppVersion.short). La installa un adulto dalle impostazioni.")
             .font(a11y.typeface.font(size: a11y.size(15)))
             .foregroundStyle(palette.muted)
         }
         Spacer(minLength: 0)
-        SmallButton(title: "Vai a prenderla", a11y: a11y, prominente: true) {
-          NSWorkspace.shared.open(r.pageURL)
+        SmallButton(title: "Apri le impostazioni", a11y: a11y, prominente: true) {
+          openSettings()
         }
         Button {
           aggiornamento = nil
