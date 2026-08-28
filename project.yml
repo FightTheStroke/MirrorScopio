@@ -60,7 +60,7 @@ settings:
     # Sta scritto qui e non nelle impostazioni di Xcode perche' il progetto
     # Xcode e' generato da questo file: una spunta messa a mano nella finestra
     # «Update to recommended settings» sparirebbe alla prima ricostruzione.
-    DEAD_CODE_STRIPPING: YES
+    DEAD_CODE_STRIPPING: NO
 
 # File che non si compilano ma che fanno parte del progetto: documentazione,
 # script, configurazioni. Senza questo elenco Xcode mostra solo il codice, e
