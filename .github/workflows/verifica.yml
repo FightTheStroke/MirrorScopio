@@ -72,8 +72,11 @@ jobs:
         run: |
           set -euo pipefail
           ./scripts/genera-progetto.sh
+          xcodegen --version
           if ! git diff --quiet -- MirrorScopio.xcodeproj; then
-            git --no-pager diff --stat -- MirrorScopio.xcodeproj
+            # Le righe per intero, non solo il conto: «2 righe cambiate» non
+            # dice a nessuno che cosa rigenerare, e chi legge deve indovinare.
+            git --no-pager diff -- MirrorScopio.xcodeproj
             echo "::error::Il progetto Xcode committato non corrisponde piu' a project.yml. Rigeneralo con ./scripts/genera-progetto.sh e committa il risultato."
             exit 1
           fi
