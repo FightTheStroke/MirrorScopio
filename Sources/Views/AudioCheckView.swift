@@ -185,7 +185,7 @@ struct AudioCheckView: View {
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 26) {
+      VStack(alignment: .leading, spacing: Metrica.margine) {
         header
         meter
         heard
@@ -200,7 +200,7 @@ struct AudioCheckView: View {
         speakerTest
         adultSection
       }
-      .padding(36)
+      .padding(Metrica.spazioGrande)
       .frame(maxWidth: 820)
       .frame(maxWidth: .infinity)
     }
@@ -222,7 +222,7 @@ struct AudioCheckView: View {
   /// La barra del livello: grande, e con una tacca che segna il punto in cui
   /// il riconoscimento comincia a funzionare, così "abbastanza forte" è visibile.
   private var meter: some View {
-    VStack(alignment: .leading, spacing: 14) {
+    VStack(alignment: .leading, spacing: Metrica.spazioPiccolo) {
       GeometryReader { geo in
         ZStack(alignment: .leading) {
           RoundedRectangle(cornerRadius: Metrica.raggio).fill(pal.surface)
@@ -242,19 +242,19 @@ struct AudioCheckView: View {
       .accessibilityValue(check.level > 0.02 ? "ti sento" : "silenzio")
 
       if let v = check.verdict {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           Image(systemName: v.symbol)
             .font(.system(size: a11y.size(26)))
             .foregroundStyle(v.good ? pal.ok : pal.muted)
           Text(v.text)
-            .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+            .font(a11y.font(.guida, .semibold))
             .fixedSize(horizontal: false, vertical: true)
         }
       }
 
       if let nota = check.notaLentezza {
         Text(nota)
-          .font(a11y.typeface.font(size: a11y.size(15)))
+          .font(a11y.font(.etichetta))
           .foregroundStyle(pal.muted)
           .fixedSize(horizontal: false, vertical: true)
       }
@@ -262,55 +262,55 @@ struct AudioCheckView: View {
   }
 
   private var heard: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       Text("Quello che ho capito")
-        .font(a11y.typeface.font(size: a11y.size(15)))
+        .font(a11y.font(.etichetta))
         .foregroundStyle(pal.muted)
       Text(check.transcript.isEmpty ? "…" : check.transcript)
-        .font(a11y.typeface.font(size: a11y.size(30), weight: .semibold))
+        .font(a11y.font(.titolo, .semibold))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
+        .padding(Metrica.spazio)
         .background(pal.surface, in: .rect(cornerRadius: Metrica.raggio))
         .animation(a11y.animation(), value: check.transcript)
     }
   }
 
   private var speakerTest: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       Text("E gli altoparlanti?")
-        .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+        .font(a11y.font(.guida, .semibold))
       Button(action: { check.speakSample() }) {
         Label("Fammi dire una frase", systemImage: "speaker.wave.2.fill")
-          .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
-          .padding(.horizontal, 22).padding(.vertical, 16)
+          .font(a11y.font(.corpo, .semibold))
+          .padding(.horizontal, Metrica.spazio).padding(.vertical, Metrica.spazioMedio)
       }
       .buttonStyle(.plain)
       .background(pal.surface, in: .rect(cornerRadius: Metrica.raggio))
       .frame(minHeight: 44)
       Text("Serve per la modalità Scrivi, dove è il Mac a dire la parola.")
-        .font(a11y.typeface.font(size: a11y.size(14)))
+        .font(a11y.font(.nota))
         .foregroundStyle(pal.muted)
     }
   }
 
   private func problem(_ text: String) -> some View {
-    HStack(alignment: .top, spacing: 12) {
+    HStack(alignment: .top, spacing: Metrica.spazioPiccolo) {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: a11y.size(20)))
         .foregroundStyle(pal.wrong)
         .accessibilityHidden(true)
       Text(text)
-        .font(a11y.typeface.font(size: a11y.size(16)))
+        .font(a11y.font(.etichetta))
         .fixedSize(horizontal: false, vertical: true)
     }
-    .padding(18)
+    .padding(Metrica.spazioMedio)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(pal.wrong.opacity(0.12), in: .rect(cornerRadius: Metrica.raggio))
   }
 
   private var adultSection: some View {
     DisclosureGroup(isExpanded: $showAdult) {
-      VStack(alignment: .leading, spacing: 16) {
+      VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
         Picker("Microfono", selection: Binding(
           get: { check.selectedInput ?? AudioDeviceID(0) },
           set: { check.selectedInput = $0; check.stop(); check.start() })) {
@@ -323,7 +323,7 @@ struct AudioCheckView: View {
           ForEach(check.outputs) { d in Text(d.name).tag(d.id) }
         }
 
-        HStack(spacing: 20) {
+        HStack(spacing: Metrica.spazio) {
           Text("livello ora: \(String(format: "%.4f", check.level))")
           Text("picco: \(String(format: "%.4f", check.peak))")
         }
@@ -334,16 +334,16 @@ struct AudioCheckView: View {
                     symbol: "arrow.clockwise", a11y: a11y) { check.refreshDevices() }
 
         Text("La scelta del microfono vale per questa app. Il riconoscimento avviene interamente su questo Mac.")
-          .font(a11y.typeface.font(size: a11y.size(12)))
+          .font(a11y.font(.nota))
           .foregroundStyle(pal.muted)
           .fixedSize(horizontal: false, vertical: true)
       }
-      .padding(.top, 14)
+      .padding(.top, Metrica.spazioPiccolo)
     } label: {
       Label("Scegli microfono e altoparlanti", systemImage: "slider.horizontal.3")
-        .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+        .font(a11y.font(.corpo, .semibold))
     }
-    .padding(22)
+    .padding(Metrica.spazio)
     .background(pal.surface, in: .rect(cornerRadius: Metrica.raggioGrande))
   }
 }

@@ -38,9 +38,17 @@ mattoncino non esiste, si aggiunge lì e lo usano tutti.
 
 ## Le misure — `Metrica`
 
-Quattro raggi e cinque spazi. Erano dieci raggi diversi scritti a mano dentro
-le viste (2, 3, 7, 8, 10, 11, 12, 14, 16, 18), e divergevano perfino fra i
-componenti condivisi.
+Quattro raggi e dieci distanze. Erano dieci raggi diversi scritti a mano
+dentro le viste (2, 3, 7, 8, 10, 11, 12, 14, 16, 18), e divergevano perfino
+fra i componenti condivisi. Le distanze erano 210 numeri sparsi su 21 valori
+(3, 5, 7, 9, 10, 14, 18, 22, 24, 28, 36...): nessuno li aveva decisi, erano
+capitati guardando una schermata alla volta.
+
+I passi sono radi apposta. Due distanze devono essere **o uguali o chiaramente
+diverse**: due punti di differenza non li decide nessuno e non li vede nessuno,
+ma tolgono ritmo alla pagina. E il ritmo qui non e' estetica — se lo spazio fra
+due cose vuol dire sempre la stessa cosa, aiuta a capire che cosa sta con che
+cosa anche a chi legge con fatica.
 
 ```
 raggioMinimo   3   pallini, barrette, cose piccole dentro altre cose
@@ -48,10 +56,16 @@ raggioPiccolo 10   righe di elenco, campi, pulsanti di servizio
 raggio        14   carte, riquadri, gruppi
 raggioGrande  18   pannelli grandi e pulsanti principali
 
+filo           2   due cose attaccate: un'icona e la sua parola
+briciola       4   quasi attaccate
 spazioMinimo   6   fra due cose che sono la stessa cosa
+spazioStretto  8   dentro un elemento: il respiro di un pulsante piccolo
 spazioPiccolo 12   fra le righe di un gruppo
+spazioMedio   16   fra due gruppi vicini
 spazio        20   fra un gruppo e l'altro
+spazioLargo   24   il respiro dentro un riquadro
 spazioGrande  32   fra una sezione e l'altra
+spazioEnorme  40   attorno alle cose che devono stare da sole
 margine       26   attorno al contenuto di una pagina
 
 bersaglio     44   il lato minimo di qualunque cosa si possa premere
@@ -80,16 +94,39 @@ importante della schermata restava blu su nero, cioè la cosa meno visibile
 dello schermo proprio per chi ha scelto quel tema perché vede poco. Stessa
 cosa per `.secondary` e `.gray`: si usa `palette.muted`.
 
-## Il testo
+## Il testo — sette taglie
 
-Sempre `a11y.typeface.font(size: a11y.size(N))`.
+Sempre `a11y.font(.ruolo)`, mai un numero.
+
+```
+nota          13   note a margine, unita' di misura, didascalie
+etichetta     15   etichette, voci secondarie, testo dentro elementi piccoli
+corpo         17   il testo normale: quello che si legge davvero
+guida         20   testo guida, voci di elenco, pulsanti
+sezione       24   titoletti di sezione dentro una pagina
+titolo        30   il titolo di una pagina
+titoloGrande  40   i numeri grandi e le poche parole da vedere da lontano
+```
+
+Il peso si passa come secondo argomento: `a11y.font(.corpo, .semibold)`.
+
+Erano venti taglie diverse su circa 180 punti di chiamata — 15 qui, 16 la', 14
+nella riga accanto. Differenze di un punto che nessuno decide e nessuno vede
+una per una, ma che insieme fanno una pagina senza gerarchia. Sette taglie
+distanti fra loro si distinguono a colpo d'occhio, ed e' esattamente quello che
+serve a chi fatica a leggere: capire che cosa e' titolo e che cosa e' nota
+senza doverlo decifrare.
 
 - `a11y.typeface` è il carattere **scelto dalla persona** — chi ha scelto
   OpenDyslexic o Atkinson se lo aspetta ovunque, non solo nelle schermate a
-  cui qualcuno si è ricordato di applicarlo.
-- `a11y.size(N)` applica l'ingrandimento. Un `Text` con taglia fissa non
-  cresce quando si alza «Dimensione di tutto», e quella è l'impostazione per
-  cui qualcuno ha aperto le opzioni.
+  cui qualcuno si è ricordato di applicarlo. `font(_:_:)` lo applica da solo.
+- L'ingrandimento è già dentro: le sette taglie sono quelle *di partenza*, e
+  vengono moltiplicate per «Dimensione di tutto». Un `Text` con taglia fissa
+  non cresce, e quella è l'impostazione per cui qualcuno ha aperto le opzioni.
+
+Restano fuori dalla scala tre casi, e sono legittimi: la parola-stimolo (la
+sua taglia la sceglie la persona), i numeri dentro le medaglie (proporzionali
+al lato della medaglia) e i simboli SF.
 
 Unica eccezione legittima: `.font(.system(size:))` su un `Image(systemName:)`,
 perché il carattere non si applica ai simboli SF.

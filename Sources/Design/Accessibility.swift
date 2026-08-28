@@ -148,6 +148,41 @@ struct A11ySettings: Codable, Equatable {
   /// Dimensione di un testo dell'interfaccia, già scalata.
   func size(_ base: Double) -> CGFloat { CGFloat(base * textScale) }
 
+  /// La scala dei testi: sette taglie, non venti.
+  ///
+  /// Prima ogni schermata sceglieva il proprio numero — 15 qui, 16 la', 14
+  /// nella riga accanto. Differenze di un punto che nessuno decide e nessuno
+  /// vede una per una, ma che messe insieme fanno una pagina che non ha ritmo:
+  /// si legge come una stanza dove i quadri sono appesi tutti ad altezze
+  /// leggermente diverse. Sette taglie distanti fra loro si distinguono a
+  /// colpo d'occhio, ed e' proprio quello che serve a chi fatica a leggere:
+  /// capire che cosa e' titolo e che cosa e' nota senza doverlo decifrare.
+  ///
+  /// Le taglie sono quelle *di partenza*: `size(_:)` le moltiplica poi per
+  /// l'ingrandimento scelto, quindi la scala resta proporzionata a ogni misura.
+  enum Testo: Double {
+    /// Note a margine, unita' di misura, didascalie.
+    case nota = 13
+    /// Etichette, voci secondarie, testo dentro elementi piccoli.
+    case etichetta = 15
+    /// Il testo normale: quello che si legge davvero.
+    case corpo = 17
+    /// Testo guida, voci di elenco, pulsanti.
+    case guida = 20
+    /// Titoletti di sezione dentro una pagina.
+    case sezione = 24
+    /// Il titolo di una pagina.
+    case titolo = 30
+    /// I numeri grandi e le poche parole che devono farsi vedere da lontano.
+    case titoloGrande = 40
+  }
+
+  /// Il carattere per un ruolo della scala, gia' ingrandito e gia' del tipo
+  /// scelto (compreso quello pensato per la dislessia).
+  func font(_ testo: Testo, _ weight: Font.Weight = .regular) -> Font {
+    typeface.font(size: size(testo.rawValue), weight: weight)
+  }
+
   /// Durata di un'animazione: zero quando il movimento va evitato.
   func animation(_ base: Double = 0.25) -> Animation? {
     reducedMotion ? nil : .easeOut(duration: base)

@@ -165,18 +165,18 @@ struct DistintivoLivello: View {
 #Preview("Distintivi") {
   let palette = Palette.resolve(theme: .chiaro, vision: .standard, system: .light)
   let a11y = A11ySettings()
-  return VStack(spacing: 28) {
-    HStack(spacing: 24) {
+  return VStack(spacing: Metrica.spazioLargo) {
+    HStack(spacing: Metrica.spazioLargo) {
       DistintivoObiettivo(simbolo: "bolt.fill", conquistato: false, a11y: a11y, palette: palette)
       DistintivoObiettivo(simbolo: "bolt.fill", conquistato: true, a11y: a11y, palette: palette)
     }
-    HStack(spacing: 16) {
+    HStack(spacing: Metrica.spazioMedio) {
       ForEach([1, 4, 7, 12, 17, 25], id: \.self) { lv in
         DistintivoLivello(livello: lv, numero: lv, a11y: a11y, palette: palette)
       }
     }
   }
-  .padding(40)
+  .padding(Metrica.spazioEnorme)
   .background(palette.background)
 }
 #endif

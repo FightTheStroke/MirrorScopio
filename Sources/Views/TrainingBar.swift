@@ -24,14 +24,14 @@ struct TrainingBar: View {
   var onStop: () -> Void
 
   var body: some View {
-    HStack(spacing: 14) {
+    HStack(spacing: Metrica.spazioPiccolo) {
       StopButton(a11y: a11y, action: onStop)
         .keyboardShortcut(.escape, modifiers: [])
 
       if mostraRiscaldamento {
         Text("riscaldamento")
-          .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
-          .padding(.horizontal, 12).padding(.vertical, 5)
+          .font(a11y.font(.etichetta, .semibold))
+          .padding(.horizontal, Metrica.spazioPiccolo).padding(.vertical, Metrica.briciola)
           .background(Capsule().fill(palette.accent.opacity(0.22)))
           .foregroundStyle(palette.foreground)
       }
@@ -49,13 +49,13 @@ struct TrainingBar: View {
 
       if !contatore.isEmpty {
         Text(contatore)
-          .font(a11y.typeface.font(size: a11y.size(16)))
+          .font(a11y.font(.etichetta))
           .foregroundStyle(palette.muted)
           .monospacedDigit()
       }
     }
-    .padding(.horizontal, 22)
-    .padding(.top, 16)
+    .padding(.horizontal, Metrica.spazio)
+    .padding(.top, Metrica.spazioMedio)
   }
 }
 
@@ -73,7 +73,7 @@ struct Cronometro: View {
     TimelineView(.periodic(from: inizio, by: 1)) { context in
       let secondi = max(0, Int(context.date.timeIntervalSince(inizio)))
       Label(formatta(secondi), systemImage: "clock")
-        .font(a11y.typeface.font(size: a11y.size(16)))
+        .font(a11y.font(.etichetta))
         .foregroundStyle(palette.muted)
         .monospacedDigit()
         .accessibilityLabel(descrizione(secondi))

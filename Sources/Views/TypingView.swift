@@ -46,7 +46,7 @@ struct TypingView: View {
   // MARK: - Il palcoscenico
 
   private var palcoscenico: some View {
-    VStack(spacing: a11y.size(20)) {
+    VStack(spacing: a11y.size(Metrica.spazio)) {
       Spacer(minLength: 0)
 
       orecchio
@@ -54,7 +54,7 @@ struct TypingView: View {
       Text(engine.config.writingLevel.isSentences
            ? "Scrivi la frase che hai sentito"
            : "Scrivi la parola che hai sentito")
-        .font(a11y.typeface.font(size: a11y.size(28), weight: .semibold))
+        .font(a11y.font(.titolo, .semibold))
         .foregroundStyle(palette.foreground)
         .multilineTextAlignment(.center)
 
@@ -79,7 +79,7 @@ struct TypingView: View {
 
       Spacer(minLength: 0)
     }
-    .padding(36)
+    .padding(Metrica.spazioGrande)
   }
 
   private var orecchio: some View {
@@ -92,13 +92,12 @@ struct TypingView: View {
   private var campo: some View {
     TextField("", text: $engine.typedAnswer, axis: .vertical)
       .textFieldStyle(.plain)
-      .font(a11y.typeface.font(size: a11y.size(engine.config.writingLevel.isSentences ? 30 : 44),
-                               weight: .semibold))
+      .font(a11y.font(engine.config.writingLevel.isSentences ? .titolo : .titoloGrande, .semibold))
       .foregroundStyle(palette.foreground)
       .multilineTextAlignment(.center)
       .lineLimit(1...4)
-      .padding(.vertical, a11y.size(14))
-      .padding(.horizontal, 20)
+      .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
+      .padding(.horizontal, Metrica.spazio)
       .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
       .overlay(RoundedRectangle(cornerRadius: Metrica.raggio).stroke(palette.accent, lineWidth: 3))
       .frame(maxWidth: 620)
@@ -128,22 +127,22 @@ struct TypingView: View {
   /// davvero — non quello che avrebbe dovuto esserci — perché il punto è
   /// proprio sentire con le proprie orecchie la differenza fra le due cose.
   private var revisione: some View {
-    VStack(spacing: a11y.size(8)) {
+    VStack(spacing: a11y.size(Metrica.spazioStretto)) {
       Text("Risentiti: tocca una parola")
-        .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+        .font(a11y.font(.etichetta, .semibold))
         .foregroundStyle(palette.muted)
 
-      FlowLayout(spacing: a11y.size(8)) {
+      FlowLayout(spacing: a11y.size(Metrica.spazioStretto)) {
         ForEach(Array(paroleScritte.enumerated()), id: \.offset) { _, parola in
           Button {
             inAscolto = parola
             engine.sayWord(parola)
           } label: {
             Text(parola)
-              .font(a11y.typeface.font(size: a11y.size(19), weight: .medium))
+              .font(a11y.font(.guida, .medium))
               .foregroundStyle(palette.foreground)
-              .padding(.horizontal, a11y.size(14))
-              .padding(.vertical, a11y.size(9))
+              .padding(.horizontal, a11y.size(Metrica.spazioPiccolo))
+              .padding(.vertical, a11y.size(Metrica.spazioStretto))
               .background(
                 Capsule().fill(inAscolto == parola
                                ? palette.accent.opacity(0.22) : palette.surface))
@@ -162,8 +161,8 @@ struct TypingView: View {
   // MARK: - I pulsanti
 
   private var pulsanti: some View {
-    VStack(spacing: a11y.size(10)) {
-      HStack(spacing: 14) {
+    VStack(spacing: a11y.size(Metrica.spazioStretto)) {
+      HStack(spacing: Metrica.spazioPiccolo) {
         BigButton(title: "Ripeti", symbol: "arrow.clockwise", a11y: a11y, prominent: false) {
           engine.repeatWord()
         }

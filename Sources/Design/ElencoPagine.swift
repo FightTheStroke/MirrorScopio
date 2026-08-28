@@ -25,23 +25,22 @@ struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessColle
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 4) {
+      VStack(alignment: .leading, spacing: Metrica.briciola) {
         ForEach(Array(P.allCases)) { p in
           Button { scelta = p } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: Metrica.spazioPiccolo) {
               Image(systemName: p.simbolo)
                 .font(.system(size: a11y.size(17)))
                 .frame(width: a11y.size(26))
               Text(p.titolo)
-                .font(a11y.typeface.font(size: a11y.size(17),
-                                         weight: scelta == p ? .semibold : .regular))
+                .font(a11y.font(.corpo, scelta == p ? .semibold : .regular))
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
               Spacer(minLength: 0)
             }
             .foregroundStyle(scelta == p ? palette.accent : palette.foreground)
-            .padding(.horizontal, 14)
-            .padding(.vertical, a11y.size(12))
+            .padding(.horizontal, Metrica.spazioPiccolo)
+            .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(minHeight: 48)
             .background(
@@ -53,7 +52,7 @@ struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessColle
           .accessibilityAddTraits(scelta == p ? [.isSelected] : [])
         }
       }
-      .padding(10)
+      .padding(Metrica.spazioStretto)
     }
     .frame(width: a11y.size(260))
   }

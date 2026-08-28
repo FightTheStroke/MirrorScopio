@@ -119,8 +119,8 @@ struct StaffettaView: View {
           Spacer()
           PulsanteChiudi(a11y: a11y, cosa: "il gioco e torna al riepilogo", action: onClose)
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 12)
+        .padding(.horizontal, Metrica.spazioMedio)
+        .padding(.top, Metrica.spazioPiccolo)
         Spacer()
       }
 
@@ -145,7 +145,7 @@ struct StaffettaView: View {
   }
 
   private var presentazione: some View {
-    VStack(spacing: a11y.size(22)) {
+    VStack(spacing: a11y.size(Metrica.spazio)) {
       Spacer(minLength: 0)
 
       Image(systemName: "figure.run")
@@ -153,19 +153,19 @@ struct StaffettaView: View {
         .foregroundStyle(palette.accent)
 
       Text("La staffetta del Fight Camp")
-        .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
         .multilineTextAlignment(.center)
 
       Text("Attraversa le tappe del camp. A ogni tappa qualcuno viene a correre con te: qui non si è mai da soli.")
-        .font(a11y.typeface.font(size: a11y.size(21)))
+        .font(a11y.font(.guida))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)
         .frame(maxWidth: 560)
         .fixedSize(horizontal: false, vertical: true)
 
       Text("Un tasto solo. Nessuna fretta: parti quando vuoi.")
-        .font(a11y.typeface.font(size: a11y.size(18), weight: .medium))
+        .font(a11y.font(.corpo, .medium))
         .foregroundStyle(palette.accent)
         .multilineTextAlignment(.center)
 
@@ -173,18 +173,18 @@ struct StaffettaView: View {
 
       Spacer(minLength: 0)
     }
-    .padding(36)
+    .padding(Metrica.spazioGrande)
   }
 
   private func tappaScena(_ tappa: Tappa, solo: Bool) -> some View {
-    VStack(spacing: a11y.size(18)) {
+    VStack(spacing: a11y.size(Metrica.spazioMedio)) {
       // In alto: dove siamo e cosa fare. Poche parole, sempre nello stesso posto.
-      VStack(spacing: 6) {
+      VStack(spacing: Metrica.spazioMinimo) {
         Text(tappa.nome)
-          .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
+          .font(a11y.font(.titolo, .bold))
           .foregroundStyle(palette.foreground)
         Text(solo ? "Adesso l'ultimo pezzo lo fai tu. Loro ti guardano." : tappa.gesto)
-          .font(a11y.typeface.font(size: a11y.size(20), weight: .medium))
+          .font(a11y.font(.guida, .medium))
           .foregroundStyle(solo ? palette.accent : palette.muted)
           .multilineTextAlignment(.center)
       }
@@ -198,7 +198,7 @@ struct StaffettaView: View {
       // quando compare. Se il salto non prende non succede nulla di brutto,
       // esce solo questa parola gentile e si riprova.
       Text(ancora ? "Ancora" : " ")
-        .font(a11y.typeface.font(size: a11y.size(30), weight: .bold))
+        .font(a11y.font(.titolo, .bold))
         .foregroundStyle(palette.accent)
         .accessibilityHidden(!ancora)
 
@@ -210,15 +210,15 @@ struct StaffettaView: View {
       fasciaSalto
 
       invitoAPremere(testo: solo ? "Premi: fai il tuo passo" : "Premi per superare \(tappa.etichettaOstacolo)")
-        .padding(.bottom, a11y.size(30))
+        .padding(.bottom, a11y.size(Metrica.spazioGrande))
     }
-    .padding(.horizontal, 36)
+    .padding(.horizontal, Metrica.spazioGrande)
   }
 
   /// La pista con l'avatar, la squadra e l'ostacolo.
   private func pista(tappa: Tappa, solo: Bool) -> some View {
-    VStack(spacing: a11y.size(14)) {
-      HStack(alignment: .bottom, spacing: a11y.size(10)) {
+    VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
+      HStack(alignment: .bottom, spacing: a11y.size(Metrica.spazioStretto)) {
         // Nel finale i compagni si mettono di lato a fare il tifo; nelle altre
         // tappe corrono insieme a te.
         if solo {
@@ -249,7 +249,7 @@ struct StaffettaView: View {
 
   /// I compagni schierati che guardano il passo finale.
   private var tifoDellaSquadra: some View {
-    HStack(spacing: a11y.size(6)) {
+    HStack(spacing: a11y.size(Metrica.spazioMinimo)) {
       ForEach(0..<max(1, squadra), id: \.self) { i in
         Image(systemName: simboloCompagno(i))
           .font(.system(size: a11y.size(40)))
@@ -317,7 +317,7 @@ struct StaffettaView: View {
   }
 
   private func superataScena(_ tappa: Tappa) -> some View {
-    VStack(spacing: a11y.size(20)) {
+    VStack(spacing: a11y.size(Metrica.spazio)) {
       Spacer(minLength: 0)
 
       Image(systemName: ColorVision.okSymbol)
@@ -325,17 +325,17 @@ struct StaffettaView: View {
         .foregroundStyle(palette.ok)
 
       Text("Ce l'hai fatta!")
-        .font(a11y.typeface.font(size: a11y.size(38), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
 
       Text(tappa.compagno)
-        .font(a11y.typeface.font(size: a11y.size(24), weight: .medium))
+        .font(a11y.font(.sezione, .medium))
         .foregroundStyle(palette.accent)
         .multilineTextAlignment(.center)
         .frame(maxWidth: 520)
 
       // La squadra che cresce, mostrata: sono loro il premio, non un numero.
-      HStack(spacing: a11y.size(10)) {
+      HStack(spacing: a11y.size(Metrica.spazioStretto)) {
         Image(systemName: "figure.run")
           .font(.system(size: a11y.size(46)))
           .foregroundStyle(palette.accent)
@@ -352,15 +352,15 @@ struct StaffettaView: View {
 
       Spacer(minLength: 0)
     }
-    .padding(36)
+    .padding(Metrica.spazioGrande)
   }
 
   private var fineScena: some View {
-    VStack(spacing: a11y.size(20)) {
+    VStack(spacing: a11y.size(Metrica.spazio)) {
       Spacer(minLength: 0)
 
       // Tutta la squadra insieme a te: chi ha corso, chi ha fatto il tifo.
-      HStack(spacing: a11y.size(8)) {
+      HStack(spacing: a11y.size(Metrica.spazioStretto)) {
         Image(systemName: "figure.dance")
           .font(.system(size: a11y.size(56)))
           .foregroundStyle(palette.accent)
@@ -374,13 +374,13 @@ struct StaffettaView: View {
       .accessibilityLabel("Sei arrivato in fondo, con tutta la tua squadra")
 
       Text("L'hai fatto da solo.")
-        .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
         .multilineTextAlignment(.center)
 
       // La frase della canzone del camp, tradotta accanto perché si capisca.
       Text("«Now walk it by yourself» — adesso camminaci da solo. E ci sei riuscito.")
-        .font(a11y.typeface.font(size: a11y.size(22)))
+        .font(a11y.font(.guida))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)
         .frame(maxWidth: 560)
@@ -388,13 +388,13 @@ struct StaffettaView: View {
 
       // Il principio della fondazione, detto al ragazzo.
       Text("Non era «non so farlo». Era «non so ANCORA farlo».")
-        .font(a11y.typeface.font(size: a11y.size(20), weight: .medium))
+        .font(a11y.font(.guida, .medium))
         .foregroundStyle(palette.accent)
         .multilineTextAlignment(.center)
         .frame(maxWidth: 520)
         .fixedSize(horizontal: false, vertical: true)
 
-      HStack(spacing: 14) {
+      HStack(spacing: Metrica.spazioPiccolo) {
         BigButton(title: "Di nuovo", symbol: "arrow.clockwise", a11y: a11y, prominent: false) {
           ricomincia()
         }
@@ -406,21 +406,21 @@ struct StaffettaView: View {
 
       Spacer(minLength: 0)
     }
-    .padding(36)
+    .padding(Metrica.spazioGrande)
   }
 
   /// L'invito a premere, uguale in ogni scena: una parola e un simbolo, senza
   /// mai un conto alla rovescia.
   private func invitoAPremere(testo: String) -> some View {
-    HStack(spacing: a11y.size(10)) {
+    HStack(spacing: a11y.size(Metrica.spazioStretto)) {
       Image(systemName: "hand.tap.fill")
         .font(.system(size: a11y.size(22)))
       Text(testo)
-        .font(a11y.typeface.font(size: a11y.size(20), weight: .semibold))
+        .font(a11y.font(.guida, .semibold))
     }
     .foregroundStyle(palette.foreground)
-    .padding(.horizontal, a11y.size(18))
-    .padding(.vertical, a11y.size(12))
+    .padding(.horizontal, a11y.size(Metrica.spazioMedio))
+    .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
     .background(Capsule().fill(palette.surface))
     .overlay(Capsule().stroke(palette.accent.opacity(0.4), lineWidth: 2))
     // Respira piano, per invitare senza incalzare. Ferma con "meno animazioni".
