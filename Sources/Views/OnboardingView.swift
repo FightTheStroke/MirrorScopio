@@ -190,7 +190,7 @@ struct OnboardingView: View {
       VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Ti avviso quando esce una versione nuova?")
         Explain(text: "MirrorScopio non manda niente a nessuno: quello che dici o scrivi resta su questo Mac. Questa è l'unica eccezione, e la scegli tu.", a11y: a11y, size: 21)
-        Explain(text: "Se dici di sì, una volta al giorno l'app chiede a GitHub qual è l'ultima versione pubblicata. È una domanda su di noi, non su di te: non parte nessun nome, nessuna parola, nessun punteggio. E non scarica niente da sola — se c'è una versione nuova te lo dice e basta.", a11y: a11y, size: 19)
+        Explain(text: "Se dici di sì, una volta al giorno l'app chiede a GitHub qual è l'ultima versione pubblicata. È una domanda su di noi, non su di te: non parte nessun nome, nessuna parola, nessun punteggio. Non scarica niente da sola: se c'è una versione nuova te lo dice, e la installi tu con un pulsante quando vuoi.", a11y: a11y, size: 19)
         HStack(spacing: Metrica.spazioPiccolo) {
           BigButton(title: "Sì, avvisami", symbol: "checkmark", a11y: a11y) {
             Updates.enabled = true

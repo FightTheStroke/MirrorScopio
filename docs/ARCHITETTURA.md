@@ -17,6 +17,9 @@ Sources/
     Scoring.swift        confronto deterministico fra parola detta e parola attesa
     Intelligence.swift   Foundation Models, solo per etichettare il tipo di errore
     Speaker.swift        sintesi vocale per la modalità Scrivi
+    Updates.swift        l'unico file che tocca la rete: chiede a GitHub qual è
+                         l'ultima versione e sa installarla, dopo aver
+                         ricontrollato firma e timbro di Apple
   Design/
     Theme.swift          temi e palette per daltonismo
     Fonts.swift          caratteri per la dislessia, registrati a runtime

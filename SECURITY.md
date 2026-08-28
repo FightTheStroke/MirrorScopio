@@ -88,6 +88,20 @@ Nulla che riguardi chi usa l'app. Ma per non nascondere niente:
   codice che tocca la rete sta in un file solo, `Sources/Core/Updates.swift`, e
   il controllo automatico in `.github/workflows/verifica.yml` fa fallire la
   build se qualcuno ne aggiunge altrove.
+- **Installare l'aggiornamento**: da Impostazioni › I dati c'è un pulsante
+  «Aggiorna e riavvia», e allora l'app scarica il pacchetto dalla pagina delle
+  release e si sostituisce. Non parte mai da solo: lo preme un adulto, e non
+  funziona mentre una sessione è in corso. Prima di toccare qualsiasi cosa il
+  pacchetto deve superare **due** controlli — la firma dev'essere quella di
+  Fight The Stroke (numero di squadra `93T3LG4NPG`, nome dell'app
+  `org.fightthestroke.mirrorscopio`) **e** il timbro di Apple dev'essere valido.
+  Il primo da solo non basterebbe al secondo, e viceversa: senza il vincolo sul
+  nostro certificato basterebbe una qualunque app timbrata da Apple per
+  prendere il nostro posto. Se un controllo non passa, non viene installato
+  niente e l'app dice perché. Non viene mai chiesta la password di
+  amministratore e non viene installato niente che giri con privilegi: se
+  MirrorScopio sta dove questo utente non può scrivere, l'app lo dice e si
+  ferma.
 - **In fase di sviluppo**, chi compila e pubblica una versione manda l'app ad
   Apple per la firma di sicurezza (notarizzazione). Riguarda il programma, non
   i dati.

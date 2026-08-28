@@ -149,6 +149,12 @@ fi
 # dire cose diverse. «schermate» adesso disegna e basta, non boccia piu'
 # niente: contrasto e scorrimento sono in Verifiche/Contrasto.swift.
 run_harness schermate   scripts/disegna-schermate.swift  fast
+# Vuole build/MirrorScopio.app: se non c'è, la costruisce. È il banco che prova
+# l'aggiornamento dall'app su un pacchetto vero, non su un'idea di pacchetto:
+# firma, timbro di Apple e scambio della cartella si possono verificare solo
+# su un'applicazione che esiste davvero.
+[ -d build/MirrorScopio.app ] || ./build.sh >/dev/null
+run_harness aggiornamento Tests/AggiornamentoHarness.swift fast
 run_harness microfono   Tests/MicHarness.swift          slow
 run_harness punteggio   Tests/ScoringHarness.swift      slow
 run_harness intelligenza Tests/IntelligenceHarness.swift slow

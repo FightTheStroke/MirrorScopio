@@ -17,8 +17,19 @@ GitHub, fatta qui dove si può ancora rimediare.
 Da quel momento ogni tag `v*` fa partire il workflow **Rilascio**: GitHub
 compila su un Mac vero (macOS 26), firma con il certificato di Fight The Stroke,
 manda l'app ad Apple per la notarizzazione, attacca il timbro, controlla che
-Gatekeeper la accetti e **allega il DMG alla release**. Chi lo vuole lo scarica
-dalla pagina delle release e fa doppio clic.
+Gatekeeper la accetti e **allega alla release due file**: il DMG e uno zip.
+
+Servono a due persone diverse, e servono tutti e due:
+
+- il **DMG** è per chi installa la prima volta: si apre, si trascina l'icona
+  nelle Applicazioni;
+- lo **zip** è per MirrorScopio stesso. Le versioni già installate lo scaricano
+  quando un adulto preme «Aggiorna e riavvia» nelle impostazioni. Se una
+  release non ha lo zip non è rotta, ma costringe tutti a reinstallare a mano.
+
+Prima di allegarli il workflow apre lo zip e ricontrolla esattamente quello che
+ricontrollerà l'app sul Mac di una famiglia: la firma è la nostra, e il timbro
+di Apple è attaccato addosso — cioè si può verificare anche senza internet.
 
 Pubblicare una versione diventa:
 
@@ -33,10 +44,13 @@ compili e che versione e changelog siano allineati. Non serve nessun segreto.
 
 ```bash
 ./scripts/package.sh --notarize     # → build/MirrorScopio-<versione>.dmg
+                                    #   build/MirrorScopio-<versione>.zip
 ```
 
 Il DMG che ne esce si apre su qualunque Mac con macOS 26, senza tasto destro,
-senza avvisi e senza Xcode.
+senza avvisi e senza Xcode. Lo zip accanto è quello che l'app scarica quando si
+aggiorna da sola: si crea con `ditto` e non con `zip`, perché `zip` perde
+permessi e collegamenti interni e la firma arriverebbe a destinazione rotta.
 
 ## Che cosa serve, e perché
 

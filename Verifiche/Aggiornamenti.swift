@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import MirrorScopio
 
@@ -76,5 +77,67 @@ struct ConfrontoVersioni {
     #expect(!Updates.isNewer("", than: "0.4.0"))
     #expect(!Updates.isNewer("boh", than: "0.4.0"))
     #expect(!Updates.isNewer("latest", than: "0.4.0"))
+  }
+}
+
+/// Quale allegato l'app accetta di scaricare.
+///
+/// Qui la posta in gioco e' diversa da un confronto fra numeri: questo pezzo
+/// decide da quale indirizzo l'app prende del **codice** che poi mettera' al
+/// posto di se stessa. La risposta arriva dalla rete, e una risposta che arriva
+/// dalla rete non e' una fonte di verita': se qualcuno riuscisse a infilarci
+/// dentro un link, quel link diventerebbe l'app di domani.
+///
+/// Per questo il filtro sta prima di tutto il resto, e queste prove esistono
+/// per non lasciarlo cadere per distrazione. La firma viene ricontrollata
+/// comunque dopo il download, ma un cancello solo non e' un cancello.
+@Suite("La scelta del pacchetto da installare")
+struct ScelataPacchetto {
+
+  private func allegato(_ nome: String, _ link: String, _ peso: Int = 1000) -> [String: Any] {
+    ["name": nome, "browser_download_url": link, "size": NSNumber(value: peso)]
+  }
+
+  @Test("Prende lo zip pubblicato su GitHub")
+  func prendeLoZip() {
+    let trovato = Updates.zipFirmato(fraGliAllegati: [
+      allegato("MirrorScopio-0.6.0.dmg",
+               "https://github.com/FightTheStroke/MirrorScopio/releases/download/v0.6.0/MirrorScopio-0.6.0.dmg"),
+      allegato("MirrorScopio-0.6.0.zip",
+               "https://github.com/FightTheStroke/MirrorScopio/releases/download/v0.6.0/MirrorScopio-0.6.0.zip",
+               42_000_000),
+    ])
+    #expect(trovato?.url.absoluteString.hasSuffix(".zip") == true)
+    #expect(trovato?.peso == 42_000_000)
+  }
+
+  @Test("Senza zip non si installa niente da soli")
+  func soloDmg() {
+    let trovato = Updates.zipFirmato(fraGliAllegati: [
+      allegato("MirrorScopio-0.6.0.dmg",
+               "https://github.com/FightTheStroke/MirrorScopio/releases/download/v0.6.0/MirrorScopio-0.6.0.dmg"),
+    ])
+    #expect(trovato == nil, "resta la strada di sempre: si apre la pagina")
+  }
+
+  @Test("Un indirizzo che non e' di GitHub viene rifiutato")
+  func altrove() {
+    #expect(Updates.zipFirmato(fraGliAllegati: [
+      allegato("MirrorScopio-0.6.0.zip", "https://esempio-cattivo.test/MirrorScopio-0.6.0.zip"),
+    ]) == nil)
+    // Anche quando il nome di GitHub c'e', ma solo come inizio: e' il trucco
+    // piu' vecchio che esista, e passerebbe a un controllo scritto con
+    // «contiene github.com».
+    #expect(Updates.zipFirmato(fraGliAllegati: [
+      allegato("MirrorScopio-0.6.0.zip", "https://github.com.esempio-cattivo.test/a.zip"),
+    ]) == nil)
+  }
+
+  @Test("Senza HTTPS non si scarica")
+  func senzaHttps() {
+    #expect(Updates.zipFirmato(fraGliAllegati: [
+      allegato("MirrorScopio-0.6.0.zip",
+               "http://github.com/FightTheStroke/MirrorScopio/releases/download/v0.6.0/MirrorScopio-0.6.0.zip"),
+    ]) == nil, "in chiaro chiunque stia in mezzo puo' sostituire il pacchetto")
   }
 }

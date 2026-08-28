@@ -15,12 +15,35 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Aggiunto
+- **Le versioni nuove si installano dall'app.** Fino a ieri MirrorScopio sapeva
+  dire che c'era una versione nuova e lì si fermava: toccava andare sulla pagina,
+  scaricare, aprire, trascinare. Adesso nelle impostazioni, sotto «I dati», c'è
+  «Aggiorna e riavvia»: l'app scarica il pacchetto, mostra a che punto è, e si
+  sostituisce da sola.
+  - Non parte mai da solo e non parte mai dal ragazzo: il pulsante sta dove
+    stanno le cose dell'adulto, e non funziona mentre una sessione è in corso.
+    Sostituire un programma mentre qualcuno sta leggendo interrompe una prova
+    a metà.
+  - Prima di toccare qualsiasi cosa il pacchetto deve superare due controlli: la
+    firma dev'essere quella di Fight The Stroke, **e** il timbro di Apple
+    dev'essere valido. Se uno dei due non passa non viene installato niente e
+    l'app dice perché: la versione che si sta usando resta intatta.
+  - Non viene mai chiesta la password di amministratore. Se MirrorScopio sta in
+    una cartella dove non si può scrivere — succede a scuola — l'app lo dice e
+    si ferma, invece di chiedere privilegi che non dovrebbe avere.
+
 ### Corretto
 - **L'app costruita da Xcode dichiarava di essere la versione 0.0.0.** Il numero
   vero, quello del file `VERSION`, arrivava solo nell'app costruita da `build.sh`:
   chi apriva il progetto in Xcode otteneva un pacchetto con un numero sbagliato che
   non protestava. Ora la versione la scrive `scripts/genera-progetto.sh` da un'unica
   fonte, e `./test.sh` si ferma se i due numeri non coincidono.
+- **Il pacchetto pubblicato non aveva il timbro di Apple attaccato addosso.**
+  Gatekeeper lo accettava lo stesso perché chiedeva ad Apple ogni volta, quindi
+  il difetto non si vedeva — ma su un Mac senza internet, e per l'aggiornamento
+  dall'app, quel timbro serve. Adesso `scripts/package.sh` lo attacca, e il
+  workflow di rilascio si ferma se manca.
 
 ## [0.5.0] — 2026-08-28
 

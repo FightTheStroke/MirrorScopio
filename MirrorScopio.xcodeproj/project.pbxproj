@@ -39,6 +39,7 @@
 		A8A1E4A76D3B0FCA62A87C05 /* Intelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7873929AD1C523DB5A9983D2 /* Intelligence.swift */; };
 		AAD053F52024C18ABB369359 /* Battito.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C25C5F17C318E947E1AD49 /* Battito.swift */; };
 		AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD41100535CF14951204A59 /* OnboardingView.swift */; };
+		AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */; };
 		B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E94B8AD368179CF019AEB21 /* Contrasto.swift */; };
 		B42E26E0BC7CF3CB0B69E17C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B323386D38EFBCCD82CF3AA8 /* HomeView.swift */; };
 		BA58097177C778699DC324AE /* Suoni.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */; };
@@ -110,6 +111,7 @@
 		5266357C1E390A61B3294EC1 /* Readiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Readiness.swift; sourceTree = "<group>"; };
 		53C25C5F17C318E947E1AD49 /* Battito.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battito.swift; sourceTree = "<group>"; };
 		55D0FA8229599D99D3E41B01 /* setup-github-secrets.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "setup-github-secrets.sh"; sourceTree = "<group>"; };
+		55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiquadroAggiornamento.swift; sourceTree = "<group>"; };
 		58753B38D847282FA447479E /* genera-progetto.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "genera-progetto.sh"; sourceTree = "<group>"; };
 		590A53B68AE48D7DE953F342 /* ARCHITETTURA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITETTURA.md; sourceTree = "<group>"; };
 		5B081FD5B50F9DD7D2C26B21 /* VERSION */ = {isa = PBXFileReference; path = VERSION; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				CBD41100535CF14951204A59 /* OnboardingView.swift */,
 				E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */,
 				9A34ECBF54C93620D8462066 /* ReportView.swift */,
+				55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */,
 				D46FEA212903673E620DC8AB /* SettingsView.swift */,
 				EB98145457D8873F58DC5B95 /* StaffettaView.swift */,
 				031F620CCEB5656D46BD0DE9 /* StageView.swift */,
@@ -569,6 +572,7 @@
 				8B402BB8513B9083C4DF93AB /* Readiness.swift in Sources */,
 				5F7543BCCB6E28B524340AAF /* ReadinessView.swift in Sources */,
 				709984EA43D1F94ED972E00D /* ReportView.swift in Sources */,
+				AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */,
 				7F0EFDABB5A66C0BC064C505 /* Scoring.swift in Sources */,
 				07870146BFCBD4A99BC77E3D /* SessionEngine.swift in Sources */,
 				F36FF08907A415E74FF6B574 /* SettingsView.swift in Sources */,

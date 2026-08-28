@@ -33,6 +33,18 @@ func disegna<V: View>(_ vista: V, nome: String, larghezza: CGFloat = 900, altezz
   print("· \(nome).png  \(Int(img.size.width))×\(Int(img.size.height))")
 }
 
+/// L'altezza che la vista prende davvero, alla larghezza data.
+///
+/// Serve quando si fotografa qualcosa che cresce col testo: se l'immagine
+/// fosse più corta, le righe si accavallerebbero **nella foto** e non nella
+/// realtà — e la foto racconterebbe un difetto che non c'è, o ne
+/// nasconderebbe uno che c'è.
+@MainActor
+func altezzaNaturale<V: View>(_ vista: V, larghezza: CGFloat) -> CGFloat {
+  let r = ImageRenderer(content: vista.frame(width: larghezza).fixedSize(horizontal: false, vertical: true))
+  return r.nsImage?.size.height ?? 0
+}
+
 /// Un campionario dei mattoncini condivisi, in un tema.
 struct Campionario: View {
   var a11y: A11ySettings
@@ -104,6 +116,53 @@ struct DisegnaSchermate {
       base.typeface = .openDyslexic
       disegna(Campionario(a11y: base, tema: .chiaro, nomeTema: "Ingrandito 1,4"),
               nome: "mattoncini-ingranditi", larghezza: 1100, altezza: 900)
+
+      print("")
+      print("── Il riquadro dell'aggiornamento, nei suoi quattro stati ──")
+      // Questo riquadro compare solo quando qualcuno pubblica una versione
+      // nuova: senza queste immagini nessuno lo guarderebbe mai prima che lo
+      // guardi una famiglia. Gli stati sono quelli che contano — pronto,
+      // mentre scarica, quando c'è una sessione in corso, quando l'app sta
+      // dove non si può scrivere.
+      let chiara = Palette.resolve(theme: .chiaro, vision: .standard, system: .light)
+      let finta = Updates.Release(
+        version: "0.6.0",
+        pageURL: URL(string: "https://github.com/FightTheStroke/MirrorScopio/releases")!,
+        notes: "La lettura ad alta voce sente meglio le parole corte, e le impostazioni si aprono dove le avevi lasciate.",
+        packageURL: URL(string: "https://github.com/x/y/releases/download/v0.6.0/MirrorScopio-0.6.0.zip")!,
+        packageSize: 2_000_000)
+      let statiRiquadro: [(String, Installazione.Fase, Bool, Bool)] = [
+        ("pronto", .ferma, false, true),
+        ("scarico", .scarico(0.42), false, true),
+        ("sessione-in-corso", .ferma, true, true),
+        ("cartella-non-scrivibile", .ferma, false, false),
+      ]
+      for (nome, fase, inSessione, scrivibile) in statiRiquadro {
+        disegna(
+          RiquadroAggiornamento(release: finta, fase: fase,
+                                sessioneInCorso: inSessione,
+                                puòInstallare: scrivibile,
+                                a11y: A11ySettings())
+            .padding(Metrica.spazio)
+            .frame(width: 720, alignment: .leading)
+            .background(chiara.background)
+            .environment(\.palette, chiara),
+          nome: "aggiornamento-\(nome)", larghezza: 720, altezza: 300)
+      }
+      // Anche ingrandito e con il carattere per la dislessia: è la prova che
+      // il riquadro regge il testo grande senza tagliare le parole.
+      var grande = A11ySettings()
+      grande.textScale = 2.0
+      grande.typeface = .openDyslexic
+      let riquadroGrande = RiquadroAggiornamento(
+        release: finta, fase: .verifico, sessioneInCorso: false,
+        puòInstallare: true, a11y: grande)
+        .padding(Metrica.spazio)
+        .frame(width: 900, alignment: .leading)
+        .background(chiara.background)
+        .environment(\.palette, chiara)
+      disegna(riquadroGrande, nome: "aggiornamento-ingrandito", larghezza: 900,
+              altezza: altezzaNaturale(riquadroGrande, larghezza: 900))
 
       print("")
       print("Le immagini sono in build/schermate/.")

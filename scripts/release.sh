@@ -78,22 +78,31 @@ NOTES="$(awk -v v="$NEW" '$0 ~ "^## \\["v"\\]"{f=1;next} /^## \[/{f=0} f' CHANGE
 # appena spinto fa partire il workflow «Rilascio». Qui lo si fa in locale solo
 # se GitHub non può, così una release non resta mai senza pacchetto.
 DMG=""
+ZIP=""
 if [ -n "${PACCHETTO_LOCALE:-}" ] || ! gh secret list --repo FightTheStroke/MirrorScopio 2>/dev/null | grep -q MACOS_CERT_P12; then
   echo "→ Costruisco il pacchetto qui (GitHub non ha ancora le chiavi)"
   DMG="build/MirrorScopio-$NEW.dmg"
+  ZIP="build/MirrorScopio-$NEW.zip"
   if ./scripts/package.sh --notarize; then
     echo "Pacchetto pronto: $DMG"
   else
     echo "⚠︎ Pacchetto non creato: la release avrà solo il codice sorgente."
     DMG=""
+    ZIP=""
   fi
 else
   echo "→ Il pacchetto lo costruisce GitHub: guarda la scheda Actions."
 fi
 
 if command -v gh >/dev/null 2>&1; then
-  if [ -n "$DMG" ] && [ -f "$DMG" ]; then
-    gh release create "v$NEW" --title "MirrorScopio $NEW" --notes "$NOTES" "$DMG"
+  # Lo zip va allegato insieme al DMG: è quello che le versioni installate
+  # cercano quando si aggiornano da sole. Una release senza zip non è rotta,
+  # ma costringe tutti a reinstallare a mano.
+  ALLEGATI=()
+  [ -n "$DMG" ] && [ -f "$DMG" ] && ALLEGATI+=("$DMG")
+  [ -n "$ZIP" ] && [ -f "$ZIP" ] && ALLEGATI+=("$ZIP")
+  if [ ${#ALLEGATI[@]} -gt 0 ]; then
+    gh release create "v$NEW" --title "MirrorScopio $NEW" --notes "$NOTES" "${ALLEGATI[@]}"
   else
     gh release create "v$NEW" --title "MirrorScopio $NEW" --notes "$NOTES"
   fi || echo "Release GitHub non creata: crea il tag a mano se serve."
