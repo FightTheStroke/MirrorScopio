@@ -29,11 +29,11 @@ struct InstructionsView: View {
     // chi ha ipovisione, esattamente per aver usato l'impostazione fatta per
     // lui. `minHeight` tiene tutto centrato quando lo spazio invece basta.
     ScrollView {
-      VStack(spacing: a11y.size(26)) {
+      VStack(spacing: a11y.size(Metrica.margine)) {
         Spacer(minLength: 0)
 
       Text(engine.isCalibration ? "Facciamo la prova" : "Pronti?")
-        .font(a11y.typeface.font(size: a11y.size(42), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
 
       if isWriting {
@@ -61,7 +61,7 @@ struct InstructionsView: View {
         Spacer(minLength: 0)
       }
       .frame(maxWidth: .infinity, minHeight: 560)
-      .padding(36)
+      .padding(Metrica.spazioGrande)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     // L'app scrive «se vuoi fermarti premi Esc» già in questa schermata: se lo
@@ -102,7 +102,7 @@ struct InstructionsView: View {
   }
 
   private var readingSteps: some View {
-    VStack(alignment: .leading, spacing: a11y.size(14)) {
+    VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
       step("Guarda il puntino in mezzo allo schermo: ti tiene l'occhio nel punto giusto.")
       step("Compare una parola. Le prime \(engine.config.warmupTrials) restano tanto, poi sempre meno.")
       step("Dilla subito ad alta voce, anche se non sei sicuro.")
@@ -111,7 +111,7 @@ struct InstructionsView: View {
   }
 
   private var writingSteps: some View {
-    VStack(alignment: .leading, spacing: a11y.size(14)) {
+    VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
       step("Il Mac dice una parola ad alta voce.")
       step("Tu la scrivi nella casella e premi Invio.")
       step("Se non l'hai sentita bene, premi **Ripeti**: puoi farlo quante volte vuoi.")
@@ -120,21 +120,21 @@ struct InstructionsView: View {
   }
 
   private func step(_ markdown: String) -> some View {
-    HStack(alignment: .top, spacing: 12) {
+    HStack(alignment: .top, spacing: Metrica.spazioPiccolo) {
       Image(systemName: "circle.fill")
         .font(.system(size: a11y.size(8)))
         .foregroundStyle(palette.accent)
-        .padding(.top, a11y.size(9))
+        .padding(.top, a11y.size(Metrica.spazioStretto))
         .accessibilityHidden(true)
       Text(.init(markdown))
-        .font(a11y.typeface.font(size: a11y.size(21)))
+        .font(a11y.font(.guida))
         .foregroundStyle(palette.foreground)
         .fixedSize(horizontal: false, vertical: true)
     }
   }
 
   private var micCheck: some View {
-    VStack(spacing: 10) {
+    VStack(spacing: Metrica.spazioStretto) {
       Image(systemName: heardOnce ? ColorVision.okSymbol : "mic.fill")
         .font(.system(size: a11y.size(44)))
         .foregroundStyle(heardOnce ? palette.ok : palette.accent)
@@ -154,22 +154,22 @@ struct InstructionsView: View {
       Group {
         if heardOnce {
           Text("Ti sento. Puoi cominciare.")
-            .font(a11y.typeface.font(size: a11y.size(26), weight: .semibold))
+            .font(a11y.font(.sezione, .semibold))
             .foregroundStyle(palette.ok)
         } else if silenzioLungo {
           Text("Non arriva niente dal microfono.")
-            .font(a11y.typeface.font(size: a11y.size(26), weight: .semibold))
+            .font(a11y.font(.sezione, .semibold))
             .foregroundStyle(palette.wrong)
         } else {
-          VStack(spacing: a11y.size(6)) {
+          VStack(spacing: a11y.size(Metrica.spazioMinimo)) {
             Text("Adesso di'")
-              .font(a11y.typeface.font(size: a11y.size(24)))
+              .font(a11y.font(.sezione))
               .foregroundStyle(palette.foreground)
             Text("“ciao”")
-              .font(a11y.typeface.font(size: a11y.size(44), weight: .bold))
+              .font(a11y.font(.titoloGrande, .bold))
               .foregroundStyle(palette.accent)
             Text("così vediamo se il Mac ti sente")
-              .font(a11y.typeface.font(size: a11y.size(18)))
+              .font(a11y.font(.corpo))
               .foregroundStyle(palette.muted)
           }
         }
@@ -184,7 +184,7 @@ struct InstructionsView: View {
           .frame(maxWidth: 520)
       }
     }
-    .padding(.vertical, 6)
+    .padding(.vertical, Metrica.spazioMinimo)
   }
 }
 
@@ -196,13 +196,13 @@ struct PauseView: View {
   @Environment(\.palette) private var palette
 
   var body: some View {
-    VStack(spacing: a11y.size(24)) {
+    VStack(spacing: a11y.size(Metrica.spazioLargo)) {
       Spacer()
       Image(systemName: "cup.and.saucer.fill")
         .font(.system(size: a11y.size(60)))
         .foregroundStyle(palette.accent)
       Text("Pausa")
-        .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
       Explain(text: "Respira, guarda fuori dalla finestra, muovi le spalle. Riprendiamo quando vuoi tu: non c'è nessun tempo che scorre.",
               a11y: a11y, size: 19)
@@ -215,12 +215,12 @@ struct PauseView: View {
 
       Button("Ho finito per oggi") { engine.abort() }
         .buttonStyle(.plain)
-        .font(a11y.typeface.font(size: a11y.size(16)))
+        .font(a11y.font(.etichetta))
         .foregroundStyle(palette.muted)
         .frame(minHeight: 44)
       Spacer()
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .padding(36)
+    .padding(Metrica.spazioGrande)
   }
 }

@@ -57,6 +57,28 @@ jobs:
           fi
           echo "Nessuna rete in Sources/ — la promessa regge."
 
+      # XcodeGen genera il progetto da project.yml: senza, `./test.sh` non ha
+      # con che cosa lanciare le prove. Va installato **prima** di lanciarle:
+      # messo dopo, il primo giro e' fallito dicendo «manca xcodegen».
+      - name: Preparo Xcode
+        run: brew install xcodegen
+
+      # Il progetto Xcode adesso sta nel repository, perche' Xcode Cloud
+      # pretende di trovarlo gia' pronto al momento del clone. Ma la sorgente
+      # resta project.yml: se i due si scollano, chi apre Xcode compila una cosa
+      # e la CI un'altra, e nessuno se ne accorge finche' non e' tardi.
+      # Qui il progetto si rigenera e si confronta con quello committato.
+      - name: Controllo che il progetto Xcode sia allineato a project.yml
+        run: |
+          set -euo pipefail
+          ./scripts/genera-progetto.sh
+          if ! git diff --quiet -- MirrorScopio.xcodeproj; then
+            git --no-pager diff --stat -- MirrorScopio.xcodeproj
+            echo "::error::Il progetto Xcode committato non corrisponde piu' a project.yml. Rigeneralo con ./scripts/genera-progetto.sh e committa il risultato."
+            exit 1
+          fi
+          echo "Progetto allineato a project.yml."
+
       - name: Compilo
         run: ./build.sh
 
@@ -79,12 +101,6 @@ jobs:
             exit 1
           fi
           grep -q "## \[$VERSION\]\|## \[Non ancora rilasciato\]" CHANGELOG.md
-
-      # XcodeGen genera il progetto da project.yml: senza, `./test.sh` non ha
-      # con che cosa lanciare le prove. Va installato **prima** di lanciarle:
-      # messo dopo, il primo giro e' fallito dicendo «manca xcodegen».
-      - name: Preparo Xcode
-        run: brew install xcodegen
 
       # Finche' «Navigazione da tastiera» e' spenta, Tab salta da un campo di
       # testo all'altro e ignora i pulsanti: le prove si fermerebbero

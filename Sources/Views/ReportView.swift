@@ -18,7 +18,7 @@ struct ReportView: View {
 
   var body: some View {
     ScrollView {
-      VStack(spacing: a11y.size(26)) {
+      VStack(spacing: a11y.size(Metrica.margine)) {
         if engine.isCalibration {
           calibrationResult
         } else {
@@ -34,7 +34,7 @@ struct ReportView: View {
         // tutto — non è il momento di chiedere niente a nessuno.
         if !engine.isCalibration, record.total > 0, !a11y.calmMode { sostieni }
       }
-      .padding(32)
+      .padding(Metrica.spazioGrande)
       .frame(maxWidth: 820)
       .frame(maxWidth: .infinity)
     }
@@ -70,7 +70,7 @@ struct ReportView: View {
   /// Un pulsante discreto, non il protagonista della schermata: chi vuole il
   /// premio lo trova, chi ha già avuto abbastanza per oggi lo ignora e chiude.
   private var premioStaffetta: some View {
-    VStack(spacing: 8) {
+    VStack(spacing: Metrica.spazioStretto) {
       SmallButton(title: "Il premio: la staffetta del Fight Camp",
                   symbol: "figure.run", a11y: a11y) {
         showStaffetta = true
@@ -87,7 +87,7 @@ struct ReportView: View {
   /// Fight The Stroke lo trova, chi ha già dato abbastanza oggi lo ignora. E si
   /// dice che apre il browser, perché fin qui l'app non è mai uscita dal Mac.
   private var sostieni: some View {
-    VStack(spacing: 8) {
+    VStack(spacing: Metrica.spazioStretto) {
       SmallButton(title: "Sostieni Fight The Stroke", symbol: "heart", a11y: a11y) {
         if let u = URL(string: "https://www.fightthestroke.org/donorbox") {
           NSWorkspace.shared.open(u)
@@ -98,7 +98,7 @@ struct ReportView: View {
               a11y: a11y, size: 13)
       .multilineTextAlignment(.center)
     }
-    .padding(.top, 8)
+    .padding(.top, Metrica.spazioStretto)
   }
 
   // MARK: - Salvataggio
@@ -118,9 +118,9 @@ struct ReportView: View {
   // MARK: - Per il ragazzo
 
   private var childResult: some View {
-    VStack(spacing: a11y.size(14)) {
+    VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
       Text(headline)
-        .font(a11y.typeface.font(size: a11y.size(44), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
         .multilineTextAlignment(.center)
 
@@ -137,18 +137,18 @@ struct ReportView: View {
           .frame(maxWidth: 560)
       } else {
         Text("Hai preso **\(record.correct)** parole su **\(record.total)**.")
-          .font(a11y.typeface.font(size: a11y.size(24)))
+          .font(a11y.font(.sezione))
           .foregroundStyle(palette.muted)
 
         if record.correct < record.total {
           Text(frasePerLeRimaste)
-            .font(a11y.typeface.font(size: a11y.size(20), weight: .medium))
+            .font(a11y.font(.guida, .medium))
             .foregroundStyle(palette.accent)
             .multilineTextAlignment(.center)
             .frame(maxWidth: 520)
         }
 
-        HStack(spacing: 8) {
+        HStack(spacing: Metrica.spazioStretto) {
           ForEach(0..<5, id: \.self) { i in
             Image(systemName: i < stars ? "star.fill" : "star")
               .font(.system(size: a11y.size(34)))
@@ -160,18 +160,18 @@ struct ReportView: View {
       }
 
       if !record.missedWords.isEmpty {
-        VStack(spacing: 6) {
+        VStack(spacing: Metrica.spazioMinimo) {
           Explain(text: "Queste ti sono scappate:", a11y: a11y, size: 16)
             .multilineTextAlignment(.center)
           Text(record.missedWords.prefix(10).joined(separator: "   "))
-            .font(a11y.typeface.font(size: a11y.size(22), weight: .medium))
+            .font(a11y.font(.guida, .medium))
             .foregroundStyle(palette.foreground)
             .multilineTextAlignment(.center)
         }
-        .padding(.top, 6)
+        .padding(.top, Metrica.spazioMinimo)
       }
     }
-    .padding(.top, 16)
+    .padding(.top, Metrica.spazioMedio)
   }
 
   private var stars: Int {
@@ -217,22 +217,22 @@ struct ReportView: View {
   @ViewBuilder
   private var unlockedBadges: some View {
     if !unlocked.isEmpty {
-      VStack(spacing: 10) {
+      VStack(spacing: Metrica.spazioStretto) {
         Explain(text: unlocked.count == 1 ? "Hai sbloccato un obiettivo" : "Hai sbloccato \(unlocked.count) obiettivi", a11y: a11y, size: 17)
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           ForEach(unlocked) { a in
-            VStack(spacing: 6) {
+            VStack(spacing: Metrica.spazioMinimo) {
               Image(systemName: a.symbol).font(.system(size: a11y.size(30)))
                 .foregroundStyle(palette.accent)
-              Text(a.title).font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+              Text(a.title).font(a11y.font(.etichetta, .semibold))
                 .foregroundStyle(palette.foreground)
-              Text(a.hint).font(a11y.typeface.font(size: a11y.size(13)))
+              Text(a.hint).font(a11y.font(.nota))
                 .foregroundStyle(palette.muted)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity)
-            .padding(14)
+            .padding(Metrica.spazioPiccolo)
             .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
           }
         }
@@ -245,14 +245,14 @@ struct ReportView: View {
   @ViewBuilder
   private var difficultyProposal: some View {
     if let message = Difficulty.message(engine.difficultySuggestion) {
-      VStack(spacing: 12) {
+      VStack(spacing: Metrica.spazioPiccolo) {
         Text(.init(message))
-          .font(a11y.typeface.font(size: a11y.size(21)))
+          .font(a11y.font(.guida))
           .foregroundStyle(palette.foreground)
           .multilineTextAlignment(.center)
           .fixedSize(horizontal: false, vertical: true)
 
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           BigButton(title: "Sì, proviamo", symbol: "arrow.right", a11y: a11y) {
             applySuggestion()
           }
@@ -261,7 +261,7 @@ struct ReportView: View {
           }
         }
       }
-      .padding(18)
+      .padding(Metrica.spazioMedio)
       .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
     }
   }
@@ -285,12 +285,12 @@ struct ReportView: View {
   // MARK: - Prova iniziale
 
   private var calibrationResult: some View {
-    VStack(spacing: a11y.size(16)) {
+    VStack(spacing: a11y.size(Metrica.spazioMedio)) {
       Image(systemName: "wand.and.stars")
         .font(.system(size: a11y.size(52)))
         .foregroundStyle(palette.accent)
       Text("Prova finita")
-        .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
+        .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
 
       if let r = engine.calibrationResult {
@@ -318,13 +318,13 @@ struct ReportView: View {
           .frame(maxWidth: 420)
       }
     }
-    .padding(.top, 20)
+    .padding(.top, Metrica.spazio)
   }
 
   // MARK: - Pulsanti
 
   private var actions: some View {
-    HStack(spacing: 14) {
+    HStack(spacing: Metrica.spazioPiccolo) {
       if !engine.isCalibration {
         BigButton(title: "Ancora", symbol: "arrow.clockwise", a11y: a11y) {
           engine.reset()
@@ -349,10 +349,10 @@ struct ReportView: View {
 
   private var adultDetail: some View {
     DisclosureGroup(isExpanded: $showDetail) {
-      VStack(alignment: .leading, spacing: 16) {
+      VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
         Explain(text: plainLanguage, a11y: a11y, size: 16)
 
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 12)], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
           stat("\(record.total)", "parole mostrate")
           stat("\(Int(record.accuracy * 100))%", "lette giuste (\(record.correct) su \(record.total))")
           stat(record.thresholdMs.map { "\(Int($0)) ms" } ?? "—", "tempo minimo per leggere")
@@ -360,40 +360,40 @@ struct ReportView: View {
         }
 
         if !record.errorCounts.isEmpty {
-          VStack(alignment: .leading, spacing: 6) {
+          VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
             Text("Che cosa succede alle parole che non vengono")
-              .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+              .font(a11y.font(.corpo, .semibold))
               .foregroundStyle(palette.foreground)
             ForEach(record.errorCounts.sorted { $0.value > $1.value }, id: \.key) { kind, count in
               Text("· \(kind) — \(count)")
-                .font(a11y.typeface.font(size: a11y.size(16)))
+                .font(a11y.font(.etichetta))
                 .foregroundStyle(palette.muted)
             }
           }
         }
 
         if engine.summarizing {
-          HStack(spacing: 8) {
+          HStack(spacing: Metrica.spazioStretto) {
             ProgressView().controlSize(.small)
             Explain(text: "Analisi in corso sul Mac…", a11y: a11y, size: 15)
           }
         } else if let s = engine.summary {
           GroupBox {
-            VStack(alignment: .leading, spacing: 10) {
-              Text(s.profilo).font(a11y.typeface.font(size: a11y.size(16)))
+            VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+              Text(s.profilo).font(a11y.font(.etichetta))
               Text("Pattern prevalente: \(s.patternPrevalente)")
-                .font(a11y.typeface.font(size: a11y.size(15)))
+                .font(a11y.font(.etichetta))
                 .foregroundStyle(palette.muted)
               ForEach(Array(s.proposte.enumerated()), id: \.offset) { _, p in
                 Label(p, systemImage: "arrow.right.circle")
-                  .font(a11y.typeface.font(size: a11y.size(15)))
+                  .font(a11y.font(.etichetta))
               }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(6)
+            .padding(Metrica.spazioMinimo)
           } label: {
             Label("Sintesi clinica — modello Apple sul dispositivo", systemImage: "sparkles")
-              .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
+              .font(a11y.font(.etichetta, .semibold))
           }
         }
 
@@ -411,40 +411,40 @@ struct ReportView: View {
         }
         Explain(text: "Il file contiene il nome e le parole che non sono venute: trattalo come un documento clinico.", a11y: a11y, size: 14)
       }
-      .padding(.top, 14)
+      .padding(.top, Metrica.spazioPiccolo)
     } label: {
       Label("Dettaglio per l'adulto", systemImage: "gearshape")
-        .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
+        .font(a11y.font(.corpo, .semibold))
         .foregroundStyle(palette.foreground)
     }
-    .padding(.top, 10)
+    .padding(.top, Metrica.spazioStretto)
   }
 
   private var trialTable: some View {
     VStack(spacing: 0) {
       ForEach(record.items) { item in
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           Text(item.stimulus)
-            .font(a11y.typeface.font(size: a11y.size(16), weight: .medium))
+            .font(a11y.font(.etichetta, .medium))
             .frame(maxWidth: .infinity, alignment: .leading)
           Text(item.response.isEmpty ? "—" : item.response)
-            .font(a11y.typeface.font(size: a11y.size(16)))
+            .font(a11y.font(.etichetta))
             .foregroundStyle(palette.muted)
             .frame(maxWidth: .infinity, alignment: .leading)
           Verdict(correct: item.correct, a11y: a11y, size: 15)
             .frame(width: 130, alignment: .leading)
           Text(item.errorKind)
-            .font(a11y.typeface.font(size: a11y.size(14)))
+            .font(a11y.font(.nota))
             .foregroundStyle(palette.muted)
             .frame(width: 120, alignment: .leading)
           Text("\(Int(item.exposureMs)) ms")
-            .font(a11y.typeface.font(size: a11y.size(14)))
+            .font(a11y.font(.nota))
             .foregroundStyle(palette.muted)
             .monospacedDigit()
             .frame(width: 80, alignment: .trailing)
         }
-        .padding(.vertical, 7)
-        .padding(.horizontal, 10)
+        .padding(.vertical, Metrica.spazioMinimo)
+        .padding(.horizontal, Metrica.spazioStretto)
         .background(item.warmup ? palette.surface.opacity(0.5) : Color.clear)
       }
     }
@@ -468,18 +468,18 @@ struct ReportView: View {
   }
 
   private func stat(_ value: String, _ key: String) -> some View {
-    VStack(alignment: .leading, spacing: 3) {
+    VStack(alignment: .leading, spacing: Metrica.filo) {
       Text(value)
-        .font(a11y.typeface.font(size: a11y.size(26), weight: .bold))
+        .font(a11y.font(.sezione, .bold))
         .foregroundStyle(palette.foreground)
         .monospacedDigit()
       Text(key)
-        .font(a11y.typeface.font(size: a11y.size(13)))
+        .font(a11y.font(.nota))
         .foregroundStyle(palette.muted)
         .fixedSize(horizontal: false, vertical: true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(12)
+    .padding(Metrica.spazioPiccolo)
     .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
   }
 }

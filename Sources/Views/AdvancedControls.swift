@@ -20,7 +20,7 @@ struct AdvancedControls: View {
   @ObservedObject var engine: SessionEngine
   var a11y: A11ySettings
 
-  private var corpo: Font { a11y.typeface.font(size: a11y.size(15)) }
+  private var corpo: Font { a11y.font(.etichetta) }
 
   var body: some View {
       Form {
@@ -29,7 +29,7 @@ struct AdvancedControls: View {
             ForEach(StimulusSet.allCases) { Text($0.label).tag($0) }
           }
           if engine.config.set == .personalizzata {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
               Text("Una parola per riga.").font(corpo).foregroundStyle(palette.muted)
               TextEditor(text: $engine.config.customList)
                 .font(.system(size: a11y.size(14), design: .monospaced))
@@ -89,14 +89,14 @@ struct AdvancedControls: View {
 
   private func note(_ text: String) -> some View {
     Text(text)
-      .font(a11y.typeface.font(size: a11y.size(14)))
+      .font(a11y.font(.nota))
       .foregroundStyle(palette.muted)
       .fixedSize(horizontal: false, vertical: true)
   }
 
   private func slider(_ title: String, _ value: Binding<Double>,
                       _ range: ClosedRange<Double>, unit: String) -> some View {
-    VStack(alignment: .leading, spacing: 2) {
+    VStack(alignment: .leading, spacing: Metrica.filo) {
       HStack {
         Text(title).font(corpo)
         Spacer()

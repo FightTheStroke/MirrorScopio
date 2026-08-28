@@ -59,10 +59,10 @@ struct AudioMenu: View {
         Button("Prova microfono e voce…", systemImage: "waveform.badge.mic", action: openAudioCheck)
       }
     } label: {
-      HStack(spacing: 7) {
+      HStack(spacing: Metrica.spazioMinimo) {
         Image(systemName: inAttesa ? "hourglass" : "headphones")
         Text(inAttesa ? "cambio microfono…" : etichetta)
-          .font(a11y.typeface.font(size: a11y.size(15)))
+          .font(a11y.font(.etichetta))
           .lineLimit(1)
       }
       .frame(minHeight: 44)

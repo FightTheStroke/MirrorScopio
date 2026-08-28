@@ -55,14 +55,14 @@ struct OnboardingView: View {
       barraPassi
       ScrollView {
         contenuto
-          .padding(.horizontal, a11y.size(40))
-          .padding(.vertical, a11y.size(28))
+          .padding(.horizontal, a11y.size(Metrica.spazioEnorme))
+          .padding(.vertical, a11y.size(Metrica.spazioLargo))
           .frame(maxWidth: 820, alignment: .leading)
       }
       .frame(maxWidth: .infinity)
       pulsanti
-        .padding(.horizontal, a11y.size(40))
-        .padding(.bottom, a11y.size(28))
+        .padding(.horizontal, a11y.size(Metrica.spazioEnorme))
+        .padding(.bottom, a11y.size(Metrica.spazioLargo))
         .frame(maxWidth: 820, alignment: .leading)
     }
     .frame(maxWidth: .infinity)
@@ -81,15 +81,15 @@ struct OnboardingView: View {
   private var passoCorrente: Passo { passi[min(passo, passi.count - 1)] }
 
   private var barraPassi: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: Metrica.spazioStretto) {
       ForEach(0..<passi.count, id: \.self) { i in
         Capsule()
           .fill(i <= passo ? palette.accent : palette.muted.opacity(0.25))
           .frame(height: 8)
       }
     }
-    .padding(.horizontal, a11y.size(40))
-    .padding(.top, a11y.size(28))
+    .padding(.horizontal, a11y.size(Metrica.spazioEnorme))
+    .padding(.top, a11y.size(Metrica.spazioLargo))
     .accessibilityLabel("Passo \(passo + 1) di \(passi.count)")
   }
 
@@ -97,7 +97,7 @@ struct OnboardingView: View {
   private var contenuto: some View {
     switch passoCorrente {
     case .benvenuto:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Ciao!")
         Explain(text: "MirrorScopio fa vedere una parola per un istante e ascolta come la leggi. Serve per allenare la lettura, un pezzetto alla volta.", a11y: a11y, size: 21)
         Explain(text: "**Tutto resta su questo Mac.** La tua voce non viene inviata a nessuno: il riconoscimento funziona anche senza internet.", a11y: a11y, size: 21)
@@ -105,13 +105,13 @@ struct OnboardingView: View {
       }
 
     case .aspetto:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Si legge bene?")
         Explain(text: "Se chi userà l'app vede poco, o le lettere gli si accavallano, qui si sistema in un attimo. Prova subito: la parola qui sotto cambia mentre scegli.", a11y: a11y, size: 21)
         anteprimaParola
         sliderOnb("Quanto grande", bindDouble(\.stimulusSize), 48...220) { "\(Int($0)) punti" }
         SectionTitle(text: "Il carattere", a11y: a11y)
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
           ForEach(TypefaceChoice.allCases.filter(\.isAvailable)) { t in
             ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.typeface == t, a11y: a11y) {
               aggiorna { $0.typeface = t }
@@ -119,7 +119,7 @@ struct OnboardingView: View {
           }
         }
         SectionTitle(text: "Colori e luce", a11y: a11y)
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
           ForEach(ThemeChoice.allCases) { t in
             ChoiceCard(title: t.label, subtitle: t.hint, selected: a11y.theme == t, a11y: a11y) {
               aggiorna { $0.theme = t }
@@ -130,7 +130,7 @@ struct OnboardingView: View {
       }
 
     case .calma:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Quante cose intorno?")
         Explain(text: "C'è chi legge meglio con lo schermo tranquillo: senza colori accesi e senza cose che si muovono. Se serve, si toglie tutto qui.", a11y: a11y, size: 21)
         toggleOnb("Modalità calma", bindBool(\.calmMode),
@@ -139,11 +139,11 @@ struct OnboardingView: View {
                   "Tutto compare e sparisce senza movimento.")
         SectionTitle(text: "Come vedi i colori", a11y: a11y)
         Explain(text: "«Giusta» e «ancora» non si distinguono mai solo dal colore: c'è sempre anche un simbolo e una parola. Qui scegli i colori che si distinguono meglio.", a11y: a11y, size: 16)
-        HStack(spacing: 20) {
+        HStack(spacing: Metrica.spazio) {
           Verdict(correct: true, a11y: a11y)
           Verdict(correct: false, a11y: a11y)
         }
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: Metrica.spazioPiccolo)], spacing: Metrica.spazioPiccolo) {
           ForEach(ColorVision.allCases) { v in
             ChoiceCard(title: v.label, selected: a11y.colorVision == v, a11y: a11y) {
               aggiorna { $0.colorVision = v }
@@ -155,12 +155,12 @@ struct OnboardingView: View {
 
     case .sistema(let id):
       if let voce = readiness.voci.first(where: { $0.id == id }) {
-        VStack(alignment: .leading, spacing: a11y.size(16)) {
+        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
           titolo(titoloPasso(voce))
           Explain(text: spiegazionePasso(voce), a11y: a11y, size: 21)
           switch voce.stato {
           case .inCorso(let frazione):
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
               ProgressView(value: frazione ?? 0, total: 1)
                 .progressViewStyle(.linear)
                 .tint(palette.accent)
@@ -179,7 +179,7 @@ struct OnboardingView: View {
       }
 
     case .voce:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Chi ti legge le parole?")
         Explain(text: "In alcune prove è l'app a dire la parola ad alta voce. Scegli la voce che si capisce meglio: sentile e decidi tu.", a11y: a11y, size: 21)
         VoiceChooser(store: store)
@@ -187,11 +187,11 @@ struct OnboardingView: View {
       }
 
     case .aggiornamenti:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Ti avviso quando esce una versione nuova?")
         Explain(text: "MirrorScopio non manda niente a nessuno: quello che dici o scrivi resta su questo Mac. Questa è l'unica eccezione, e la scegli tu.", a11y: a11y, size: 21)
         Explain(text: "Se dici di sì, una volta al giorno l'app chiede a GitHub qual è l'ultima versione pubblicata. È una domanda su di noi, non su di te: non parte nessun nome, nessuna parola, nessun punteggio. Non scarica niente da sola: se c'è una versione nuova te lo dice, e la installi tu con un pulsante quando vuoi.", a11y: a11y, size: 19)
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           BigButton(title: "Sì, avvisami", symbol: "checkmark", a11y: a11y) {
             Updates.enabled = true
             passo = min(passi.count - 1, passo + 1)
@@ -205,11 +205,11 @@ struct OnboardingView: View {
       }
 
     case .promemoria:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo("Ti ricordo di allenarti?")
         Explain(text: "Serve pochissimo, ma serve spesso: dieci minuti al giorno valgono piu' di un'ora una volta a settimana. E la cosa piu' difficile non e' farlo — e' ricordarsene.", a11y: a11y, size: 21)
         Explain(text: "Se dici di si', il Mac fa comparire un invito gentile alle \(promemoria.orarioTesto). Resta tutto qui dentro: e' un avviso di macOS, non un messaggio che parte da qualche parte. E nel giorno in cui ti sei gia' allenato non arriva niente.", a11y: a11y, size: 19)
-        HStack(spacing: 12) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           BigButton(title: "Si', ricordamelo", symbol: "bell.fill", a11y: a11y) {
             Task {
               await promemoria.accendi(
@@ -227,7 +227,7 @@ struct OnboardingView: View {
       }
 
     case .pronti:
-      VStack(alignment: .leading, spacing: a11y.size(16)) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMedio)) {
         titolo(readiness.puoIniziare ? "Facciamo una prova insieme" : "Manca ancora qualcosa")
         Explain(text: readiness.puoIniziare
                 ? "Otto parole, meno di un minuto. Servono al Mac per capire da che velocità partire con te: né troppo facile da annoiarti, né troppo difficile da scoraggiarti. Non è un esame e non viene contata: se una parola non viene ancora, si tira dritto."
@@ -241,14 +241,14 @@ struct OnboardingView: View {
   /// L'unica cosa che il Mac non lascia fare a un'app: scaricare altre voci.
   /// Va detto chiaramente, e solo qui, dove non blocca nessuno.
   private var altreVoci: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       Explain(text: "Le voci di serie bastano. Se ne vuoi una più naturale, macOS non permette a nessuna app di scaricarle: si fa una volta sola in Impostazioni di Sistema › Accessibilità › Contenuto letto › Voce di sistema › Gestisci voci.", a11y: a11y, size: 16)
       SmallButton(title: "Apri quella pagina delle Impostazioni",
                   symbol: "arrow.up.forward.app", a11y: a11y) {
         readiness.apriImpostazioniVoci()
       }
     }
-    .padding(.top, 4)
+    .padding(.top, Metrica.briciola)
   }
 
   // MARK: - Accessibilità nell'avvio guidato
@@ -258,7 +258,7 @@ struct OnboardingView: View {
   /// chi sceglie non sta configurando un'app, sta capendo se il proprio figlio
   /// riuscirà a leggere.
   private var anteprimaParola: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
       Explain(text: "Così apparirà una parola durante l'esercizio:", a11y: a11y, size: 16)
       Text(parolaEsempio)
         .font(a11y.typeface.font(size: CGFloat(a11y.stimulusSize), weight: .semibold))
@@ -281,14 +281,14 @@ struct OnboardingView: View {
   private func sliderOnb(_ title: String, _ value: Binding<Double>,
                          _ range: ClosedRange<Double>,
                          _ format: (Double) -> String) -> some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
       HStack {
         Text(title)
-          .font(a11y.typeface.font(size: a11y.size(17)))
+          .font(a11y.font(.corpo))
           .foregroundStyle(palette.foreground)
         Spacer()
         Text(format(value.wrappedValue))
-          .font(a11y.typeface.font(size: a11y.size(15)))
+          .font(a11y.font(.etichetta))
           .foregroundStyle(palette.muted)
           .monospacedDigit()
       }
@@ -299,9 +299,9 @@ struct OnboardingView: View {
   }
 
   private func toggleOnb(_ title: String, _ value: Binding<Bool>, _ hint: String) -> some View {
-    VStack(alignment: .leading, spacing: 2) {
+    VStack(alignment: .leading, spacing: Metrica.filo) {
       Toggle(title, isOn: value)
-        .font(a11y.typeface.font(size: a11y.size(19)))
+        .font(a11y.font(.guida))
         .foregroundStyle(palette.foreground)
       Explain(text: hint, a11y: a11y, size: 15)
     }
@@ -368,7 +368,7 @@ struct OnboardingView: View {
         }
         Spacer(minLength: 0)
         Button("Salta") { onFinish() }
-          .font(a11y.typeface.font(size: a11y.size(16)))
+          .font(a11y.font(.etichetta))
           .buttonStyle(.plain)
           .foregroundStyle(palette.muted)
           .frame(minHeight: Metrica.bersaglio)
@@ -382,7 +382,7 @@ struct OnboardingView: View {
 
   private func titolo(_ t: String) -> some View {
     Text(t)
-      .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
+      .font(a11y.font(.titoloGrande, .bold))
       .foregroundStyle(palette.foreground)
   }
 

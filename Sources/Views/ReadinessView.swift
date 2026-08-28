@@ -16,10 +16,10 @@ struct ReadinessView: View {
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: a11y.size(22)) {
-        VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazio)) {
+        VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
           Text("Prepariamo il Mac")
-            .font(a11y.typeface.font(size: a11y.size(38), weight: .bold))
+            .font(a11y.font(.titoloGrande, .bold))
             .foregroundStyle(palette.foreground)
           Explain(text: "MirrorScopio ascolta e parla usando solo questo Mac. Un Mac nuovo non ha sempre tutto installato: qui controlliamo, una cosa alla volta.",
                   a11y: a11y, size: 19)
@@ -29,7 +29,7 @@ struct ReadinessView: View {
           riga(voce)
         }
 
-        HStack(spacing: 14) {
+        HStack(spacing: Metrica.spazioPiccolo) {
           if readiness.puoIniziare, let onContinue {
             BigButton(title: "Vai", symbol: "arrow.right", a11y: a11y, action: onContinue)
               .frame(maxWidth: 260)
@@ -44,14 +44,14 @@ struct ReadinessView: View {
               .keyboardShortcut(.escape, modifiers: [])
           }
         }
-        .padding(.top, 6)
+        .padding(.top, Metrica.spazioMinimo)
 
         if !readiness.puoIniziare {
           Explain(text: "Le voci con il punto esclamativo vanno sistemate prima di iniziare: senza microfono o senza il riconoscimento italiano l'app non può sentire chi legge.",
                   a11y: a11y)
         }
       }
-      .padding(a11y.size(36))
+      .padding(a11y.size(Metrica.spazioGrande))
       .frame(maxWidth: 900, alignment: .leading)
     }
     .frame(maxWidth: .infinity)
@@ -60,21 +60,21 @@ struct ReadinessView: View {
 
   @ViewBuilder
   private func riga(_ voce: Readiness.Voce) -> some View {
-    HStack(alignment: .top, spacing: 16) {
+    HStack(alignment: .top, spacing: Metrica.spazioMedio) {
       simbolo(voce)
         .font(.system(size: a11y.size(28), weight: .bold))
         .frame(width: a11y.size(38))
 
-      VStack(alignment: .leading, spacing: 6) {
+      VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
         Text(voce.titolo)
-          .font(a11y.typeface.font(size: a11y.size(22), weight: .semibold))
+          .font(a11y.font(.guida, .semibold))
           .foregroundStyle(palette.foreground)
 
         switch voce.stato {
         case .ok(let d), .manca(let d):
           Explain(text: d, a11y: a11y)
         case .inCorso(let frazione):
-          VStack(alignment: .leading, spacing: 6) {
+          VStack(alignment: .leading, spacing: Metrica.spazioMinimo) {
             ProgressView(value: frazione ?? 0, total: 1)
               .progressViewStyle(.linear)
               .tint(palette.accent)
@@ -92,7 +92,7 @@ struct ReadinessView: View {
         }
       }
     }
-    .padding(a11y.size(18))
+    .padding(a11y.size(Metrica.spazioMedio))
     .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
     .overlay(
       RoundedRectangle(cornerRadius: Metrica.raggio)

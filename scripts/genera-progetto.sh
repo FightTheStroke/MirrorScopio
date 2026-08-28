@@ -32,4 +32,8 @@ if ! command -v xcodegen >/dev/null 2>&1; then
 fi
 
 xcodegen generate --quiet
+# Toglie i numeri casuali che xcodegen assegna a cinque oggetti: senza questo
+# passo il progetto risulta modificato appena lo si rigenera, e il controllo
+# «progetto allineato a project.yml» che gira su GitHub non potrebbe esistere.
+python3 "$(dirname "$0")/stabilizza-progetto.py" >/dev/null
 echo "Progetto pronto: MirrorScopio.xcodeproj — versione $VERSION (build $BUILD_NUMBER)"
