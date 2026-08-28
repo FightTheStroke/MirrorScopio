@@ -228,6 +228,14 @@ struct SessionConfig: Codable, Equatable {
   /// Analisi qualitativa degli errori con il modello Apple on-device.
   var useAppleIntelligence = true
 
+  /// Permette di scendere sotto il limite di lampeggio.
+  ///
+  /// Sta qui e non fra le opzioni del ragazzo: è una scelta che un adulto fa
+  /// consapevolmente, sapendo che cosa comporta, per un bambino di cui conosce
+  /// la storia clinica. Il valore predefinito è «no» perché chi non ne sa
+  /// niente non deve poterlo attivare per sbaglio.
+  var lampeggioVeloceConsentito = false
+
   var resolvedItems: [String] {
     let base = set == .personalizzata
       ? customList.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
@@ -241,6 +249,50 @@ struct SessionConfig: Codable, Equatable {
     let slice = Array(out.prefix(trials))
     return uppercase ? slice.map { $0.uppercased() } : slice
   }
+}
+
+// MARK: - Quanto lampeggia lo schermo
+
+extension SessionConfig {
+
+  /// Il limite oltre il quale uno schermo che si accende e si spegne può
+  /// scatenare una crisi in chi ha un'epilessia fotosensibile.
+  ///
+  /// Tre volte al secondo è la soglia delle linee guida internazionali sui
+  /// contenuti web (WCAG 2.3.1). Questa app mostra parole ad alto contrasto
+  /// alternate a una maschera, cioè esattamente il tipo di alternanza a cui
+  /// quella soglia si riferisce, e la usa un ragazzo **da solo**: se lo
+  /// schermo lampeggia troppo in fretta non c'è nessun adulto accanto a
+  /// fermarlo.
+  static let limiteLampeggioHz: Double = 3
+
+  /// Quanto dura il ciclo visivo completo, nel caso peggiore, in millesimi.
+  ///
+  /// Nel caso peggiore, cioè: esposizione al minimo che la scala adattiva può
+  /// raggiungere, e risposta immediata. Il tempo di ascolto e il riscontro non
+  /// si contano apposta — durano quanto ci mette una persona, e una stima
+  /// ottimistica qui vorrebbe dire dichiarare sicuro un ritmo che sicuro non
+  /// è.
+  var durataCicloPeggioreMs: Double {
+    let mascheraPrima = maskMode == .both ? maskMs : 0
+    let mascheraDopo = maskMode != .none ? maskMs : 0
+    return fixationMs + mascheraPrima + max(minExposureMs, 1) + mascheraDopo + interTrialMs
+  }
+
+  /// Quante volte al secondo si ripete il ciclo completo, nel caso peggiore.
+  var frequenzaCicloHz: Double {
+    let ms = durataCicloPeggioreMs
+    return ms > 0 ? 1000 / ms : .infinity
+  }
+
+  /// Vero quando questa configurazione fa lampeggiare lo schermo più in fretta
+  /// del limite.
+  var oltreIlLimiteDiLampeggio: Bool {
+    frequenzaCicloHz > SessionConfig.limiteLampeggioHz
+  }
+
+  /// La durata minima che il ciclo deve avere per restare sotto il limite.
+  static var durataCicloMinimaMs: Double { 1000 / limiteLampeggioHz }
 }
 
 // MARK: - Esito di una prova
@@ -274,6 +326,29 @@ struct Trial: Identifiable, Codable {
   var editDistance: Int = 0
   var confidence: Double?
   var note: String = ""
+  /// Frequenza dello schermo su cui la parola è stata mostrata, in hertz.
+  ///
+  /// Senza questo numero la durata richiesta e quella ottenuta non si possono
+  /// confrontare fra due Mac: a 60 Hz non esiste un'esposizione di 30 ms, il
+  /// frame più vicino ne dura 16,7. Scriverlo è l'unico modo perché chi legge
+  /// il referto sappia quanto vale davvero il numero che ha davanti.
+  var refreshHz: Double?
+  /// Quanti frame sarebbero serviti per la durata richiesta e quanti ne sono
+  /// stati davvero disegnati.
+  var frameRichiesti: Int?
+  var frameEffettivi: Int?
+  /// Vero quando lo schermo ha saltato almeno un frame durante l'esposizione:
+  /// la parola è rimasta visibile più del dovuto e la prova va guardata con
+  /// sospetto invece che contata come le altre.
+  var frameSaltato: Bool = false
+  /// Vero quando il turno è stato interrotto da qualcosa che non c'entra con
+  /// chi legge: il Mac si è addormentato, la finestra è passata in secondo
+  /// piano, il microfono è sparito. **Non è un'omissione**: contarla come tale
+  /// vorrebbe dire scrivere nel referto che un ragazzo non ha risposto quando
+  /// nessuno gli aveva chiesto niente.
+  var interrotto: Bool = false
+  /// Perché è stato interrotto, con parole che si possono leggere.
+  var motivoInterruzione: String?
 }
 
 // MARK: - Scala adattiva

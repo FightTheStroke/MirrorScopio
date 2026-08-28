@@ -24,6 +24,7 @@
 		3E30DE05D870317961F53BA8 /* InstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */; };
 		3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */; };
 		457E7F5797CE815907CB5F27 /* Gamification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077275B6401CB89DC6AF421 /* Gamification.swift */; };
+		5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */; };
 		5EB25C7BFA9CD4050FC5DF3A /* StageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031F620CCEB5656D46BD0DE9 /* StageView.swift */; };
 		5ED5293352158029B96B4749 /* FrameClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C0BAC75B45E720D4EC713C /* FrameClock.swift */; };
 		5F38A65C41C5ECA1975785AB /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35E182095769B06776CC6F7 /* DashboardView.swift */; };
@@ -171,6 +172,7 @@
 		E8BCAA8C25A78EAA0828A3FF /* VoiceChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChooser.swift; sourceTree = "<group>"; };
 		E8CC16AEE2F4A86D2D0A27DA /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		EB98145457D8873F58DC5B95 /* StaffettaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffettaView.swift; sourceTree = "<group>"; };
+		EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiDifendibili.swift; sourceTree = "<group>"; };
 		F012376A51206B22B3394005 /* SessionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEngine.swift; sourceTree = "<group>"; };
 		F23F6B107DC5E60A5E208265 /* test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = test.sh; sourceTree = "<group>"; };
 		F601842AF1210C2D8A49BE01 /* MirrorScopio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MirrorScopio.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -362,6 +364,7 @@
 				BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */,
 				53C25C5F17C318E947E1AD49 /* Battito.swift */,
 				3E94B8AD368179CF019AEB21 /* Contrasto.swift */,
+				EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
 			);
@@ -600,6 +603,7 @@
 				0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */,
 				AAD053F52024C18ABB369359 /* Battito.swift in Sources */,
 				B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */,
+				5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,
 			);

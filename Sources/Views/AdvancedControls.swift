@@ -56,6 +56,20 @@ struct AdvancedControls: View {
           }
           slider("Croce prima della parola", $engine.config.fixationMs, 0...2000, unit: "ms")
           slider("Pausa fra una parola e l'altra", $engine.config.interTrialMs, 0...3000, unit: "ms")
+
+          // Se l'app sa che questi tempi faranno lampeggiare lo schermo troppo
+          // in fretta, lo dice qui, adesso — non quando il ragazzo preme «Via!»
+          // e si trova davanti un rifiuto che non capisce.
+          if engine.config.oltreIlLimiteDiLampeggio {
+            Label {
+              Text("Con questi tempi lo schermo cambierebbe \(engine.config.frequenzaCicloHz, specifier: "%.1f") volte al secondo. Sopra tre volte al secondo un'alternanza così può far male a chi ha un'epilessia fotosensibile: allunga la pausa o la croce finché il giro completo dura almeno \(Int(SessionConfig.durataCicloMinimaMs.rounded())) millesimi.")
+            } icon: {
+              Image(systemName: "exclamationmark.triangle.fill")
+            }
+            .font(corpo)
+            Toggle("Un adulto consente comunque questo ritmo",
+                   isOn: $engine.config.lampeggioVeloceConsentito)
+          }
         }
 
         Section("Maschera") {

@@ -170,3 +170,63 @@ enum AudioDevices {
     return Unmanaged<CFString>.fromOpaque(grezzo).takeRetainedValue() as String
   }
 }
+
+/// Tiene d'occhio il microfono mentre la sessione è in corso.
+///
+/// Staccare le cuffie a metà allenamento è normalissimo. Quello che non va
+/// bene è che l'app continui a mostrare parole a un ragazzo che parla in un
+/// microfono che non c'è più: le sue risposte finiscono nei dati come
+/// "nessuna risposta", cioè come se non avesse letto. Il Mac lo sa subito che
+/// il dispositivo è sparito, quindi lo si chiede al Mac.
+@MainActor
+final class SorveglianzaMicrofono {
+
+  /// Chiamata quando il microfono su cui si stava ascoltando non c'è più.
+  var suMicrofonoSparito: (() -> Void)?
+
+  private var sorvegliato: AudioDeviceID?
+  private var attiva = false
+  private var indirizzo = AudioObjectPropertyAddress(
+    mSelector: kAudioHardwarePropertyDevices,
+    mScope: kAudioObjectPropertyScopeGlobal,
+    mElement: kAudioObjectPropertyElementMain)
+
+  /// Il blocco che CoreAudio richiama: arriva su una coda sua, quindi si
+  /// rimbalza sul thread principale prima di toccare qualunque cosa.
+  private lazy var ascoltatore: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+    Task { @MainActor in self?.controlla() }
+  }
+
+  func inizia(su dispositivo: AudioDeviceID?) {
+    fermati()
+    sorvegliato = dispositivo ?? AudioDevices.defaultInput()
+    guard sorvegliato != nil else { return }
+    let esito = AudioObjectAddPropertyListenerBlock(
+      AudioObjectID(kAudioObjectSystemObject), &indirizzo, .main, ascoltatore)
+    attiva = esito == noErr
+    if !attiva {
+      // Non si può fallire in silenzio: senza questa sorveglianza un microfono
+      // staccato diventa una fila di risposte mancate nel referto di un
+      // bambino, e nessuno saprebbe perché.
+      Log.warn("Non riesco a sorvegliare i dispositivi audio (errore \(esito)): un microfono staccato non verrà segnalato.")
+    }
+  }
+
+  func fermati() {
+    guard attiva else { return }
+    AudioObjectRemovePropertyListenerBlock(
+      AudioObjectID(kAudioObjectSystemObject), &indirizzo, .main, ascoltatore)
+    attiva = false
+    sorvegliato = nil
+  }
+
+  private func controlla() {
+    guard attiva, let atteso = sorvegliato else { return }
+    let presenti = AudioDevices.inputs().map(\.id)
+    guard !presenti.contains(atteso) else { return }
+    fermati()
+    suMicrofonoSparito?()
+  }
+
+  deinit { }
+}
