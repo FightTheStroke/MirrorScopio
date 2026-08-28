@@ -55,7 +55,8 @@ enum RegistroSessione {
                  warmup: $0.id <= config.warmupTrials,
                  interrotto: $0.interrotto,
                  refreshHz: $0.refreshHz,
-                 frameSaltato: $0.frameSaltato)
+                 frameSaltato: $0.frameSaltato,
+                 motivoInterruzione: $0.motivoInterruzione)
     }
     return r
   }

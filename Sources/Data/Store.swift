@@ -28,6 +28,14 @@ struct ItemRecord: Codable, Identifiable {
   var refreshHz: Double?
   var frameSaltato: Bool = false
 
+  /// Perché il turno si è fermato, con parole che si possono leggere.
+  ///
+  /// `interrotto` da solo dice che qualcosa è andato storto, non che cosa. Chi
+  /// legge un referto e trova tre prove scartate senza sapere perché ha due
+  /// scelte, entrambe sbagliate: fidarsi o buttare via la sessione. «Il Mac si
+  /// è addormentato» e «il microfono è stato staccato» portano a decisioni
+  /// diverse.
+  var motivoInterruzione: String?
 }
 
 extension ItemRecord {
@@ -47,11 +55,13 @@ extension ItemRecord {
     interrotto = try c.valore(.interrotto, false)
     refreshHz = try c.valore(.refreshHz, nil)
     frameSaltato = try c.valore(.frameSaltato, false)
+    motivoInterruzione = try c.valore(.motivoInterruzione, nil)
   }
 
   init(stimulus: String, response: String, correct: Bool, exposureMs: Double,
        latencyMs: Double?, errorKind: String, warmup: Bool = false,
-       interrotto: Bool = false, refreshHz: Double? = nil, frameSaltato: Bool = false) {
+       interrotto: Bool = false, refreshHz: Double? = nil, frameSaltato: Bool = false,
+       motivoInterruzione: String? = nil) {
     self.stimulus = stimulus
     self.response = response
     self.correct = correct
@@ -62,6 +72,7 @@ extension ItemRecord {
     self.interrotto = interrotto
     self.refreshHz = refreshHz
     self.frameSaltato = frameSaltato
+    self.motivoInterruzione = motivoInterruzione
   }
 }
 

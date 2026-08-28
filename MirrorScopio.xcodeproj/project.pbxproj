@@ -60,6 +60,7 @@
 		D121C4AD013C783275795C8F /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6106552289AA915241ABBDAE /* Fonts */; };
 		D17C1929D1877FB10FB8D259 /* ContiDelReferto.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B2A3E366EBB9ACB4FD6A8B /* ContiDelReferto.swift */; };
 		D28CA7DF39B385E1A6449D37 /* ItalianVoices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CAFA9574BE93A0B1255A09 /* ItalianVoices.swift */; };
+		D577FEA656A94BA22D00B68D /* IlRefertoDiceTutto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC21053855DC2E560A73FA /* IlRefertoDiceTutto.swift */; };
 		D8BF6AD31E6D6DBB6281639D /* AvvisoDati.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B1B93C53AA8EDAD9121322 /* AvvisoDati.swift */; };
 		DDDBA3BA1DF2A52EC8FED118 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66873BF49E2DAAF966A291A /* Components.swift */; };
 		DDE274A613E9E615FB2E8A26 /* AudioCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600397C551FEEE65C1F8CEB8 /* AudioCheckView.swift */; };
@@ -111,6 +112,7 @@
 		205933038872E415019CBA59 /* AppVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
 		25A2AFB8C51925E557D963F4 /* stabilizza-progetto.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "stabilizza-progetto.py"; sourceTree = "<group>"; };
 		25D6DE1D9E9E7507C8EC270D /* STRATEGIA-LICENZA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "STRATEGIA-LICENZA.md"; sourceTree = "<group>"; };
+		29FC21053855DC2E560A73FA /* IlRefertoDiceTutto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IlRefertoDiceTutto.swift; sourceTree = "<group>"; };
 		2A0E70FB4BD5DEF09320F20B /* AudioDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDevices.swift; sourceTree = "<group>"; };
 		2A44049637BC6FFAEB421A64 /* release.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = release.sh; sourceTree = "<group>"; };
 		2BE0A57B030C674CC7521A8C /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -406,6 +408,7 @@
 				EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */,
 				7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */,
 				79C7DC279A994144F5E0434F /* GriglieCheCrescono.swift */,
+				29FC21053855DC2E560A73FA /* IlRefertoDiceTutto.swift */,
 				4A96C5C670CCAC577809191C /* Interlinea.swift */,
 				112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
@@ -663,6 +666,7 @@
 				5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */,
 				F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */,
 				6EA38235B4FC0BF96B087DAA /* GriglieCheCrescono.swift in Sources */,
+				D577FEA656A94BA22D00B68D /* IlRefertoDiceTutto.swift in Sources */,
 				61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */,
 				4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,

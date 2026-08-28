@@ -7,19 +7,50 @@ enum Exporter {
 
   // MARK: - CSV
 
+  /// Il file di numeri, con dentro **tutto** quello che l'app sa della prova.
+  ///
+  /// Per quattro versioni ha avuto sette colonne, e tre cose che il motore
+  /// misurava non uscivano da nessuna parte: se il turno era stato interrotto,
+  /// a quanti hertz girava lo schermo, se un fotogramma era stato saltato.
+  /// Erano scritte nel registro salvato su disco e morivano lì.
+  ///
+  /// Non è un dettaglio da rimandare. Le prove interrotte **non entrano** nel
+  /// conto dell'accuratezza — è la scelta giusta, un ragazzo non ha sbagliato
+  /// niente se il Mac si è addormentato — ma senza la colonna chi legge il file
+  /// conta venti righe, vede «diciassette su diciotto» in testa, e non ha modo
+  /// di capire dove siano finite le altre due. E i millesimi di secondo non si
+  /// possono confrontare fra due Mac senza sapere la frequenza dello schermo:
+  /// a 60 Hz un'esposizione di 30 ms non esiste, il fotogramma più vicino ne
+  /// dura 16,7.
   static func csv(_ s: SessionRecord, learner: Learner) -> String {
-    var rows = ["parola;risposta;esito;esposizione_ms;latenza_ms;tipo_errore;riscaldamento"]
+    var rows = ["parola;risposta;esito;esposizione_ms;latenza_ms;tipo_errore;"
+                + "riscaldamento;interrotta;motivo_interruzione;schermo_hz;fotogramma_saltato"]
     for i in s.items {
       rows.append([
         i.stimulus, i.response,
-        i.correct ? "giusta" : "ancora",
+        esito(i),
         String(Int(i.exposureMs)),
         i.latencyMs.map { String(Int($0)) } ?? "",
         i.errorKind,
         i.warmup ? "si" : "no",
+        i.interrotto ? "si" : "no",
+        i.motivoInterruzione ?? "",
+        i.refreshHz.map { String(format: "%.1f", $0) } ?? "",
+        i.frameSaltato ? "si" : "no",
       ].map(escape).joined(separator: ";"))
     }
     return header(s, learner: learner) + "\n" + rows.joined(separator: "\n") + "\n"
+  }
+
+  /// L'esito di una riga, senza mentire su quelle che non contano.
+  ///
+  /// Una prova interrotta non è «ancora»: nessuno le ha chiesto niente. Farla
+  /// comparire come mancata in un referto clinico vuol dire scrivere una cosa
+  /// falsa su un ragazzo.
+  private static func esito(_ i: ItemRecord) -> String {
+    if i.interrotto { return "non contata" }
+    if i.warmup { return i.correct ? "giusta (riscaldamento)" : "ancora (riscaldamento)" }
+    return i.correct ? "giusta" : "ancora"
   }
 
   private static func header(_ s: SessionRecord, learner: Learner) -> String {
@@ -35,7 +66,38 @@ enum Exporter {
     # accuratezza_percento;\(Int(s.accuracy * 100))
     # soglia_ms;\(s.thresholdMs.map { String(Int($0)) } ?? "")
     # latenza_media_ms;\(s.meanLatencyMs.map { String(Int($0)) } ?? "")
+    # righe_nel_file;\(s.items.count)
+    # prove_di_riscaldamento;\(s.items.filter(\.warmup).count)
+    # prove_interrotte;\(s.items.filter(\.interrotto).count)
+    # fotogrammi_saltati;\(s.items.filter(\.frameSaltato).count)
+    # nota;\(escape(notaSuiConti(s)))
     """
+  }
+
+  /// La frase che spiega perché le righe del file sono più delle parole contate.
+  ///
+  /// Senza, «parole_totali;18» sopra venti righe è una contraddizione che chi
+  /// legge deve risolvere da solo — e la risolverà male.
+  private static func notaSuiConti(_ s: SessionRecord) -> String {
+    let riscaldamento = s.items.filter(\.warmup).count
+    let interrotte = s.items.filter(\.interrotto).count
+    let saltati = s.items.filter(\.frameSaltato).count
+    var pezzi: [String] = []
+    if riscaldamento > 0 {
+      pezzi.append("\(riscaldamento) di riscaldamento, escluse dal conteggio")
+    }
+    if interrotte > 0 {
+      pezzi.append("\(interrotte) interrotte da cause esterne, escluse dal conteggio "
+                   + "(non sono errori di chi legge)")
+    }
+    if saltati > 0 {
+      pezzi.append("\(saltati) con almeno un fotogramma saltato: la parola e' rimasta "
+                   + "visibile piu' del dovuto, i millesimi dichiarati vanno guardati con sospetto")
+    }
+    guard !pezzi.isEmpty else {
+      return "tutte le righe di questo file entrano nel conteggio"
+    }
+    return "righe non conteggiate: " + pezzi.joined(separator: "; ")
   }
 
   /// Mette un campo dentro il file rispettando la regola dei CSV (RFC 4180) e
@@ -150,14 +212,41 @@ enum Exporter {
         line("Errori — \(summary)", size: 10, color: NSColor(white: 0.3, alpha: 1))
       }
 
+      // Quanto vale il numero qui sopra.
+      //
+      // «17 su 18» sotto una tabella di venti righe è una contraddizione, e chi
+      // legge la risolve come può. Il denominatore esclude il riscaldamento e
+      // le prove interrotte: se non lo si dice, si lascia a chi legge il compito
+      // di indovinare che cosa è stato tolto e perché.
+      let interrotte = s.items.filter(\.interrotto)
+      let saltati = s.items.filter(\.frameSaltato).count
+      if !interrotte.isEmpty {
+        let motivi = Set(interrotte.compactMap(\.motivoInterruzione)).sorted()
+        let perche = motivi.isEmpty ? "" : " — \(motivi.joined(separator: "; "))"
+        line("\(interrotte.count) \(interrotte.count == 1 ? "prova interrotta" : "prove interrotte") "
+             + "da cause esterne, esclusa dal conteggio\(perche). "
+             + "Non sono risposte mancate.",
+             size: 10, color: NSColor(red: 0.5, green: 0.32, blue: 0, alpha: 1))
+      }
+      if saltati > 0 {
+        line("\(saltati) \(saltati == 1 ? "parola è rimasta" : "parole sono rimaste") a schermo più "
+             + "del dovuto (fotogramma saltato): i millesimi dichiarati vanno guardati con sospetto.",
+             size: 10, color: NSColor(red: 0.5, green: 0.32, blue: 0, alpha: 1))
+      }
+      if let hz = s.items.compactMap(\.refreshHz).max() {
+        line("Schermo a \(String(format: "%.0f", hz)) Hz: il fotogramma dura "
+             + "\(String(format: "%.1f", 1000 / hz)) ms, e nessuna esposizione può essere più breve.",
+             size: 9, color: NSColor(white: 0.45, alpha: 1))
+      }
+
       // Il dettaglio parola per parola solo quando la sessione è una sola,
       // altrimenti lo storico diventa illeggibile.
       if sessions.count == 1 {
         y -= 6
         line("Parola per parola", size: 11, weight: .semibold)
-        let cols: [CGFloat] = [56, 190, 330, 400, 470]
+        let cols: [CGFloat] = [56, 165, 285, 375, 425, 480]
         space(16)
-        for (t, x) in zip(["parola", "risposta", "esito", "ms", "latenza"], cols) {
+        for (t, x) in zip(["parola", "risposta", "esito", "ms", "latenza", "nota"], cols) {
           draw(t, in: ctx, at: CGPoint(x: x, y: y - 9), width: 130, size: 8,
                weight: .regular, color: NSColor(white: 0.5, alpha: 1))
         }
@@ -169,15 +258,18 @@ enum Exporter {
           let values = [
             i.stimulus,
             i.response.isEmpty ? "—" : i.response,
-            i.warmup ? "prova" : (i.correct ? "giusta" : "ancora"),
+            // Una prova interrotta non è «ancora»: nessuno le ha chiesto niente.
+            i.interrotto ? "non contata" : (i.warmup ? "prova" : (i.correct ? "giusta" : "ancora")),
             String(Int(i.exposureMs)),
             i.latencyMs.map { String(Int($0)) } ?? "—",
+            nota(i),
           ]
           for (v, x) in zip(values, cols) {
-            let color = (x == cols[2] && !i.warmup)
+            let color = (x == cols[2] && !i.warmup && !i.interrotto)
               ? (i.correct ? NSColor(red: 0, green: 0.45, blue: 0.25, alpha: 1)
                            : NSColor(red: 0.65, green: 0.1, blue: 0.1, alpha: 1))
-              : grey
+              : (x == cols[5] && !v.isEmpty
+                 ? NSColor(red: 0.5, green: 0.32, blue: 0, alpha: 1) : grey)
             draw(v, in: ctx, at: CGPoint(x: x, y: y - 11), width: 130, size: 10,
                  weight: .regular, color: color)
           }
@@ -193,6 +285,18 @@ enum Exporter {
     if open { ctx.endPDFPage() }
     ctx.closePDF()
     return data as Data
+  }
+
+  /// La colonna che dice perché una riga non va letta come le altre.
+  ///
+  /// Sta in fondo e non in mezzo di proposito: chi guarda il referto di corsa
+  /// legge parola-risposta-esito, e le righe strane devono saltare all'occhio
+  /// senza spostare le altre.
+  private static func nota(_ i: ItemRecord) -> String {
+    var pezzi: [String] = []
+    if i.interrotto { pezzi.append(i.motivoInterruzione ?? "interrotta") }
+    if i.frameSaltato { pezzi.append("fotogramma saltato") }
+    return pezzi.joined(separator: " · ")
   }
 
   private static func draw(_ text: String, in ctx: CGContext, at p: CGPoint,

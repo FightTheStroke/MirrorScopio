@@ -15,6 +15,20 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Corretto
+- **Il referto adesso dice tutto quello che l'app sa.** Per quattro versioni il file
+  di numeri ha avuto sette colonne, e tre cose che il motore misurava a ogni turno
+  non uscivano da nessuna parte: se il turno era stato interrotto, a quanti hertz
+  girava lo schermo, se un fotogramma era stato saltato. Le prove interrotte non
+  entrano nel conto dell'accuratezza — ed è giusto, un ragazzo non ha sbagliato
+  niente se il Mac si è addormentato — ma senza la colonna chi leggeva contava venti
+  righe, vedeva «diciassette su diciotto» in testa e non aveva modo di capire dove
+  fossero finite le altre due. Ora il file ha undici colonne, una prova interrotta
+  esce come «non contata» e non come «ancora», e la testata dice riga per riga
+  quante ne sono state escluse e perché. Anche il PDF ha la colonna «nota» e, sotto
+  i numeri, la frase che spiega il conto.
+
+
 ### Aggiunto
 - **C'è scritto che cosa impedisce a qualcun altro di venderci sopra.** La licenza resta
   Apache 2.0 e non cambia niente per chi usa l'app, ma adesso il ragionamento è scritto:
