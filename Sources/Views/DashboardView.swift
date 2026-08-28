@@ -114,35 +114,10 @@ struct DashboardView: View {
     // MARK: - Intestazione
 
     private var intestazione: some View {
-        HStack(alignment: .center, spacing: a11y.size(12)) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("I tuoi progressi")
-                    .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
-                    .foregroundStyle(palette.foreground)
-                if !bambino.name.isEmpty {
-                    Text(bambino.name)
-                        .font(a11y.typeface.font(size: a11y.size(16), weight: .regular))
-                        .foregroundStyle(palette.muted)
-                }
-            }
-            Spacer()
-            Button(action: onClose) {
-                Text("Chiudi")
-                    .font(a11y.typeface.font(size: a11y.size(15), weight: .semibold))
-                    .foregroundStyle(palette.foreground)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 10)
-                    .background(palette.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            .buttonStyle(.plain)
-            .frame(minWidth: 44, minHeight: 44)
-            // Le altre schermate si chiudono con Esc. Una che non lo fa
-            // obbliga a cercare il mouse, e chi il mouse non lo usa resta
-            // dentro.
-            .keyboardShortcut(.escape, modifiers: [])
-            .accessibilityLabel("Chiudi i tuoi progressi")
-        }
+        IntestazionePagina(titolo: "I tuoi progressi",
+                           sottotitolo: bambino.name,
+                           a11y: a11y,
+                           onClose: onClose)
     }
 
     // MARK: - Livello e XP

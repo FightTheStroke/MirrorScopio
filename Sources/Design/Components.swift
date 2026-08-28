@@ -1,5 +1,47 @@
 import SwiftUI
 
+// MARK: - Le misure dell'app
+
+/// I pochi numeri con cui è disegnata tutta l'app.
+///
+/// Erano dieci raggi d'angolo diversi (2, 3, 7, 8, 10, 11, 12, 14, 16, 18)
+/// scritti a mano dentro le viste. Nessuno se n'era accorto guardando una
+/// schermata per volta, ma messe in fila due schermate raccontavano due app.
+/// Per chi fatica a interpretare un'interfaccia questo non è un dettaglio
+/// estetico: ogni forma nuova è una cosa nuova da imparare, e imparare la
+/// stessa cosa quattro volte è il motivo per cui si smette.
+///
+/// Sono quattro raggi e cinque spazi. Se serve un valore che non è qui,
+/// quasi sempre la risposta giusta è usare quello più vicino.
+enum Metrica {
+  /// Pallini, barrette, cose piccole dentro altre cose.
+  static let raggioMinimo: CGFloat = 3
+  /// Righe di elenco, campi, pulsanti di servizio.
+  static let raggioPiccolo: CGFloat = 10
+  /// Carte, riquadri, gruppi di impostazioni.
+  static let raggio: CGFloat = 14
+  /// Pannelli grandi e pulsanti principali.
+  static let raggioGrande: CGFloat = 18
+
+  /// Fra due cose che sono la stessa cosa.
+  static let spazioMinimo: CGFloat = 6
+  /// Fra le righe di un gruppo.
+  static let spazioPiccolo: CGFloat = 12
+  /// Fra un gruppo e l'altro.
+  static let spazio: CGFloat = 20
+  /// Fra una sezione e l'altra.
+  static let spazioGrande: CGFloat = 32
+  /// Il margine attorno al contenuto di una pagina.
+  static let margine: CGFloat = 26
+
+  /// Il lato minimo di qualunque cosa si possa premere.
+  ///
+  /// Apple dice 44 punti. Qui è il minimo assoluto, non l'obiettivo: chi ha
+  /// paralisi cerebrale colpisce un bersaglio di 44 punti a fatica, e dove
+  /// si può il bersaglio è più grande.
+  static let bersaglio: CGFloat = 44
+}
+
 // MARK: - Mattoncini condivisi
 
 /// Il pulsante principale di una schermata: enorme, con un'icona e una parola sola.
@@ -344,5 +386,88 @@ struct ProgressoPallini: View {
       return palette.muted.opacity(0.75)
     }
     return fatte[i].correct ? palette.ok.opacity(0.8) : palette.wrong.opacity(0.8)
+  }
+}
+
+/// L'unico modo di chiudere una schermata.
+///
+/// Prima erano sei, tutti diversi: un pulsante blu di sistema che diceva
+/// «Fine», un rettangolo grigio che diceva «Chiudi», un'etichetta con una
+/// crocetta, un pulsantone largo quanto lo schermo, e una scritta da quindici
+/// punti in un angolo. Sei forme per un gesto solo. Chi ha imparato che si
+/// esce dal riquadro grigio in alto a destra, nella schermata dopo quel
+/// riquadro non c'è più — e non sa più come si torna indietro.
+///
+/// Dice sempre «Chiudi», mai «Fine»: «Fine» somiglia a «conferma», e chi lo
+/// legge può credere che, se non lo preme, quello che ha cambiato non valga.
+/// Nell'app le impostazioni valgono appena si toccano, quindi «Fine» sarebbe
+/// una piccola bugia.
+///
+/// Usa il colore d'accento del **tema scelto**, non il blu di sistema: con
+/// «Altissimo contrasto» il blu di macOS restava blu e vanificava il tema
+/// proprio sul comando più importante della schermata.
+struct PulsanteChiudi: View {
+  @Environment(\.palette) private var palette
+  var a11y: A11ySettings
+  /// Che cosa si sta chiudendo. Serve a VoiceOver, che altrimenti annuncia
+  /// quattro pulsanti identici chiamati «Chiudi» in quattro schermate diverse.
+  var cosa: String
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: a11y.size(7)) {
+        Image(systemName: "xmark")
+          .font(a11y.typeface.font(size: a11y.size(14), weight: .bold))
+        Text("Chiudi")
+      }
+      .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+      .padding(.horizontal, a11y.size(20))
+      .padding(.vertical, a11y.size(11))
+      .frame(minWidth: Metrica.bersaglio, minHeight: Metrica.bersaglio)
+      .contentShape(Capsule())
+    }
+    .buttonStyle(.plain)
+    .foregroundStyle(.white)
+    .background(Capsule().fill(palette.accent))
+    .keyboardShortcut(.escape, modifiers: [])
+    .accessibilityLabel("Chiudi \(cosa)")
+    .accessibilityHint("Puoi anche premere Esc")
+  }
+}
+
+/// L'intestazione di una pagina che si apre sopra le altre: il titolo a
+/// sinistra, il modo per uscire a destra, sempre nello stesso punto.
+///
+/// Impostazioni, aiuto e progressi la scrivevano ognuna per conto suo, e si
+/// erano già allontanate: stesso titolo da 28 punti, ma tre pulsanti diversi
+/// e due parole diverse per lo stesso gesto. Da qui in avanti si scrive una
+/// volta sola, così restare uguali non richiede che qualcuno se ne ricordi.
+struct IntestazionePagina: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  /// Una riga sotto il titolo: il nome di chi sta usando l'app, la data.
+  var sottotitolo: String? = nil
+  var a11y: A11ySettings
+  let onClose: () -> Void
+
+  var body: some View {
+    HStack(alignment: .firstTextBaseline) {
+      VStack(alignment: .leading, spacing: 2) {
+        Text(titolo)
+          .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
+          .foregroundStyle(palette.foreground)
+        if let sottotitolo, !sottotitolo.isEmpty {
+          Text(.init(sottotitolo))
+            .font(a11y.typeface.font(size: a11y.size(16)))
+            .foregroundStyle(palette.muted)
+        }
+      }
+      .accessibilityAddTraits(.isHeader)
+      Spacer(minLength: Metrica.spazio)
+      PulsanteChiudi(a11y: a11y, cosa: titolo.lowercased(), action: onClose)
+    }
+    .padding(.horizontal, Metrica.margine)
+    .padding(.vertical, Metrica.spazioPiccolo)
   }
 }

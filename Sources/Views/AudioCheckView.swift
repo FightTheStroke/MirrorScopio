@@ -211,25 +211,11 @@ struct AudioCheckView: View {
   }
 
   private var header: some View {
-    HStack(alignment: .top) {
-      VStack(alignment: .leading, spacing: 6) {
-        Text("Mi senti?")
-          .font(a11y.typeface.font(size: a11y.size(40), weight: .bold))
-        Text("Di' **ciao** ad alta voce e guarda la barra qui sotto.")
-          .font(a11y.typeface.font(size: a11y.size(19)))
-          .foregroundStyle(pal.muted)
-      }
-      Spacer()
-      Button(action: { check.stop(); onClose() }) {
-        Label("Chiudi", systemImage: "xmark")
-          .font(a11y.typeface.font(size: a11y.size(16), weight: .semibold))
-          .padding(.horizontal, 18).padding(.vertical, 12)
-      }
-      .buttonStyle(.plain)
-      .background(pal.surface, in: .rect(cornerRadius: 12))
-      .frame(minWidth: 44, minHeight: 44)
-      .keyboardShortcut(.escape, modifiers: [])
-      .accessibilityLabel("Chiudi la prova del microfono")
+    IntestazionePagina(titolo: "Mi senti?",
+                       sottotitolo: "Di' **ciao** ad alta voce e guarda la barra qui sotto.",
+                       a11y: a11y) {
+      check.stop()
+      onClose()
     }
   }
 

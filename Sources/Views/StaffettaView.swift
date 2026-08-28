@@ -101,24 +101,14 @@ struct StaffettaView: View {
 
       // Chiudere resta la cosa più facile dello schermo. Ma qui non è un
       // «interrompi»: è un premio, e il rosso di allarme del resto dell'app
-      // sopra a una festa suonava come uno sgridamento. Sta in alto a destra,
-      // dove nessun titolo lo tampona, e resta discreto.
+      // sopra a una festa suonava come uno sgridamento. È lo stesso pulsante
+      // che chiude tutte le altre schermate: era una scritta grigia da quindici
+      // punti, cioè proprio la via d'uscita più difficile da vedere di tutta
+      // l'app, nascosta sopra un fondo pieno di coriandoli in movimento.
       VStack {
         HStack {
           Spacer()
-          Button(action: onClose) {
-            HStack(spacing: 7) {
-              Image(systemName: "xmark.circle.fill")
-              Text("Chiudi").font(a11y.typeface.font(size: a11y.size(15)))
-            }
-            .padding(.horizontal, 14)
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
-          }
-          .buttonStyle(.plain)
-          .foregroundStyle(palette.muted)
-          .keyboardShortcut(.escape, modifiers: [])
-          .accessibilityLabel("chiudi il gioco e torna al riepilogo")
+          PulsanteChiudi(a11y: a11y, cosa: "il gioco e torna al riepilogo", action: onClose)
         }
         .padding(.horizontal, 18)
         .padding(.top, 12)

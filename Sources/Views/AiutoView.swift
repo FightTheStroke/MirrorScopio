@@ -40,18 +40,7 @@ struct AiutoView: View {
   }
 
   private var header: some View {
-    HStack {
-      Text("Aiuto")
-        .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
-        .foregroundStyle(palette.foreground)
-      Spacer()
-      Button("Chiudi", action: onClose)
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
-        .keyboardShortcut(.escape, modifiers: [])
-    }
-    .padding(.horizontal, 26)
-    .padding(.vertical, 16)
+    IntestazionePagina(titolo: "Aiuto", a11y: a11y, onClose: onClose)
   }
 
   // MARK: - L'elenco delle pagine

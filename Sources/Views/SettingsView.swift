@@ -180,18 +180,7 @@ struct SettingsView: View {
   }
 
   private var header: some View {
-    HStack {
-      Text("Impostazioni")
-        .font(a11y.typeface.font(size: a11y.size(28), weight: .bold))
-        .foregroundStyle(palette.foreground)
-      Spacer()
-      Button("Fine", action: onClose)
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
-        .keyboardShortcut(.escape, modifiers: [])
-    }
-    .padding(.horizontal, 26)
-    .padding(.vertical, 16)
+    IntestazionePagina(titolo: "Impostazioni", a11y: a11y, onClose: onClose)
   }
 
   // MARK: - Chi usa l'app
