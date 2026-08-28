@@ -663,8 +663,14 @@ private struct _RigaSessione: View {
     private var rigaPrincipale: some View {
         HStack(spacing: a11y.size(10)) {
             // Indicatore di esito: forma + colore, mai solo il colore.
+            //
+            // Non una croce. Qui si archiviano le giornate passate, e una X
+            // rossa accanto alla giornata storta la trasforma in una bocciatura
+            // che resta li' per sempre, da riguardare ogni volta che si aprono
+            // i propri progressi. La freccia dice l'unica cosa vera: quel
+            // giorno non e' venuta *ancora*.
             let buono = sessione.total > 0 && sessione.accuracy >= 0.6
-            Image(systemName: buono ? "checkmark.circle.fill" : "xmark.square.fill")
+            Image(systemName: buono ? ColorVision.okSymbol : ColorVision.wrongSymbol)
                 .font(a11y.typeface.font(size: a11y.size(18), weight: .regular))
                 .foregroundStyle(buono ? palette.ok : palette.wrong)
                 .accessibilityHidden(true)

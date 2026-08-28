@@ -131,15 +131,15 @@ struct HomeView: View {
             .foregroundStyle(palette.muted)
         }
         Spacer(minLength: 0)
-        Button("Vai a prenderla") { NSWorkspace.shared.open(r.pageURL) }
-          .buttonStyle(.borderedProminent)
-          .controlSize(.large)
+        SmallButton(title: "Vai a prenderla", a11y: a11y, prominente: true) {
+          NSWorkspace.shared.open(r.pageURL)
+        }
         Button {
           aggiornamento = nil
         } label: {
           Image(systemName: "xmark")
             .font(.system(size: a11y.size(15), weight: .semibold))
-            .frame(width: 34, height: 34)
+            .frame(width: Metrica.bersaglio, height: Metrica.bersaglio)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

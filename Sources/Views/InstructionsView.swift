@@ -165,10 +165,8 @@ struct InstructionsView: View {
       .frame(maxWidth: 520)
 
       if silenzioLungo && !heardOnce {
-        Button("Scegli il microfono") { onFixMic() }
-          .buttonStyle(.borderedProminent)
-          .controlSize(.large)
-          .font(a11y.typeface.font(size: a11y.size(17), weight: .semibold))
+        SmallButton(title: "Scegli il microfono", symbol: "mic",
+                    a11y: a11y, prominente: true) { onFixMic() }
         Explain(text: "Succede spesso: il Mac sta ascoltando da un altro ingresso — le cuffie spente, una webcam, un'interfaccia collegata e muta.", a11y: a11y, size: 15)
           .frame(maxWidth: 520)
       }

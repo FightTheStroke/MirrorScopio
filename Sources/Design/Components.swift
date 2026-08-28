@@ -62,6 +62,13 @@ struct SmallButton: View {
   var symbol: String? = nil
   var a11y: A11ySettings
   var distruttivo = false
+  /// Riempito col colore d'accento: per l'azione che sblocca la schermata.
+  ///
+  /// Serve perché quelle azioni usavano `.borderedProminent`, cioè il blu di
+  /// macOS, che **non segue il tema**: con «Altissimo contrasto» il comando
+  /// che sblocca l'app restava blu su nero, cioè la cosa meno visibile della
+  /// schermata proprio per chi ha scelto quel tema perché vede poco.
+  var prominente = false
   let action: () -> Void
 
   var body: some View {
@@ -76,13 +83,16 @@ struct SmallButton: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .foregroundStyle(distruttivo ? palette.wrong : palette.foreground)
-    .background(RoundedRectangle(cornerRadius: 11).fill(palette.surface))
+    .foregroundStyle(prominente ? Color.white
+                     : (distruttivo ? palette.wrong : palette.foreground))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+      .fill(prominente ? palette.accent : palette.surface))
     .overlay(
-      RoundedRectangle(cornerRadius: 11)
-        .stroke(distruttivo ? palette.wrong.opacity(0.5) : palette.muted.opacity(0.35),
+      RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+        .stroke(prominente ? .clear
+                : (distruttivo ? palette.wrong.opacity(0.5) : palette.muted.opacity(0.35)),
                 lineWidth: 1.5))
-    .frame(minHeight: 44)
+    .frame(minHeight: Metrica.bersaglio)
     .fixedSize(horizontal: true, vertical: false)
   }
 }

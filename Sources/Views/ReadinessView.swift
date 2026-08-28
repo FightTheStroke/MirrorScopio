@@ -87,10 +87,9 @@ struct ReadinessView: View {
       Spacer(minLength: 8)
 
       if !voce.isOK, !voce.isInCorso, let etichetta = etichettaRimedio(voce.rimedio) {
-        Button(etichetta) { Task { await readiness.applica(voce) } }
-          .font(a11y.typeface.font(size: a11y.size(18), weight: .semibold))
-          .buttonStyle(.borderedProminent)
-          .controlSize(.large)
+        SmallButton(title: etichetta, a11y: a11y, prominente: true) {
+          Task { await readiness.applica(voce) }
+        }
       }
     }
     .padding(a11y.size(18))
