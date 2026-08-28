@@ -26,17 +26,30 @@ E la seconda regola, che vale anche per come scrivo a chi legge:
 
 ## Profili
 
-Un profilo imposta tutte le manopole in un colpo solo. Toccare poi una singola manopola
-riporta il profilo a "nessuno": non fingiamo che le impostazioni siano ancora quelle del
-profilo se non lo sono più.
+Un profilo imposta tutte le manopole in un colpo solo.
 
-| Profilo | Che cosa cambia |
+| Profilo | Che cosa cambia davvero (`Design/Accessibility.swift:47-85`) |
 |---|---|
-| **Dislessia** | OpenDyslexic, lettere più distanziate, righe più larghe, testo più grande |
-| **Autismo** | Niente animazioni, niente distrazioni, niente esclamazioni, pause frequenti. **Contrasto medio, non alto** |
-| **ADHD** | Sessioni brevi, pause automatiche, schermo pulito, feedback immediato |
-| **Ipovisione** | Testo molto grande, altissimo contrasto, Atkinson Hyperlegible |
-| **Paralisi cerebrale** | Tempi di risposta lunghi, bersagli grandi, nessuna fretta |
+| **Dislessia** | OpenDyslexic, lettere distanziate di 6 punti, testo ×1,15, tema sabbia, più tempo per rispondere (×1,3) |
+| **Autismo** | Niente animazioni, modalità calma, suoni spenti, esito parola per parola, pausa ogni 5 parole, testo ×1,1. **Tema chiaro, non altissimo contrasto** |
+| **ADHD** | Schermo pulito, pausa ogni 5 parole, sessioni brevi, niente animazioni |
+| **Ipovisione** | Atkinson Hyperlegible, testo ×1,45, altissimo contrasto, lettere distanziate di 4 punti, la parola giusta viene anche detta |
+| **Paralisi cerebrale** | Testo ×1,3, molto più tempo per rispondere (×1,6), niente animazioni, la parola giusta viene anche detta |
+
+**Due cose che questo documento prometteva e il codice non fa.** Sono difetti aperti, scritti
+qui perché un documento che promette più di quanto l'app mantiene è peggio di un documento
+che manca.
+
+- Il profilo **Dislessia** distanzia le lettere, **non allarga le righe**: l'interlinea non è
+  fra le manopole (`lineSpacing` non compare da nessuna parte).
+- Il profilo **Paralisi cerebrale** allunga i tempi e ingrandisce il testo, ma **non ingrandisce
+  i bersagli** da cliccare: la dimensione minima resta quella comune a tutti.
+
+Toccare poi una singola manopola riporta il profilo a "nessuno": non fingiamo che le
+impostazioni siano ancora quelle del profilo se non lo sono più. **Vale nelle Impostazioni**
+(`SettingsView.swift:571`), **non ancora nel primo avvio**: `OnboardingView.swift:313-317`
+scrive le stesse impostazioni ma non tocca il profilo, quindi lì il profilo resta scritto
+anche dopo che l'hai contraddetto. Anche questo è un difetto aperto.
 
 Il caso dell'autismo merita una nota, perché è controintuitivo: **l'alto contrasto è
 disattivato apposta.** In molte linee guida "accessibile" e "ad alto contrasto" sono
@@ -69,10 +82,17 @@ visione.
 
 ## Movimento e calma
 
-- Ogni animazione si può togliere (e si toglie da sola con "Riduci movimento" di sistema).
+- Ogni animazione si può togliere, **dall'interruttore dell'app**. Oggi MirrorScopio non
+  legge le impostazioni di accessibilità di macOS: se hai già acceso "Riduci movimento" nelle
+  Impostazioni di Sistema, qui devi rifarlo a mano. È il difetto più fastidioso di questo
+  elenco — chiede di rifare un lavoro già fatto — ed è aperto.
 - La **modalità calma** rimuove esclamazioni, coriandoli e enfasi: alcuni ragazzi vivono il
   festeggiamento come rumore, non come premio.
-- I **punteggi si possono nascondere**: per chi il numero lo trasforma in ansia.
+- I **punteggi si possono nascondere** in tutte le schermate del ragazzo: il risultato
+  diventa «hai letto tutte le parole fino in fondo», e nei progressi i numeri diventano
+  parole. Il *Dettaglio per l'adulto* a fine sessione continua però a mostrarli, e oggi si
+  apre con un clic senza chiedere niente: se il numero non deve arrivare agli occhi del
+  ragazzo, quel pannello non va aperto davanti a lui. Difetto aperto.
 - Le **pause automatiche** arrivano ogni N parole e non hanno conto alla rovescia. Si
   riparte quando si è pronti, non quando scade qualcosa.
 
@@ -128,29 +148,44 @@ finale parla di quello che è migliorato prima di quello che manca.
 
 ## Fondamenta tecniche
 
-- Bersagli tattili/clic minimo 44×44 pt, ovunque.
-- Contrasto WCAG 2.1 AA sui testi, AAA nelle schermate del ragazzo.
-- Focus da tastiera sempre visibile; ogni schermata è percorribile senza mouse.
-- Etichette VoiceOver su ogni controllo; le decorazioni sono nascoste allo screen reader.
-- Le dimensioni si moltiplicano fino a ×2 sopra il valore già grande di partenza.
+Due colonne: quello che è vero oggi, e quello che è ancora un obiettivo. Sono separate
+apposta — la prima volta che questo elenco è stato controllato riga per riga, cinque
+affermazioni su sei erano ferme alle intenzioni.
+
+| Promessa | Come sta davvero |
+|---|---|
+| Bersagli tattili/clic 44×44 pt | **Vero per i componenti nostri** (`Design/Components.swift:66`, e 60 pt sul pulsante principale a `:307`). Non per i controlli presi da macOS — interruttori, cursori, menu a tendina — che restano alla loro dimensione di sistema, sotto i 44 pt. Ne ho contati ventuno fra `Toggle`, `Slider`, `Picker` e `Stepper`. |
+| Contrasto WCAG 2.1 AA sui testi | **Vero e verificato**: `Verifiche/Contrasto.swift:59` misura il rapporto in tutti i temi e in tutte le viste dei colori, e boccia sotto 4,5 a 1. |
+| AAA nelle schermate del ragazzo | **Non dimostrato.** Nessuna prova misura sopra 4,5 a 1. La frase resta come obiettivo, non come stato di fatto. |
+| Etichette VoiceOver su ogni controllo, decorazioni nascoste | **Vero per i controlli provati** (vedi sotto). Non è dimostrato che valga per ogni controllo di ogni schermata. |
+| Le dimensioni si moltiplicano fino a ×2 | **Vero come manopola.** La prova automatica però arriva a ×1,8 e misura solo l'**altezza**, su due schermate (`Verifiche/Contrasto.swift:127-143`). In larghezza non c'è prova, e sopra ×1,6 le tabelle dense e la barra laterale si stringono. |
+| Focus da tastiera sempre visibile | **Falso oggi.** Diciassette pulsanti usano `.buttonStyle(.plain)`, che toglie l'anello di fuoco disegnato da macOS. Il fuoco si sposta, ma spesso non si vede dove è finito. Difetto aperto, ed è il più grave di questa tabella per chi usa solo la tastiera. |
 
 ## Tastiera e VoiceOver: che cosa è stato verificato
 
-Queste righe raccontano prove fatte, non intenzioni.
+Queste righe raccontano **prove automatiche che girano a ogni modifica**, non intenzioni.
+Stanno in `ProveDaTastiera/`.
 
-- **Una sessione intera senza mouse.** Modalità «Scrivi», venti parole, dal
-  pulsante «Via!» fino al riepilogo e dentro il minigioco, solo da tastiera.
-- **Esc chiude tutto.** Impostazioni, aiuto, «I tuoi progressi», la prova del
-  microfono, «Prepara il Mac», il premio di fine sessione e la schermata
-  «Pronti?». Prima tre di queste si chiudevano solo col mouse, e una prometteva
-  Esc senza rispondere.
-- **Le etichette si leggono con una sonda diretta**, non a occhio: SwiftUI
-  scrive `.accessibilityLabel` dentro `AXDescription`, non dentro `AXTitle`, e
-  un albero letto male fa «correggere» problemi che non esistono.
-- **Ogni cursore dice il proprio nome e il proprio valore** con le stesse
-  parole scritte accanto — non una percentuale.
-- **Le decorazioni tacciono.** Un `Image` dentro un `.overlay` su un `Button`
-  diventa un pulsante a sé: nella schermata iniziale ce n'era uno, chiamato
-  «Selezionato», che non faceva niente.
-- **Quello che conta parla.** Il segno di esito resta leggibile a voce quando
-  il punteggio è nascosto: lì è l'unica cosa che dice «Giusta» o «Ancora».
+- **Ogni comando ha un nome, e il nome dice qualcosa** — non «pulsante», non «Selezionato»:
+  `testOgniComandoHaUnNome`, `testINomiDiconoQualcosa`.
+- **Con il tasto Tab si arriva da qualche parte, e il fuoco si muove davvero** —
+  `testSiArrivaDaQualchePartePremendoTab`, `testIlFuocoSiMuove`.
+- **Si entra in una schermata e se ne esce, da tastiera** — `testSiEntraESiEsceDaTastiera`
+  apre le Impostazioni con ⌘, e le chiude con Esc. Se si entra e non si esce, è una trappola.
+- **Le etichette si leggono con una sonda diretta**, non a occhio: SwiftUI scrive
+  `.accessibilityLabel` dentro `AXDescription`, non dentro `AXTitle`, e un albero letto male
+  fa «correggere» problemi che non esistono.
+
+### E che cosa invece non è verificato
+
+Fino alla versione 0.6.0 questa sezione elencava fra le «prove fatte» anche cose che nessuna
+prova esegue. Sono state spostate qui.
+
+- **Una sessione intera senza mouse, fino al riepilogo.** Nessuna prova la percorre: la più
+  lunga si ferma alle Impostazioni.
+- **«Esc chiude tutto», su sette schermate.** Provata su **una**: le Impostazioni. Sulle
+  altre sei è stata sistemata a mano e mai messa sotto prova, quindi può rompersi senza che
+  nessuno se ne accorga.
+- **Il segno di esito che resta leggibile a voce quando il punteggio è nascosto.** È scritto
+  nel codice (`Design/Components.swift:419`, `Views/StageView.swift:202`), non c'è una prova
+  che lo controlli.

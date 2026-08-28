@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Manifesto della privacy, nel formato che chiede Apple.
+
+  Dice tre cose, e sono tutte e tre "no": MirrorScopio non traccia nessuno, non
+  contatta domini di tracciamento, non raccoglie nessun dato che esca dal Mac.
+  L'unica dichiarazione positiva riguarda UserDefaults, che l'app usa solo per
+  ricordare le proprie impostazioni (Core/Updates.swift, Core/Promemoria.swift).
+
+  Quello che questo file dice deve corrispondere a docs/PRIVACY.md. Se un giorno
+  divergono, è docs/PRIVACY.md che ha ragione sulle intenzioni e questo file che
+  ha ragione su Apple: si correggono tutti e due.
+-->
+<plist version="1.0">
+<dict>
+  <key>NSPrivacyTracking</key>
+  <false/>
+
+  <key>NSPrivacyTrackingDomains</key>
+  <array/>
+
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array/>
+
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <!-- CA92.1: si legge e si scrive solo quello che ha scritto questa stessa app. -->
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>CA92.1</string>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>

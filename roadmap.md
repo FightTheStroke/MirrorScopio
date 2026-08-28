@@ -37,7 +37,7 @@ Regole di aggiornamento:
 | UI e accessibilità mobile | DA FARE | `MOB-07` |
 | Dati ed esportazione | DA FARE | `MOB-08` |
 | Test su dispositivi reali | DA FARE | `MOB-09` |
-| Account e materiali Apple | DA FARE | `STORE-01`–`STORE-05` |
+| Account e materiali Apple | DA FARE (privacy tecnica: IN CORSO) | `STORE-01`–`STORE-05` |
 | TestFlight | DA FARE | `STORE-06`, `STORE-07` |
 | App Review e pubblicazione | DA FARE | `STORE-08`, `STORE-09` |
 | Sorveglianza dopo il rilascio | DA FARE | `STORE-10` |
@@ -325,21 +325,28 @@ TestFlight.
 
 ### STORE-03 — Preparare privacy tecnica e policy pubblica
 
-**Stato:** DA FARE
+**Stato:** IN CORSO
 **Dipendenze:** `MOB-04`, `MOB-05`, `MOB-08`
 **Responsabile:** privacy + sviluppo
 **Stima:** 3–5 giorni
 
-Preparare:
+Già fatto sul Mac, e riusabile tale e quale:
 
-- `NSMicrophoneUsageDescription`;
-- `PrivacyInfo.xcprivacy` se una API usata rientra nelle Required Reason APIs;
-- privacy policy pubblica;
-- descrizione del trattamento locale;
-- assenza di account, tracking, pubblicità e telemetria;
-- trattamento del nome e dello storico;
-- cancellazione;
-- esportazione manuale;
+- `PrivacyInfo.xcprivacy` nel pacchetto: nessun tracciamento, nessun dominio di
+  tracciamento, nessun dato raccolto; unica dichiarazione positiva `UserDefaults` con
+  motivo `CA92.1`;
+- il testo dell'informativa, in [`docs/PRIVACY.md`](docs/PRIVACY.md): tabella
+  dato → finalità → dove sta → per quanto, versione per gli adulti, versione per i
+  ragazzi, esercizio dei diritti, valutazione d'impatto.
+
+Resta da fare:
+
+- `NSMicrophoneUsageDescription` nella versione mobile;
+- **pubblicare** la policy su un indirizzo web stabile (oggi vive solo nel repository);
+- rivedere la valutazione d'impatto quando cambia dove stanno i dati;
+- compilare l'App Privacy questionnaire coerentemente con il manifesto;
+- decidere il trattamento del nome e dello storico su iCloud (oggi: nessun iCloud);
+- esportazione manuale e cancellazione, già presenti su Mac, da riportare su mobile;
 - eventuale uso facoltativo di Foundation Models.
 
 **Criterio di uscita:** codice, schermate, privacy policy e App Privacy
