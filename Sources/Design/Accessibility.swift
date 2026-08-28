@@ -308,6 +308,16 @@ struct EffettiveImpostazioniAccessibilita: Equatable {
     profile == .paralisiCerebrale ? 60 : Metrica.bersaglio
   }
 
+  /// Il testo è cresciuto abbastanza da non stare più in colonne affiancate.
+  ///
+  /// Sopra questa soglia una sidebar da 260 punti ne occupa più di 400 e le
+  /// tabelle a colonne fisse cominciano a tagliare le parole. Le colonne non si
+  /// stringono: si impilano. È la stessa soglia che usa il resto dell'app per
+  /// decidere fra «uno accanto all'altro» e «uno sotto l'altro», e sta scritta
+  /// qui una volta sola perché non se ne inventino altre due leggermente
+  /// diverse fra sei mesi.
+  var testoGrande: Bool { textScale >= 1.6 }
+
   /// Lo spazio in più fra una riga e l'altra.
   ///
   /// Righe troppo vicine si scavalcano con l'occhio: si rilegge la stessa o si

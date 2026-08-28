@@ -464,35 +464,75 @@ struct ReportView: View {
     .padding(.top, Metrica.spazioStretto)
   }
 
+  /// La tabella parola per parola.
+  ///
+  /// Le colonne erano larghe 130, 120 e 80 punti fissi. Il testo dentro cresce
+  /// con l'ingrandimento, la colonna no: a testo doppio «Ancora» e la parola
+  /// che descrive la difficoltà finivano fuori dalla loro casella, e finivano
+  /// fuori proprio per chi aveva ingrandito il testo per riuscire a leggerle.
+  /// Adesso nessuna colonna ha una larghezza scritta a mano, e sopra la soglia
+  /// del testo grande le righe si aprono in schede: una sotto l'altra, con
+  /// scritto accanto a ogni valore di che cosa si tratta.
   private var trialTable: some View {
-    VStack(spacing: 0) {
+    VStack(spacing: a11y.testoGrande ? Metrica.spazioStretto : 0) {
       ForEach(record.items) { item in
-        HStack(spacing: Metrica.spazioPiccolo) {
-          Text(item.stimulus)
-            .font(a11y.font(.etichetta, .medium))
-            .frame(maxWidth: .infinity, alignment: .leading)
-          Text(item.response.isEmpty ? "—" : item.response)
-            .font(a11y.font(.etichetta))
-            .foregroundStyle(palette.muted)
-            .frame(maxWidth: .infinity, alignment: .leading)
-          Verdict(correct: item.correct, a11y: a11y, size: 15)
-            .frame(width: 130, alignment: .leading)
-          Text(item.errorKind)
-            .font(a11y.font(.nota))
-            .foregroundStyle(palette.muted)
-            .frame(width: 120, alignment: .leading)
-          Text("\(Int(item.exposureMs)) ms")
-            .font(a11y.font(.nota))
-            .foregroundStyle(palette.muted)
-            .monospacedDigit()
-            .frame(width: 80, alignment: .trailing)
+        Group {
+          if a11y.testoGrande { schedaTurno(item) } else { rigaTurno(item) }
         }
         .padding(.vertical, Metrica.spazioMinimo)
         .padding(.horizontal, Metrica.spazioStretto)
-        .background(item.warmup ? palette.surface.opacity(0.5) : Color.clear)
+        .background(item.warmup ? palette.surface.opacity(a11y.velo(0.5)) : Color.clear)
       }
     }
-    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface.opacity(0.35)))
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo)
+      .fill(palette.surface.opacity(a11y.velo(0.35))))
+  }
+
+  private func rigaTurno(_ item: ItemRecord) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: Metrica.spazioPiccolo) {
+      Text(item.stimulus)
+        .font(a11y.font(.etichetta, .medium))
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Text(item.response.isEmpty ? "—" : item.response)
+        .font(a11y.font(.etichetta))
+        .foregroundStyle(palette.muted)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Verdict(correct: item.correct, a11y: a11y, size: 15)
+        .fixedSize(horizontal: true, vertical: false)
+      Text(item.errorKind)
+        .font(a11y.font(.nota))
+        .foregroundStyle(palette.muted)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Text("\(Int(item.exposureMs)) ms")
+        .font(a11y.font(.nota))
+        .foregroundStyle(palette.muted)
+        .monospacedDigit()
+        .fixedSize(horizontal: true, vertical: false)
+    }
+    .accessibilityElement(children: .combine)
+  }
+
+  private func schedaTurno(_ item: ItemRecord) -> some View {
+    VStack(alignment: .leading, spacing: Metrica.filo) {
+      Text(item.stimulus)
+        .font(a11y.font(.corpo, .semibold))
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Verdict(correct: item.correct, a11y: a11y, size: 15)
+      vocePergamena("Ha detto", item.response.isEmpty ? "niente" : item.response)
+      if !item.errorKind.isEmpty { vocePergamena("Che cosa è successo", item.errorKind) }
+      vocePergamena("Quanto è rimasta visibile", "\(Int(item.exposureMs)) millesimi di secondo")
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .accessibilityElement(children: .contain)
+  }
+
+  private func vocePergamena(_ che: String, _ valore: String) -> some View {
+    Text("\(che): \(valore)")
+      .font(a11y.font(.etichetta))
+      .interlinea(a11y)
+      .foregroundStyle(palette.muted)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   /// I numeri qui sopra, detti in italiano.

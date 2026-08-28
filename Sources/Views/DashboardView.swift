@@ -516,11 +516,13 @@ private struct _RiquadroRiassuntivo: View {
                 .font(a11y.font(.guida, .semibold))
                 .foregroundStyle(coloreSimbolo)
                 .accessibilityHidden(true)
+            // Il numero non si rimpicciolisce per stare in una riga:
+            // rimpicciolire il testo di chi ha chiesto testo grande è l'esatto
+            // contrario di quello che ha chiesto. Se non ci sta, va a capo.
             Text(valore)
                 .font(a11y.font(.titolo, .heavy))
                 .foregroundStyle(palette.foreground)
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
             Text(etichetta)
                 .font(a11y.font(.nota, .regular))
                 .foregroundStyle(palette.muted)

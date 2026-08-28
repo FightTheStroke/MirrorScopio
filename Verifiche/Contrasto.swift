@@ -190,3 +190,122 @@ struct SchermateLunghe {
       "\(nome) monta l'elenco laterale a mano: e' esattamente cosi' che le due schermate erano divergute")
   }
 }
+
+/// Il testo grande non deve sfondare la larghezza.
+///
+/// Finora si misurava solo l'altezza, e l'altezza è la metà del problema: il
+/// testo ingrandito allarga anche. La colonna laterale delle schermate lunghe
+/// era larga 260 punti *moltiplicati per l'ingrandimento* — a testo quasi
+/// doppio diventava mezzo schermo, e si mangiava lo spazio proprio a chi aveva
+/// chiesto testo grande perché lo spazio gli serviva per leggere. Le tabelle
+/// avevano colonne da 130, 120 e 80 punti fissi con dentro testo che cresce:
+/// le parole finivano fuori dalla loro casella.
+@Suite("Il testo grande non sfonda la larghezza")
+@MainActor
+struct LarghezzaColTestoGrande {
+
+  /// Le voci dell'elenco laterale, ridotte all'osso: qui si misura il guscio,
+  /// non le Impostazioni.
+  enum PaginaDiProva: String, PaginaLaterale {
+    case prima, seconda, terza, quarta, quinta
+    var id: String { rawValue }
+    var titolo: String {
+      switch self {
+      case .prima: "Come si vede"
+      case .seconda: "Ritmo e calma"
+      case .terza: "Colori e luce"
+      case .quarta: "Suoni e voce"
+      case .quinta: "I dati"
+      }
+    }
+    var simbolo: String { "gearshape" }
+  }
+
+  func altezza<V: View>(_ vista: V, larghezza: CGFloat) -> CGFloat {
+    ImageRenderer(content: vista.frame(width: larghezza)
+      .fixedSize(horizontal: false, vertical: true)).nsImage?.size.height ?? 0
+  }
+
+  /// La larghezza che una vista chiede quando nessuno gliela impone.
+  func larghezza<V: View>(_ vista: V) -> CGFloat {
+    ImageRenderer(content: vista.fixedSize()).nsImage?.size.width ?? 0
+  }
+
+  var temaChiaro: Palette { Palette.resolve(theme: .chiaro, vision: .standard, system: .light) }
+
+  /// La larghezza della finestra dell'applicazione.
+  static let finestra: CGFloat = 1100
+
+  func impostazioni(scala: Double) -> EffettiveImpostazioniAccessibilita {
+    var a = A11ySettings()
+    a.textScale = scala
+    return EffettiveImpostazioniAccessibilita(a)
+  }
+
+  @Test("La colonna laterale non si mangia la finestra")
+  func colonnaNonSiMangiaLaFinestra() {
+    var scelta = PaginaDiProva.prima
+    for scala in [1.0, 1.2, 1.4, 1.6, 1.8, 2.0] {
+      let a = impostazioni(scala: scala)
+      // Sopra la soglia l'elenco non sta più di fianco al contenuto: sta sopra,
+      // in fila, e la larghezza gliela dà la finestra. Lì la misura giusta è
+      // l'altezza, ed è la prova qui sotto.
+      guard !a.testoGrande else { continue }
+      let l = larghezza(ElencoPagine(scelta: Binding(get: { scelta }, set: { scelta = $0 }),
+                                     a11y: a, palette: temaChiaro)
+        .environment(\.palette, temaChiaro))
+      #expect(l <= Self.finestra / 3,
+        "con il testo a ×\(scala) l'elenco delle pagine chiede \(Int(l)) punti su \(Int(Self.finestra)): si mangia lo spazio proprio a chi ha ingrandito il testo per avere spazio")
+    }
+  }
+
+  @Test("Col testo grande l'elenco diventa una barra, non resta una colonna")
+  func diventaBarra() {
+    var scelta = PaginaDiProva.prima
+    func alto(_ a: EffettiveImpostazioniAccessibilita) -> CGFloat {
+      altezza(ElencoPagine(scelta: Binding(get: { scelta }, set: { scelta = $0 }),
+                           a11y: a, palette: temaChiaro)
+        .environment(\.palette, temaChiaro), larghezza: Self.finestra)
+    }
+    let colonna = alto(impostazioni(scala: 1.0))
+    let barra = alto(impostazioni(scala: 2.0))
+    #expect(barra < colonna,
+      "col testo a ×2 l'elenco è alto \(Int(barra)) punti contro i \(Int(colonna)) del testo normale: non si è messo in fila in alto, è rimasto una colonna")
+  }
+
+  static var sorgenti: URL {
+    URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+      .deletingLastPathComponent().appendingPathComponent("Sources")
+  }
+
+  /// Rimpicciolire il testo di chi ha chiesto testo grande è l'esatto contrario
+  /// di quello che ha chiesto. Se un numero non ci sta, va a capo.
+  @Test("Nessuna scritta si rimpicciolisce per stare dentro")
+  func nienteRimpicciolimenti() throws {
+    let trovati = try file(sotto: Self.sorgenti).filter {
+      try String(contentsOf: $0, encoding: .utf8).contains("minimumScaleFactor")
+    }
+    #expect(trovati.isEmpty,
+      "\(trovati.map(\.lastPathComponent).joined(separator: ", ")): il testo si rimpicciolisce da solo invece di andare a capo")
+  }
+
+  /// Il testo clinico non sta in colonne a larghezza scritta a mano: il testo
+  /// cresce con l'ingrandimento, la colonna no, e la parola finisce fuori.
+  @Test("Il riepilogo non ha colonne a larghezza fissa")
+  func nienteColonneFisse() throws {
+    let testo = try String(
+      contentsOf: Self.sorgenti.appendingPathComponent("Views/ReportView.swift"), encoding: .utf8)
+    // `frame(width: 0, height: 0)` è il pulsante invisibile delle scorciatoie:
+    // non contiene testo e non è una colonna.
+    let colonne = testo.split(separator: "\n").filter {
+      $0.contains(".frame(width:") && !$0.contains("width: 0")
+    }
+    #expect(colonne.isEmpty,
+      "colonne a larghezza fissa nel riepilogo: \(colonne.map { $0.trimmingCharacters(in: .whitespaces) })")
+  }
+
+  func file(sotto cartella: URL) throws -> [URL] {
+    let e = FileManager.default.enumerator(at: cartella, includingPropertiesForKeys: nil)
+    return (e?.allObjects as? [URL] ?? []).filter { $0.pathExtension == "swift" }
+  }
+}
