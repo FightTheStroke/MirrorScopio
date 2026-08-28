@@ -41,6 +41,7 @@ Regole di aggiornamento:
 | TestFlight | DA FARE | `STORE-06`, `STORE-07` |
 | App Review e pubblicazione | DA FARE | `STORE-08`, `STORE-09` |
 | Sorveglianza dopo il rilascio | DA FARE | `STORE-10` |
+| Manutenzione dell'app per Mac | DA FARE | `MAC-01` |
 
 ## Principi che non cambiano
 
@@ -496,6 +497,52 @@ se esiste un problema riproducibile e documentato.
 
 **Criterio di uscita:** problemi post-rilascio classificati, proprietario e
 azione assegnati, nessun incidente privacy o misura falsata non gestito.
+
+## Manutenzione dell'app per Mac
+
+Questa sezione raccoglie i lavori che riguardano solo la versione per Mac già
+pubblicata, e non il percorso verso gli store.
+
+### MAC-01 — L'aggiornamento si prepara da solo e si installa alla chiusura
+
+**Stato:** DA FARE
+**Dipendenze:** nessuna
+**Responsabile:** prodotto
+**Stima:** 2 giorni
+
+Oggi l'app fa una cosa sola: quando il controllo della versione è acceso, una
+volta al giorno chiede a GitHub qual è l'ultima pubblicata. Da lì in poi non si
+muove più niente finché qualcuno non apre le Impostazioni e preme «Aggiorna e
+riavvia»; solo allora scarica il pacchetto, ne verifica firma e timbro, si
+sostituisce e riparte. È prudente, ma scarica al momento sbagliato: il ragazzo
+sta aspettando davanti allo schermo mentre passano decine di megabyte, e per
+avere la versione nuova bisogna comunque interrompere quello che si sta facendo.
+
+Il comportamento che vogliamo è quello delle app moderne: scaricare il pacchetto
+in anticipo e in silenzio, verificarlo, tenerlo da parte, e **non sostituire
+niente** finché non si verifica una di queste due cose — la persona dice di sì,
+oppure l'app viene chiusa. Al riavvio successivo si trova la versione nuova senza
+aver mai aspettato.
+
+Vincoli che restano fermi:
+
+- Lo scaricamento parte solo se il controllo della versione è acceso, che è già
+  una scelta esplicita e spenta di suo.
+- Mai mentre una sessione è in corso: né scaricare né sostituire.
+- La sostituzione resta preceduta dalle verifiche di firma nostra, timbro di
+  Apple e numero di versione atteso, come oggi.
+- Se qualcosa va storto, l'app che si sta usando resta quella di prima: il
+  pacchetto scaricato si butta e si riprova un'altra volta.
+- Il pacchetto messo da parte va detto, non nascosto: dove sta, quanto pesa, e
+  come lo si cancella.
+
+**Criterio di uscita:** con il controllo acceso e una versione nuova disponibile,
+il pacchetto risulta scaricato e verificato senza che nessuno abbia premuto
+niente; chiudendo l'app la sostituzione avviene e al riavvio successivo la
+versione è quella nuova; avviando invece una sessione mentre il pacchetto è
+pronto, non succede niente fino alla chiusura. Da aggiornare di conseguenza:
+`docs/PRIVACY.md` (elenco dei passaggi dalla rete e valutazione d'impatto) e il
+`README.md`.
 
 ## Dipendenze principali
 
