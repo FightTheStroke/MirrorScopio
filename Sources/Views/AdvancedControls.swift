@@ -62,7 +62,7 @@ struct AdvancedControls: View {
           // e si trova davanti un rifiuto che non capisce.
           if engine.config.oltreIlLimiteDiLampeggio {
             Label {
-              Text("Con questi tempi lo schermo cambierebbe \(engine.config.frequenzaCicloHz, specifier: "%.1f") volte al secondo. Sopra tre volte al secondo un'alternanza così può far male a chi ha un'epilessia fotosensibile: allunga la pausa o la croce finché il giro completo dura almeno \(Int(SessionConfig.durataCicloMinimaMs.rounded())) millesimi.")
+              Text("Con questi tempi lo schermo cambierebbe \(engine.config.ritmoDaDireHz, specifier: "%.1f") volte al secondo. Sopra tre volte al secondo un'alternanza così può far male a chi ha un'epilessia fotosensibile: allunga la pausa o la croce finché il giro completo dura almeno \(Int(SessionConfig.durataCicloMinimaMs.rounded())) millesimi.")
             } icon: {
               Image(systemName: "exclamationmark.triangle.fill")
             }

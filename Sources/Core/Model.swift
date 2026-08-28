@@ -315,6 +315,14 @@ extension SessionConfig {
   ///
   /// Si guardano tutte e due le cose: le prove che si susseguono troppo in
   /// fretta, e i lampi contati come li conta la norma.
+  /// Il numero da mostrare a chi legge l'avviso: il più alto fra i due ritmi,
+  /// perché è quello che ha fatto scattare il limite. Dire il ciclo quando a
+  /// sforare sono i lampi dentro la prova significa scrivere a schermo un
+  /// numero più tranquillo di quello vero.
+  var ritmoDaDireHz: Double {
+    max(frequenzaCicloHz, lampiAlSecondo)
+  }
+
   var oltreIlLimiteDiLampeggio: Bool {
     frequenzaCicloHz > SessionConfig.limiteLampeggioHz
       || lampiAlSecondo > SessionConfig.limiteLampeggioHz

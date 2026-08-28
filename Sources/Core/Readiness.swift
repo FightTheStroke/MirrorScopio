@@ -87,8 +87,17 @@ final class Readiness: ObservableObject {
       return Voce(id: "microfono", titolo: "Permesso del microfono",
                   stato: .manca("Negato. Va riattivato nelle Impostazioni di Sistema."),
                   necessaria: true,
-                  rimedio: .apriImpostazioni("x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"))
+                  rimedio: .apriImpostazioni(Readiness.urlImpostazioniMicrofono))
     }
+  }
+
+  static let urlImpostazioniMicrofono =
+    "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+
+  /// Cambia il rimedio di una voce senza toccarne lo stato.
+  private func cambiaRimedio(_ id: String, _ nuovo: Rimedio) {
+    guard let i = voci.firstIndex(where: { $0.id == id }) else { return }
+    voci[i].rimedio = nuovo
   }
 
   private func voceIngresso() -> Voce {
@@ -171,6 +180,16 @@ final class Readiness: ObservableObject {
     case .chiediMicrofono:
       _ = await AVCaptureDevice.requestAccess(for: .audio)
       await controlla()
+      // Chiedere non basta: macOS può non far comparire nulla — succede quando
+      // sul Mac è rimasta traccia di una versione precedente dell'app e il
+      // sistema non la riconosce più. Da fuori sembra un pulsante rotto: si
+      // preme «Consenti», non appare niente, la riga resta rossa. Se dopo la
+      // richiesta il permesso non c'è ancora, l'app lo dice e indica l'unica
+      // strada che resta, invece di lasciare premere lo stesso pulsante.
+      if AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
+        aggiorna("microfono", .manca("Ho chiesto il permesso ma il Mac non ha risposto. Aprilo a mano in Impostazioni di Sistema › Privacy e sicurezza › Microfono, mettendo la spunta accanto a MirrorScopio."))
+        cambiaRimedio("microfono", .apriImpostazioni(Readiness.urlImpostazioniMicrofono))
+      }
 
     case .apriImpostazioni(let url):
       if let u = URL(string: url) { NSWorkspace.shared.open(u) }

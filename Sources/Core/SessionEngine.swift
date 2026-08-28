@@ -147,7 +147,10 @@ final class SessionEngine: ObservableObject {
     // Mac che si addormenta e il microfono che sparisce. Il sistema le sa
     // entrambe e le dice — tacerle vorrebbe dire scrivere «non ha risposto»
     // nel referto di qualcuno che non era stato interrogato.
-    NSWorkspace.shared.notificationCenter.addObserver(
+    // Il gettone dell'osservatore va conservato: senza, ogni motore creato
+    // (prove, anteprime, azzeramenti) ne lascia dietro uno vivo, e un solo
+    // sonno del Mac finisce per interrompere il turno più volte.
+    osservatoreSonno = NSWorkspace.shared.notificationCenter.addObserver(
       forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in
         Task { @MainActor in
           self?.interrompi(motivo: "Il Mac si è addormentato: questa parola non conta. Quando vuoi, si riprende da qui.")
@@ -155,6 +158,15 @@ final class SessionEngine: ObservableObject {
       }
     sorveglianzaMicrofono.suMicrofonoSparito = { [weak self] in
       self?.interrompi(motivo: "Il microfono non c'è più: forse si sono staccate le cuffie. Questa parola non conta. Ricollegalo e si riprende da qui.")
+    }
+  }
+
+  /// Gettone dell'osservatore del sonno, da restituire quando il motore muore.
+  private var osservatoreSonno: NSObjectProtocol?
+
+  deinit {
+    if let osservatoreSonno {
+      NSWorkspace.shared.notificationCenter.removeObserver(osservatoreSonno)
     }
   }
 
@@ -175,7 +187,7 @@ final class SessionEngine: ObservableObject {
     // parte, e si dice perché — un rifiuto senza spiegazione sembra un guasto,
     // e chi lo legge cerca il modo di aggirarlo.
     if config.oltreIlLimiteDiLampeggio, !config.lampeggioVeloceConsentito {
-      let attuale = String(format: "%.1f", config.frequenzaCicloHz)
+      let attuale = String(format: "%.1f", config.ritmoDaDireHz)
       let minima = Int(SessionConfig.durataCicloMinimaMs.rounded())
       phase = .failed("""
         Con questi tempi lo schermo cambierebbe \(attuale) volte al secondo. \
