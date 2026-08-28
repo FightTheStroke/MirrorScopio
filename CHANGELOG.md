@@ -46,6 +46,12 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   dichiara nessun tracciamento, nessun dominio di tracciamento, nessun dato raccolto.
 
 ### Cambiato
+- **I conti del referto si possono finalmente provare.** Le due regole cliniche più
+  delicate dell'app — il riscaldamento non conta, le prove interrotte non contano — stavano
+  dentro un oggetto di mille righe legato a un microfono acceso e a un orologio che gira:
+  per verificarle bisognava fare una sessione vera, a mano, e leggere il risultato a occhio.
+  Ora sono funzioni pure in `RegistroSessione`, coperte da dodici prove. Un conto sbagliato
+  lì non manda in errore niente: produce un referto pieno, ordinato, plausibile e falso.
 - **La documentazione smette di promettere cose che il codice non fa.** Erano sei
   affermazioni false e due imprecise, trovate contandole:
   - Il progetto Xcode **sta** nel repository (README, AGENTS, ARCHITETTURA dicevano di no).
@@ -99,6 +105,12 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   scritti dall'avvio dell'app senza nessuna difesa: non davano errore e non si potevano
   riprodurre, ma erano il tipo di guasto che compare una volta su mille e sempre sul Mac di
   qualcun altro. Adesso il compilatore controlla da solo che non succeda, invece di fidarsi.
+- **I punti di una sessione potevano essere assegnati due volte.** Il controllo «questa
+  sessione l'ho già messa via?» viveva in uno stato della schermata di fine sessione, e uno
+  stato di una schermata riparte da capo ogni volta che il sistema decide di ricostruirla —
+  e lo decide lui. Il risultato non sembrava un difetto: sembrava un punteggio più alto, che
+  è esattamente quello che uno si aspetta di vedere dopo aver finito. Ora il controllo è
+  l'identificativo della sessione e non dipende da nessuno schermo.
 - **Gli aggiornamenti potevano smettere di arrivare senza che nessuno se ne accorgesse.**
   L'app portava un numero di build ricavato dal conto delle modifiche salvate, e quel
   conto può *scendere* quando una serie di modifiche viene unita in un salvataggio solo.

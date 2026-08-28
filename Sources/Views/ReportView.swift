@@ -7,7 +7,6 @@ struct ReportView: View {
   @ObservedObject var store: Store
   @Environment(\.palette) private var palette
 
-  @State private var saved = false
   @State private var unlocked: [Achievement] = []
   @State private var showDetail = false
   /// Con «Nascondi punteggi» acceso il dettaglio numerico resta chiuso finché
@@ -54,7 +53,7 @@ struct ReportView: View {
           .allowsHitTesting(false)
       }
     }
-    .onAppear(perform: saveOnce)
+    .onAppear(perform: mettiViaLaSessione)
     // Esc chiude il riepilogo e torna a casa, come chiude tutto il resto
     // dell'app: non si impara una scorciatoia diversa per ogni schermata.
     .background {
@@ -111,16 +110,14 @@ struct ReportView: View {
 
   // MARK: - Salvataggio
 
-  private func saveOnce() {
-    guard !saved, record.total > 0 else { return }
-    saved = true
-    guard !engine.isCalibration else { return }
-    var learner = store.current
-    unlocked = Gamification.apply(session: record, to: &learner)
-    store.current = learner
-    var r = record
-    r.learnerID = store.currentID
-    store.recordAlreadyScored(r)
+  /// Chiede di mettere via la sessione. Non decide niente: chi tiene il conto
+  /// dei punti è lo `Store`, che sa anche riconoscere una sessione già messa
+  /// via — cosa che una schermata non può sapere, perché viene ricostruita
+  /// quando fa comodo a SwiftUI e ogni volta riparte senza memoria.
+  private func mettiViaLaSessione() {
+    guard record.total > 0, !engine.isCalibration else { return }
+    let sbloccati = store.archivia(record)
+    if !sbloccati.isEmpty { unlocked = sbloccati }
   }
 
   // MARK: - Per il ragazzo
