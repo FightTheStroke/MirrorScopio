@@ -177,6 +177,7 @@
 		AFE70137AA171B11379D4157 /* PER-I-LOGOPEDISTI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "PER-I-LOGOPEDISTI.md"; sourceTree = "<group>"; };
 		B138E17EF7A234EFD43A06DC /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		B1B7797EB4E90A0D13E401A3 /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
+		B21773941347B735694400A6 /* pubblica.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = pubblica.yml; sourceTree = "<group>"; };
 		B323386D38EFBCCD82CF3AA8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		B51D1F199B0BB5D910CFBEBB /* RegistroSessione.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistroSessione.swift; sourceTree = "<group>"; };
 		B653EC0DBB7E114828180F50 /* ElencoPagine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElencoPagine.swift; sourceTree = "<group>"; };
@@ -281,6 +282,7 @@
 		27C6AE7D1DF5FC97789E7546 /* workflows */ = {
 			isa = PBXGroup;
 			children = (
+				B21773941347B735694400A6 /* pubblica.yml */,
 				FBEAEEE93B1F15A565BA0BDF /* rilascio.yml */,
 				D42865BF9A7D189AE5DB71F2 /* verifica.yml */,
 			);
