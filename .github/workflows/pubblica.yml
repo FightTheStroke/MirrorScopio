@@ -39,6 +39,13 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # Senza questa riga `checkout` lascia le proprie credenziali scritte
+          # nella copia di lavoro, e quelle vincono su qualunque indirizzo si
+          # metta dopo: l'etichetta parte a nome del robot di GitHub, che qui
+          # non ha il permesso di scrivere. È esattamente come è fallito il
+          # primo tentativo di pubblicare la 0.7.0: «Permission denied to
+          # github-actions[bot]», con la chiave giusta lì accanto inutilizzata.
+          persist-credentials: false
 
       - name: Guardo se c'è una versione nuova da pubblicare
         id: guarda
