@@ -158,10 +158,12 @@ enum Exporter {
 
     func line(_ text: String, size: CGFloat, weight: NSFont.Weight = .regular,
               color: NSColor = .black, gap: CGFloat = 6) {
-      space(size + gap)
+      let larghezza = page.width - 112
+      let h = altezza(text, width: larghezza, size: size, weight: weight)
+      space(h + gap)
       draw(text, in: ctx, at: CGPoint(x: 56, y: y - size),
-           width: page.width - 112, size: size, weight: weight, color: color)
-      y -= size + gap
+           width: larghezza, size: size, weight: weight, color: color, height: h)
+      y -= h + gap
     }
 
     func rule() {
@@ -244,7 +246,7 @@ enum Exporter {
       if sessions.count == 1 {
         y -= 6
         line("Parola per parola", size: 11, weight: .semibold)
-        let cols: [CGFloat] = [56, 165, 285, 375, 425, 480]
+        let cols: [CGFloat] = [56, 150, 250, 340, 385, 435]
         space(16)
         for (t, x) in zip(["parola", "risposta", "esito", "ms", "latenza", "nota"], cols) {
           draw(t, in: ctx, at: CGPoint(x: x, y: y - 9), width: 130, size: 8,
@@ -294,21 +296,50 @@ enum Exporter {
   /// senza spostare le altre.
   private static func nota(_ i: ItemRecord) -> String {
     var pezzi: [String] = []
-    if i.interrotto { pezzi.append(i.motivoInterruzione ?? "interrotta") }
-    if i.frameSaltato { pezzi.append("fotogramma saltato") }
+    // Qui la parola breve, non il motivo per esteso: la colonna è larga cento
+    // punti e «il Mac si è addormentato» ci finiva tagliato a metà, che è
+    // peggio del non dirlo. Il motivo per esteso sta nell'avviso sopra la
+    // tabella, dove c'è la riga intera per scriverlo, e nel file dei numeri.
+    if i.interrotto { pezzi.append("interrotta") }
+    if i.frameSaltato { pezzi.append("fotogr. saltato") }
     return pezzi.joined(separator: " · ")
   }
 
+  /// Quanto spazio in altezza serve a questo testo, dentro questa larghezza.
+  ///
+  /// Serve a `line` per sapere di quanto scendere: senza, una frase più lunga
+  /// della riga finisce fuori dal foglio, e chi legge trova una frase troncata
+  /// a metà parola. È successo davvero, con l'avviso sulle prove interrotte:
+  /// il referto si interrompeva a «Non sono» e il resto non c'era.
+  private static func altezza(_ text: String, width: CGFloat, size: CGFloat,
+                              weight: NSFont.Weight) -> CGFloat {
+    let s = NSAttributedString(string: text, attributes: [
+      .font: NSFont.systemFont(ofSize: size, weight: weight),
+    ])
+    let fs = CTFramesetterCreateWithAttributedString(s)
+    let misura = CTFramesetterSuggestFrameSizeWithConstraints(
+      fs, CFRange(location: 0, length: 0), nil,
+      CGSize(width: width, height: .greatestFiniteMagnitude), nil)
+    return max(size * 1.4, ceil(misura.height))
+  }
+
+  /// Disegna a partire dal **basso** del riquadro indicato.
+  ///
+  /// `altezza` va calcolata prima e passata qui: le due funzioni devono vedere
+  /// lo stesso numero, altrimenti il testo scende sotto il riquadro e sparisce.
   private static func draw(_ text: String, in ctx: CGContext, at p: CGPoint,
                            width: CGFloat, size: CGFloat,
-                           weight: NSFont.Weight, color: NSColor) {
+                           weight: NSFont.Weight, color: NSColor,
+                           height: CGFloat? = nil) {
     let attrs: [NSAttributedString.Key: Any] = [
       .font: NSFont.systemFont(ofSize: size, weight: weight),
       .foregroundColor: color,
     ]
     let s = NSAttributedString(string: text, attributes: attrs)
     let framesetter = CTFramesetterCreateWithAttributedString(s)
-    let path = CGPath(rect: CGRect(x: p.x, y: p.y, width: width, height: size * 1.4), transform: nil)
+    let h = height ?? size * 1.4
+    let path = CGPath(rect: CGRect(x: p.x, y: p.y - (h - size * 1.4), width: width, height: h),
+                      transform: nil)
     let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: 0, length: 0), path, nil)
     CTFrameDraw(frame, ctx)
   }

@@ -27,6 +27,12 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   esce come «non contata» e non come «ancora», e la testata dice riga per riga
   quante ne sono state escluse e perché. Anche il PDF ha la colonna «nota» e, sotto
   i numeri, la frase che spiega il conto.
+- **Nel referto in PDF le frasi lunghe non si interrompono più a metà.** Ogni riga
+  di testo veniva disegnata dentro un riquadro alto una riga sola: quello che
+  avanzava spariva. Con il titolo e il nome non si vedeva, con l'avviso sulle
+  prove interrotte sì — il referto si fermava a «Non sono» e il resto non c'era.
+  Adesso il testo va a capo e la pagina scende di conseguenza. Guardato aprendo
+  un PDF vero, non solo con le prove.
 
 
 ### Aggiunto
