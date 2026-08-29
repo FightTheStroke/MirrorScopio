@@ -65,7 +65,15 @@ struct LarghezzeCheCrescono {
       // dichiarata: non contiene testo, e una finestra che raddoppia perché
       // è raddoppiato il carattere diventerebbe più grande dello schermo.
       if file.lastPathComponent == "App.swift" { continue }
-      let testo = try String(contentsOf: file, encoding: .utf8)
+      // Letto dal disco senza passare da un URL: `String(contentsOf:)` accetta
+      // anche un indirizzo di rete, e il guardiano che difende la promessa
+      // «niente esce da questo Mac» non può distinguere i due casi. Ha
+      // ragione lui: qui basta il percorso.
+      guard let dati = FileManager.default.contents(atPath: file.path) else {
+        Issue.record("Non riesco a leggere \(file.lastPathComponent)")
+        continue
+      }
+      let testo = String(decoding: dati, as: UTF8.self)
       for trovata in Self.larghezzeFisse(in: testo) {
         colpevoli.append("\(file.lastPathComponent): \(trovata)")
       }
