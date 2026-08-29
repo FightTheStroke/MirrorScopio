@@ -166,7 +166,7 @@ struct StaffettaView: View {
         .font(a11y.font(.guida))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 560)
+        .frame(maxWidth: a11y.size(560))
         .fixedSize(horizontal: false, vertical: true)
 
       Text("Un tasto solo. Nessuna fretta: parti quando vuoi.")
@@ -249,7 +249,7 @@ struct StaffettaView: View {
         .fill(palette.muted.opacity(0.35))
         .frame(height: a11y.size(6))
     }
-    .frame(maxWidth: 640)
+    .frame(maxWidth: a11y.size(640))
   }
 
   /// I compagni schierati che guardano il passo finale.
@@ -309,7 +309,7 @@ struct StaffettaView: View {
         }
       }
     }
-    .frame(maxWidth: 640)
+    .frame(maxWidth: a11y.size(640))
     .frame(height: a11y.size(22))
     .accessibilityHidden(true)
   }
@@ -337,7 +337,7 @@ struct StaffettaView: View {
         .font(a11y.font(.sezione, .medium))
         .foregroundStyle(palette.accent)
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 520)
+        .frame(maxWidth: a11y.size(520))
 
       // La squadra che cresce, mostrata: sono loro il premio, non un numero.
       HStack(spacing: a11y.size(Metrica.spazioStretto)) {
@@ -388,7 +388,7 @@ struct StaffettaView: View {
         .font(a11y.font(.guida))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 560)
+        .frame(maxWidth: a11y.size(560))
         .fixedSize(horizontal: false, vertical: true)
 
       // Il principio della fondazione, detto al ragazzo.
@@ -396,7 +396,7 @@ struct StaffettaView: View {
         .font(a11y.font(.guida, .medium))
         .foregroundStyle(palette.accent)
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 520)
+        .frame(maxWidth: a11y.size(520))
         .fixedSize(horizontal: false, vertical: true)
 
       HStack(spacing: Metrica.spazioPiccolo) {
@@ -407,7 +407,7 @@ struct StaffettaView: View {
           onClose()
         }
       }
-      .frame(maxWidth: 520)
+      .frame(maxWidth: a11y.size(520))
 
       Spacer(minLength: 0)
     }

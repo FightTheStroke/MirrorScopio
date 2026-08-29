@@ -16,6 +16,23 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Corretto
+- **Le scritte non escono più dai pulsanti quando il testo è grande.** Con «Dimensione
+  di tutto» a ×2, il pulsante «Indietro» della prima accensione mostrava «Indiet ro»:
+  la parola spezzata a metà. Cinquanta larghezze in tutta l'app erano scritte a mano e
+  non venivano moltiplicate insieme al testo — il carattere raddoppiava, il riquadro
+  restava fermo. Nella stessa schermata la colonna di lettura era bloccata a 820 punti
+  su una finestra da 1352, con metà pagina vuota e il titolo su tre righe. Adesso
+  crescono tutte insieme al testo, e una prova nuova impedisce che ne rientri una.
+- **Le schede delle scelte sono alte uguali.** Le frasi hanno lunghezze diverse, e ogni
+  scheda era alta quanto il suo testo: la fila veniva a scaletta. Chi fatica a leggere
+  fa fatica proprio con le cose non allineate, e quella è la prima schermata che vede.
+- **La barra delle pagine porta in vista quella scelta.** Con il testo grande le voci
+  non ci stanno tutte in fila e l'ultima restava fuori dallo schermo: cambiando pagina
+  con la tastiera il contenuto cambiava, ma l'unico segno di dove ci si trovava era
+  oltre il bordo.
+
+
+### Corretto
 - **Il referto adesso dice tutto quello che l'app sa.** Per quattro versioni il file
   di numeri ha avuto sette colonne, e tre cose che il motore misurava a ogni turno
   non uscivano da nessuna parte: se il turno era stato interrotto, a quanti hertz

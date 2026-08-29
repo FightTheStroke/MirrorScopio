@@ -75,7 +75,7 @@ struct TypingView: View {
               : "Puoi farla ripetere quante volte vuoi. Se proprio non la sai, lascia vuoto e premi Fatto.",
               a11y: a11y, size: 16)
       .multilineTextAlignment(.center)
-      .frame(maxWidth: 560)
+      .frame(maxWidth: a11y.size(560))
 
       Spacer(minLength: 0)
     }
@@ -100,7 +100,7 @@ struct TypingView: View {
       .padding(.horizontal, Metrica.spazio)
       .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
       .overlay(RoundedRectangle(cornerRadius: Metrica.raggio).stroke(palette.accent, lineWidth: 3))
-      .frame(maxWidth: 620)
+      .frame(maxWidth: a11y.size(620))
       .focused($focused)
       .onSubmit { engine.submitTyped() }
       .accessibilityLabel(engine.config.writingLevel.isSentences
@@ -154,7 +154,7 @@ struct TypingView: View {
           .accessibilityLabel("risenti la parola \(parola)")
         }
       }
-      .frame(maxWidth: 620)
+      .frame(maxWidth: a11y.size(620))
     }
   }
 
@@ -178,7 +178,7 @@ struct TypingView: View {
         }
       }
     }
-    .frame(maxWidth: 620)
+    .frame(maxWidth: a11y.size(620))
   }
 
   // MARK: - Cornice

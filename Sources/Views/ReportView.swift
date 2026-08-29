@@ -41,7 +41,7 @@ struct ReportView: View {
         if !engine.isCalibration, record.total > 0, !a11y.calmMode { sostieni }
       }
       .padding(Metrica.spazioGrande)
-      .frame(maxWidth: 820)
+      .frame(maxWidth: a11y.size(820))
       .frame(maxWidth: .infinity)
     }
     .defaultFocus($fuoco, .ancora)
@@ -67,7 +67,7 @@ struct ReportView: View {
     // trattiene, non tiene il punteggio, non ha nulla da vincere.
     .sheet(isPresented: $showStaffetta) {
       StaffettaView(a11y: a11y, onClose: { showStaffetta = false })
-        .frame(minWidth: 860, minHeight: 660)
+        .frame(minWidth: a11y.size(860), minHeight: 660)
         .environment(\.palette, palette)
     }
   }
@@ -139,7 +139,7 @@ struct ReportView: View {
         Explain(text: "Ti sei fermato durante il riscaldamento, quindi non c'è ancora niente da contare. Va benissimo: il riscaldamento serve proprio a capire se è il momento giusto.",
                 a11y: a11y, size: 21)
           .multilineTextAlignment(.center)
-          .frame(maxWidth: 560)
+          .frame(maxWidth: a11y.size(560))
       } else {
         Text("Hai preso **\(record.correct)** parole su **\(record.total)**.")
           .font(a11y.font(.sezione))
@@ -150,7 +150,7 @@ struct ReportView: View {
             .font(a11y.font(.guida, .medium))
             .foregroundStyle(palette.accent)
             .multilineTextAlignment(.center)
-            .frame(maxWidth: 520)
+            .frame(maxWidth: a11y.size(520))
         }
 
         HStack(spacing: Metrica.spazioStretto) {
@@ -314,13 +314,13 @@ struct ReportView: View {
           store.current = l
           engine.reset()
         }
-        .frame(maxWidth: 420)
+        .frame(maxWidth: a11y.size(420))
       } else {
         Explain(text: "Non sono riuscito a misurare la velocità: troppe poche risposte. Riproviamo con calma, oppure scegli tu il livello.",
                 a11y: a11y, size: 19)
         .multilineTextAlignment(.center)
         BigButton(title: "Torna alla schermata iniziale", a11y: a11y, prominent: false) { engine.reset() }
-          .frame(maxWidth: 420)
+          .frame(maxWidth: a11y.size(420))
       }
     }
     .padding(.top, Metrica.spazio)

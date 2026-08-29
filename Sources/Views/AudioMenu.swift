@@ -122,7 +122,7 @@ private struct PannelloAudio: View {
       }
       .padding(Metrica.spazioMedio)
     }
-    .frame(minWidth: 320, maxHeight: 460)
+    .frame(minWidth: a11y.size(320), maxHeight: 460)
     .background(palette.surface)
   }
 

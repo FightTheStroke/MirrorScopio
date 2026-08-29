@@ -50,13 +50,13 @@ struct InstructionsView: View {
                 prominent: isWriting || heardOnce) {
         engine.beginTrials()
       }
-      .frame(maxWidth: 420)
+      .frame(maxWidth: a11y.size(420))
       .keyboardShortcut(.space, modifiers: [])
 
       Explain(text: "Poi vanno da sole tutte le \(engine.totalTrials) parole. Se vuoi fermarti premi Esc.",
               a11y: a11y, size: 16)
       .multilineTextAlignment(.center)
-      .frame(maxWidth: 520)
+      .frame(maxWidth: a11y.size(520))
 
         Spacer(minLength: 0)
       }
@@ -107,7 +107,7 @@ struct InstructionsView: View {
       step("Compare una parola. Le prime \(engine.config.warmupTrials) restano tanto, poi sempre meno.")
       step("Dilla subito ad alta voce, anche se non sei sicuro.")
     }
-    .frame(maxWidth: 520, alignment: .leading)
+    .frame(maxWidth: a11y.size(520), alignment: .leading)
   }
 
   private var writingSteps: some View {
@@ -116,7 +116,7 @@ struct InstructionsView: View {
       step("Tu la scrivi nella casella e premi Invio.")
       step("Se non l'hai sentita bene, premi **Ripeti**: puoi farlo quante volte vuoi.")
     }
-    .frame(maxWidth: 520, alignment: .leading)
+    .frame(maxWidth: a11y.size(520), alignment: .leading)
   }
 
   private func step(_ markdown: String) -> some View {
@@ -175,13 +175,13 @@ struct InstructionsView: View {
         }
       }
       .multilineTextAlignment(.center)
-      .frame(maxWidth: 520)
+      .frame(maxWidth: a11y.size(520))
 
       if silenzioLungo && !heardOnce {
         SmallButton(title: "Scegli il microfono", symbol: "mic",
                     a11y: a11y, prominente: true) { onFixMic() }
         Explain(text: "Succede spesso: il Mac sta ascoltando da un altro ingresso — le cuffie spente, una webcam, un'interfaccia collegata e muta.", a11y: a11y, size: 15)
-          .frame(maxWidth: 520)
+          .frame(maxWidth: a11y.size(520))
       }
     }
     .padding(.vertical, Metrica.spazioMinimo)
@@ -215,18 +215,18 @@ struct PauseView: View {
                 ?? "Respira, guarda fuori dalla finestra, muovi le spalle. Riprendiamo quando vuoi tu: non c'è nessun tempo che scorre.",
               a11y: a11y, size: 19)
       .multilineTextAlignment(.center)
-      .frame(maxWidth: 520)
+      .frame(maxWidth: a11y.size(520))
 
       if engine.ascoltoAvviso != nil {
         Explain(text: "Quella parola non conta: non l'hai sbagliata tu, e nel riepilogo non ci sarà.",
                 a11y: a11y, size: 17)
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 520)
+        .frame(maxWidth: a11y.size(520))
       }
 
       BigButton(title: engine.ascoltoAvviso == nil ? "Riprendi" : "Riprova adesso",
                 symbol: "play.fill", a11y: a11y) { engine.resumeFromPause() }
-        .frame(maxWidth: 360)
+        .frame(maxWidth: a11y.size(360))
         .keyboardShortcut(.space, modifiers: [])
 
       Button("Ho finito per oggi") { engine.abort() }

@@ -204,7 +204,7 @@ struct AudioCheckView: View {
         adultSection
       }
       .padding(Metrica.spazioGrande)
-      .frame(maxWidth: 820)
+      .frame(maxWidth: a11y.size(820))
       .frame(maxWidth: .infinity)
     }
     .background(pal.background)

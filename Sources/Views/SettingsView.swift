@@ -202,7 +202,7 @@ struct SettingsView: View {
       ))
       .textFieldStyle(.roundedBorder)
       .font(a11y.font(.corpo))
-      .frame(maxWidth: 360)
+      .frame(maxWidth: a11y.size(360))
     }
   }
 
@@ -535,7 +535,7 @@ struct SettingsView: View {
                               set: { g in promemoria.impostaGiorni(g); ripianificaPromemoria() }),
                             opzioni: Promemoria.Giorni.allCases,
                             a11y: a11y) { $0.label }
-          .frame(maxWidth: 460, alignment: .leading)
+          .frame(maxWidth: a11y.size(460), alignment: .leading)
 
           Explain(text: "Ti mando un invito alle \(promemoria.orarioTesto), "
                   + (promemoria.giorni == .tutti ? "tutti i giorni" : "dal lunedì al venerdì")

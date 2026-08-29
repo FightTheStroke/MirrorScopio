@@ -40,7 +40,7 @@ struct HomeView: View {
         }
         .padding(.horizontal, Metrica.spazioEnorme)
         .padding(.bottom, Metrica.spazioEnorme)
-        .frame(maxWidth: 860)
+        .frame(maxWidth: a11y.size(860))
         .frame(maxWidth: .infinity)
       }
     }
@@ -194,7 +194,7 @@ struct HomeView: View {
             ProgressView(value: iniziato ? Gamification.progressInLevel(l.xp) : 0)
               .progressViewStyle(.linear)
               .tint(palette.accent)
-              .frame(maxWidth: 260)
+              .frame(maxWidth: a11y.size(260))
 
             Text(iniziato
                  ? "\(Gamification.xpInLevel(l.xp)) punti verso il prossimo livello"
