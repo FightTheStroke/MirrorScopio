@@ -16,6 +16,23 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Corretto
+- **La finestra «dove lo salvo» del referto veniva aperta dal filo sbagliato.** Le
+  finestre di sistema — quella che chiede dove mettere il file e l'avviso quando il
+  salvataggio non riesce — devono nascere sul filo principale del programma, e queste
+  nascevano dove capitava. Funzionava perché a premere il bottone c'è sempre un dito,
+  e un dito arriva sempre dal filo giusto: funzionava per come veniva chiamata, non
+  perché fosse giusta. È la classe di difetti che si manifesta una volta su cento e
+  che nessuno riesce a rifare. Sistemati anche i due punti in cui l'app restituiva un
+  ascolto di sistema mentre si spegneva.
+- **Adesso un difetto di concorrenza non passa più inosservato.** L'impostazione che
+  li fa vedere era stata riattivata, ma gli avvisi scorrevano via nel muro di testo
+  della compilazione e nessuno li leggeva: erano tredici. Ora la compilazione si
+  ferma. Controllato che il controllo funzioni davvero, rimettendo il difetto apposta
+  e verificando che venga bocciato — un guardiano che non si prova è un guardiano che
+  si scopre rotto il giorno che serve.
+
+
+### Corretto
 - **Il rilascio automatico adesso riesce davvero a mettere l'etichetta.** Al primo
   tentativo si è acceso da solo, come doveva, e si è fermato subito: chiedeva il
   permesso di scrivere col nome sbagliato. Chi scarica il progetto si porta dietro

@@ -351,6 +351,12 @@ enum Exporter {
   /// Prima l'errore veniva ingoiato da un `try?`: il logopedista credeva di
   /// avere il referto e non ce l'aveva. Un salvataggio che fallisce in silenzio
   /// è peggio di un salvataggio che non c'è.
+  /// Sta sul filo principale perché **deve**: la finestra «dove lo salvo» e
+  /// l'avviso d'errore sono finestre di sistema, e una finestra aperta da un
+  /// filo diverso da quello principale è un blocco che nessuno sa spiegare.
+  /// Finora funzionava per come veniva chiamata — sempre da un bottone, cioè
+  /// sempre dal filo giusto — ma non c'era niente che lo garantisse.
+  @MainActor
   static func save(data: Data, suggested: String) {
     let panel = NSSavePanel()
     panel.nameFieldStringValue = suggested
@@ -372,6 +378,7 @@ enum Exporter {
     }
   }
 
+  @MainActor
   static func save(text: String, suggested: String) {
     save(data: Data(text.utf8), suggested: suggested)
   }
@@ -383,6 +390,7 @@ enum Exporter {
   /// diventa «perchÃ©». In un referto clinico è lo stesso difetto della
   /// sostituzione dei punti e virgola: il file si apre e mostra una parola
   /// diversa da quella che il bambino ha letto davvero.
+  @MainActor
   static func salvaFoglioDiCalcolo(text: String, suggested: String) {
     var dati = Data([0xEF, 0xBB, 0xBF])
     dati.append(Data(text.utf8))

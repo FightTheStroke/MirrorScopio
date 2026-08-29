@@ -162,7 +162,12 @@ final class SessionEngine: ObservableObject {
   }
 
   /// Gettone dell'osservatore del sonno, da restituire quando il motore muore.
-  private var osservatoreSonno: NSObjectProtocol?
+  ///
+  /// `nonisolated(unsafe)` perché `deinit` gira fuori dal filo principale e
+  /// deve poterlo leggere. Qui è sicuro per un motivo preciso: quando `deinit`
+  /// parte, nessun altro ha più un riferimento a questo oggetto, quindi
+  /// nessuno può toccare questa proprietà mentre la si legge.
+  nonisolated(unsafe) private var osservatoreSonno: NSObjectProtocol?
 
   deinit {
     if let osservatoreSonno {
