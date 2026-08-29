@@ -56,6 +56,10 @@ rm -rf build
 mkdir -p build
 
 echo "Compilo…"
+# La cartella dev'esserci prima, altrimenti il registro non si scrive e il
+# controllo sulla concorrenza qui sotto guarderebbe un file vuoto: passerebbe
+# sempre, e nessuno se ne accorgerebbe. E' successo.
+mkdir -p "$DERIVED"
 # Le tre chiavi FTS* non stanno in MirrorScopio.plist perche' cambiano a ogni
 # commit: il plist le chiede come segnaposto e i valori arrivano da qui.
 # CODE_SIGNING_ALLOWED=NO: la firma la mettiamo dopo, a mano, perche' dipende da
@@ -72,7 +76,35 @@ xcodebuild \
   FTS_GIT_DIRTY="$GIT_DIRTY" \
   FTS_BUILD_DATE="$BUILD_DATE" \
   build \
+  | tee "$DERIVED/compilazione.log" \
   | grep -E "^\*\*|error:|warning: .*deprecated" || true
+
+# Il registro completo resta accanto ai file di lavoro: a schermo si mostrano
+# pochi avvisi di proposito, ma buttarli via vorrebbe dire non poterli piu'
+# controllare. Sta fuori dall'app, che deve restare pulita.
+
+# Gli avvisi di concorrenza sono l'unica famiglia che qui diventa un errore.
+# Dicono che due parti del programma toccano la stessa cosa da fili diversi, e
+# in un'app che ascolta un microfono mentre disegna sullo schermo e conta i
+# fotogrammi quella e' la classe di difetti che si manifesta una volta su cento
+# e non si riesce a rifare. Il caso vero trovato il 29 agosto: la finestra
+# «dove lo salvo» del referto veniva aperta da un filo qualsiasi. Funzionava
+# perche' la premeva sempre un dito su un bottone, non perche' fosse giusto.
+#
+# Gli avvisi che vengono dai framework di Apple non li contiamo: non possiamo
+# correggerli e non dicono niente sul nostro codice.
+NOSTRI="$(grep -E "warning: .*(main actor-isolated|nonisolated deinit|non-Sendable)" \
+  "$DERIVED/compilazione.log" 2>/dev/null | grep -v "AttributeScopes" || true)"
+if [ -n "$NOSTRI" ]; then
+  echo ""
+  echo "$NOSTRI"
+  echo ""
+  echo "Concorrenza: qui sopra c'e' del codice che tocca la stessa cosa da due"
+  echo "fili diversi. Non e' un dettaglio di stile: e' la famiglia di difetti"
+  echo "che compare una volta su cento e non si riesce a rifare. Va sistemata"
+  echo "adesso, non quando si passera' a Swift 6."
+  exit 1
+fi
 
 COSTRUITA="$DERIVED/Build/Products/Release/MirrorScopio.app"
 if [ ! -d "$COSTRUITA" ]; then

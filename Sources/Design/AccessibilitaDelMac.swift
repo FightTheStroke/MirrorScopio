@@ -17,7 +17,10 @@ import AppKit
 final class AccessibilitaDelMac: ObservableObject {
   @Published private(set) var stato = StatoAccessibilitaDelMac()
 
-  private var osservatore: NSObjectProtocol?
+  /// `nonisolated(unsafe)` perché `deinit` gira fuori dal filo principale e
+  /// deve restituire questo gettone. È sicuro perché quando `deinit` parte
+  /// nessun altro ha più un riferimento a questo oggetto.
+  nonisolated(unsafe) private var osservatore: NSObjectProtocol?
 
   init() {
     rileggi()
