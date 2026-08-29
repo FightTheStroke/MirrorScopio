@@ -16,6 +16,23 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 ## [Non ancora rilasciato]
 
 ### Aggiunto
+- **Otto giochi nuovi, uno per ogni edizione del Fight Camp, con lo sport vero di
+  quell'anno.** Alla sala giochi si aggiungono *L'arrampicata* (la parete coi sensori del
+  2020: la mano scorre e si afferra la presa), *La scherma* (in carrozzina, 2021: si
+  aspetta che il compagno si scopra e parte l'affondo), *La vela* (Nave Italia, 2022: si
+  issa la vela a tempo con l'onda, da Civitavecchia a La Spezia), *Il triciclo* (2023,
+  quello dell'Ormesa: ogni pedalata dà spinta, e in salita la spinta cala prima), *Lo
+  skate* (2024: la tavola pende sempre da una parte e si sposta il peso), *Il beach
+  volley* (2025: l'ombra sulla sabbia dice dove cade il pallone), *La boxe* (2026: contano
+  i piedi, il diretto parte da solo quando sei nella misura) e *L'hip hop* (2026: i passi
+  arrivano da destra e si sta a tempo). In tutto tredici giochi, divisi in due scaffali:
+  «I giochi» e «Gli sport del camp». Ognuno tiene le stesse regole degli altri: **un tasto
+  solo**, nessun tempo che scade, **non si può perdere**, e quando qualcosa non riesce
+  compare «Ancora».
+- I livelli cambiano ogni volta — prese, onde, salite, passi non stanno mai nello stesso
+  posto — e la difficoltà segue chi gioca: si alza dopo tre cose riuscite, si abbassa
+  subito dopo una che non è venuta.
+
 - **Il premio di fine sessione diventa una sala giochi con cinque giochi, e sceglie lui.**
   Al posto dell'unico minigioco di prima ci sono *La corsa* (le quattro tappe del Fight
   Camp, di trave in trave), *La traversata* (il fiume da attraversare saltando di zattera
@@ -39,6 +56,16 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 - **I giochi si guardano dalle impostazioni, senza dover far fare una sessione.** In «Dopo
   ogni parola» c'è «Guarda i giochi»: apre la stessa identica sala che vedrà lui, non
   registra niente e si chiude tornando dov'eri.
+
+### Corretto
+- **Nel riepilogo il pulsante del premio prometteva la cosa sbagliata.** Diceva ancora «la
+  staffetta del Fight Camp», che era il gioco unico di prima: adesso dice «la sala
+  giochi», che è quello che si apre davvero. E una prova nuova controlla che il premio
+  arrivi in tutti e due i modi di allenarsi, «Leggi» **e** «Scrivi»: chi si allena a
+  scrivere sotto dettatura fa la stessa fatica, e un premio che tocca solo a metà dice
+  all'altra metà che la sua fatica conta meno.
+- Nella sala giochi le scritte non si rimpiccioliscono più da sole per stare in una riga:
+  a chi ha chiesto il testo grande andava restituito piccolo.
 
 ## [0.7.1] — 2026-08-29
 

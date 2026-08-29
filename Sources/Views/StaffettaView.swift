@@ -2,25 +2,34 @@ import SwiftUI
 
 // MARK: - La sala giochi del Fight Camp
 
-/// Il premio che si sblocca a fine sessione: cinque giochi, e si sceglie.
+/// Il premio che si sblocca a fine sessione: tredici giochi, e si sceglie.
 ///
 /// Non è un secondo esercizio, è il contrario. La sessione appena finita
 /// chiedeva di leggere in fretta, e per chi usa questa app quella è già la
 /// fatica più grande della giornata. Un premio che chiedesse riflessi, mira o
 /// velocità sarebbe la seconda frustrazione di fila, mascherata da regalo.
-/// Perciò tutti e cinque i giochi obbediscono alle stesse tre regole, e non è
+/// Perciò tutti i giochi obbediscono alle stesse tre regole, e non è
 /// una scelta di stile: si gioca con **un tasto solo**, non c'è **nessun
 /// cronometro**, e **non si può perdere**. Quando qualcosa non riesce non si
 /// perde una vita e non si ricomincia: compare «ANCORA» e si continua.
 ///
-/// I giochi sono quelli veri del Commodore 64 — le piattaforme, la traversata,
-/// lo sciame, i mattoni, la grotta — perché quei giochi erano fatti per un
-/// televisore scadente guardato da lontano: pochi colori pieni, figure grandi,
-/// una regola sola da capire. È esattamente ciò che serve qui.
+/// I primi cinque sono i giochi veri del Commodore 64 — le piattaforme, la
+/// traversata, lo sciame, i mattoni, la grotta — perché quei giochi erano
+/// fatti per un televisore scadente guardato da lontano: pochi colori pieni,
+/// figure grandi, una regola sola da capire. È esattamente ciò che serve qui.
+///
+/// Gli altri otto sono **gli sport veri del Fight Camp**, uno per edizione:
+/// l'arrampicata del 2020 sulla parete del Politecnico, la scherma in
+/// carrozzina del 2021, la vela di Nave Italia del 2022, il triciclo Ormesa
+/// del 2023, lo skate del 2024, il beach volley del 2025, la boxe e l'hip hop del 2026. In
+/// ognuno il tasto fa il gesto vero di quello sport: afferrare la presa,
+/// affondare, tirare la cima a tempo con l'onda, pedalare, spostare il peso,
+/// alzare le mani, muovere i piedi. Non sono cartoline: sono la stessa cosa
+/// che i ragazzi hanno fatto davvero, ridotta a un tasto.
 ///
 /// **Scegliere è metà del premio.** Chi ha appena finito un esercizio in cui
 /// tutto era deciso da qualcun altro — quali parole, quanto veloci, quante
-/// volte — qui decide da sé, e nessuna delle cinque scelte è quella sbagliata.
+/// volte — qui decide da sé, e nessuna delle tredici scelte è quella sbagliata.
 struct StaffettaView: View {
   var a11y: EffettiveImpostazioniAccessibilita
   /// Quanto si muove la scena: viene da com'è andata davvero l'ultima
@@ -54,6 +63,14 @@ struct StaffettaView: View {
     case .bolle: GiocoBolle(a11y: a11y, difficolta: difficolta, onClose: indietro)
     case .muro: GiocoMuro(a11y: a11y, difficolta: difficolta, onClose: indietro)
     case .grotta: GiocoGrotta(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .arrampicata: GiocoArrampicata(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .scherma: GiocoScherma(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .vela: GiocoVela(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .triciclo: GiocoTriciclo(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .skate: GiocoSkate(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .beach: GiocoBeach(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .boxe: GiocoBoxe(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .hiphop: GiocoHipHop(a11y: a11y, difficolta: difficolta, onClose: indietro)
     }
   }
 
@@ -88,10 +105,16 @@ struct StaffettaView: View {
       // Una colonna sola. Una griglia costringe a cercare dove si è rimasti;
       // un elenco si scorre con un dito e con il tasto Tab, e sopravvive ai
       // caratteri ingranditi il doppio senza scomporsi.
-      VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
-        ForEach(Gioco.allCases) { g in scheda(g) }
+      //
+      // Tredici voci di fila sono troppe da guardare tutte insieme: stanno in
+      // due gruppi con un titolo sopra, così si sa sempre in che metà si è.
+      ForEach(Gruppo.allCases) { gruppo in
+        VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
+          titoloGruppo(gruppo)
+          ForEach(Gioco.allCases.filter { $0.gruppo == gruppo }) { g in scheda(g) }
+        }
+        .frame(maxWidth: a11y.size(660))
       }
-      .frame(maxWidth: a11y.size(660))
       promessa
     }
     .frame(maxWidth: .infinity)
@@ -104,12 +127,27 @@ struct StaffettaView: View {
       Text("SALA GIOCHI")
         .font(.system(size: a11y.size(30), weight: .heavy, design: .monospaced))
         .foregroundStyle(a11y.theme == .altoContrasto ? .white : C64.giallo)
-      Text("Cinque giochi. Scegli tu.")
+      Text("Tredici giochi. Scegli tu.")
         .font(a11y.font(.corpo))
         .foregroundStyle(C64.bianco)
     }
     .multilineTextAlignment(.center)
     .padding(.trailing, a11y.size(80))
+  }
+
+  private func titoloGruppo(_ gruppo: Gruppo) -> some View {
+    VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMinimo)) {
+      Text(gruppo.nome)
+        .font(.system(size: a11y.size(18), weight: .heavy, design: .monospaced))
+        .foregroundStyle(a11y.theme == .altoContrasto ? .white : C64.ciano)
+      Text(gruppo.cosa)
+        .font(a11y.font(.etichetta))
+        .foregroundStyle(C64.grigioChiaro)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.top, a11y.size(Metrica.spazioPiccolo))
+    .accessibilityAddTraits(.isHeader)
   }
 
   private func scheda(_ g: Gioco) -> some View {
@@ -166,12 +204,42 @@ struct StaffettaView: View {
       .fixedSize(horizontal: false, vertical: true)
   }
 
-  /// I cinque giochi. Il nome dice che cosa succede, non a che genere
+  /// Le due metà della sala. Non è una classifica: è solo un modo per non
+  /// mettere dodici voci di fila senza un respiro.
+  enum Gruppo: String, CaseIterable, Identifiable {
+    case arcade, camp
+
+    var id: String { rawValue }
+
+    var nome: String {
+      switch self {
+      case .arcade: "I GIOCHI"
+      case .camp: "GLI SPORT DEL CAMP"
+      }
+    }
+
+    var cosa: String {
+      switch self {
+      case .arcade: "Quelli con cui si giocava trent'anni fa, davanti a un televisore."
+      case .camp: "Uno per ogni edizione del Fight Camp, con il gesto vero di quello sport."
+      }
+    }
+  }
+
+  /// I tredici giochi. Il nome dice che cosa succede, non a che genere
   /// appartiene: «La traversata», non «un platform a scorrimento».
   enum Gioco: String, CaseIterable, Identifiable {
     case corsa, traversata, bolle, muro, grotta
+    case arrampicata, scherma, vela, triciclo, skate, beach, boxe, hiphop
 
     var id: String { rawValue }
+
+    var gruppo: Gruppo {
+      switch self {
+      case .corsa, .traversata, .bolle, .muro, .grotta: .arcade
+      case .arrampicata, .scherma, .vela, .triciclo, .skate, .beach, .boxe, .hiphop: .camp
+      }
+    }
 
     var nome: String {
       switch self {
@@ -180,6 +248,14 @@ struct StaffettaView: View {
       case .bolle: "Le bolle"
       case .muro: "Il muro"
       case .grotta: "La grotta"
+      case .arrampicata: "L'arrampicata"
+      case .scherma: "La scherma"
+      case .vela: "La vela"
+      case .triciclo: "Il triciclo"
+      case .skate: "Lo skate"
+      case .beach: "Il beach volley"
+      case .boxe: "La boxe"
+      case .hiphop: "L'hip hop"
       }
     }
 
@@ -190,6 +266,14 @@ struct StaffettaView: View {
       case .bolle: "Bolle di sapone che scendono, e una retina che scorre da sola in basso."
       case .muro: "I mattoni da buttare giù con la pallina. Sotto la racchetta c'è un trampolino."
       case .grotta: "Si cammina verso l'uscita mentre cadono i massi. Le gemme sono lungo la strada."
+      case .arrampicata: "La parete del camp del 2020, quella coi sensori. La mano scorre sopra di te e cerca la presa."
+      case .scherma: "Scherma in carrozzina, 2021. Il compagno tiene la guardia, poi per un attimo si scopre."
+      case .vela: "Nave Italia, 2022. Si issa la vela a tempo con l'onda, da Civitavecchia a La Spezia."
+      case .triciclo: "Il triciclo del 2023. Ogni pedalata dà spinta, e in salita la spinta cala prima."
+      case .skate: "La tavola del 2024. Pende sempre da una parte: si sposta il peso e si resta in mezzo."
+      case .beach: "Beach volley del 2025. L'ombra sulla sabbia dice dove cade il pallone."
+      case .boxe: "La boxe del 2026. Contano i piedi: il diretto parte da solo quando sei nella misura."
+      case .hiphop: "L'hip hop del 2026. I passi arrivano da destra: si sta a tempo, e alla fine si balla davanti a tutti."
       }
     }
 
@@ -200,6 +284,14 @@ struct StaffettaView: View {
       case .bolle: "la retina scatta in su e prende."
       case .muro: "la racchetta cambia direzione."
       case .grotta: "ti fermi, e riparti."
+      case .arrampicata: "la mano afferra la presa."
+      case .scherma: "parte l'affondo."
+      case .vela: "tiri la cima."
+      case .triciclo: "una pedalata."
+      case .skate: "sposti il peso dall'altra parte."
+      case .beach: "alzi le mani e palleggi."
+      case .boxe: "cambi direzione, avanti o indietro."
+      case .hiphop: "fai il passo, quando è sulla riga."
       }
     }
 
@@ -210,6 +302,14 @@ struct StaffettaView: View {
       case .bolle: "bubbles.and.sparkles"
       case .muro: "square.grid.3x3.fill"
       case .grotta: "mountain.2.fill"
+      case .arrampicata: "figure.climbing"
+      case .scherma: "figure.fencing"
+      case .vela: "sailboat.fill"
+      case .triciclo: "bicycle"
+      case .skate: "figure.skateboarding"
+      case .beach: "figure.volleyball"
+      case .boxe: "figure.boxing"
+      case .hiphop: "figure.dance"
       }
     }
 
@@ -220,6 +320,14 @@ struct StaffettaView: View {
       case .bolle: C64.verdeChiaro
       case .muro: C64.arancio
       case .grotta: C64.grigioChiaro
+      case .arrampicata: C64.verdeChiaro
+      case .scherma: C64.grigioChiaro
+      case .vela: C64.ciano
+      case .triciclo: C64.rosso
+      case .skate: C64.marrone
+      case .beach: C64.giallo
+      case .boxe: C64.viola
+      case .hiphop: C64.arancio
       }
     }
   }

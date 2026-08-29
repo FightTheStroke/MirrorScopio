@@ -84,11 +84,11 @@ struct ReportView: View {
   /// premio lo trova, chi ha già avuto abbastanza per oggi lo ignora e chiude.
   private var premioStaffetta: some View {
     VStack(spacing: Metrica.spazioStretto) {
-      SmallButton(title: "Il premio: la staffetta del Fight Camp",
+      SmallButton(title: "Il premio: la sala giochi del Fight Camp",
                   symbol: "figure.run", a11y: a11y) {
         showStaffetta = true
       }
-      Explain(text: "Un piccolo gioco con un tasto solo. Non c'è fretta e non si può perdere.",
+      Explain(text: "Cinque giochi, e scegli tu. Un tasto solo, non c'è fretta e non si può perdere.",
               a11y: a11y, size: 14)
       .multilineTextAlignment(.center)
     }

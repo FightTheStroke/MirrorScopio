@@ -323,8 +323,9 @@ struct CabinatoRetro: View {
     Text(t)
       .font(.system(size: a11y.size(15), weight: .bold, design: .monospaced))
       .foregroundStyle(a11y.theme == .altoContrasto ? .white : c)
-      .lineLimit(1)
-      .minimumScaleFactor(0.6)
+      // Niente rimpicciolimenti: chi ha chiesto testo grande non lo vuole
+      // ridotto per far stare la riga. Se non ci sta, va a capo.
+      .lineLimit(2)
   }
 
   private var schermo: some View {

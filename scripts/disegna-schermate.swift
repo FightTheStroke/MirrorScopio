@@ -167,12 +167,12 @@ struct DisegnaSchermate {
       disegna(riquadroGrande, nome: "aggiornamento-ingrandito", larghezza: 900,
               altezza: altezzaNaturale(riquadroGrande, larghezza: 900))
 
-      // I cinque giochi premio. È l'unico modo di *guardarli* senza aprire
+      // I tredici giochi premio. È l'unico modo di *guardarli* senza aprire
       // l'app: ognuno si fotografa a metà partita, con il campo pieno.
       let manopoleGioco = A11ySettings()
       let perGiocare = EffettiveImpostazioniAccessibilita(manopoleGioco)
       disegna(StaffettaView(a11y: perGiocare, onClose: {}, perFotografia: true),
-              nome: "gioco-sala", larghezza: 900, altezza: 1000)
+              nome: "gioco-sala", larghezza: 900, altezza: 1900)
       disegna(GiocoCorsa(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
               nome: "gioco-corsa", larghezza: 900, altezza: 660)
       disegna(GiocoTraversata(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
@@ -183,6 +183,22 @@ struct DisegnaSchermate {
               nome: "gioco-muro", larghezza: 900, altezza: 660)
       disegna(GiocoGrotta(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
               nome: "gioco-grotta", larghezza: 900, altezza: 660)
+      disegna(GiocoArrampicata(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-arrampicata", larghezza: 900, altezza: 660)
+      disegna(GiocoScherma(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-scherma", larghezza: 900, altezza: 660)
+      disegna(GiocoVela(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-vela", larghezza: 900, altezza: 660)
+      disegna(GiocoTriciclo(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-triciclo", larghezza: 900, altezza: 660)
+      disegna(GiocoSkate(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-skate", larghezza: 900, altezza: 660)
+      disegna(GiocoBeach(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-beach", larghezza: 900, altezza: 660)
+      disegna(GiocoBoxe(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-boxe", larghezza: 900, altezza: 660)
+      disegna(GiocoHipHop(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-hiphop", larghezza: 900, altezza: 660)
 
       print("")
       print("Le immagini sono in build/schermate/.")
