@@ -15,6 +15,31 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Aggiunto
+- **Il premio di fine sessione diventa una sala giochi con cinque giochi, e sceglie lui.**
+  Al posto dell'unico minigioco di prima ci sono *La corsa* (le quattro tappe del Fight
+  Camp, di trave in trave), *La traversata* (il fiume da attraversare saltando di zattera
+  in zattera), *Le bolle* (la retina che scorre in basso e scatta in su), *Il muro* (i
+  mattoni da buttare giù, con un trampolino al posto del vuoto) e *La grotta* (si cammina
+  verso l'uscita e ci si ferma per far passare i massi). Sono fatti come i giochi del
+  Commodore 64 — pochi colori pieni, figure grandi, una regola sola — perché quel modo di
+  disegnare era pensato per un televisore scadente guardato da lontano, ed è esattamente
+  quello che serve a chi vede o segue a fatica. Le tre regole restano quelle di prima e
+  valgono per tutti e cinque: **un tasto solo**, nessun tempo che scade, e **non si può
+  perdere**. Quando qualcosa non riesce non si perde una vita e non si ricomincia: compare
+  «Ancora», e si continua.
+- **I livelli non sono più sempre gli stessi.** Dove stanno gli ostacoli, come passano le
+  zattere, com'è disegnato il muro, dove cadono i massi e dove sono le gemme: li estrae il
+  caso a ogni partita, ma dentro regole che impediscono a un livello di nascere
+  impossibile. È il motivo per cui si rigioca.
+- **Il passo dei giochi si adatta a chi gioca.** Parte da com'è andata davvero la lettura
+  appena finita e dall'esperienza con l'app, poi si assesta da solo: dopo tre riuscite di
+  fila la scena si fa più viva, dopo una cosa andata storta rallenta. Non decide mai se si
+  arriva in fondo — in fondo ci si arriva sempre — decide solo quanto si muove.
+- **I giochi si guardano dalle impostazioni, senza dover far fare una sessione.** In «Dopo
+  ogni parola» c'è «Guarda i giochi»: apre la stessa identica sala che vedrà lui, non
+  registra niente e si chiude tornando dov'eri.
+
 ## [0.7.1] — 2026-08-29
 
 ### Corretto

@@ -167,6 +167,23 @@ struct DisegnaSchermate {
       disegna(riquadroGrande, nome: "aggiornamento-ingrandito", larghezza: 900,
               altezza: altezzaNaturale(riquadroGrande, larghezza: 900))
 
+      // I cinque giochi premio. È l'unico modo di *guardarli* senza aprire
+      // l'app: ognuno si fotografa a metà partita, con il campo pieno.
+      let manopoleGioco = A11ySettings()
+      let perGiocare = EffettiveImpostazioniAccessibilita(manopoleGioco)
+      disegna(StaffettaView(a11y: perGiocare, onClose: {}, perFotografia: true),
+              nome: "gioco-sala", larghezza: 900, altezza: 1000)
+      disegna(GiocoCorsa(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-corsa", larghezza: 900, altezza: 660)
+      disegna(GiocoTraversata(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-traversata", larghezza: 900, altezza: 660)
+      disegna(GiocoBolle(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-bolle", larghezza: 900, altezza: 660)
+      disegna(GiocoMuro(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-muro", larghezza: 900, altezza: 660)
+      disegna(GiocoGrotta(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
+              nome: "gioco-grotta", larghezza: 900, altezza: 660)
+
       print("")
       print("Le immagini sono in build/schermate/.")
     }
