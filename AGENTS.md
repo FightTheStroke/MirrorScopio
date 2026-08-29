@@ -102,3 +102,10 @@ arrivare le versioni successive. `test.sh` controlla che salga.
 Per rilasciare: scrivi che cosa cambia sotto `## [Non ancora rilasciato]` nel
 [CHANGELOG](CHANGELOG.md), poi `./scripts/release.sh 0.2.0`. Lo script rifiuta di partire
 con modifiche non salvate o con la sezione vuota.
+
+Non serve dare quel comando per forza. Quando il ramo principale è verde, il workflow
+**Pubblicazione** guarda `VERSION`: se quel numero non ha ancora la sua etichetta e nel
+diario c'è la sua sezione, mette l'etichetta e fa partire firma, timbro di Apple e
+pacchetto. Quindi alzare `VERSION` e scrivere il diario in una proposta di modifica
+**è** pubblicare. Il numero resta una scelta umana di proposito: si automatizza la
+fatica, non il giudizio.

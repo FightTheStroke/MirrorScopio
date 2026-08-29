@@ -252,6 +252,11 @@ qualunque Mac.
 Aggiorna `VERSION`, chiude la sezione del changelog, marca il commit e lo spinge. Da lì in
 poi **GitHub fa il resto**: compila su macOS 26, firma, manda l'app ad Apple per la
 notarizzazione, verifica che Gatekeeper la accetti e allega il `.dmg` alla release.
+
+Non serve nemmeno quel comando, se non lo si vuole: basta alzare `VERSION` e scrivere il
+diario dentro una normale proposta di modifica. Quando viene fusa e le prove passano, la
+pubblicazione parte da sola. Il numero di versione resta l'unica decisione umana — un
+rilascio a ogni modifica vorrebbe dire cinque aggiornamenti da scaricare in un pomeriggio.
 Come si insegnano le chiavi a GitHub: [`docs/DISTRIBUZIONE.md`](docs/DISTRIBUZIONE.md).
 
 ---

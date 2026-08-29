@@ -36,6 +36,17 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 
 ### Aggiunto
+- **La versione nuova si pubblica da sola.** Fino a ieri l'impianto c'era tutto —
+  compilare, firmare, far timbrare l'app da Apple, allegare il pacchetto — ma il via
+  lo doveva dare una persona a mano. È andata come va sempre: il 28 agosto sette
+  correzioni sono state finite e fuse, e la versione scaricabile è rimasta indietro
+  di otto ore. Chi usava l'app non stava usando quello che avevamo corretto per lei.
+  Adesso, quando le prove passano sul ramo principale, se il numero di versione è
+  nuovo la pubblicazione parte da sé. Il numero resta una scelta umana: un rilascio
+  a ogni modifica vorrebbe dire cinque aggiornamenti da scaricare in un pomeriggio.
+
+
+### Aggiunto
 - **C'è scritto che cosa impedisce a qualcun altro di venderci sopra.** La licenza resta
   Apache 2.0 e non cambia niente per chi usa l'app, ma adesso il ragionamento è scritto:
   `docs/STRATEGIA-LICENZA.md` dice perché questa licenza, dove sta il valore che nel

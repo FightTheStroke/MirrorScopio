@@ -1,0 +1,116 @@
+name: Pubblicazione
+
+# Il rilascio si accende da solo quando il ramo principale è verde.
+#
+# Fino a ieri l'impianto c'era tutto — «Rilascio» compila, firma, fa timbrare
+# l'app da Apple, pubblica e allega il pacchetto — ma il via lo dava una
+# persona a mano, con `./scripts/release.sh`. Il risultato prevedibile: sette
+# lavori finiti e fusi nel ramo principale in una giornata, e l'ultima versione
+# scaricabile ferma a otto ore prima. Chi usa l'app non stava usando quello che
+# avevamo corretto per lei.
+#
+# Quello che questo file **non** fa, di proposito: decidere il numero di
+# versione. Il numero resta una scelta umana, scritta in `VERSION` e
+# accompagnata dal diario delle modifiche. Un rilascio a ogni fusione vorrebbe
+# dire cinque aggiornamenti da scaricare in un pomeriggio e un diario che
+# nessuno può leggere. Qui si automatizza la fatica, non il giudizio.
+on:
+  workflow_run:
+    workflows: ["Verifica"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  etichetta:
+    # Solo se le prove sono passate. Un rilascio che parte da un ramo rosso è
+    # peggio di un rilascio che non parte.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Guardo se c'è una versione nuova da pubblicare
+        id: guarda
+        run: |
+          set -euo pipefail
+          VERSIONE="$(tr -d ' \n' < VERSION)"
+          echo "versione=$VERSIONE" >> "$GITHUB_OUTPUT"
+
+          if ! [[ "$VERSIONE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::«$VERSIONE» non è un numero di versione. Il file VERSION deve contenere qualcosa come 0.7.0."
+            exit 1
+          fi
+
+          # Il caso normalissimo: una correzione fusa senza alzare il numero.
+          # Non è un errore e non deve colorare di rosso niente.
+          if git rev-parse "v$VERSIONE" >/dev/null 2>&1; then
+            echo "pubblica=no" >> "$GITHUB_OUTPUT"
+            echo "La versione $VERSIONE è già pubblicata: non c'è niente da fare." >> "$GITHUB_STEP_SUMMARY"
+            echo "Per pubblicarne una nuova, alza il numero in VERSION e scrivi che cosa cambia nel CHANGELOG." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Una versione senza il suo pezzo di diario è una versione che nessuno
+          # può capire: chi scarica l'aggiornamento ha diritto di sapere che cosa
+          # è cambiato. Qui ci si ferma **prima** di firmare qualcosa.
+          if ! grep -q "^## \[$VERSIONE\]" CHANGELOG.md; then
+            echo "::error::VERSION dice $VERSIONE ma nel CHANGELOG non c'è la sezione «## [$VERSIONE]». Usa ./scripts/release.sh $VERSIONE, che scrive tutti e due i file insieme."
+            exit 1
+          fi
+
+          echo "pubblica=si" >> "$GITHUB_OUTPUT"
+
+      - name: Controllo che la chiave ci sia ancora
+        if: steps.guarda.outputs.pubblica == 'si'
+        env:
+          CHIAVE: ${{ secrets.CHIAVE_RILASCIO }}
+        run: |
+          set -euo pipefail
+          # Le chiavi d'accesso scadono. Se questa scade e nessuno se ne
+          # accorge, il rilascio automatico smette di funzionare **in silenzio**
+          # e la versione nuova resta ferma per settimane senza che nessuno
+          # abbia visto un errore. Meglio un rosso che si vede.
+          if [ -z "${CHIAVE:-}" ]; then
+            echo "::error::Manca la chiave CHIAVE_RILASCIO (o è scaduta). Senza, l'etichetta non può far partire la firma: rifalla da github.com → Settings → Developer settings → Fine-grained tokens, permesso «Contents: Read and write» sul solo MirrorScopio, e rimettila nei segreti del progetto con quel nome."
+            exit 1
+          fi
+
+      # Il momento in cui si accende la miccia.
+      #
+      # L'etichetta viene spinta con la chiave della persona e non con quella
+      # automatica di GitHub, e non è un dettaglio tecnico: GitHub, per non
+      # entrare in circolo, **rifiuta** di far partire un lavoro a partire da
+      # qualcosa che ha fatto un altro lavoro con le sue credenziali. Con la
+      # chiave automatica l'etichetta nascerebbe e il rilascio non partirebbe
+      # mai, senza dire perché.
+      - name: Metto l'etichetta, e il rilascio parte da sé
+        if: steps.guarda.outputs.pubblica == 'si'
+        env:
+          CHIAVE: ${{ secrets.CHIAVE_RILASCIO }}
+          VERSIONE: ${{ steps.guarda.outputs.versione }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSIONE" -m "MirrorScopio $VERSIONE"
+          git remote set-url origin \
+            "https://x-access-token:$CHIAVE@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin "v$VERSIONE"
+          {
+            echo "### MirrorScopio $VERSIONE è in pubblicazione"
+            echo ""
+            echo "L'etichetta \`v$VERSIONE\` è stata messa sul ramo principale."
+            echo "Adesso parte «Rilascio»: compila, firma, fa timbrare l'app da Apple"
+            echo "e allega il pacchetto. Ci vogliono una quindicina di minuti."
+          } >> "$GITHUB_STEP_SUMMARY"
