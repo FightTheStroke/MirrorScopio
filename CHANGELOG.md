@@ -15,6 +15,14 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Corretto
+- **Il rilascio automatico adesso riesce davvero a mettere l'etichetta.** Al primo
+  tentativo si è acceso da solo, come doveva, e si è fermato subito: chiedeva il
+  permesso di scrivere col nome sbagliato. Chi scarica il progetto si porta dietro
+  le credenziali di servizio di GitHub, e quelle avevano la meglio sulla chiave
+  vera messa un attimo dopo. Ora non se le porta dietro.
+
+
 ## [0.7.0] — 2026-08-29
 
 ### Aggiunto
