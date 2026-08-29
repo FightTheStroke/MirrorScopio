@@ -20,9 +20,15 @@ jobs:
     # qualunque cosa: basterebbe un tag creato ad arte, perché il codice che
     # gira è quello *del tag*, non quello del ramo principale.
     #
-    # L'ambiente è il lucchetto: i segreti stanno lì, e GitHub non li consegna
-    # finché una persona non approva a mano. È scomodo apposta — un rilascio
-    # all'anno vale più di una firma rubata.
+    # L'ambiente è il lucchetto: i segreti stanno lì dentro e non altrove.
+    #
+    # Fino al 29 agosto 2026 il lucchetto era anche un'approvazione a mano.
+    # Non c'è più, ed è una scelta: guardava il nome dell'etichetta e non il suo
+    # contenuto, mentre i due controlli qui sotto — l'etichetta dev'essere
+    # dentro il ramo principale, gli script vengono dal ramo principale — quel
+    # contenuto lo leggono davvero. In cambio il ramo principale è stato
+    # protetto: non si scrive direttamente, ci si arriva solo con le prove
+    # passate. Il conto per cui si è cambiato sta in SECURITY.md.
     environment: rilascio
     # Il permesso di scrittura vive nel job, non nel workflow: così non viene
     # ereditato da eventuali job futuri che non ne hanno bisogno.

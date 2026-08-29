@@ -129,12 +129,41 @@ Tre cancelli, in ordine:
    L'etichetta dice *che cosa* impacchettare; il come lo dice il ramo principale. Così
    un problema scoperto oggi non torna in circolo ri-pacchettizzando una versione di sei
    mesi fa.
-3. **Una persona approva a mano.** I segreti stanno in un ambiente protetto e GitHub non
-   li consegna prima. È scomodo apposta.
+3. **Il ramo principale non si scrive direttamente.** È protetto: ci si arriva solo con
+   una proposta di modifica le cui prove sono passate. Le riscritture della storia e le
+   cancellazioni sono vietate. Siccome il primo cancello impone che l'etichetta stia
+   dentro il ramo principale, questo significa che **niente può essere firmato senza
+   essere passato dalle prove**.
 
-Fino al 28 agosto 2026 c'era solo il terzo, e guardava il nome dell'etichetta, non il
-suo contenuto: bastava un'etichetta con un `build.sh` modificato dentro per far firmare
-qualunque cosa alla fondazione.
+Fino al 28 agosto 2026 c'era solo un cancello — l'approvazione a mano di una persona — e
+guardava il nome dell'etichetta, non il suo contenuto: bastava un'etichetta con un
+`build.sh` modificato dentro per far firmare qualunque cosa alla fondazione.
+
+**Perché l'approvazione a mano non c'è più.** Dal 29 agosto 2026 il rilascio parte da
+solo quando il ramo principale è verde. Il bottone «approva» è stato tolto di proposito,
+ed è un baratto dichiarato: al suo posto ci sono tre controlli che una persona non può
+fare — l'etichetta deve stare dentro il ramo principale, il ramo principale non accetta
+scritture dirette, gli script che firmano vengono sempre dal ramo principale di adesso.
+Un essere umano che approva legge un nome e preme un tasto; questi tre leggono il
+contenuto. La ragione per cui si è cambiato è concreta: in una sola giornata sette
+correzioni sono state fuse e la versione scaricabile è rimasta indietro di otto ore,
+perché nessuno aveva premuto il tasto. Chi usa l'app non stava usando quello che avevamo
+corretto per lei.
+
+**Quello che questo baratto costa, detto:** chi ha i permessi di amministratore può
+ancora forzare una scrittura sul ramo principale — la protezione è impostata per non
+bloccarlo, altrimenti diventerebbe un ostacolo nei momenti sbagliati. Chi amministra il
+progetto, quindi, può ancora far firmare quello che vuole. È una scelta consapevole su
+un progetto con un amministratore solo; il giorno in cui gli amministratori diventano
+molti, va rivista.
+
+**La chiave che accende la miccia.** GitHub, per non entrare in circolo, rifiuta di far
+partire un lavoro a partire da qualcosa che ha fatto un altro lavoro con le sue
+credenziali automatiche. Serve quindi una chiave d'accesso vera, `CHIAVE_RILASCIO`, con
+**un solo permesso** — scrivere nel contenuto di questo progetto e di nessun altro —
+usata **solo** per mettere l'etichetta. Non apre il portachiavi di firma e non tocca i
+segreti di Apple. Quando scade, il rilascio si ferma con un errore che lo dice: una cosa
+che smette di funzionare in silenzio è peggio di una che si rompe rumorosamente.
 
 **Quello che questi cancelli non coprono, detto:** il progetto Xcode e `project.yml`
 vengono ancora dall'etichetta, e in un progetto Xcode si possono nascondere passi che

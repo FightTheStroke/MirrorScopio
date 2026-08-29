@@ -130,7 +130,9 @@ affermazioni diverse.
 - Il [`CHANGELOG.md`](CHANGELOG.md) è scritto per chi usa l'app, non per chi
   scrive il codice. Ogni voce va sotto `[Non ancora rilasciato]`.
 - Le versioni seguono [SemVer](https://semver.org/lang/it/) e si pubblicano con
-  `./scripts/release.sh <versione>`. Il pacchetto lo costruisce GitHub.
+  `./scripts/release.sh <versione>`. Il pacchetto lo costruisce GitHub. In alternativa
+  basta alzare `VERSION` e scrivere il diario in una proposta di modifica: quando è fusa
+  e le prove sono passate, la pubblicazione parte da sé.
 
 ## Segnalare un problema di sicurezza o di privacy
 

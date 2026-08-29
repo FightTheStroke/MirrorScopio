@@ -37,8 +37,50 @@ Pubblicare una versione diventa:
 ./scripts/release.sh 0.3.0
 ```
 
-Il workflow **Verifica** gira invece a ogni push: controlla solo che l'app
-compili e che versione e changelog siano allineati. Non serve nessun segreto.
+Il workflow **Verifica** gira invece a ogni push: compila, controlla che in
+`Sources/` non ci sia una riga di rete, che il progetto Xcode sia allineato al
+file che lo genera, che il risultato sia davvero un'app avviabile, che versione
+e diario siano allineati, e che **tutte le prove passino**. Non serve nessun
+segreto.
+
+## Chi preme il tasto: nessuno
+
+Per mesi la pubblicazione è stata un comando dato a mano, ed è andata come va
+sempre in questi casi: il 28 agosto 2026 sette correzioni sono state finite e
+fuse nel ramo principale, e la versione scaricabile è rimasta indietro di otto
+ore. Il lavoro era fatto, l'impianto funzionava, ma nessuno aveva dato il via —
+e chi usava l'app non stava usando quello che avevamo corretto per lei.
+
+Adesso c'è un terzo workflow, **Pubblicazione**. Aspetta che «Verifica» finisca
+verde sul ramo principale, poi guarda `VERSION`:
+
+- se quel numero **ha già** la sua etichetta, non fa niente e lo scrive nel
+  riepilogo. È il caso normale di una correzione fusa senza cambiare versione:
+  non è un errore e non colora di rosso niente;
+- se il numero **è nuovo**, controlla che nel diario ci sia la sua sezione — una
+  versione che nessuno può capire non si pubblica — mette l'etichetta e da lì in
+  poi riparte tutto quello che c'era già: firma, timbro di Apple, pacchetto
+  allegato.
+
+**Che cosa resta una decisione umana: il numero.** Di proposito. Un rilascio a
+ogni fusione vorrebbe dire cinque aggiornamenti da scaricare in un pomeriggio e
+un diario che nessuno legge. Quindi il gesto per pubblicare resta uno solo, ed è
+quello di sempre:
+
+```bash
+./scripts/release.sh 0.7.0
+```
+
+o, se si preferisce, si alza `VERSION` e si scrive il diario dentro una normale
+proposta di modifica: quando viene fusa e le prove passano, la pubblicazione
+parte da sé.
+
+**Se la pubblicazione non parte**, la causa quasi certa è la chiave
+`CHIAVE_RILASCIO` scaduta. Serve a mettere l'etichetta e nient'altro — non apre
+il portachiavi di firma. Si rifà da github.com → Settings → Developer settings →
+Fine-grained tokens, con il solo permesso «Contents: Read and write» su questo
+progetto, e si rimette nei segreti con quel nome. Il workflow se ne accorge da
+solo e si ferma dicendolo, invece di tacere.
 
 ## A mano, da questo Mac
 
