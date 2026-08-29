@@ -288,7 +288,7 @@ struct StageView: View {
           .font(a11y.font(.corpo))
           .foregroundStyle(palette.muted)
           .multilineTextAlignment(.center)
-          .frame(maxWidth: 460)
+          .frame(maxWidth: a11y.size(460))
       }
     }
     .transition(a11y.reducedMotion ? .identity : .opacity)
@@ -303,10 +303,10 @@ struct StageView: View {
       Text(message)
         .font(a11y.font(.guida))
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 520)
+        .frame(maxWidth: a11y.size(520))
         .foregroundStyle(palette.foreground)
       BigButton(title: "Torna indietro", a11y: a11y, prominent: false) { engine.reset() }
-        .frame(maxWidth: 300)
+        .frame(maxWidth: a11y.size(300))
     }
   }
 

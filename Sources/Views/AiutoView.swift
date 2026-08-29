@@ -32,7 +32,7 @@ struct AiutoView: View {
         ScrollView {
           paginaCorrente
             .padding(Metrica.spazioGrande)
-            .frame(maxWidth: 720, alignment: .leading)
+            .frame(maxWidth: a11y.size(720), alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
       }

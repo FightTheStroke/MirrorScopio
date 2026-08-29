@@ -32,11 +32,28 @@ struct ElencoPagine<P: PaginaLaterale>: View where P.AllCases: RandomAccessColle
   /// riprende tutta la larghezza.
   var body: some View {
     if a11y.testoGrande {
-      ScrollView(.horizontal) {
-        HStack(spacing: Metrica.briciola) {
-          ForEach(Array(P.allCases)) { p in voce(p, larga: false) }
+      // La voce scelta deve stare dentro lo schermo.
+      //
+      // Con il testo grande le voci non ci stanno tutte in fila: l'ultima
+      // resta fuori a destra. Finche' si clicca va bene — si clicca quello che
+      // si vede — ma cambiando pagina con la tastiera, o tornando a una
+      // schermata gia' aperta, la pagina attiva poteva essere quella invisibile:
+      // il contenuto cambiava e l'unico segno di dove ci si trovava era fuori
+      // dal bordo. Chi usa il testo grande e' esattamente chi non puo'
+      // indovinarlo.
+      ScrollViewReader { barra in
+        ScrollView(.horizontal) {
+          HStack(spacing: Metrica.briciola) {
+            ForEach(Array(P.allCases)) { p in voce(p, larga: false).id(p.id) }
+          }
+          .padding(Metrica.spazioStretto)
         }
-        .padding(Metrica.spazioStretto)
+        .onAppear { barra.scrollTo(scelta.id, anchor: .center) }
+        .onChange(of: scelta) { _, nuova in
+          withAnimation(a11y.reducedMotion ? nil : .easeOut(duration: 0.2)) {
+            barra.scrollTo(nuova.id, anchor: .center)
+          }
+        }
       }
     } else {
       ScrollView {

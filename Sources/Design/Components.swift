@@ -251,6 +251,10 @@ struct ChoiceCard: View {
           .font(a11y.font(.guida, .semibold))
           .interlinea(a11y)
           .multilineTextAlignment(.center)
+          // Senza, con il testo grande il titolo si accorcia invece di andare
+          // a capo, e finisce con i puntini proprio nella frase in cui una
+          // persona deve riconoscersi.
+          .fixedSize(horizontal: false, vertical: true)
         if let subtitle {
           Text(subtitle)
             .font(a11y.font(.nota))
@@ -260,7 +264,15 @@ struct ChoiceCard: View {
             .fixedSize(horizontal: false, vertical: true)
         }
       }
-      .frame(maxWidth: .infinity)
+      // Alte uguali, dentro la stessa riga.
+      //
+      // Le frasi hanno lunghezze diverse — «Le lettere si muovono» sta in una
+      // riga, «Il verde e il rosso si somigliano» a testo grande ne prende
+      // tre — e senza questo ogni scheda era alta quanto il suo testo: la
+      // fila di scelte veniva sfalsata, con i riquadri a scaletta. Chi legge
+      // fa fatica proprio a tenere insieme le cose che non sono allineate,
+      // e questa e' la prima schermata che vede.
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
       .padding(.vertical, a11y.size(Metrica.spazioMedio))
       .padding(.horizontal, Metrica.spazioStretto)
       .contentShape(Rectangle())
@@ -745,7 +757,7 @@ struct CursoreAccessibile: View {
         pulsante("minus", "meno", -passo)
         Slider(value: $valore, in: intervallo, step: passo)
           .controlSize(.large)
-          .frame(maxWidth: 400, minHeight: a11y.bersaglio)
+          .frame(maxWidth: a11y.size(400), minHeight: a11y.bersaglio)
           .accessibilityLabel(titolo)
           .accessibilityValue(descrizione(valore))
         pulsante("plus", "più", passo)
@@ -862,7 +874,7 @@ struct SceltaAccessibile<T: Hashable>: View {
           }
           .padding(Metrica.spazioPiccolo)
         }
-        .frame(minWidth: 260, maxHeight: 460)
+        .frame(minWidth: a11y.size(260), maxHeight: 460)
         .background(palette.surface)
       }
       .accessibilityLabel(titolo)

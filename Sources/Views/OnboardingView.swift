@@ -64,13 +64,13 @@ struct OnboardingView: View {
         contenuto
           .padding(.horizontal, a11y.size(Metrica.spazioEnorme))
           .padding(.vertical, a11y.size(Metrica.spazioLargo))
-          .frame(maxWidth: 820, alignment: .leading)
+          .frame(maxWidth: a11y.size(820), alignment: .leading)
       }
       .frame(maxWidth: .infinity)
       pulsanti
         .padding(.horizontal, a11y.size(Metrica.spazioEnorme))
         .padding(.bottom, a11y.size(Metrica.spazioLargo))
-        .frame(maxWidth: 820, alignment: .leading)
+        .frame(maxWidth: a11y.size(820), alignment: .leading)
     }
     .frame(maxWidth: .infinity)
     .defaultFocus($fuoco, .avanti)
@@ -197,7 +197,7 @@ struct OnboardingView: View {
             BigButton(title: etichetta(voce), symbol: simbolo(voce), a11y: a11y) {
               Task { await readiness.applica(voce) }
             }
-            .frame(maxWidth: 380)
+            .frame(maxWidth: a11y.size(380))
           case .ok:
             Verdict(correct: true, a11y: a11y, size: 24)
           }
@@ -360,21 +360,21 @@ struct OnboardingView: View {
           BigButton(title: "Indietro", symbol: "chevron.left", a11y: a11y, prominent: false) {
             passo = max(0, passo - 1)
           }
-          .frame(maxWidth: 220)
+          .frame(maxWidth: a11y.size(220))
         }
         if passoCorrente == .pronti {
           if readiness.puoIniziare {
             BigButton(title: "Facciamo la prova", symbol: "wand.and.stars", a11y: a11y,
                       action: onCalibrate)
-              .frame(maxWidth: 320)
+              .frame(maxWidth: a11y.size(320))
               .focused($fuoco, equals: .avanti)
               .keyboardShortcut(.defaultAction)
             BigButton(title: "Salta, comincio e basta", symbol: "play.fill", a11y: a11y,
                       prominent: false, action: onFinish)
-              .frame(maxWidth: 300)
+              .frame(maxWidth: a11y.size(300))
           } else {
             BigButton(title: "Cominciamo", symbol: "play.fill", a11y: a11y, action: onFinish)
-              .frame(maxWidth: 320)
+              .frame(maxWidth: a11y.size(320))
               .focused($fuoco, equals: .avanti)
               .keyboardShortcut(.defaultAction)
           }
@@ -383,7 +383,7 @@ struct OnboardingView: View {
             Task { await readiness.controlla() }
             passo = min(passi.count - 1, passo + 1)
           }
-          .frame(maxWidth: 280)
+          .frame(maxWidth: a11y.size(280))
           .focused($fuoco, equals: .avanti)
           .keyboardShortcut(.defaultAction)
         }

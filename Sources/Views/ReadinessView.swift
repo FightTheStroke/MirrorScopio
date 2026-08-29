@@ -32,15 +32,15 @@ struct ReadinessView: View {
         HStack(spacing: Metrica.spazioPiccolo) {
           if readiness.puoIniziare, let onContinue {
             BigButton(title: "Vai", symbol: "arrow.right", a11y: a11y, action: onContinue)
-              .frame(maxWidth: 260)
+              .frame(maxWidth: a11y.size(260))
           }
           BigButton(title: "Ricontrolla", symbol: "arrow.clockwise", a11y: a11y, prominent: false) {
             Task { await readiness.controlla() }
           }
-          .frame(maxWidth: 260)
+          .frame(maxWidth: a11y.size(260))
           if let onClose {
             BigButton(title: "Chiudi", symbol: "xmark", a11y: a11y, prominent: false, action: onClose)
-              .frame(maxWidth: 200)
+              .frame(maxWidth: a11y.size(200))
               .keyboardShortcut(.escape, modifiers: [])
           }
         }
@@ -52,7 +52,7 @@ struct ReadinessView: View {
         }
       }
       .padding(a11y.size(Metrica.spazioGrande))
-      .frame(maxWidth: 900, alignment: .leading)
+      .frame(maxWidth: a11y.size(900), alignment: .leading)
     }
     .frame(maxWidth: .infinity)
     .task { await readiness.controlla() }
