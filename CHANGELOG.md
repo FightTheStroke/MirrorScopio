@@ -15,6 +15,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.7.1] — 2026-08-29
+
 ### Corretto
 - **La finestra «dove lo salvo» del referto veniva aperta dal filo sbagliato.** Le
   finestre di sistema — quella che chiede dove mettere il file e l'avviso quando il
@@ -30,9 +32,6 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   ferma. Controllato che il controllo funzioni davvero, rimettendo il difetto apposta
   e verificando che venga bocciato — un guardiano che non si prova è un guardiano che
   si scopre rotto il giorno che serve.
-
-
-### Corretto
 - **Il rilascio automatico adesso riesce davvero a mettere l'etichetta.** Al primo
   tentativo si è acceso da solo, come doveva, e si è fermato subito: chiedeva il
   permesso di scrivere col nome sbagliato. Chi scarica il progetto si porta dietro
@@ -728,9 +727,10 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.7.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.7.1...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
 [0.6.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.6.0
 [0.7.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.0
+[0.7.1]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.1
