@@ -15,42 +15,7 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
-### Corretto
-- **Le scritte non escono più dai pulsanti quando il testo è grande.** Con «Dimensione
-  di tutto» a ×2, il pulsante «Indietro» della prima accensione mostrava «Indiet ro»:
-  la parola spezzata a metà. Cinquanta larghezze in tutta l'app erano scritte a mano e
-  non venivano moltiplicate insieme al testo — il carattere raddoppiava, il riquadro
-  restava fermo. Nella stessa schermata la colonna di lettura era bloccata a 820 punti
-  su una finestra da 1352, con metà pagina vuota e il titolo su tre righe. Adesso
-  crescono tutte insieme al testo, e una prova nuova impedisce che ne rientri una.
-- **Le schede delle scelte sono alte uguali.** Le frasi hanno lunghezze diverse, e ogni
-  scheda era alta quanto il suo testo: la fila veniva a scaletta. Chi fatica a leggere
-  fa fatica proprio con le cose non allineate, e quella è la prima schermata che vede.
-- **La barra delle pagine porta in vista quella scelta.** Con il testo grande le voci
-  non ci stanno tutte in fila e l'ultima restava fuori dallo schermo: cambiando pagina
-  con la tastiera il contenuto cambiava, ma l'unico segno di dove ci si trovava era
-  oltre il bordo.
-
-
-### Corretto
-- **Il referto adesso dice tutto quello che l'app sa.** Per quattro versioni il file
-  di numeri ha avuto sette colonne, e tre cose che il motore misurava a ogni turno
-  non uscivano da nessuna parte: se il turno era stato interrotto, a quanti hertz
-  girava lo schermo, se un fotogramma era stato saltato. Le prove interrotte non
-  entrano nel conto dell'accuratezza — ed è giusto, un ragazzo non ha sbagliato
-  niente se il Mac si è addormentato — ma senza la colonna chi leggeva contava venti
-  righe, vedeva «diciassette su diciotto» in testa e non aveva modo di capire dove
-  fossero finite le altre due. Ora il file ha undici colonne, una prova interrotta
-  esce come «non contata» e non come «ancora», e la testata dice riga per riga
-  quante ne sono state escluse e perché. Anche il PDF ha la colonna «nota» e, sotto
-  i numeri, la frase che spiega il conto.
-- **Nel referto in PDF le frasi lunghe non si interrompono più a metà.** Ogni riga
-  di testo veniva disegnata dentro un riquadro alto una riga sola: quello che
-  avanzava spariva. Con il titolo e il nome non si vedeva, con l'avviso sulle
-  prove interrotte sì — il referto si fermava a «Non sono» e il resto non c'era.
-  Adesso il testo va a capo e la pagina scende di conseguenza. Guardato aprendo
-  un PDF vero, non solo con le prove.
-
+## [0.7.0] — 2026-08-29
 
 ### Aggiunto
 - **La versione nuova si pubblica da sola.** Fino a ieri l'impianto c'era tutto —
@@ -61,9 +26,6 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   Adesso, quando le prove passano sul ramo principale, se il numero di versione è
   nuovo la pubblicazione parte da sé. Il numero resta una scelta umana: un rilascio
   a ogni modifica vorrebbe dire cinque aggiornamenti da scaricare in un pomeriggio.
-
-
-### Aggiunto
 - **C'è scritto che cosa impedisce a qualcun altro di venderci sopra.** La licenza resta
   Apache 2.0 e non cambia niente per chi usa l'app, ma adesso il ragionamento è scritto:
   `docs/STRATEGIA-LICENZA.md` dice perché questa licenza, dove sta il valore che nel
@@ -141,20 +103,38 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   un problema che si vede. L'app compila come prima, e i tre punti che erano venuti a galla
   (`Gamification.swift:88`, `Fonts.swift:73-74`) adesso sono chiusi.
 
-### Sicurezza
-- **Un'etichetta di versione creata ad arte poteva farsi firmare dalla fondazione.** Il
-  lavoro di rilascio prendeva *tutto* dall'etichetta: sia l'app da impacchettare sia gli
-  script che la impacchettano — e quegli script girano con il certificato aperto. L'unica
-  difesa era l'approvazione a mano, che guarda il nome dell'etichetta, non il suo
-  contenuto. Adesso l'etichetta deve stare dentro il ramo principale, altrimenti il
-  rilascio si ferma prima di aprire il portachiavi, e gli script che girano vengono dal
-  ramo principale invece che dall'etichetta.
-- **La password per la notarizzazione non passa più fra gli argomenti di un comando.**
-  Gli argomenti dei comandi in esecuzione li legge chiunque abbia un accesso alla stessa
-  macchina, con `ps aux`. Ora la password viene consegnata sull'ingresso standard, e se un
-  giorno ci sarà una chiave API di Apple non ci sarà nemmeno più quella: sarà un file.
-
 ### Corretto
+- **Le scritte non escono più dai pulsanti quando il testo è grande.** Con «Dimensione
+  di tutto» a ×2, il pulsante «Indietro» della prima accensione mostrava «Indiet ro»:
+  la parola spezzata a metà. Cinquanta larghezze in tutta l'app erano scritte a mano e
+  non venivano moltiplicate insieme al testo — il carattere raddoppiava, il riquadro
+  restava fermo. Nella stessa schermata la colonna di lettura era bloccata a 820 punti
+  su una finestra da 1352, con metà pagina vuota e il titolo su tre righe. Adesso
+  crescono tutte insieme al testo, e una prova nuova impedisce che ne rientri una.
+- **Le schede delle scelte sono alte uguali.** Le frasi hanno lunghezze diverse, e ogni
+  scheda era alta quanto il suo testo: la fila veniva a scaletta. Chi fatica a leggere
+  fa fatica proprio con le cose non allineate, e quella è la prima schermata che vede.
+- **La barra delle pagine porta in vista quella scelta.** Con il testo grande le voci
+  non ci stanno tutte in fila e l'ultima restava fuori dallo schermo: cambiando pagina
+  con la tastiera il contenuto cambiava, ma l'unico segno di dove ci si trovava era
+  oltre il bordo.
+- **Il referto adesso dice tutto quello che l'app sa.** Per quattro versioni il file
+  di numeri ha avuto sette colonne, e tre cose che il motore misurava a ogni turno
+  non uscivano da nessuna parte: se il turno era stato interrotto, a quanti hertz
+  girava lo schermo, se un fotogramma era stato saltato. Le prove interrotte non
+  entrano nel conto dell'accuratezza — ed è giusto, un ragazzo non ha sbagliato
+  niente se il Mac si è addormentato — ma senza la colonna chi leggeva contava venti
+  righe, vedeva «diciassette su diciotto» in testa e non aveva modo di capire dove
+  fossero finite le altre due. Ora il file ha undici colonne, una prova interrotta
+  esce come «non contata» e non come «ancora», e la testata dice riga per riga
+  quante ne sono state escluse e perché. Anche il PDF ha la colonna «nota» e, sotto
+  i numeri, la frase che spiega il conto.
+- **Nel referto in PDF le frasi lunghe non si interrompono più a metà.** Ogni riga
+  di testo veniva disegnata dentro un riquadro alto una riga sola: quello che
+  avanzava spariva. Con il titolo e il nome non si vedeva, con l'avviso sulle
+  prove interrotte sì — il referto si fermava a «Non sono» e il resto non c'era.
+  Adesso il testo va a capo e la pagina scende di conseguenza. Guardato aprendo
+  un PDF vero, non solo con le prove.
 - **Col testo ingrandito, i nomi degli obiettivi erano tagliati a metà.** Guardando l'app
   con «Dimensione di tutto» a ×2, la pagina «Obiettivi» diceva «Una settima…», «Più
   veloce…», «Hai letto giuste tutte le…». Sette obiettivi su nove col nome mozzato. La
@@ -288,6 +268,17 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   chiaro.** Un percorso di cartella contiene il nome dell'utente.
 
 ### Sicurezza
+- **Un'etichetta di versione creata ad arte poteva farsi firmare dalla fondazione.** Il
+  lavoro di rilascio prendeva *tutto* dall'etichetta: sia l'app da impacchettare sia gli
+  script che la impacchettano — e quegli script girano con il certificato aperto. L'unica
+  difesa era l'approvazione a mano, che guarda il nome dell'etichetta, non il suo
+  contenuto. Adesso l'etichetta deve stare dentro il ramo principale, altrimenti il
+  rilascio si ferma prima di aprire il portachiavi, e gli script che girano vengono dal
+  ramo principale invece che dall'etichetta.
+- **La password per la notarizzazione non passa più fra gli argomenti di un comando.**
+  Gli argomenti dei comandi in esecuzione li legge chiunque abbia un accesso alla stessa
+  macchina, con `ps aux`. Ora la password viene consegnata sull'ingresso standard, e se un
+  giorno ci sarà una chiave API di Apple non ci sarà nemmeno più quella: sarà un file.
 - **Lo schermo non lampeggia più di tre volte al secondo.** Le parole ad alto
   contrasto che si alternano alla maschera sono esattamente il tipo di
   alternanza che può scatenare una crisi in chi ha un'epilessia fotosensibile,
@@ -712,8 +703,9 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.6.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.7.0...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
 [0.6.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.6.0
+[0.7.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.0
