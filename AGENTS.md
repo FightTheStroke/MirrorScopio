@@ -109,3 +109,22 @@ diario c'è la sua sezione, mette l'etichetta e fa partire firma, timbro di Appl
 pacchetto. Quindi alzare `VERSION` e scrivere il diario in una proposta di modifica
 **è** pubblicare. Il numero resta una scelta umana di proposito: si automatizza la
 fatica, non il giudizio.
+
+## Chi unisce le proposte di modifica
+
+Le proposte che nascono qui dentro — scritte da Roberto o dai suoi agenti — **si uniscono
+da sé appena i controlli sono verdi**. Nessuno deve tornare a premere un bottone: il 29
+agosto due correzioni sono rimaste fuori dal pacchetto scaricabile per tre ore solo perché
+mancava quel clic, e chi usava l'app non stava usando quello che avevamo corretto per lei.
+
+La regola del ramo principale chiede l'approvazione di chi possiede il codice
+(`.github/CODEOWNERS`), e chi possiede il codice è la stessa persona che scrive le
+proposte: quel cancello, per noi, **non può essere attraversato** — si scavalca ogni volta
+con i privilegi di amministratore. Resta in piedi perché per chi arriva da fuori è vero e
+serve.
+
+Il cancello che conta davvero, per tutti, è un altro e non si tocca: **`compila` deve
+essere verde**. Una proposta rossa non si unisce, mai, nemmeno con i privilegi.
+
+Non si uniscono da sé, e restano a Roberto: le modifiche che cambiano la licenza, i
+permessi dei workflow, il cancello della rete, o le regole di questo file.
