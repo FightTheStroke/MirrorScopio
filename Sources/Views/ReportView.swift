@@ -63,18 +63,23 @@ struct ReportView: View {
         .opacity(0)
         .accessibilityHidden(true)
     }
-    // Il premio si apre a schermo intero e si chiude quando si vuole: non
+    // Il premio riempie la finestra e si chiude quando si vuole: non
     // trattiene, non tiene il punteggio, non ha nulla da vincere.
-    .sheet(isPresented: $showStaffetta) {
-      // Il passo dei giochi nasce da com'è andata questa lettura, non da una
-      // scelta dell'adulto: chi ha faticato trova una scena più calma, chi è
-      // andato bene la trova più viva. In fondo ci si arriva comunque.
-      StaffettaView(a11y: a11y,
-                    difficolta: Difficolta.da(accuratezza: record.total > 0 ? record.accuracy : nil,
-                                              sessioniFatte: store.current.sessionsCompleted),
-                    onClose: { showStaffetta = false })
-        .frame(minWidth: a11y.size(860), minHeight: 660)
-        .environment(\.palette, palette)
+    //
+    // Riempie *davvero*, non in una finestrella sopra il referto: una seconda
+    // cornice con il suo bordo e il suo pulsante di chiusura, col riepilogo
+    // che continua a vedersi intorno, faceva sembrare tutto doppio.
+    .overlay {
+      if showStaffetta {
+        // Il passo dei giochi nasce da com'è andata questa lettura, non da una
+        // scelta dell'adulto: chi ha faticato trova una scena più calma, chi è
+        // andato bene la trova più viva. In fondo ci si arriva comunque.
+        StaffettaView(a11y: a11y,
+                      difficolta: Difficolta.da(accuratezza: record.total > 0 ? record.accuracy : nil,
+                                                sessioniFatte: store.current.sessionsCompleted),
+                      onClose: { showStaffetta = false })
+          .environment(\.palette, palette)
+      }
     }
   }
 

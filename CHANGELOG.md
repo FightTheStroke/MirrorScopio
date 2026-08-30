@@ -15,6 +15,22 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.9.1] — 2026-08-30
+
+### Corretto
+- **I giochi si aprivano in una finestrella sopra le impostazioni, e sembrava tutto
+  doppio.** Una seconda cornice con il suo bordo e il suo «Chiudi», appoggiata sopra la
+  pagina che continuava a vedersi intorno: due schermate insieme, e non si capiva più
+  quale si stesse guardando. Adesso il gioco **riempie la finestra**, un bordo solo e un
+  «Chiudi» solo — sia aperto dalle impostazioni sia quando arriva come premio a fine
+  sessione.
+- **Chiudendo un gioco aperto dall'elenco delle impostazioni ci si ritrovava in un secondo
+  elenco identico**, quello della sala giochi: la stessa lista letta due volte in due
+  vesti diverse. Adesso si torna dritti alla pagina delle impostazioni da cui si era
+  partiti. Il pulsante grande dice «Guarda la schermata che vede lui», così è chiaro che
+  quella è l'anteprima del ragazzo e non una copia dell'elenco.
+
+
 ## [0.9.0] — 2026-08-30
 
 ### Cambiato
@@ -794,7 +810,7 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.9.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.9.1...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
@@ -803,3 +819,4 @@ della Fight The Stroke Foundation.
 [0.7.1]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.1
 [0.8.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.8.0
 [0.9.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.9.0
+[0.9.1]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.9.1
