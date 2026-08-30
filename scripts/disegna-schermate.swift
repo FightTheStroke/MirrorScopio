@@ -200,6 +200,14 @@ struct DisegnaSchermate {
       disegna(GiocoHipHop(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
               nome: "gioco-hiphop", larghezza: 900, altezza: 660)
 
+      // La pagina «I giochi» delle impostazioni: l'elenco da cui l'adulto
+      // apre un gioco preciso senza passare dalla sala.
+      let elenco = ElencoGiochi(a11y: perGiocare, apri: { _ in })
+        .padding(Metrica.spazio)
+        .background(Palette.resolve(theme: .chiaro, vision: .standard, system: .light).background)
+      disegna(elenco, nome: "impostazioni-giochi", larghezza: 900,
+              altezza: max(620, altezzaNaturale(elenco, larghezza: 900)))
+
       print("")
       print("Le immagini sono in build/schermate/.")
     }
