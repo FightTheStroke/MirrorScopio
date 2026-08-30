@@ -15,6 +15,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.8.0] — 2026-08-30
+
 ### Aggiunto
 - **Otto giochi nuovi, uno per ogni edizione del Fight Camp, con lo sport vero di
   quell'anno.** Alla sala giochi si aggiungono *L'arrampicata* (la parete coi sensori del
@@ -779,10 +781,11 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.7.1...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.8.0...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
 [0.6.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.6.0
 [0.7.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.0
 [0.7.1]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.1
+[0.8.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.8.0
