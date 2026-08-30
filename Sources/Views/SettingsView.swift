@@ -84,18 +84,27 @@ struct SettingsView: View {
                     palette: palette, onClose: onClose) {
       paginaCorrente
     }
-    // Il gioco si apre sopra le impostazioni e si chiude tornando esattamente
-    // dov'eri: guardarlo non costa la pagina che stavi sistemando.
-    .sheet(isPresented: $mostraStaffetta) {
-      // Aperto da qui non c'è nessuna lettura appena finita da cui partire:
-      // il passo lo dà l'esperienza con l'app, e si assesta da sé giocando.
-      StaffettaView(a11y: a11y,
-                    difficolta: Difficolta.da(accuratezza: nil,
-                                              sessioniFatte: store.current.sessionsCompleted),
-                    onClose: { mostraStaffetta = false },
-                    apertoSu: giocoDaAprire)
-        .frame(minWidth: a11y.size(860), minHeight: 660)
-        .environment(\.palette, palette)
+    // Il gioco riempie la finestra delle impostazioni, non si apre in una
+    // finestrella sopra.
+    //
+    // Prima era una `sheet`: una seconda finestra più piccola, con la sua
+    // cornice e il suo pulsante di chiusura, appoggiata sopra le impostazioni
+    // che restavano lì a vedersi intorno. Due chiusure, due bordi, due
+    // schermate insieme: sembrava tutto doppio, e non si capiva più che cosa
+    // si stesse guardando. Un gioco a schermo pieno, con un solo «Chiudi» che
+    // riporta esattamente alla pagina di prima, è la stessa cosa detta una
+    // volta sola.
+    .overlay {
+      if mostraStaffetta {
+        // Aperto da qui non c'è nessuna lettura appena finita da cui partire:
+        // il passo lo dà l'esperienza con l'app, e si assesta da sé giocando.
+        StaffettaView(a11y: a11y,
+                      difficolta: Difficolta.da(accuratezza: nil,
+                                                sessioniFatte: store.current.sessionsCompleted),
+                      onClose: { mostraStaffetta = false },
+                      apertoSu: giocoDaAprire)
+          .environment(\.palette, palette)
+      }
     }
   }
 
@@ -699,9 +708,10 @@ struct ElencoGiochi: View {
     VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
         SectionTitle(text: "Il premio di fine sessione", a11y: a11y)
-        Explain(text: "A sessione finita — sia leggendo sia scrivendo — si apre la sala giochi, e sceglie lui. Tredici giochi: cinque in stile Commodore 64 e otto che sono gli sport veri del Fight Camp, uno per edizione. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere: quando qualcosa non riesce compare «Ancora», e si continua.",
+        Explain(text: "A sessione finita — sia leggendo sia scrivendo — si apre la sala giochi e sceglie lui fra tredici giochi: cinque in stile Commodore 64 e otto che sono gli sport veri del Fight Camp, uno per edizione. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere: quando qualcosa non riesce compare «Ancora», e si continua.\n\nQui sotto ci sono tutti: «Apri» fa partire quello che vuoi guardare, e chiudendolo si torna qui.",
                 a11y: a11y, size: 15)
-        SmallButton(title: "Apri la sala giochi", symbol: "gamecontroller.fill", a11y: a11y) {
+        SmallButton(title: "Guarda la schermata che vede lui",
+                    symbol: "gamecontroller.fill", a11y: a11y) {
           apri(nil)
         }
       }

@@ -70,7 +70,15 @@ struct StaffettaView: View {
     if let scelto {
       // Il tasto «Chiudi» del gioco riporta alla sala, non fuori dal premio:
       // chi ha aperto un gioco per sbaglio non si ritrova buttato fuori.
-      gioco(scelto, indietro: { self.scelto = nil })
+      //
+      // Ma se il gioco è stato aperto **direttamente** — dall'elenco delle
+      // impostazioni, dove i tredici giochi sono già scritti uno per uno —
+      // chiuderlo riporta fuori, da dove si era partiti. Passare dalla sala
+      // vorrebbe dire farsi rileggere lo stesso elenco una seconda volta, in
+      // un'altra veste: sembrava che l'app si fosse duplicata.
+      gioco(scelto, indietro: {
+        if apertoSu != nil { onClose() } else { self.scelto = nil }
+      })
     } else {
       sala
     }
