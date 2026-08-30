@@ -15,6 +15,19 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.9.0] — 2026-08-30
+
+### Cambiato
+- **I giochi hanno una loro pagina nelle impostazioni: «I giochi».** Prima stavano in tre
+  righe in fondo a «Dopo ogni parola», dietro un pulsante che diceva solo «Guarda i
+  giochi»: chi imposta l'app non poteva sapere che cosa c'era dietro, e per vederne uno
+  doveva aprire la sala e cercarlo. Adesso ci sono tutti e tredici in elenco, divisi nei
+  due scaffali — «I giochi» e «Gli sport del camp» — con scritto che cosa succede e che
+  cosa fa il tasto, e ognuno **si apre da solo** col suo pulsante. Resta il pulsante che
+  apre la sala intera, per guardarla com'è. Chiudendo un gioco si torna alla sala, così se
+  ne può provare un altro senza ripassare dalle impostazioni.
+
+
 ## [0.8.0] — 2026-08-30
 
 ### Aggiunto
@@ -781,7 +794,7 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.8.0...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.9.0...HEAD
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
@@ -789,3 +802,4 @@ della Fight The Stroke Foundation.
 [0.7.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.0
 [0.7.1]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.7.1
 [0.8.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.8.0
+[0.9.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.9.0

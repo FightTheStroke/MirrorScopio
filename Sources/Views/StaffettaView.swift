@@ -42,10 +42,31 @@ struct StaffettaView: View {
   /// disegna una `ScrollView` vuota, e senza questa scorciatoia l'unica schermata
   /// che non si potrebbe mai guardare fuori dall'app sarebbe proprio la prima.
   var perFotografia = false
+  /// Il gioco da aprire subito, saltando la sala.
+  ///
+  /// Serve alle impostazioni, dove l'adulto sceglie *quale* gioco guardare
+  /// dall'elenco: costringerlo a scegliere due volte — una nell'elenco delle
+  /// impostazioni e una nella sala — sarebbe un passaggio in più senza motivo.
+  /// Chiudendo il gioco si torna comunque alla sala, così da lì se ne può
+  /// provare un altro.
+  var apertoSu: Gioco?
 
   @State private var scelto: Gioco?
+  /// Il gioco d'ingresso si apre una volta sola: senza questa memoria, tornare
+  /// alla sala lo riaprirebbe all'infinito e non si uscirebbe più.
+  @State private var giaEntrato = false
 
   var body: some View {
+    contenuto
+      .onAppear {
+        guard !giaEntrato else { return }
+        giaEntrato = true
+        if let apertoSu { scelto = apertoSu }
+      }
+  }
+
+  @ViewBuilder
+  private var contenuto: some View {
     if let scelto {
       // Il tasto «Chiudi» del gioco riporta alla sala, non fuori dal premio:
       // chi ha aperto un gioco per sbaglio non si ritrova buttato fuori.

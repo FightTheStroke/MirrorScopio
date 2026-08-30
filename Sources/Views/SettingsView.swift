@@ -16,6 +16,9 @@ struct SettingsView: View {
   /// Aperto dal pulsante «Guarda i giochi»: il premio mostrato su richiesta
   /// dell'adulto, fuori da qualsiasi sessione.
   @State private var mostraStaffetta = false
+  /// Quale gioco aprire quando la sala si apre: scelto dall'elenco della
+  /// pagina «I giochi». Vuoto vuol dire «aprimi la sala e scelgo lì».
+  @State private var giocoDaAprire: StaffettaView.Gioco?
   @State private var aggiornamentiAccesi = Updates.enabled
   @State private var controlloInCorso = false
   @State private var esitoControllo: String?
@@ -89,7 +92,8 @@ struct SettingsView: View {
       StaffettaView(a11y: a11y,
                     difficolta: Difficolta.da(accuratezza: nil,
                                               sessioniFatte: store.current.sessionsCompleted),
-                    onClose: { mostraStaffetta = false })
+                    onClose: { mostraStaffetta = false },
+                    apertoSu: giocoDaAprire)
         .frame(minWidth: a11y.size(860), minHeight: 660)
         .environment(\.palette, palette)
     }
@@ -98,7 +102,7 @@ struct SettingsView: View {
   // MARK: - L'elenco delle pagine
 
   private enum Pagina: String, PaginaLaterale {
-    case inizio, lettura, colori, ritmo, voce, risposte, dati, clinico, suoni
+    case inizio, lettura, colori, ritmo, voce, risposte, giochi, dati, clinico, suoni
 
     var id: String { rawValue }
 
@@ -110,6 +114,7 @@ struct SettingsView: View {
       case .ritmo: "Ritmo e calma"
       case .voce: "La voce che legge"
       case .risposte: "Dopo ogni parola"
+      case .giochi: "I giochi"
       case .dati: "I dati e l'app"
       case .clinico: "Parametri clinici"
       case .suoni: "I suoni"
@@ -124,6 +129,7 @@ struct SettingsView: View {
       case .ritmo: "tortoise.fill"
       case .voce: "speaker.wave.2.fill"
       case .risposte: "hand.thumbsup.fill"
+      case .giochi: "gamecontroller.fill"
       case .dati: "lock.fill"
       case .clinico: "slider.horizontal.3"
       case .suoni: "bell.fill"
@@ -149,6 +155,8 @@ struct SettingsView: View {
         voce
       case .risposte:
         feedback
+      case .giochi:
+        giochiPagina
       case .dati:
         privacy
       case .suoni:
@@ -360,28 +368,15 @@ struct SettingsView: View {
              "Per chi si mette in ansia con i numeri: resta solo il senso di aver finito.")
       toggle("Rileggere ad alta voce la parola giusta", bindBool(\.speakCorrectWord),
              "Comoda quando lo schermo si legge a fatica, e per riguardare con calma le parole che non sono venute.")
-
-      Divider().padding(.vertical, Metrica.briciola)
-
-      premio
     }
   }
 
-  /// Il premio di fine sessione, provabile da qui.
-  ///
-  /// La sala giochi compare da sola a lettura finita, e per il ragazzo va bene
-  /// così. Ma chi imposta l'app non può scoprire che cosa gli verrà proposto
-  /// soltanto facendogli fare una sessione intera: come per i suoni, il premio
-  /// si guarda prima. Aprirlo da qui non registra niente e non cambia niente:
-  /// è la stessa identica schermata che vedrà lui.
-  private var premio: some View {
-    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
-      SectionTitle(text: "Il premio di fine sessione", a11y: a11y)
-      Explain(text: "A lettura finita si apre la sala giochi: cinque giochi in stile Commodore 64, e sceglie lui. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere. Da qui li guardi prima, senza dover fare una sessione.",
-              a11y: a11y, size: 15)
-      SmallButton(title: "Guarda i giochi", symbol: "figure.run", a11y: a11y) {
-        mostraStaffetta = true
-      }
+  // MARK: - I giochi
+
+  private var giochiPagina: some View {
+    ElencoGiochi(a11y: a11y) { quale in
+      giocoDaAprire = quale
+      mostraStaffetta = true
     }
   }
 
@@ -678,5 +673,80 @@ struct SettingsView: View {
     CursoreAccessibile(titolo: title, valore: value, intervallo: range,
                        passo: (range.upperBound - range.lowerBound) / 40,
                        a11y: a11y, descrizione: format)
+  }
+}
+
+// MARK: - L'elenco dei giochi, dentro le impostazioni
+
+/// La sala giochi in elenco, dentro le impostazioni.
+///
+/// Prima stava in fondo alla pagina «Dopo ogni parola», in tre righe: un posto
+/// sbagliato due volte. Chi imposta l'app non poteva sapere che dietro quel
+/// pulsante c'erano tredici giochi, e non poteva sceglierne uno — doveva
+/// aprire la sala e cercarlo. Qui invece ci sono tutti, con scritto che cosa
+/// succede e che cosa fa il tasto, e ognuno si apre da solo.
+///
+/// Aprirli da qui non registra niente e non cambia niente: sono le stesse
+/// identiche schermate che vedrà lui a sessione finita.
+struct ElencoGiochi: View {
+  var a11y: EffettiveImpostazioniAccessibilita
+  /// Che cosa aprire: un gioco preciso, oppure la sala (`nil`) e sceglie lì.
+  var apri: (StaffettaView.Gioco?) -> Void
+
+  @Environment(\.palette) private var palette
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
+      VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+        SectionTitle(text: "Il premio di fine sessione", a11y: a11y)
+        Explain(text: "A sessione finita — sia leggendo sia scrivendo — si apre la sala giochi, e sceglie lui. Tredici giochi: cinque in stile Commodore 64 e otto che sono gli sport veri del Fight Camp, uno per edizione. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere: quando qualcosa non riesce compare «Ancora», e si continua.",
+                a11y: a11y, size: 15)
+        SmallButton(title: "Apri la sala giochi", symbol: "gamecontroller.fill", a11y: a11y) {
+          apri(nil)
+        }
+      }
+
+      Divider()
+
+      ForEach(StaffettaView.Gruppo.allCases) { gruppo in
+        VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+          SectionTitle(text: gruppo.nome, a11y: a11y)
+          Explain(text: gruppo.cosa, a11y: a11y, size: 15)
+          ForEach(StaffettaView.Gioco.allCases.filter { $0.gruppo == gruppo }) { g in
+            riga(g)
+          }
+        }
+      }
+    }
+  }
+
+  /// Una riga per gioco: nome, che cosa succede, che cosa fa il tasto, e il
+  /// pulsante che lo apre. Chi usa VoiceOver sente «Apri La corsa», non
+  /// tredici volte «Apri»: il nome sta nel pulsante, non solo accanto.
+  private func riga(_ g: StaffettaView.Gioco) -> some View {
+    HStack(alignment: .top, spacing: Metrica.spazioPiccolo) {
+      Image(systemName: g.simbolo)
+        .font(.system(size: a11y.size(20)))
+        .foregroundStyle(palette.accent)
+        .frame(width: a11y.size(30), alignment: .center)
+        .accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: Metrica.briciola) {
+        Text(g.nome)
+          .font(a11y.font(.corpo).weight(.semibold))
+          .foregroundStyle(palette.foreground)
+        Text(g.cosa)
+          .font(a11y.font(.etichetta))
+          .foregroundStyle(palette.muted)
+          .fixedSize(horizontal: false, vertical: true)
+        Text("Il tasto: " + g.tasto)
+          .font(a11y.font(.nota))
+          .foregroundStyle(palette.muted)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      Spacer(minLength: Metrica.spazioPiccolo)
+      SmallButton(title: "Apri", symbol: "play.fill", a11y: a11y) { apri(g) }
+        .accessibilityLabel("Apri \(g.nome)")
+    }
+    .padding(.vertical, Metrica.briciola)
   }
 }
