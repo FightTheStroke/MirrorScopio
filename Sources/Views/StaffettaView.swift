@@ -1,612 +1,334 @@
 import SwiftUI
 
-// MARK: - La staffetta del Fight Camp
+// MARK: - La sala giochi del Fight Camp
 
-/// Il minigioco premio che si sblocca a fine sessione.
+/// Il premio che si sblocca a fine sessione: tredici giochi, e si sceglie.
 ///
-/// Non è un secondo esercizio: è il contrario. La sessione appena finita
-/// chiedeva di leggere in fretta, e per il pubblico di questa app quella è già
-/// la fatica più grande della giornata. Un premio che chiedesse riflessi, mira
-/// o velocità sarebbe la seconda frustrazione di fila, mascherata da regalo.
-/// Perciò qui vale una regola sola, e la incarna tutto il codice sotto: si
-/// gioca con **un tasto**, non c'è nessun cronometro, e **non si può perdere**.
+/// Non è un secondo esercizio, è il contrario. La sessione appena finita
+/// chiedeva di leggere in fretta, e per chi usa questa app quella è già la
+/// fatica più grande della giornata. Un premio che chiedesse riflessi, mira o
+/// velocità sarebbe la seconda frustrazione di fila, mascherata da regalo.
+/// Perciò tutti i giochi obbediscono alle stesse tre regole, e non è
+/// una scelta di stile: si gioca con **un tasto solo**, non c'è **nessun
+/// cronometro**, e **non si può perdere**. Quando qualcosa non riesce non si
+/// perde una vita e non si ricomincia: compare «ANCORA» e si continua.
 ///
-/// Il gioco racconta il Fight Camp vero — la settimana in cui venti bambini con
-/// paralisi cerebrale lavorano ai loro obiettivi, ognuno con il suo tutor. Il
-/// senso non è accumulare punti: è accumulare **compagni**. A ogni tappa
-/// superata qualcuno si affianca e corre con te, perché al camp non si è mai da
-/// soli. E l'ultima cosa la fai tu, con tutti gli altri che ti guardano e fanno
-/// il tifo: è la frase con cui finisce la canzone del camp — *now walk it by
-/// yourself*, adesso camminaci da solo.
+/// I primi cinque sono i giochi veri del Commodore 64 — le piattaforme, la
+/// traversata, lo sciame, i mattoni, la grotta — perché quei giochi erano
+/// fatti per un televisore scadente guardato da lontano: pochi colori pieni,
+/// figure grandi, una regola sola da capire. È esattamente ciò che serve qui.
+///
+/// Gli altri otto sono **gli sport veri del Fight Camp**, uno per edizione:
+/// l'arrampicata del 2020 sulla parete del Politecnico, la scherma in
+/// carrozzina del 2021, la vela di Nave Italia del 2022, il triciclo Ormesa
+/// del 2023, lo skate del 2024, il beach volley del 2025, la boxe e l'hip hop del 2026. In
+/// ognuno il tasto fa il gesto vero di quello sport: afferrare la presa,
+/// affondare, tirare la cima a tempo con l'onda, pedalare, spostare il peso,
+/// alzare le mani, muovere i piedi. Non sono cartoline: sono la stessa cosa
+/// che i ragazzi hanno fatto davvero, ridotta a un tasto.
+///
+/// **Scegliere è metà del premio.** Chi ha appena finito un esercizio in cui
+/// tutto era deciso da qualcun altro — quali parole, quanto veloci, quante
+/// volte — qui decide da sé, e nessuna delle tredici scelte è quella sbagliata.
 struct StaffettaView: View {
   var a11y: EffettiveImpostazioniAccessibilita
+  /// Quanto si muove la scena: viene da com'è andata davvero l'ultima
+  /// sessione. Non decide se si arriva in fondo — in fondo ci si arriva
+  /// sempre — decide solo il passo.
+  var difficolta: Difficolta = .media
   /// Chi ha aperto il premio lo chiude quando vuole: il premio non trattiene.
   let onClose: () -> Void
+  /// Solo per le fotografie di `scripts/disegna-schermate.swift`: `ImageRenderer`
+  /// disegna una `ScrollView` vuota, e senza questa scorciatoia l'unica schermata
+  /// che non si potrebbe mai guardare fuori dall'app sarebbe proprio la prima.
+  var perFotografia = false
 
-  @Environment(\.palette) private var palette
-
-  @State private var fase: Fase = .presentazione
-  /// Quanti compagni corrono con te adesso. Non è un punteggio: è la squadra.
-  @State private var squadra: Int = 0
-  /// Compare "Ancora" quando il salto non prende: non è un errore, è un invito
-  /// a riprovare. Non toglie niente, non riporta indietro.
-  @State private var ancora = false
-  /// L'istante in cui la fascia del salto ha ripreso a scorrere: serve solo a
-  /// sapere dov'è il segnalino quando premi, mai a mettere fretta.
-  @State private var inizioOscillazione = Date()
-
-  // Le tappe del camp, nell'ordine in cui le si vive davvero: prima l'acqua,
-  // dove anche chi fatica a stare in piedi si muove libero; poi la palestra e
-  // la parete; infine il ballo dell'ultima sera. Le prime tre costruiscono la
-  // squadra; il ballo lo fai da solo.
-  private let tappe: [Tappa] = [
-    Tappa(nome: "La piscina",
-          gesto: "Tuffati e nuota",
-          simbolo: "figure.pool.swim",
-          etichettaOstacolo: "l'onda",
-          simboloOstacolo: "water.waves",
-          compagno: "Nuota accanto a te un nuovo compagno."),
-    Tappa(nome: "La palestra",
-          gesto: "Salta l'ostacolo",
-          simbolo: "figure.gymnastics",
-          etichettaOstacolo: "l'ostacolo",
-          simboloOstacolo: "square.stack.3d.up.fill",
-          compagno: "Salta con te un altro compagno."),
-    Tappa(nome: "La parete",
-          gesto: "Aggrappati e sali",
-          simbolo: "figure.climbing",
-          etichettaOstacolo: "l'appiglio",
-          simboloOstacolo: "mountain.2.fill",
-          compagno: "Sale con te un altro compagno."),
-  ]
-
-  // Il ballo dell'ultima sera è una tappa a parte: è quella che fai da solo.
-  private let ballo = Tappa(nome: "Il ballo dell'ultima sera",
-                            gesto: "Fai il tuo passo",
-                            simbolo: "figure.dance",
-                            etichettaOstacolo: "la musica",
-                            simboloOstacolo: "music.note",
-                            compagno: "")
-
-  /// Con "meno animazioni" o in modalità calma niente si muove da solo: per chi
-  /// ha ipersensibilità un premio che lampeggia è un'aggressione, non un regalo.
-  /// Allora il segnalino sta fermo in mezzo alla zona buona e ogni pressione va
-  /// a segno: il gioco resta identico, solo senza movimento.
-  private var fermo: Bool { a11y.reducedMotion || a11y.calmMode }
+  @State private var scelto: Gioco?
 
   var body: some View {
+    if let scelto {
+      // Il tasto «Chiudi» del gioco riporta alla sala, non fuori dal premio:
+      // chi ha aperto un gioco per sbaglio non si ritrova buttato fuori.
+      gioco(scelto, indietro: { self.scelto = nil })
+    } else {
+      sala
+    }
+  }
+
+  @ViewBuilder
+  private func gioco(_ quale: Gioco, indietro: @escaping () -> Void) -> some View {
+    switch quale {
+    case .corsa: GiocoCorsa(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .traversata: GiocoTraversata(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .bolle: GiocoBolle(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .muro: GiocoMuro(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .grotta: GiocoGrotta(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .arrampicata: GiocoArrampicata(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .scherma: GiocoScherma(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .vela: GiocoVela(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .triciclo: GiocoTriciclo(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .skate: GiocoSkate(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .beach: GiocoBeach(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .boxe: GiocoBoxe(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    case .hiphop: GiocoHipHop(a11y: a11y, difficolta: difficolta, onClose: indietro)
+    }
+  }
+
+  // MARK: - La sala
+
+  private var sala: some View {
     ZStack {
-      palette.background.ignoresSafeArea()
+      (a11y.theme == .altoContrasto ? Color.black : C64.bluChiaro).ignoresSafeArea()
 
-      // Il tasto che copre tutto: click ovunque, oppure la barra spazio. Sta
-      // dietro alle immagini, che non intercettano niente, così qualsiasi punto
-      // dello schermo è premibile — chi ha emiparesi non deve prendere la mira.
-      Button(action: premi) {
-        Color.clear.contentShape(Rectangle())
+      if perFotografia {
+        elenco
+      } else {
+        ScrollView { elenco }
+          .scrollIndicators(.automatic)
       }
-      // L'unico `.plain` rimasto in tutta l'app, e a ragion veduta: questo
-      // pulsante è lo schermo intero, e un anello di fuoco lungo tutti e
-      // quattro i bordi non direbbe «sei qui», direbbe soltanto che c'è una
-      // cornice. Qui dove si è si vede dal gioco, e il gesto è uno solo: un
-      // tasto qualsiasi, o un clic in un punto qualsiasi.
-      .buttonStyle(.plain)
-      .keyboardShortcut(.space, modifiers: [])
-      .accessibilityLabel(etichettaVoce)
-      .accessibilityHint("Premi la barra spazio, invio, o fai clic ovunque.")
 
-      // Invio fa esattamente come lo spazio: un secondo tasto, stesso gesto.
-      Button("", action: premi)
-        .keyboardShortcut(.return, modifiers: [])
-        .frame(width: 0, height: 0)
-        .opacity(0)
-        .accessibilityHidden(true)
-
-      // Misurata: 988 punti di scena in una finestra da 700, con i caratteri
-      // al massimo ingrandimento. Il pulsante per chiudere sta in alto e resta
-      // raggiungibile, ma la parte bassa della festa — la squadra che corre
-      // con te — finiva fuori schermo proprio per chi aveva ingrandito il
-      // testo. `minHeight` tiene tutto centrato quando lo spazio basta.
-      ScrollView {
-        scena
-          .frame(maxWidth: .infinity, minHeight: 560)
-      }
-      .scrollIndicators(.never)
-      .allowsHitTesting(false)
-
-      // Chiudere resta la cosa più facile dello schermo. Ma qui non è un
-      // «interrompi»: è un premio, e il rosso di allarme del resto dell'app
-      // sopra a una festa suonava come uno sgridamento. È lo stesso pulsante
-      // che chiude tutte le altre schermate: era una scritta grigia da quindici
-      // punti, cioè proprio la via d'uscita più difficile da vedere di tutta
-      // l'app, nascosta sopra un fondo pieno di coriandoli in movimento.
       VStack {
         HStack {
           Spacer()
-          PulsanteChiudi(a11y: a11y, cosa: "il gioco e torna al riepilogo", action: onClose)
+          PulsanteChiudi(a11y: a11y, cosa: "la sala giochi", action: onClose)
         }
         .padding(.horizontal, Metrica.spazioMedio)
         .padding(.top, Metrica.spazioPiccolo)
         Spacer()
       }
-
-      if case .fine = fase {
-        Celebrazione(a11y: a11y, intensita: 1)
-          .allowsHitTesting(false)
-      }
     }
   }
 
-  // MARK: - La scena, fase per fase
-
-  @ViewBuilder
-  private var scena: some View {
-    switch fase {
-    case .presentazione: presentazione
-    case .tappa(let i): tappaScena(tappe[i], solo: false)
-    case .superata(let i): superataScena(tappe[i])
-    case .finale: tappaScena(ballo, solo: true)
-    case .fine: fineScena
-    }
-  }
-
-  private var presentazione: some View {
-    VStack(spacing: a11y.size(Metrica.spazio)) {
-      Spacer(minLength: 0)
-
-      Image(systemName: "figure.run")
-        .font(.system(size: a11y.size(90)))
-        .foregroundStyle(palette.accent)
-
-      Text("La staffetta del Fight Camp")
-        .font(a11y.font(.titoloGrande, .bold))
-        .foregroundStyle(palette.foreground)
-        .multilineTextAlignment(.center)
-
-      Text("Attraversa le tappe del camp. A ogni tappa qualcuno viene a correre con te: qui non si è mai da soli.")
-        .font(a11y.font(.guida))
-        .foregroundStyle(palette.muted)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: a11y.size(560))
-        .fixedSize(horizontal: false, vertical: true)
-
-      Text("Un tasto solo. Nessuna fretta: parti quando vuoi.")
-        .font(a11y.font(.corpo, .medium))
-        .foregroundStyle(palette.accent)
-        .multilineTextAlignment(.center)
-
-      invitoAPremere(testo: "Premi per partire")
-
-      Spacer(minLength: 0)
-    }
-    .padding(Metrica.spazioGrande)
-  }
-
-  private func tappaScena(_ tappa: Tappa, solo: Bool) -> some View {
+  private var elenco: some View {
     VStack(spacing: a11y.size(Metrica.spazioMedio)) {
-      // In alto: dove siamo e cosa fare. Poche parole, sempre nello stesso posto.
-      VStack(spacing: Metrica.spazioMinimo) {
-        Text(tappa.nome)
-          .font(a11y.font(.titolo, .bold))
-          .foregroundStyle(palette.foreground)
-        Text(solo ? "Adesso l'ultimo pezzo lo fai tu. Loro ti guardano." : tappa.gesto)
-          .font(a11y.font(.guida, .medium))
-          .foregroundStyle(solo ? palette.accent : palette.muted)
-          .multilineTextAlignment(.center)
-      }
-      .padding(.top, a11y.size(56))
-
-      Spacer(minLength: 0)
-
-      pista(tappa: tappa, solo: solo)
-
-      // "Ancora": occupa sempre il suo spazio, così la scena non sobbalza
-      // quando compare. Se il salto non prende non succede nulla di brutto,
-      // esce solo questa parola gentile e si riprova.
-      Text(ancora ? "Ancora" : " ")
-        .font(a11y.font(.titolo, .bold))
-        .foregroundStyle(palette.accent)
-        .accessibilityHidden(!ancora)
-
-      Spacer(minLength: 0)
-
-      // La fascia del salto: una zona buona larghissima. Non è una barra del
-      // tempo — non scade mai. Se non premi, il segnalino continua ad andare
-      // avanti e indietro all'infinito e non perdi niente.
-      fasciaSalto
-
-      invitoAPremere(testo: solo ? "Premi: fai il tuo passo" : "Premi per superare \(tappa.etichettaOstacolo)")
-        .padding(.bottom, a11y.size(Metrica.spazioGrande))
-    }
-    .padding(.horizontal, Metrica.spazioGrande)
-  }
-
-  /// La pista con l'avatar, la squadra e l'ostacolo.
-  private func pista(tappa: Tappa, solo: Bool) -> some View {
-    VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
-      HStack(alignment: .bottom, spacing: a11y.size(Metrica.spazioStretto)) {
-        // Nel finale i compagni si mettono di lato a fare il tifo; nelle altre
-        // tappe corrono insieme a te.
-        if solo {
-          tifoDellaSquadra
-          Spacer(minLength: 0)
-          corridore(simbolo: tappa.simbolo, indice: -1, grande: true)
-          Spacer(minLength: 0)
-          ostacolo(tappa)
-        } else {
-          corridore(simbolo: tappa.simbolo, indice: -1, grande: true)
-          ForEach(0..<squadra, id: \.self) { i in
-            corridore(simbolo: simboloCompagno(i), indice: i, grande: false)
-          }
-          Spacer(minLength: 0)
-          ostacolo(tappa)
+      intestazione
+      // Una colonna sola. Una griglia costringe a cercare dove si è rimasti;
+      // un elenco si scorre con un dito e con il tasto Tab, e sopravvive ai
+      // caratteri ingranditi il doppio senza scomporsi.
+      //
+      // Tredici voci di fila sono troppe da guardare tutte insieme: stanno in
+      // due gruppi con un titolo sopra, così si sa sempre in che metà si è.
+      ForEach(Gruppo.allCases) { gruppo in
+        VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
+          titoloGruppo(gruppo)
+          ForEach(Gioco.allCases.filter { $0.gruppo == gruppo }) { g in scheda(g) }
         }
+        .frame(maxWidth: a11y.size(660))
       }
-      .frame(height: a11y.size(120))
-
-      // Il terreno: una riga sola, ferma. Dà il senso della corsa senza rubare
-      // lo sguardo con un movimento.
-      Capsule()
-        .fill(palette.muted.opacity(0.35))
-        .frame(height: a11y.size(6))
+      promessa
     }
-    .frame(maxWidth: a11y.size(640))
+    .frame(maxWidth: .infinity)
+    .padding(a11y.size(Metrica.spazio))
+    .padding(.top, a11y.size(Metrica.spazioGrande))
   }
 
-  /// I compagni schierati che guardano il passo finale.
-  private var tifoDellaSquadra: some View {
-    HStack(spacing: a11y.size(Metrica.spazioMinimo)) {
-      ForEach(0..<max(1, squadra), id: \.self) { i in
-        Image(systemName: simboloCompagno(i))
-          .font(.system(size: a11y.size(40)))
-          .foregroundStyle(coloreCompagno(i))
-      }
+  private var intestazione: some View {
+    VStack(spacing: a11y.size(Metrica.spazioMinimo)) {
+      Text("SALA GIOCHI")
+        .font(.system(size: a11y.size(30), weight: .heavy, design: .monospaced))
+        .foregroundStyle(a11y.theme == .altoContrasto ? .white : C64.giallo)
+      Text("Tredici giochi. Scegli tu.")
+        .font(a11y.font(.corpo))
+        .foregroundStyle(C64.bianco)
     }
-    .accessibilityElement()
-    .accessibilityLabel(squadra == 1 ? "Un compagno ti guarda e fa il tifo" : "\(squadra) compagni ti guardano e fanno il tifo")
+    .multilineTextAlignment(.center)
+    .padding(.trailing, a11y.size(80))
   }
 
-  private func corridore(simbolo: String, indice: Int, grande: Bool) -> some View {
-    Image(systemName: simbolo)
-      .font(.system(size: grande ? a11y.size(72) : a11y.size(48)))
-      .foregroundStyle(indice < 0 ? palette.accent : coloreCompagno(indice))
-      // Altezze leggermente diverse: una fila perfettamente dritta sembra una
-      // tabella. Con "meno animazioni" si allinea tutto e non si muove niente.
-      .offset(y: fermo ? 0 : -passo(indice))
-      .accessibilityHidden(true)
-  }
-
-  private func ostacolo(_ tappa: Tappa) -> some View {
-    Image(systemName: tappa.simboloOstacolo)
-      .font(.system(size: a11y.size(56)))
-      .foregroundStyle(palette.foreground.opacity(0.7))
-      .accessibilityHidden(true)
-  }
-
-  /// La fascia del salto. La zona buona (accento) è larghissima: prenderla è
-  /// facile. Il segnalino la percorre lentamente; fuori dalla modalità calma si
-  /// muove, dentro sta fermo in mezzo alla zona e ogni pressione va a segno.
-  private var fasciaSalto: some View {
-    GeometryReader { geo in
-      let larghezza = geo.size.width
-      ZStack(alignment: .leading) {
-        Capsule()
-          .fill(palette.surface)
-        // La zona buona, disegnata: chi guarda vede quant'è grande il margine.
-        Capsule()
-          .fill(palette.accent.opacity(0.30))
-          .frame(width: larghezza * (zonaBuona.upperBound - zonaBuona.lowerBound))
-          .offset(x: larghezza * zonaBuona.lowerBound)
-
-        if fermo {
-          segnalino
-            .offset(x: larghezza * 0.5 - a11y.size(11))
-        } else {
-          TimelineView(.animation) { contesto in
-            let p = posizione(a: contesto.date)
-            segnalino
-              .offset(x: larghezza * p - a11y.size(11))
-          }
-        }
-      }
-    }
-    .frame(maxWidth: a11y.size(640))
-    .frame(height: a11y.size(22))
-    .accessibilityHidden(true)
-  }
-
-  private var segnalino: some View {
-    Circle()
-      .fill(palette.accent)
-      .frame(width: a11y.size(22), height: a11y.size(22))
-      .overlay(Circle().stroke(palette.background, lineWidth: 2))
-  }
-
-  private func superataScena(_ tappa: Tappa) -> some View {
-    VStack(spacing: a11y.size(Metrica.spazio)) {
-      Spacer(minLength: 0)
-
-      Image(systemName: ColorVision.okSymbol)
-        .font(.system(size: a11y.size(92)))
-        .foregroundStyle(palette.ok)
-
-      Text("Ce l'hai fatta!")
-        .font(a11y.font(.titoloGrande, .bold))
-        .foregroundStyle(palette.foreground)
-
-      Text(tappa.compagno)
-        .font(a11y.font(.sezione, .medium))
-        .foregroundStyle(palette.accent)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: a11y.size(520))
-
-      // La squadra che cresce, mostrata: sono loro il premio, non un numero.
-      HStack(spacing: a11y.size(Metrica.spazioStretto)) {
-        Image(systemName: "figure.run")
-          .font(.system(size: a11y.size(46)))
-          .foregroundStyle(palette.accent)
-        ForEach(0..<squadra, id: \.self) { i in
-          Image(systemName: simboloCompagno(i))
-            .font(.system(size: a11y.size(46)))
-            .foregroundStyle(coloreCompagno(i))
-        }
-      }
-      .accessibilityElement()
-      .accessibilityLabel(squadra == 1 ? "Adesso siete in due" : "Adesso siete in \(squadra + 1)")
-
-      invitoAPremere(testo: "Premi per continuare")
-
-      Spacer(minLength: 0)
-    }
-    .padding(Metrica.spazioGrande)
-  }
-
-  private var fineScena: some View {
-    VStack(spacing: a11y.size(Metrica.spazio)) {
-      Spacer(minLength: 0)
-
-      // Tutta la squadra insieme a te: chi ha corso, chi ha fatto il tifo.
-      HStack(spacing: a11y.size(Metrica.spazioStretto)) {
-        Image(systemName: "figure.dance")
-          .font(.system(size: a11y.size(56)))
-          .foregroundStyle(palette.accent)
-        ForEach(0..<squadra, id: \.self) { i in
-          Image(systemName: simboloCompagno(i))
-            .font(.system(size: a11y.size(52)))
-            .foregroundStyle(coloreCompagno(i))
-        }
-      }
-      .accessibilityElement()
-      .accessibilityLabel("Sei arrivato in fondo, con tutta la tua squadra")
-
-      Text("L'hai fatto da solo.")
-        .font(a11y.font(.titoloGrande, .bold))
-        .foregroundStyle(palette.foreground)
-        .multilineTextAlignment(.center)
-
-      // La frase della canzone del camp, tradotta accanto perché si capisca.
-      Text("«Now walk it by yourself» — adesso camminaci da solo. E ci sei riuscito.")
-        .font(a11y.font(.guida))
-        .foregroundStyle(palette.muted)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: a11y.size(560))
+  private func titoloGruppo(_ gruppo: Gruppo) -> some View {
+    VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMinimo)) {
+      Text(gruppo.nome)
+        .font(.system(size: a11y.size(18), weight: .heavy, design: .monospaced))
+        .foregroundStyle(a11y.theme == .altoContrasto ? .white : C64.ciano)
+      Text(gruppo.cosa)
+        .font(a11y.font(.etichetta))
+        .foregroundStyle(C64.grigioChiaro)
         .fixedSize(horizontal: false, vertical: true)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.top, a11y.size(Metrica.spazioPiccolo))
+    .accessibilityAddTraits(.isHeader)
+  }
 
-      // Il principio della fondazione, detto al ragazzo.
-      Text("Non era «non so farlo». Era «non so ANCORA farlo».")
-        .font(a11y.font(.guida, .medium))
-        .foregroundStyle(palette.accent)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: a11y.size(520))
-        .fixedSize(horizontal: false, vertical: true)
+  private func scheda(_ g: Gioco) -> some View {
+    Button { scelto = g } label: { etichetta(g) }
+      .buttonStyle(.plain)
+      .accessibilityLabel("\(g.nome). \(g.cosa)")
+      .accessibilityHint("Il tasto: \(g.tasto). Non si può perdere.")
+  }
 
-      HStack(spacing: Metrica.spazioPiccolo) {
-        BigButton(title: "Di nuovo", symbol: "arrow.clockwise", a11y: a11y, prominent: false) {
-          ricomincia()
-        }
-        BigButton(title: "Torna al report", symbol: "checkmark", a11y: a11y) {
-          onClose()
-        }
+  private func etichetta(_ g: Gioco) -> some View {
+    let tinta: Color = a11y.theme == .altoContrasto ? .white : g.tinta
+    let bordo: Color = a11y.theme == .altoContrasto ? .white : g.tinta.opacity(0.7)
+    let titolo: Color = a11y.theme == .altoContrasto ? .white : C64.giallo
+    return HStack(alignment: .top, spacing: a11y.size(Metrica.spazioMedio)) {
+      // L'icona non porta nessuna informazione da sola: il nome del gioco e
+      // che cosa fa il tasto stanno scritti accanto, a parole.
+      Image(systemName: g.simbolo)
+        .font(.system(size: a11y.size(26), weight: .bold))
+        .foregroundStyle(tinta)
+        .frame(width: a11y.size(44), height: a11y.size(44))
+        .accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioMinimo)) {
+        Text(g.nome)
+          .font(.system(size: a11y.size(20), weight: .bold, design: .monospaced))
+          .foregroundStyle(titolo)
+        Text(g.cosa)
+          .font(a11y.font(.corpo))
+          .foregroundStyle(C64.bianco)
+          .fixedSize(horizontal: false, vertical: true)
+        Text("Il tasto: " + g.tasto)
+          .font(a11y.font(.etichetta))
+          .foregroundStyle(C64.ciano)
+          .fixedSize(horizontal: false, vertical: true)
       }
-      .frame(maxWidth: a11y.size(520))
-
       Spacer(minLength: 0)
     }
-    .padding(Metrica.spazioGrande)
+    .multilineTextAlignment(.leading)
+    .padding(a11y.size(Metrica.spazioMedio))
+    .frame(maxWidth: .infinity, minHeight: a11y.bersaglio, alignment: .leading)
+    .background(RoundedRectangle(cornerRadius: Metrica.spazioPiccolo).fill(C64.blu))
+    .overlay(
+      RoundedRectangle(cornerRadius: Metrica.spazioPiccolo)
+        .strokeBorder(bordo, lineWidth: Metrica.filo)
+    )
+    .contentShape(Rectangle())
   }
 
-  /// L'invito a premere, uguale in ogni scena: una parola e un simbolo, senza
-  /// mai un conto alla rovescia.
-  private func invitoAPremere(testo: String) -> some View {
-    HStack(spacing: a11y.size(Metrica.spazioStretto)) {
-      Image(systemName: "hand.tap.fill")
-        .font(.system(size: a11y.size(22)))
-      Text(testo)
-        .font(a11y.font(.guida, .semibold))
-    }
-    .foregroundStyle(palette.foreground)
-    .padding(.horizontal, a11y.size(Metrica.spazioMedio))
-    .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
-    .background(Capsule().fill(palette.surface))
-    .overlay(Capsule().stroke(palette.accent.opacity(0.4), lineWidth: 2))
-    // Respira piano, per invitare senza incalzare. Ferma con "meno animazioni".
-    .modifier(RespiroDolce(attivo: !fermo, a11y: a11y))
-    .accessibilityHidden(true)
+  private var promessa: some View {
+    Text("Valgono per tutti: un tasto solo, nessun tempo che scade, non si può perdere. Quando qualcosa non riesce non si torna indietro — compare «Ancora», e si continua.")
+      .font(a11y.font(.etichetta))
+      .foregroundStyle(C64.grigioChiaro)
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: a11y.size(620))
+      .fixedSize(horizontal: false, vertical: true)
   }
 
-  // MARK: - Il gesto: un tasto solo decide tutto
+  /// Le due metà della sala. Non è una classifica: è solo un modo per non
+  /// mettere dodici voci di fila senza un respiro.
+  enum Gruppo: String, CaseIterable, Identifiable {
+    case arcade, camp
 
-  private func premi() {
-    switch fase {
-    case .presentazione:
-      vaiA(.tappa(0))
+    var id: String { rawValue }
 
-    case .tappa(let i):
-      if colpito() {
-        vaiA(.superata(i))
-      } else {
-        // Niente di brutto: solo "Ancora", e si riprova subito.
-        mostraAncora()
+    var nome: String {
+      switch self {
+      case .arcade: "I GIOCHI"
+      case .camp: "GLI SPORT DEL CAMP"
       }
+    }
 
-    case .superata(let i):
-      squadra += 1
-      if i + 1 < tappe.count {
-        vaiA(.tappa(i + 1))
-      } else {
-        vaiA(.finale)
+    var cosa: String {
+      switch self {
+      case .arcade: "Quelli con cui si giocava trent'anni fa, davanti a un televisore."
+      case .camp: "Uno per ogni edizione del Fight Camp, con il gesto vero di quello sport."
       }
+    }
+  }
 
-    case .finale:
-      if colpito() {
-        vaiA(.fine)
-      } else {
-        mostraAncora()
+  /// I tredici giochi. Il nome dice che cosa succede, non a che genere
+  /// appartiene: «La traversata», non «un platform a scorrimento».
+  enum Gioco: String, CaseIterable, Identifiable {
+    case corsa, traversata, bolle, muro, grotta
+    case arrampicata, scherma, vela, triciclo, skate, beach, boxe, hiphop
+
+    var id: String { rawValue }
+
+    var gruppo: Gruppo {
+      switch self {
+      case .corsa, .traversata, .bolle, .muro, .grotta: .arcade
+      case .arrampicata, .scherma, .vela, .triciclo, .skate, .beach, .boxe, .hiphop: .camp
       }
-
-    case .fine:
-      // Da qui il tasto non fa più nulla: si sceglie con i due pulsanti, così
-      // non si esce per sbaglio dalla festa con una pressione di troppo.
-      break
     }
-  }
 
-  /// Vero se la pressione è caduta nella zona buona. Con il movimento fermo il
-  /// segnalino è sempre in mezzo alla zona, quindi è sempre vero: in modalità
-  /// calma non si può mancare.
-  private func colpito() -> Bool {
-    guard !fermo else { return true }
-    return zonaBuona.contains(posizione(a: Date()))
-  }
-
-  private func mostraAncora() {
-    ancora = true
-    // La scritta se ne va da sola dopo un attimo; il segnalino non si è fermato
-    // e non è tornato indietro, quindi basta ripremere.
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-      ancora = false
+    var nome: String {
+      switch self {
+      case .corsa: "La corsa"
+      case .traversata: "La traversata"
+      case .bolle: "Le bolle"
+      case .muro: "Il muro"
+      case .grotta: "La grotta"
+      case .arrampicata: "L'arrampicata"
+      case .scherma: "La scherma"
+      case .vela: "La vela"
+      case .triciclo: "Il triciclo"
+      case .skate: "Lo skate"
+      case .beach: "Il beach volley"
+      case .boxe: "La boxe"
+      case .hiphop: "L'hip hop"
+      }
     }
-  }
 
-  private func vaiA(_ nuova: Fase) {
-    ancora = false
-    inizioOscillazione = Date()
-    withAnimation(a11y.animation(0.3)) {
-      fase = nuova
+    var cosa: String {
+      switch self {
+      case .corsa: "Le quattro tappe del Fight Camp, una sopra l'altra. A ogni tappa un compagno resta a fare il tifo per te."
+      case .traversata: "Un fiume, e delle zattere che passano. Chi finisce in acqua galleggia e riprova."
+      case .bolle: "Bolle di sapone che scendono, e una retina che scorre da sola in basso."
+      case .muro: "I mattoni da buttare giù con la pallina. Sotto la racchetta c'è un trampolino."
+      case .grotta: "Si cammina verso l'uscita mentre cadono i massi. Le gemme sono lungo la strada."
+      case .arrampicata: "La parete del camp del 2020, quella coi sensori. La mano scorre sopra di te e cerca la presa."
+      case .scherma: "Scherma in carrozzina, 2021. Il compagno tiene la guardia, poi per un attimo si scopre."
+      case .vela: "Nave Italia, 2022. Si issa la vela a tempo con l'onda, da Civitavecchia a La Spezia."
+      case .triciclo: "Il triciclo del 2023. Ogni pedalata dà spinta, e in salita la spinta cala prima."
+      case .skate: "La tavola del 2024. Pende sempre da una parte: si sposta il peso e si resta in mezzo."
+      case .beach: "Beach volley del 2025. L'ombra sulla sabbia dice dove cade il pallone."
+      case .boxe: "La boxe del 2026. Contano i piedi: il diretto parte da solo quando sei nella misura."
+      case .hiphop: "L'hip hop del 2026. I passi arrivano da destra: si sta a tempo, e alla fine si balla davanti a tutti."
+      }
     }
-  }
 
-  private func ricomincia() {
-    squadra = 0
-    vaiA(.presentazione)
-  }
-
-  // MARK: - Il segnalino che va avanti e indietro
-
-  /// Larga il 70% della fascia: mancarla è difficile, prenderla è la norma.
-  private var zonaBuona: ClosedRange<Double> { 0.15...0.85 }
-
-  /// Dove si trova il segnalino a un certo istante: un'onda triangolare lenta,
-  /// che rimbalza fra un bordo e l'altro senza mai fermarsi. Non c'è inizio né
-  /// fine: aspettare non costa nulla.
-  private func posizione(a data: Date) -> Double {
-    let periodo = 2.8
-    let t = data.timeIntervalSince(inizioOscillazione)
-    let fase = (t.truncatingRemainder(dividingBy: periodo)) / periodo
-    return fase < 0.5 ? fase * 2 : 2 - fase * 2
-  }
-
-  /// Di quanto sta su ciascun compagno.
-  ///
-  /// Altezze diverse, sempre le stesse: una fila perfettamente allineata sembra
-  /// una tabella, una fila irregolare sembra gente. Non si muove nel tempo — un
-  /// movimento continuo ai bordi dello schermo e esattamente cio che disturba
-  /// chi fa fatica a stare sul compito.
-  private func passo(_ indice: Int) -> CGFloat {
-    let altezze: [Double] = [0, 6, 3, 8, 2, 5]
-    let i = indice < 0 ? 0 : indice % altezze.count
-    return a11y.size(altezze[i])
-  }
-
-  // MARK: - I compagni
-
-  // I simboli dei corridori includono chi va in carrozzina, perché è la squadra
-  // vera del camp: definire qualcuno per la carrozzina sarebbe sbagliato, ma
-  // toglierla del tutto vorrebbe dire cancellare i bambini che ci sono.
-  private let simboliCompagni = [
-    "figure.roll", "figure.walk", "figure.run", "figure.and.child.holdinghands",
-  ]
-  // Decorazione: i compagni di corsa si distinguono dalla posizione e dal
-  // simbolo, il colore serve solo a farli sembrare persone diverse.
-  private let coloriCompagni: [Color] = [
-    Color(red: 0.98, green: 0.75, blue: 0.14),
-    Color(red: 0.38, green: 0.80, blue: 0.45),
-    Color(red: 0.95, green: 0.44, blue: 0.60),
-    Color(red: 0.62, green: 0.48, blue: 0.92),
-  ]
-
-  private func simboloCompagno(_ i: Int) -> String { simboliCompagni[i % simboliCompagni.count] }
-  private func coloreCompagno(_ i: Int) -> Color { coloriCompagni[i % coloriCompagni.count] }
-
-  // MARK: - Voce
-
-  /// L'etichetta che VoiceOver legge sul tasto grande: da sola deve bastare a
-  /// capire dove siamo e cosa succede premendo, così il gioco si segue anche
-  /// solo ascoltando.
-  private var etichettaVoce: String {
-    switch fase {
-    case .presentazione:
-      "La staffetta del Fight Camp. Premi per partire."
-    case .tappa(let i):
-      "\(tappe[i].nome). \(tappe[i].gesto). Premi per superare \(tappe[i].etichettaOstacolo). Corrono con te \(squadra) compagni."
-    case .superata(let i):
-      "Superata: \(tappe[i].nome). \(tappe[i].compagno) Premi per continuare."
-    case .finale:
-      "\(ballo.nome). Adesso l'ultimo passo lo fai da solo, mentre la squadra fa il tifo. Premi per farlo."
-    case .fine:
-      "L'hai fatto da solo. Sei arrivato in fondo con tutta la tua squadra."
+    var tasto: String {
+      switch self {
+      case .corsa: "salta."
+      case .traversata: "salta sulla zattera che sta passando."
+      case .bolle: "la retina scatta in su e prende."
+      case .muro: "la racchetta cambia direzione."
+      case .grotta: "ti fermi, e riparti."
+      case .arrampicata: "la mano afferra la presa."
+      case .scherma: "parte l'affondo."
+      case .vela: "tiri la cima."
+      case .triciclo: "una pedalata."
+      case .skate: "sposti il peso dall'altra parte."
+      case .beach: "alzi le mani e palleggi."
+      case .boxe: "cambi direzione, avanti o indietro."
+      case .hiphop: "fai il passo, quando è sulla riga."
+      }
     }
-  }
-}
 
-// MARK: - Dati di una tappa
+    var simbolo: String {
+      switch self {
+      case .corsa: "figure.run"
+      case .traversata: "water.waves"
+      case .bolle: "bubbles.and.sparkles"
+      case .muro: "square.grid.3x3.fill"
+      case .grotta: "mountain.2.fill"
+      case .arrampicata: "figure.climbing"
+      case .scherma: "figure.fencing"
+      case .vela: "sailboat.fill"
+      case .triciclo: "bicycle"
+      case .skate: "figure.skateboarding"
+      case .beach: "figure.volleyball"
+      case .boxe: "figure.boxing"
+      case .hiphop: "figure.dance"
+      }
+    }
 
-private struct Tappa {
-  let nome: String
-  let gesto: String
-  let simbolo: String
-  let etichettaOstacolo: String
-  let simboloOstacolo: String
-  /// La frase che annuncia il compagno che si aggiunge. Vuota per il ballo.
-  let compagno: String
-}
-
-// MARK: - Fasi del gioco
-
-private enum Fase: Equatable {
-  case presentazione
-  case tappa(Int)
-  case superata(Int)
-  case finale
-  case fine
-}
-
-// MARK: - Un respiro, non un lampeggio
-
-/// Fa pulsare piano un elemento per invitare a premere. È un respiro lento, non
-/// un allarme: si spegne del tutto quando il movimento va evitato.
-private struct RespiroDolce: ViewModifier {
-  let attivo: Bool
-  let a11y: EffettiveImpostazioniAccessibilita
-  @State private var grande = false
-
-  func body(content: Content) -> some View {
-    if attivo {
-      content
-        .scaleEffect(grande ? 1.04 : 1.0)
-        .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: grande)
-        .onAppear { grande = true }
-    } else {
-      content
+    var tinta: Color {
+      switch self {
+      case .corsa: C64.giallo
+      case .traversata: C64.ciano
+      case .bolle: C64.verdeChiaro
+      case .muro: C64.arancio
+      case .grotta: C64.grigioChiaro
+      case .arrampicata: C64.verdeChiaro
+      case .scherma: C64.grigioChiaro
+      case .vela: C64.ciano
+      case .triciclo: C64.rosso
+      case .skate: C64.marrone
+      case .beach: C64.giallo
+      case .boxe: C64.viola
+      case .hiphop: C64.arancio
+      }
     }
   }
 }

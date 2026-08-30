@@ -13,6 +13,9 @@ struct SettingsView: View {
   @StateObject private var promemoria = Promemoria()
   @State private var pagina: Pagina = .inizio
   @State private var chiedeCancellazione = false
+  /// Aperto dal pulsante «Guarda i giochi»: il premio mostrato su richiesta
+  /// dell'adulto, fuori da qualsiasi sessione.
+  @State private var mostraStaffetta = false
   @State private var aggiornamentiAccesi = Updates.enabled
   @State private var controlloInCorso = false
   @State private var esitoControllo: String?
@@ -77,6 +80,18 @@ struct SettingsView: View {
     PaginaConElenco(titolo: "Impostazioni", scelta: $pagina, a11y: a11y,
                     palette: palette, onClose: onClose) {
       paginaCorrente
+    }
+    // Il gioco si apre sopra le impostazioni e si chiude tornando esattamente
+    // dov'eri: guardarlo non costa la pagina che stavi sistemando.
+    .sheet(isPresented: $mostraStaffetta) {
+      // Aperto da qui non c'è nessuna lettura appena finita da cui partire:
+      // il passo lo dà l'esperienza con l'app, e si assesta da sé giocando.
+      StaffettaView(a11y: a11y,
+                    difficolta: Difficolta.da(accuratezza: nil,
+                                              sessioniFatte: store.current.sessionsCompleted),
+                    onClose: { mostraStaffetta = false })
+        .frame(minWidth: a11y.size(860), minHeight: 660)
+        .environment(\.palette, palette)
     }
   }
 
@@ -345,6 +360,28 @@ struct SettingsView: View {
              "Per chi si mette in ansia con i numeri: resta solo il senso di aver finito.")
       toggle("Rileggere ad alta voce la parola giusta", bindBool(\.speakCorrectWord),
              "Comoda quando lo schermo si legge a fatica, e per riguardare con calma le parole che non sono venute.")
+
+      Divider().padding(.vertical, Metrica.briciola)
+
+      premio
+    }
+  }
+
+  /// Il premio di fine sessione, provabile da qui.
+  ///
+  /// La sala giochi compare da sola a lettura finita, e per il ragazzo va bene
+  /// così. Ma chi imposta l'app non può scoprire che cosa gli verrà proposto
+  /// soltanto facendogli fare una sessione intera: come per i suoni, il premio
+  /// si guarda prima. Aprirlo da qui non registra niente e non cambia niente:
+  /// è la stessa identica schermata che vedrà lui.
+  private var premio: some View {
+    VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
+      SectionTitle(text: "Il premio di fine sessione", a11y: a11y)
+      Explain(text: "A lettura finita si apre la sala giochi: cinque giochi in stile Commodore 64, e sceglie lui. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere. Da qui li guardi prima, senza dover fare una sessione.",
+              a11y: a11y, size: 15)
+      SmallButton(title: "Guarda i giochi", symbol: "figure.run", a11y: a11y) {
+        mostraStaffetta = true
+      }
     }
   }
 

@@ -66,7 +66,13 @@ struct ReportView: View {
     // Il premio si apre a schermo intero e si chiude quando si vuole: non
     // trattiene, non tiene il punteggio, non ha nulla da vincere.
     .sheet(isPresented: $showStaffetta) {
-      StaffettaView(a11y: a11y, onClose: { showStaffetta = false })
+      // Il passo dei giochi nasce da com'è andata questa lettura, non da una
+      // scelta dell'adulto: chi ha faticato trova una scena più calma, chi è
+      // andato bene la trova più viva. In fondo ci si arriva comunque.
+      StaffettaView(a11y: a11y,
+                    difficolta: Difficolta.da(accuratezza: record.total > 0 ? record.accuracy : nil,
+                                              sessioniFatte: store.current.sessionsCompleted),
+                    onClose: { showStaffetta = false })
         .frame(minWidth: a11y.size(860), minHeight: 660)
         .environment(\.palette, palette)
     }
@@ -78,11 +84,11 @@ struct ReportView: View {
   /// premio lo trova, chi ha già avuto abbastanza per oggi lo ignora e chiude.
   private var premioStaffetta: some View {
     VStack(spacing: Metrica.spazioStretto) {
-      SmallButton(title: "Il premio: la staffetta del Fight Camp",
+      SmallButton(title: "Il premio: la sala giochi del Fight Camp",
                   symbol: "figure.run", a11y: a11y) {
         showStaffetta = true
       }
-      Explain(text: "Un piccolo gioco con un tasto solo. Non c'è fretta e non si può perdere.",
+      Explain(text: "Cinque giochi, e scegli tu. Un tasto solo, non c'è fretta e non si può perdere.",
               a11y: a11y, size: 14)
       .multilineTextAlignment(.center)
     }
