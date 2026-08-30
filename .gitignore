@@ -26,3 +26,11 @@ MirrorScopio.xcodeproj/project.xcworkspace/xcuserdata/
 
 # Generato da scripts/genera-progetto.sh a partire dal file VERSION.
 Versione.xcconfig
+
+# Roba degli assistenti, non dell'app: sta sul Mac di chi lavora, non nel
+# progetto. Se entra qui dentro finisce anche negli indici di ricerca, dove
+# non e' codice di MirrorScopio ma rumore che copre quello vero.
+.gbrain-source
+graphify-out/
+.claude/
+.copilot/
