@@ -89,6 +89,11 @@ Nessuna vista scrive un colore a mano. Si prende dall'ambiente:
 (chiaro, scuro, altissimo contrasto, carta) e al modo in cui la persona vede i
 colori.
 
+I giochi hanno tre ruoli calcolati dalla stessa palette:
+`sfondoCampoSport`, `segnoCampoSport`, `secondoPianoCampoSport`. Il campo resta
+scuro anche nei temi chiari, ma piste e contorni mantengono almeno 3:1 in ogni
+tema; non sono una seconda palette scritta a mano dentro il gioco.
+
 **Ogni colore che porta informazione sta qui.** Se un colore dice qualcosa —
 questo l'hai preso, questa è la tua serie, questo comando ferma tutto — sta
 nella palette e cambia col tema. Per un po' non è stato vero: l'oro delle

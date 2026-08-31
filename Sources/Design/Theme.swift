@@ -202,6 +202,23 @@ struct Palette {
   private static let stopScuro    = Color(red: 1.00, green: 0.50, blue: 0.50)
 }
 
+extension Palette {
+  /// Il campo dei giochi resta scuro anche nei temi chiari: è una superficie
+  /// sportiva dentro la pagina, non un secondo tema dell'app.
+  var sfondoCampoSport: Color {
+    isDark ? background : foreground
+  }
+
+  var segnoCampoSport: Color {
+    isDark ? foreground : background
+  }
+
+  /// Piste, rampe e confini devono staccarsi dal campo almeno 3 a 1.
+  var secondoPianoCampoSport: Color {
+    isDark ? muted : surface
+  }
+}
+
 /// La palette viaggia nell'ambiente così ogni vista la trova senza passarsela a mano.
 private struct PaletteKey: EnvironmentKey {
   static let defaultValue = Palette.resolve(theme: .chiaro, vision: .standard, system: .light)

@@ -171,10 +171,38 @@ struct DisegnaSchermate {
       // l'app: ognuno si fotografa a metà partita, con il campo pieno.
       let manopoleGioco = A11ySettings()
       let perGiocare = EffettiveImpostazioniAccessibilita(manopoleGioco)
+      let paletteGioco = Palette.resolve(theme: perGiocare.theme,
+                                         vision: perGiocare.colorVision,
+                                         system: .light)
       disegna(StaffettaView(a11y: perGiocare, onClose: {}, perFotografia: true),
               nome: "gioco-sala", larghezza: 900, altezza: 1900)
-      disegna(GiocoCorsa(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
-              nome: "gioco-corsa", larghezza: 900, altezza: 660)
+      disegna(
+        GiocoCorsa(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteGioco),
+        nome: "gioco-corsa", larghezza: 900, altezza: 900)
+
+      var manopoleCorsaScura = A11ySettings()
+      manopoleCorsaScura.theme = .scuro
+      let corsaScura = EffettiveImpostazioniAccessibilita(manopoleCorsaScura)
+      let paletteCorsaScura = Palette.resolve(theme: .scuro, vision: .standard, system: .dark)
+      disegna(
+        GiocoCorsa(a11y: corsaScura, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteCorsaScura),
+        nome: "gioco-corsa-scuro", larghezza: 900, altezza: 900)
+
+      var manopoleCorsaCalma = A11ySettings()
+      manopoleCorsaCalma.theme = .altoContrasto
+      manopoleCorsaCalma.calmMode = true
+      manopoleCorsaCalma.reducedMotion = true
+      manopoleCorsaCalma.hideScore = true
+      let corsaCalma = EffettiveImpostazioniAccessibilita(manopoleCorsaCalma)
+      let paletteCorsaCalma = Palette.resolve(
+        theme: .altoContrasto, vision: .monocromia, system: .dark)
+      disegna(
+        GiocoCorsa(a11y: corsaCalma, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteCorsaCalma),
+        nome: "gioco-corsa-calma", larghezza: 900, altezza: 900)
+
       disegna(GiocoTraversata(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
               nome: "gioco-traversata", larghezza: 900, altezza: 660)
       disegna(GiocoBolle(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),

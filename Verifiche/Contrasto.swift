@@ -93,6 +93,18 @@ struct Contrasto {
         )
       }
     }
+
+    let campo: [(String, Color, Color)] = [
+      ("pista del gioco", p.secondoPianoCampoSport, p.sfondoCampoSport),
+      ("contorno sul campo", p.segnoCampoSport, p.sfondoCampoSport),
+    ]
+    for (che, davanti, dietro) in campo {
+      let r = contrasto(davanti, dietro)
+      #expect(
+        r >= 3.0,
+        "\(tema.label) · \(vista.label) · \(che): \(String(format: "%.2f", r)) a 1, serve almeno 3,00"
+      )
+    }
   }
 
   /// Un controllo che non sa fallire non sta controllando niente.
