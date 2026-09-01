@@ -15,6 +15,7 @@
 		0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */; };
 		0FFEE8DB000BBCB1D684717C /* IlPremioValePerTutti.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690825ACE7865A55C3D64D1 /* IlPremioValePerTutti.swift */; };
 		11929E1593988C2248CAA4D8 /* Updates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33495DAEEC2D696AA2BB9FC7 /* Updates.swift */; };
+		1A88CF7A7BD55A3BEEEBC891 /* ScenaCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */; };
 		1A9AD6F850F6825B840BA1BD /* TypingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ADFCA031ACADC650624A1E /* TypingView.swift */; };
 		1BC992719FF52B7A38CAE9CC /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7881F340E73C7624D53AD46 /* Exporter.swift */; };
 		2286360E3A9C58DB37B742BF /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205933038872E415019CBA59 /* AppVersion.swift */; };
@@ -34,10 +35,10 @@
 		3E30DE05D870317961F53BA8 /* InstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */; };
 		3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */; };
 		457E7F5797CE815907CB5F27 /* Gamification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077275B6401CB89DC6AF421 /* Gamification.swift */; };
-		4C007CC31F38142096F7C65A /* PennelloSport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3938435621099C8F477DE9EC /* PennelloSport.swift */; };
 		4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */ = {isa = PBXBuildFile; fileRef = 112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */; };
 		5325F7A19C7B6AFC23229330 /* GiocoMuro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7ED67074557403107859F6 /* GiocoMuro.swift */; };
 		5569C5E70FF898EF4D1C87CF /* RegistroSessione.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D1F199B0BB5D910CFBEBB /* RegistroSessione.swift */; };
+		5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */; };
 		5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */; };
 		5EB25C7BFA9CD4050FC5DF3A /* StageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031F620CCEB5656D46BD0DE9 /* StageView.swift */; };
 		5ED5293352158029B96B4749 /* FrameClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C0BAC75B45E720D4EC713C /* FrameClock.swift */; };
@@ -67,6 +68,7 @@
 		B42E26E0BC7CF3CB0B69E17C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B323386D38EFBCCD82CF3AA8 /* HomeView.swift */; };
 		BA58097177C778699DC324AE /* Suoni.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */; };
 		C16E46641F38F78251F6BA05 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */; };
+		C675ECA4D7FEDD73FF12263C /* CampoCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */; };
 		C862730F291F298FD27D772E /* StaffettaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB98145457D8873F58DC5B95 /* StaffettaView.swift */; };
 		CB408CA458256209F6E6E631 /* ImpostazioniDiSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE218955B02B3D36D0D42915 /* ImpostazioniDiSistema.swift */; };
 		CD9CFE8A4E2CE2F588118F44 /* TrainingBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E1D80616BA24DF09FD6C /* TrainingBar.swift */; };
@@ -123,6 +125,7 @@
 		07A52B5B54AB00DA15B9E1CE /* MirrorScopio.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = MirrorScopio.plist; sourceTree = "<group>"; };
 		09713107D20503A97DEDEFFB /* AdvancedControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedControls.swift; sourceTree = "<group>"; };
 		09CF05A39638296A9A050E2E /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenaCorsa3D.swift; sourceTree = "<group>"; };
 		0B3333AA93860F8602E33C45 /* GAMIFICATION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GAMIFICATION.md; sourceTree = "<group>"; };
 		0DE9DE6F0F15DC633FCD43CA /* GiocoTraversata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoTraversata.swift; sourceTree = "<group>"; };
 		0F57E1D80616BA24DF09FD6C /* TrainingBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingBar.swift; sourceTree = "<group>"; };
@@ -149,7 +152,6 @@
 		33495DAEEC2D696AA2BB9FC7 /* Updates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updates.swift; sourceTree = "<group>"; };
 		33629E00BD749690B8295229 /* GiocoBoxe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoBoxe.swift; sourceTree = "<group>"; };
 		36F46BBC2A0D9DA4820809C6 /* GiocoHipHop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoHipHop.swift; sourceTree = "<group>"; };
-		3938435621099C8F477DE9EC /* PennelloSport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PennelloSport.swift; sourceTree = "<group>"; };
 		3A30696AD04D3E6478C3AE37 /* CLINICA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLINICA.md; sourceTree = "<group>"; };
 		3C6A6F68D759338B34D71D1A /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionsView.swift; sourceTree = "<group>"; };
@@ -164,8 +166,10 @@
 		4CE5A851E0EC588426F00E4B /* Verifiche.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Verifiche.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5266357C1E390A61B3294EC1 /* Readiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Readiness.swift; sourceTree = "<group>"; };
 		53C25C5F17C318E947E1AD49 /* Battito.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battito.swift; sourceTree = "<group>"; };
+		5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampoCorsa3D.swift; sourceTree = "<group>"; };
 		55D0FA8229599D99D3E41B01 /* setup-github-secrets.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "setup-github-secrets.sh"; sourceTree = "<group>"; };
 		55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiquadroAggiornamento.swift; sourceTree = "<group>"; };
+		573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelliCorsa3D.swift; sourceTree = "<group>"; };
 		58753B38D847282FA447479E /* genera-progetto.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "genera-progetto.sh"; sourceTree = "<group>"; };
 		590A53B68AE48D7DE953F342 /* ARCHITETTURA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITETTURA.md; sourceTree = "<group>"; };
 		5B081FD5B50F9DD7D2C26B21 /* VERSION */ = {isa = PBXFileReference; path = VERSION; sourceTree = "<group>"; };
@@ -506,6 +510,7 @@
 		EB8EC32EAA49E255AD225EDA /* Giochi */ = {
 			isa = PBXGroup;
 			children = (
+				5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */,
 				E571C4DE8C82A84F711D808F /* GiocoArrampicata.swift */,
 				D7387FC1465339FD763AFA45 /* GiocoBeach.swift */,
 				A71C981E21AF4139E466D115 /* GiocoBolle.swift */,
@@ -519,10 +524,11 @@
 				0DE9DE6F0F15DC633FCD43CA /* GiocoTraversata.swift */,
 				447794A56C34069DE76C5FEB /* GiocoTriciclo.swift */,
 				18641845A5C19A468EB437E9 /* GiocoVela.swift */,
+				573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */,
 				3D66031D829339253D563B89 /* MotoreRetro.swift */,
 				ED384A57DDACE8A116806F36 /* MotoreSport.swift */,
-				3938435621099C8F477DE9EC /* PennelloSport.swift */,
 				274E60632B4E6B22A54EF55A /* Personaggi.swift */,
+				0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */,
 				074C80ADA294AEE3BC2F339E /* Sfondi.swift */,
 				F1BBF459BAE0BA62CBB65F95 /* SportDelCamp.swift */,
 			);
@@ -686,6 +692,7 @@
 				04D17E6803B5EF4C37C9ADF6 /* AudioMenu.swift in Sources */,
 				D8BF6AD31E6D6DBB6281639D /* AvvisoDati.swift in Sources */,
 				9A883E55D64A2640F4C4943A /* Badge.swift in Sources */,
+				C675ECA4D7FEDD73FF12263C /* CampoCorsa3D.swift in Sources */,
 				DDDBA3BA1DF2A52EC8FED118 /* Components.swift in Sources */,
 				5F38A65C41C5ECA1975785AB /* DashboardView.swift in Sources */,
 				F06197732E8CB3C461C3CA15 /* ElencoPagine.swift in Sources */,
@@ -713,11 +720,11 @@
 				F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */,
 				30195BC95FAF28CFF5A7EED4 /* Log.swift in Sources */,
 				7AA8D0FF6EAD344E137560BF /* Model.swift in Sources */,
+				5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */,
 				8A08202C1D911C6799A1F86C /* MotoreRetro.swift in Sources */,
 				3DEDB8066EB59B837E340DD8 /* MotoreSport.swift in Sources */,
 				F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */,
 				AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */,
-				4C007CC31F38142096F7C65A /* PennelloSport.swift in Sources */,
 				3A8F3B9449005A12C1F55EBA /* Personaggi.swift in Sources */,
 				3A00D13C3E3249FE6E7E2E91 /* Promemoria.swift in Sources */,
 				8B402BB8513B9083C4DF93AB /* Readiness.swift in Sources */,
@@ -725,6 +732,7 @@
 				5569C5E70FF898EF4D1C87CF /* RegistroSessione.swift in Sources */,
 				709984EA43D1F94ED972E00D /* ReportView.swift in Sources */,
 				AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */,
+				1A88CF7A7BD55A3BEEEBC891 /* ScenaCorsa3D.swift in Sources */,
 				7F0EFDABB5A66C0BC064C505 /* Scoring.swift in Sources */,
 				07870146BFCBD4A99BC77E3D /* SessionEngine.swift in Sources */,
 				F36FF08907A415E74FF6B574 /* SettingsView.swift in Sources */,

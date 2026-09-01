@@ -105,6 +105,13 @@ struct Contrasto {
         "\(tema.label) · \(vista.label) · \(che): \(String(format: "%.2f", r)) a 1, serve almeno 3,00"
       )
     }
+
+    let arena = PaletteArena.resolve(theme: tema, palette: p)
+    let righeArena = contrasto(arena.segno, arena.pista)
+    #expect(
+      righeArena >= 3.0,
+      "\(tema.label) · \(vista.label) · righe dell'arena: \(String(format: "%.2f", righeArena)) a 1, serve almeno 3,00"
+    )
   }
 
   /// Un controllo che non sa fallire non sta controllando niente.

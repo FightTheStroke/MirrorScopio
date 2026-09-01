@@ -65,13 +65,13 @@ struct CorniceSport<Campo: View>: View {
       if perFotografia {
         contenuto
           .padding(a11y.size(Metrica.spazioPiccolo))
-          .padding(.top, a11y.size(Metrica.spazioEnorme))
+          .padding(.top, a11y.size(Metrica.spazioGrande + Metrica.spazioLargo))
       } else {
         ScrollView {
           contenuto
             .frame(maxWidth: .infinity, minHeight: a11y.size(500))
             .padding(a11y.size(Metrica.spazioPiccolo))
-            .padding(.top, a11y.size(Metrica.spazioEnorme))
+            .padding(.top, a11y.size(Metrica.spazioGrande + Metrica.spazioLargo))
         }
         .scrollIndicators(.automatic)
       }
@@ -91,8 +91,6 @@ struct CorniceSport<Campo: View>: View {
 
   private var contenuto: some View {
     VStack(spacing: a11y.size(Metrica.spazioMedio)) {
-      barra
-
       ZStack {
         Button(action: onPremi) {
           ZStack {
@@ -101,7 +99,7 @@ struct CorniceSport<Campo: View>: View {
             campo
           }
           .aspectRatio(SchermoRetro.larghezza / SchermoRetro.altezza, contentMode: .fit)
-          .frame(maxWidth: a11y.size(760))
+          .frame(maxWidth: a11y.size(900))
           .fixedSize(horizontal: false, vertical: true)
           .layoutPriority(1)
           .clipShape(RoundedRectangle(cornerRadius: a11y.size(Metrica.raggioGrande)))
@@ -114,6 +112,13 @@ struct CorniceSport<Campo: View>: View {
         .buttonStyle(.plain)
         .disabled(!azioneAttiva)
         .accessibilityHidden(true)
+
+        VStack {
+          barra
+          Spacer()
+        }
+        .padding(a11y.size(Metrica.spazioMedio))
+        .allowsHitTesting(false)
 
         scrittaLampo
       }
@@ -142,8 +147,13 @@ struct CorniceSport<Campo: View>: View {
       .buttonStyle(StilePulsante(forma: .arrotondata(a11y.size(Metrica.raggio)), a11y: a11y))
       .foregroundStyle(palette.onAccent)
       .background {
-        RoundedRectangle(cornerRadius: a11y.size(Metrica.raggio))
-          .fill(palette.accent)
+        ZStack {
+          RoundedRectangle(cornerRadius: a11y.size(Metrica.raggio))
+            .fill(palette.foreground)
+            .offset(y: a11y.size(Metrica.briciola))
+          RoundedRectangle(cornerRadius: a11y.size(Metrica.raggio))
+            .fill(palette.accent)
+        }
       }
       .opacity(azioneAttiva ? 1 : 0.65)
       .disabled(!azioneAttiva)
@@ -159,34 +169,55 @@ struct CorniceSport<Campo: View>: View {
         .opacity(0)
         .accessibilityHidden(true)
     }
-    .frame(maxWidth: a11y.size(960))
+    .frame(maxWidth: a11y.size(1040))
   }
 
   private var barra: some View {
-    VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
-      VStack(alignment: .leading, spacing: a11y.size(Metrica.briciola)) {
-        Text(titolo)
-          .font(a11y.font(.titolo, .heavy))
-          .foregroundStyle(palette.foreground)
-        Text(sottotitolo)
-          .font(a11y.font(.corpo, .semibold))
-          .foregroundStyle(palette.muted)
+    ViewThatFits(in: .horizontal) {
+      HStack(alignment: .top, spacing: a11y.size(Metrica.spazioMedio)) {
+        titoloHUD
+        Spacer(minLength: a11y.size(Metrica.spazio))
+        statisticheHUD
       }
-
-      ViewThatFits(in: .horizontal) {
-        HStack(spacing: a11y.size(Metrica.spazioMedio)) { indicatori }
-        VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) { indicatori }
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) {
+        titoloHUD
+        statisticheHUD
       }
     }
-    .padding(a11y.size(Metrica.spazioLargo))
-    .frame(maxWidth: a11y.size(760), alignment: .leading)
+    .frame(maxWidth: a11y.size(860), alignment: .leading)
+  }
+
+  private var titoloHUD: some View {
+    VStack(alignment: .leading, spacing: a11y.size(Metrica.filo)) {
+      Text(titolo)
+        .font(a11y.font(.titolo, .heavy))
+      Text(sottotitolo)
+        .font(a11y.font(.etichetta, .semibold))
+    }
+    .foregroundStyle(palette.onAccent)
+    .padding(.horizontal, a11y.size(Metrica.spazioMedio))
+    .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
     .background {
-      RoundedRectangle(cornerRadius: a11y.size(Metrica.raggioGrande))
+      RoundedRectangle(cornerRadius: a11y.size(Metrica.raggio))
+        .fill(palette.accent)
+    }
+  }
+
+  private var statisticheHUD: some View {
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: a11y.size(Metrica.spazioMedio)) { indicatori }
+      VStack(alignment: .leading, spacing: a11y.size(Metrica.spazioPiccolo)) { indicatori }
+    }
+    .padding(.horizontal, a11y.size(Metrica.spazioMedio))
+    .padding(.vertical, a11y.size(Metrica.spazioPiccolo))
+    .background {
+      RoundedRectangle(cornerRadius: a11y.size(Metrica.raggio))
         .fill(palette.surface)
     }
     .overlay {
-      RoundedRectangle(cornerRadius: a11y.size(Metrica.raggioGrande))
-        .strokeBorder(palette.muted, lineWidth: a11y.theme == .altoContrasto ? 3 : 1)
+      RoundedRectangle(cornerRadius: a11y.size(Metrica.raggio))
+        .strokeBorder(palette.foreground,
+                      lineWidth: a11y.theme == .altoContrasto ? 3 : 1)
     }
   }
 

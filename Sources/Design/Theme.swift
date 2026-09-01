@@ -219,6 +219,80 @@ extension Palette {
   }
 }
 
+/// I materiali dell'arena 3D. Le tinte decorative vivono qui, non nelle viste;
+/// ciò che porta informazione continua a usare i ruoli accessibili di `Palette`.
+struct PaletteArena {
+  var cieloAlto: Color
+  var cieloBasso: Color
+  var terra: Color
+  var terraLuce: Color
+  var pista: Color
+  var pistaLato: Color
+  var ostacolo: Color
+  var eroe: Color
+  var squadra: Color
+  var premio: Color
+  var segno: Color
+  var ombra: Color
+  var altoContrasto: Bool
+
+  static func resolve(theme: ThemeChoice, palette: Palette) -> PaletteArena {
+    let effective = theme == .auto ? (palette.isDark ? ThemeChoice.scuro : .chiaro) : theme
+    let shared = (
+      ostacolo: palette.wrong,
+      eroe: palette.premio,
+      squadra: palette.ok,
+      premio: palette.premio,
+      segno: palette.sfondoCampoSport,
+      ombra: palette.background
+    )
+
+    switch effective {
+    case .chiaro, .auto:
+      return PaletteArena(
+        cieloAlto: Color(red: 0.10, green: 0.18, blue: 0.58),
+        cieloBasso: Color(red: 0.58, green: 0.27, blue: 0.84),
+        terra: Color(red: 0.05, green: 0.27, blue: 0.34),
+        terraLuce: Color(red: 0.12, green: 0.58, blue: 0.46),
+        pista: Color(red: 0.18, green: 0.68, blue: 1.00),
+        pistaLato: Color(red: 0.06, green: 0.22, blue: 0.58),
+        ostacolo: shared.ostacolo, eroe: shared.eroe, squadra: shared.squadra,
+        premio: shared.premio, segno: shared.segno, ombra: shared.ombra,
+        altoContrasto: false)
+    case .scuro:
+      return PaletteArena(
+        cieloAlto: Color(red: 0.03, green: 0.05, blue: 0.17),
+        cieloBasso: Color(red: 0.30, green: 0.12, blue: 0.53),
+        terra: Color(red: 0.04, green: 0.18, blue: 0.24),
+        terraLuce: Color(red: 0.08, green: 0.43, blue: 0.38),
+        pista: Color(red: 0.32, green: 0.76, blue: 1.00),
+        pistaLato: Color(red: 0.08, green: 0.27, blue: 0.55),
+        ostacolo: shared.ostacolo, eroe: shared.eroe, squadra: shared.squadra,
+        premio: shared.premio, segno: shared.segno, ombra: shared.ombra,
+        altoContrasto: false)
+    case .sabbia:
+      return PaletteArena(
+        cieloAlto: Color(red: 0.16, green: 0.28, blue: 0.57),
+        cieloBasso: Color(red: 0.78, green: 0.35, blue: 0.32),
+        terra: Color(red: 0.10, green: 0.31, blue: 0.29),
+        terraLuce: Color(red: 0.31, green: 0.57, blue: 0.35),
+        pista: Color(red: 0.20, green: 0.57, blue: 0.94),
+        pistaLato: Color(red: 0.10, green: 0.27, blue: 0.52),
+        ostacolo: shared.ostacolo, eroe: shared.eroe, squadra: shared.squadra,
+        premio: shared.premio, segno: shared.segno, ombra: shared.ombra,
+        altoContrasto: false)
+    case .altoContrasto:
+      return PaletteArena(
+        cieloAlto: palette.background, cieloBasso: palette.background,
+        terra: palette.surface, terraLuce: palette.surface,
+        pista: palette.foreground, pistaLato: palette.surface,
+        ostacolo: palette.accent, eroe: palette.ok, squadra: palette.foreground,
+        premio: palette.accent, segno: palette.background, ombra: palette.background,
+        altoContrasto: true)
+    }
+  }
+}
+
 /// La palette viaggia nell'ambiente così ogni vista la trova senza passarsela a mano.
 private struct PaletteKey: EnvironmentKey {
   static let defaultValue = Palette.resolve(theme: .chiaro, vision: .standard, system: .light)

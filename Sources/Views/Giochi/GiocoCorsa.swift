@@ -10,8 +10,6 @@ import SwiftUI
 /// Un tasto solo, nessun tempo che scade, **non si può perdere**: l'ostacolo
 /// che ti prende non toglie niente, esce «ANCORA» e si continua da dove si era.
 struct GiocoCorsa: View {
-  @Environment(\.palette) private var palette
-
   var a11y: EffettiveImpostazioniAccessibilita
   var onClose: () -> Void
   var perFotografia = false
@@ -61,7 +59,7 @@ struct GiocoCorsa: View {
       frase: frase, invito: invito, etichettaVoce: etichettaVoce,
       lampo: lampo, azioneAttiva: fase != .salita,
       onPremi: premi, onBattito: battito, onClose: onClose,
-      campo: campoSport, perFotografia: perFotografia)
+      campo: campoArena, perFotografia: perFotografia)
   }
 
   // MARK: - Le parole
@@ -101,161 +99,30 @@ struct GiocoCorsa: View {
 
   // MARK: - Il disegno
 
-  private var campoSport: some View {
-    ZStack {
-      Canvas { contesto, dimensione in
-        disegnaSport(PennelloSport(
-          ctx: contesto,
-          u: dimensione.width / SchermoRetro.larghezza,
-          palette: palette))
-      }
-      GeometryReader { dimensione in
-        ForEach(Array(TappaCorsa.tutte.enumerated()), id: \.offset) { indice, tappa in
-          Text(tappa.nomeCampo)
-            .font(a11y.font(.nota, .bold))
-            .foregroundStyle(indice == livello ? palette.onAccent : segnoCampo)
-            .padding(.horizontal, a11y.size(Metrica.spazioStretto))
-            .padding(.vertical, a11y.size(Metrica.briciola))
-            .background {
-              Capsule().fill(indice == livello ? palette.accent : sfondoCampo)
-            }
-            .position(
-              x: min(a11y.size(108), dimensione.size.width * 0.32),
-              y: dimensione.size.height * (Corsa.pavimento(indice) - 15)
-                / SchermoRetro.altezza)
-        }
-      }
-      .accessibilityHidden(true)
-    }
+  private var campoArena: some View {
+    CampoCorsa3D(a11y: a11y, stato: statoCampo, perFotografia: perFotografia)
   }
 
-  private var sfondoCampo: Color {
-    palette.sfondoCampoSport
-  }
-
-  private var segnoCampo: Color {
-    palette.segnoCampoSport
-  }
-
-  private func disegnaSport(_ p: PennelloSport) {
-    p.sfondo()
-
-    for l in 0..<3 {
-      let y = Corsa.pavimento(l)
-      let prossimoY = Corsa.pavimento(l + 1)
-      p.linea([CGPoint(x: 282, y: y),
-               CGPoint(x: 306, y: prossimoY)],
-              tinta: p.secondoPianoCampo, spessore: 7)
-    }
-
-    for l in 0..<4 {
-      let y = Corsa.pavimento(l)
-      p.rettangolo(12, y - (l == livello ? 7 : 4), 296,
-                   l == livello ? 14 : 8,
-                   raggio: l == livello ? 7 : 4,
-                   tinta: p.secondoPianoCampo)
-      if l == livello {
-        let avanzamento = max(8, min(Corsa.traguardo - Corsa.partenza,
-                                    xEroe - Corsa.partenza))
-        p.rettangolo(Corsa.partenza, y - 7, avanzamento, 14,
-                     raggio: 7, tinta: p.accentoCampo,
-                     bordo: p.segnoCampo, spessore: 1.25)
-        p.linea([CGPoint(x: Corsa.partenza, y: y - 12),
-                 CGPoint(x: Corsa.partenza, y: y + 12)],
-                tinta: p.segnoCampo, spessore: 2.5)
-        disegnaTraguardo(p, x: Corsa.traguardo, y: y)
-      }
-    }
-
-    if fase == .fine {
-      for i in 0..<squadra {
-        p.compagno(x: 172 + Double(i) * 24,
-                    suolo: Corsa.pavimento(3), guardaADestra: i < 2)
-      }
-    } else {
-      for i in 0..<squadra {
-        p.compagno(x: 96 + Double(i % 2) * 24,
-                    suolo: Corsa.pavimento(min(i, 3)), guardaADestra: true)
-      }
-    }
-
-    for g in gemme where !g.presa {
-      p.rombo(x: g.x, y: Corsa.pavimento(livello) - 29, lato: 15)
-    }
-
-    for o in ostacoli {
-      disegnaOstacolo(p, ostacolo: o)
-    }
-
-    let posizione: (x: Double, suolo: Double, posa: Int)
+  private var statoCampo: StatoCampoCorsa3D {
+    let faseCampo: StatoCampoCorsa3D.Fase
     switch fase {
-    case .salita:
-      let da = Corsa.pavimento(livello), a = Corsa.pavimento(min(livello + 1, 3))
-      posizione = (286, da + (a - da) * salita, 1)
-    case .fine:
-      posizione = (150, Corsa.pavimento(3), 0)
-    default:
-      let posa = fermo ? 0 : (inAria ? 1 : (battiti / 6) % 2)
-      posizione = (xEroe, Corsa.pavimento(livello) - altezzaSalto, posa)
+    case .titolo: faseCampo = .titolo
+    case .gioco: faseCampo = .gioco
+    case .salita: faseCampo = .salita
+    case .tappaFatta: faseCampo = .tappaFatta
+    case .fine: faseCampo = .fine
     }
-    p.atleta(x: posizione.x, suolo: posizione.suolo, salto: 0, posa: posizione.posa)
-  }
-
-  private func disegnaTraguardo(_ p: PennelloSport, x: Double, y: Double) {
-    let lato = 3.5
-    p.rettangolo(x, y - 21, 3, 23, raggio: 1.5, tinta: p.segnoCampo)
-    for riga in 0..<3 {
-      for colonna in 0..<3 {
-        p.rettangolo(x + 3 + Double(colonna) * lato,
-                     y - 21 + Double(riga) * lato,
-                     lato, lato, raggio: 0,
-                     tinta: (riga + colonna).isMultiple(of: 2)
-                       ? p.segnoCampo : p.accentoCampo)
-      }
-    }
-  }
-
-  private func disegnaOstacolo(_ p: PennelloSport, ostacolo: Ostacolo) {
-    let x = ostacolo.x
-    let suolo = Corsa.pavimento(livello)
-
-    switch livello {
-    case 0:
-      p.linea([
-        CGPoint(x: x - 10, y: suolo - 3),
-        CGPoint(x: x - 5, y: suolo - 10),
-        CGPoint(x: x, y: suolo - 3),
-        CGPoint(x: x + 5, y: suolo - 10),
-        CGPoint(x: x + 10, y: suolo - 3),
-      ], tinta: p.accentoCampo, spessore: 4)
-    case 1:
-      if ostacolo.tipo == 2 {
-        p.cerchio(x - 8, suolo - 16, 16, tinta: p.accentoCampo,
-                  bordo: p.segnoCampo, spessore: 1.5)
-        p.linea([CGPoint(x: x, y: suolo - 15), CGPoint(x: x, y: suolo - 1)],
-                tinta: p.sopraAccento, spessore: 1.5)
-      } else {
-        p.rettangolo(x - 12, suolo - 18, 24, 5, raggio: 2.5,
-                     tinta: p.accentoCampo, bordo: p.segnoCampo, spessore: 1)
-        p.linea([CGPoint(x: x - 9, y: suolo - 13), CGPoint(x: x - 9, y: suolo),
-                 CGPoint(x: x + 9, y: suolo - 13), CGPoint(x: x + 9, y: suolo)],
-                tinta: p.segnoCampo, spessore: 2)
-      }
-    case 2:
-      p.cerchio(x - 10, suolo - 20, 20, tinta: p.secondoPianoCampo,
-                bordo: p.segnoCampo, spessore: 2)
-      p.linea([CGPoint(x: x - 4, y: suolo - 16),
-               CGPoint(x: x + 2, y: suolo - 11),
-               CGPoint(x: x - 1, y: suolo - 5)],
-              tinta: p.segnoCampo, spessore: 1.5)
-    default:
-      p.cerchio(x - 9, suolo - 10, 10, tinta: p.accentoCampo,
-                bordo: p.segnoCampo, spessore: 1.5)
-      p.linea([CGPoint(x: x + 1, y: suolo - 5),
-               CGPoint(x: x + 1, y: suolo - 24),
-               CGPoint(x: x + 11, y: suolo - 20)],
-              tinta: p.segnoCampo, spessore: 2.5)
-    }
+    return StatoCampoCorsa3D(
+      fase: faseCampo,
+      livello: livello,
+      xEroe: xEroe,
+      squadra: squadra,
+      salto: altezzaSalto,
+      salita: salita,
+      ostacoli: ostacoli.map { .init(x: $0.x, tipo: $0.tipo) },
+      gemme: gemme.filter { !$0.presa }.map(\.x),
+      battiti: battiti,
+      fermo: fermo)
   }
 
   // MARK: - Le regole
@@ -432,25 +299,24 @@ enum Corsa {
 /// parete; infine il ballo dell'ultima sera.
 struct TappaCorsa {
   let nome: String
-  let nomeCampo: String
   let gesto: String
   let ostacolo: String
   let compagno: String
 
   static let tutte: [TappaCorsa] = [
-    TappaCorsa(nome: "La piscina", nomeCampo: "Piscina",
+    TappaCorsa(nome: "La piscina",
                gesto: "Salta l'onda e nuota.",
                ostacolo: "L'onda",
                compagno: "Adesso nuota accanto a te un compagno."),
-    TappaCorsa(nome: "La palestra", nomeCampo: "Palestra",
+    TappaCorsa(nome: "La palestra",
                gesto: "Salta l'ostacolo.",
                ostacolo: "L'ostacolo",
                compagno: "Un altro compagno salta insieme a te."),
-    TappaCorsa(nome: "La parete", nomeCampo: "Parete",
+    TappaCorsa(nome: "La parete",
                gesto: "Scavalca il masso e sali.",
                ostacolo: "Il masso",
                compagno: "Un altro compagno sale con te."),
-    TappaCorsa(nome: "Il ballo dell'ultima sera", nomeCampo: "Ballo",
+    TappaCorsa(nome: "Il ballo dell'ultima sera",
                gesto: "Vai a tempo con la musica.",
                ostacolo: "La musica",
                compagno: "Ci sono tutti, e ti guardano."),
