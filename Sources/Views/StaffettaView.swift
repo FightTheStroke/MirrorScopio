@@ -13,10 +13,9 @@ import SwiftUI
 /// cronometro**, e **non si può perdere**. Quando qualcosa non riesce non si
 /// perde una vita e non si ricomincia: compare «ANCORA» e si continua.
 ///
-/// I primi cinque sono i giochi veri del Commodore 64 — le piattaforme, la
-/// traversata, lo sciame, i mattoni, la grotta — perché quei giochi erano
-/// fatti per un televisore scadente guardato da lontano: pochi colori pieni,
-/// figure grandi, una regola sola da capire. È esattamente ciò che serve qui.
+/// Le prime cinque sono avventure del Fight Camp. **La Corsa** è un'arena 3D
+/// moderna; le altre quattro mantengono per ora il disegno essenziale a grandi
+/// forme dei giochi da sala. Le regole accessibili restano identiche.
 ///
 /// Gli altri otto sono **gli sport veri del Fight Camp**, uno per edizione:
 /// l'arrampicata del 2020 sulla parete del Politecnico, la scherma in
@@ -242,14 +241,14 @@ struct StaffettaView: View {
 
     var nome: String {
       switch self {
-      case .arcade: "I GIOCHI"
+      case .arcade: "LE AVVENTURE"
       case .camp: "GLI SPORT DEL CAMP"
       }
     }
 
     var cosa: String {
       switch self {
-      case .arcade: "Quelli con cui si giocava trent'anni fa, davanti a un televisore."
+      case .arcade: "La Corsa è un'arena 3D. Le altre quattro hanno grandi forme e una regola sola."
       case .camp: "Uno per ogni edizione del Fight Camp, con il gesto vero di quello sport."
       }
     }
