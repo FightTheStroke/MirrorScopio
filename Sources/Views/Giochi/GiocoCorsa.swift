@@ -48,18 +48,23 @@ struct GiocoCorsa: View {
   }
 
   private var fermo: Bool { a11y.reducedMotion || a11y.calmMode }
-  private var tappa: TappaCorsa { TappaCorsa.tutte[min(livello, 3)] }
+  private var tappa: TappaCorsa {
+    TappaCorsa.tutte[min(livello, RegoleCorsa.numeroTappe - 1)]
+  }
 
   var body: some View {
     CorniceSport(
       a11y: a11y, titolo: "La Corsa",
       sottotitolo: fase == .titolo ? "La staffetta del Fight Camp"
-        : "Tappa \(livello + 1) di 4 · \(tappa.nome)",
-      punti: punti, statoDestra: "\(squadra) di 4",
+        : "Tappa \(livello + 1) di \(RegoleCorsa.numeroTappe) · \(tappa.nome)",
+      punti: punti, statoDestra: "\(squadra) di \(RegoleCorsa.numeroTappe)",
       frase: frase, invito: invito, etichettaVoce: etichettaVoce,
       lampo: lampo, azioneAttiva: fase != .salita,
       onPremi: premi, onBattito: battito, onClose: onClose,
       campo: campoArena, perFotografia: perFotografia)
+      .onChange(of: fermo) { precedente, nuovo in
+        aggiornaModoMovimento(da: precedente, a: nuovo)
+      }
   }
 
   // MARK: - Le parole
@@ -128,15 +133,8 @@ struct GiocoCorsa: View {
   // MARK: - Le regole
 
   private var altezzaSalto: Double {
-    guard let salto else { return 0 }
-    return sin(salto * .pi) * 26
-  }
-
-  /// La finestra è larga apposta: non è una prova di riflessi, è un invito a
-  /// premere. Chi preme troppo presto è ancora in aria quando l'onda arriva.
-  private var inAria: Bool {
-    guard let salto else { return false }
-    return salto > 0.10 && salto < 0.90
+    RegoleCorsa.altezzaSalto(
+      progresso: salto, altezzaMassima: Corsa.altezzaMassimaSalto)
   }
 
   private func premi() {
@@ -148,11 +146,14 @@ struct GiocoCorsa: View {
       if fermo { passoAvanti() } else if salto == nil { salto = 0 }
     case .salita: break
     case .tappaFatta:
-      if livello + 1 >= 4 {
+      switch RegoleCorsa.passaggioDopoTappa(livello: livello) {
+      case .fine:
         fase = .fine
         suoni.suona(.fine, a11y: a11y.perIlMotore)
-      } else {
-        livello += 1; preparaTappa(); fase = .gioco
+      case .prossima(let prossimoLivello):
+        livello = prossimoLivello
+        preparaTappa()
+        fase = .gioco
       }
     case .fine:
       livello = 0; squadra = 0; punti = 0; preparaTappa(); fase = .titolo
@@ -163,11 +164,12 @@ struct GiocoCorsa: View {
   /// salto che va a segno e un passo avanti. Nessun tempo, nessuna mira,
   /// nessuna coincidenza da azzeccare — e la stessa storia identica.
   private func passoAvanti() {
-    xEroe = min(Corsa.traguardo, xEroe + 27)
+    xEroe = RegoleCorsa.posizioneDopoPasso(da: xEroe, traguardo: Corsa.traguardo)
     let superati = ostacoli.filter { $0.x <= xEroe + 20 }
     if !superati.isEmpty {
-      punti += 100 * superati.count
-      mostra(.punti(100 * superati.count))
+      let guadagnati = RegoleCorsa.puntiOstacolo * superati.count
+      punti += guadagnati
+      mostra(.punti(guadagnati))
       suoni.suona(.giusta, a11y: a11y.perIlMotore)
     }
     ostacoli.removeAll { $0.x <= xEroe + 20 }
@@ -176,12 +178,20 @@ struct GiocoCorsa: View {
   }
 
   private func battito() {
-    battiti &+= 1
     if lampoFino > 0 { lampoFino -= 1; if lampoFino == 0 { lampo = nil } }
-    guard !fermo else { return }
+    if fermo {
+      guard salto != nil || (fase == .salita && salita < 1) else { return }
+      if Self.fermaMovimento(fase: fase, salto: &salto, salita: &salita) {
+        finisciTappa()
+      }
+      return
+    }
     switch fase {
-    case .gioco: avanza()
+    case .gioco:
+      battiti &+= 1
+      avanza()
     case .salita:
+      battiti &+= 1
       salita = min(1, salita + 1.0 / 24.0)
       if salita >= 1 { finisciTappa() }
     default: break
@@ -202,7 +212,9 @@ struct GiocoCorsa: View {
     // resta sempre sgombro: a un livello inventato dal caso non è permesso
     // nascere impossibile.
     prossimo -= 1
-    if prossimo <= 0 && xEroe < Corsa.traguardo - 80 {
+    if RegoleCorsa.deveGenerareOstacolo(
+      prossimo: prossimo, posizione: xEroe, traguardo: Corsa.traguardo)
+    {
       ostacoli.append(Ostacolo(x: SchermoRetro.larghezza + 12, tipo: Sorte.fra(0, 2)))
       prossimo = Int(Double(Sorte.fra(38, 78)) / max(0.5, d.densita))
     }
@@ -210,12 +222,13 @@ struct GiocoCorsa: View {
     for i in ostacoli.indices where !ostacoli[i].risolto {
       guard abs(ostacoli[i].x - xEroe) < 14 else { continue }
       ostacoli[i].risolto = true
-      if inAria {
-        punti += 100
-        mostra(.punti(100))
+      switch RegoleCorsa.esitoOstacolo(progressoSalto: salto) {
+      case .superato:
+        punti += RegoleCorsa.puntiOstacolo
+        mostra(.punti(RegoleCorsa.puntiOstacolo))
         d.andataBene()
         suoni.suona(.giusta, a11y: a11y.perIlMotore)
-      } else {
+      case .ancora:
         // Ti ha preso: non si perde una vita, non si torna indietro di un
         // passo, non si ricomincia. L'ostacolo se ne va e si continua.
         ostacoli[i].x = -200
@@ -229,7 +242,12 @@ struct GiocoCorsa: View {
 
     if xEroe >= Corsa.traguardo {
       ostacoli = []
-      if livello < 3 { salita = 0; fase = .salita } else { finisciTappa() }
+      if livello < RegoleCorsa.numeroTappe - 1 {
+        salita = 0
+        fase = .salita
+      } else {
+        finisciTappa()
+      }
     }
   }
 
@@ -238,17 +256,33 @@ struct GiocoCorsa: View {
   /// libera — un premio per chi ci prende gusto, mai un obbligo.
   private func raccogliGemme() {
     for i in gemme.indices where !gemme[i].presa {
-      guard abs(gemme[i].x - xEroe) < 16, fermo || altezzaSalto > 10 else { continue }
+      guard RegoleCorsa.puoRaccogliereGemma(
+        distanza: gemme[i].x - xEroe, fermo: fermo, altezzaSalto: altezzaSalto)
+      else { continue }
       gemme[i].presa = true
-      punti += 250
-      mostra(.punti(250))
+      punti += RegoleCorsa.puntiGemma
+      mostra(.punti(RegoleCorsa.puntiGemma))
       suoni.suona(.giusta, a11y: a11y.perIlMotore)
     }
   }
 
+  private func aggiornaModoMovimento(da precedente: Bool, a fermo: Bool) {
+    guard precedente != fermo, fase == .gioco else { return }
+    salto = nil
+    prossimo = fermo ? 30 : 20
+    if fermo {
+      ostacoli = RegoleCorsa.posizioniOstacoliCalmi(
+        dopo: xEroe, traguardo: Corsa.traguardo
+      ).map { Ostacolo(x: $0, tipo: Sorte.fra(0, 2)) }
+    } else {
+      ostacoli.removeAll()
+    }
+  }
+
   private func finisciTappa() {
-    squadra = min(4, squadra + 1)
-    punti += 1000
+    salto = nil
+    squadra = RegoleCorsa.squadraDopoTappa(squadra)
+    punti += RegoleCorsa.puntiTappa
     fase = .tappaFatta
     suoni.suona(.giusta, a11y: a11y.perIlMotore)
   }
@@ -260,7 +294,9 @@ struct GiocoCorsa: View {
     // Ogni tappa è disegnata dal caso: dove stanno gli ostacoli, quanti sono,
     // dove sono appese le gemme. È il motivo per cui si rigioca.
     ostacoli = fermo
-      ? stride(from: 64.0, to: 250.0, by: 54).map { Ostacolo(x: $0, tipo: Sorte.fra(0, 2)) }
+      ? RegoleCorsa.posizioniOstacoliCalmi(
+        dopo: Corsa.partenza, traguardo: Corsa.traguardo
+      ).map { Ostacolo(x: $0, tipo: Sorte.fra(0, 2)) }
       : []
     gemme = (0..<Sorte.fra(1, 3)).map { _ in Gemma(x: Sorte.fra(80, 250)) }
   }
@@ -272,7 +308,15 @@ struct GiocoCorsa: View {
 
   // MARK: - I pezzi
 
-  private enum FaseGioco: Equatable { case titolo, gioco, salita, tappaFatta, fine }
+  enum FaseGioco: Equatable { case titolo, gioco, salita, tappaFatta, fine }
+
+  static func fermaMovimento(fase: FaseGioco, salto: inout Double?,
+                             salita: inout Double) -> Bool {
+    salto = nil
+    guard fase == .salita else { return false }
+    salita = 1
+    return true
+  }
 
   private struct Ostacolo {
     var x: Double
@@ -290,8 +334,7 @@ struct GiocoCorsa: View {
 enum Corsa {
   static let partenza: Double = 14
   static let traguardo: Double = 280
-  /// L'altezza della trave di una tappa. Si sale: la prima è in basso.
-  static func pavimento(_ livello: Int) -> Double { 184 - Double(livello) * 42 }
+  static let altezzaMassimaSalto: Double = 26
 }
 
 /// Le tappe del camp, nell'ordine in cui si vivono davvero: prima l'acqua, dove

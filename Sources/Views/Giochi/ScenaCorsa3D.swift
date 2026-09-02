@@ -8,20 +8,20 @@ final class ScenaCorsa3D {
   let camera = SCNNode()
 
   private let colori: PaletteArena
-  private let dinamici = SCNNode()
+  private let dinamici: NodiDinamiciCorsa3D
   private let eroe: PersonaggioCorsa3D
-  private var modelliOstacolo: [SCNNode] = []
-  private var modelloGemma = SCNNode()
-  private var modelloCompagno = SCNNode()
-  private var modelloTraguardo = SCNNode()
+  private var spettatori: [SCNNode] = []
+  private var bandiere: [SCNNode] = []
+  private var decorazioniInCalma: Bool?
 
   init(colori: PaletteArena) {
     self.colori = colori
+    self.dinamici = NodiDinamiciCorsa3D(colori: colori)
     self.eroe = ModelliCorsa3D.personaggio(
       colore: colori.eroe, dettaglio: colori.segno, scala: 1.0)
+    self.eroe.nodo.name = "eroe"
     costruisciArena()
-    preparaModelliDinamici()
-    scena.rootNode.addChildNode(dinamici)
+    scena.rootNode.addChildNode(dinamici.radice)
     scena.rootNode.addChildNode(eroe.nodo)
   }
 
@@ -29,14 +29,8 @@ final class ScenaCorsa3D {
     SCNTransaction.begin()
     SCNTransaction.animationDuration = 0
     SCNTransaction.disableActions = true
-    dinamici.childNodes.forEach { $0.removeFromParentNode() }
-
-    let progresso = min(1, max(0, (stato.xEroe - Corsa.partenza)
-                                  / (Corsa.traguardo - Corsa.partenza)))
-    aggiungiTraguardo(progresso: progresso)
-    aggiungiOstacoli(stato)
-    aggiungiGemme(stato)
-    aggiungiCompagni(stato)
+    dinamici.aggiorna(stato)
+    aggiornaDecorazioni(fermo: stato.fermo)
     aggiornaEroe(stato)
     SCNTransaction.commit()
   }
@@ -50,7 +44,7 @@ final class ScenaCorsa3D {
     renderer.pointOfView = mondo.camera
     renderer.autoenablesDefaultLighting = false
     return renderer.snapshot(atTime: 0, with: dimensione,
-                             antialiasingMode: .multisampling4X)
+                             antialiasingMode: .multisampling2X)
   }
 
   private func costruisciArena() {
@@ -80,15 +74,17 @@ final class ScenaCorsa3D {
     scena.rootNode.addChildNode(ambiente)
 
     let sole = SCNNode()
+    sole.name = "lucePrincipale"
     sole.light = SCNLight()
     sole.light?.type = .directional
     sole.light?.color = NSColor.white
     sole.light?.intensity = colori.altoContrasto ? 1050 : 1450
     sole.light?.castsShadow = true
     sole.light?.shadowMode = .forward
-    sole.light?.shadowMapSize = CGSize(width: 2048, height: 2048)
-    sole.light?.shadowSampleCount = 24
+    sole.light?.shadowMapSize = CGSize(width: 1024, height: 1024)
+    sole.light?.shadowSampleCount = 8
     sole.light?.shadowRadius = 2
+    sole.light?.shadowColor = NSColor(colori.ombra).withAlphaComponent(0.55)
     sole.eulerAngles = SCNVector3(-0.88, -0.52, -0.18)
     scena.rootNode.addChildNode(sole)
 
@@ -101,6 +97,12 @@ final class ScenaCorsa3D {
     let pista = ModelliCorsa3D.scatola(
       larghezza: 9.4, altezza: 0.48, profondita: 34, raggio: 0.24,
       colore: colori.pista)
+    pista.name = "pista"
+    if let geometria = pista.geometry {
+      let lato = ModelliCorsa3D.materiale(colori.pistaLato)
+      let sopra = ModelliCorsa3D.materiale(colori.pista)
+      geometria.materials = [lato, lato, lato, lato, sopra, lato]
+    }
     pista.position = SCNVector3(0, -0.18, -7)
     scena.rootNode.addChildNode(pista)
 
@@ -135,12 +137,14 @@ final class ScenaCorsa3D {
           let spettatore = ModelliCorsa3D.sfera(
             raggio: 0.20,
             colore: (fila + posto).isMultiple(of: 3)
-              ? colori.ostacolo : colori.squadra,
-            segmenti: 8)
+              ? colori.decorazione : colori.terraLuce,
+            segmenti: 8, proiettaOmbra: false)
+          spettatore.name = "spettatore"
           spettatore.position = SCNVector3(
             lato * (6.2 + Double(fila) * 0.65),
             0.35 + Double(fila) * 0.45,
             3.5 - Double(posto) * 4.1)
+          spettatori.append(spettatore)
           scena.rootNode.addChildNode(spettatore)
         }
       }
@@ -153,130 +157,93 @@ final class ScenaCorsa3D {
       let forma = SCNPyramid(width: altezza, height: altezza, length: altezza * 0.8)
       forma.materials = [ModelliCorsa3D.materiale(colori.terraLuce)]
       let montagna = SCNNode(geometry: forma)
+      montagna.castsShadow = false
       montagna.position = SCNVector3(x, altezza / 2 - 0.5, z)
       scena.rootNode.addChildNode(montagna)
     }
 
     let sole = ModelliCorsa3D.sfera(
-      raggio: 3.8, colore: colori.premio, emissione: colori.premio, segmenti: 24)
+      raggio: 3.8, colore: colori.premio, emissione: colori.premio,
+      segmenti: 24, proiettaOmbra: false)
     sole.position = SCNVector3(10, 10, -42)
     scena.rootNode.addChildNode(sole)
   }
 
   private func aggiungiPortaliLaterali() {
     for lato in [-1.0, 1.0] {
-      for z in stride(from: 3.0, through: -23.0, by: -5.2) {
+      for z in stride(from: -2.2, through: -23.0, by: -5.2) {
         let palo = ModelliCorsa3D.scatola(
-          larghezza: 0.32, altezza: 3.2, profondita: 0.32, raggio: 0.08,
-          colore: colori.segno)
-        palo.position = SCNVector3(lato * 5.2, 1.6, z)
+          larghezza: 0.24, altezza: 2.6, profondita: 0.24, raggio: 0.06,
+          colore: colori.decorazione, proiettaOmbra: false)
+        palo.position = SCNVector3(lato * 5.6, 1.3, z)
         scena.rootNode.addChildNode(palo)
-        let bandiera = ModelliCorsa3D.scatola(
-          larghezza: 1.5, altezza: 0.9, profondita: 0.10, raggio: 0.04,
-          colore: z.truncatingRemainder(dividingBy: 10.4) == 3
-            ? colori.ostacolo : colori.pista)
-        bandiera.position = SCNVector3(lato * 5.2, 2.5, z)
+        let bandiera = SCNNode()
+        bandiera.name = "bandiera"
+        let pannello = ModelliCorsa3D.scatola(
+          larghezza: 1.15, altezza: 0.62, profondita: 0.10, raggio: 0.04,
+          colore: colori.decorazione, proiettaOmbra: false)
+        bandiera.addChildNode(pannello)
+        for verso in [-1.0, 1.0] {
+          let tratto = ModelliCorsa3D.scatola(
+            larghezza: 0.48, altezza: 0.10, profondita: 0.13, raggio: 0.03,
+            colore: colori.segno, proiettaOmbra: false)
+          tratto.position = SCNVector3(0.05, verso * 0.15, 0.08)
+          tratto.eulerAngles.z = CGFloat(verso * 0.55)
+          bandiera.addChildNode(tratto)
+        }
+        bandiera.position = SCNVector3(lato * 5.6, 2.15, z)
+        bandiere.append(bandiera)
         scena.rootNode.addChildNode(bandiera)
       }
     }
   }
 
-  private func preparaModelliDinamici() {
-    modelliOstacolo = (0..<4).map {
-      ModelliCorsa3D.ostacolo(
-        livello: $0, colore: colori.ostacolo, dettaglio: colori.segno)
+  private func aggiornaDecorazioni(fermo: Bool) {
+    guard decorazioniInCalma != fermo else { return }
+    decorazioniInCalma = fermo
+    for (indice, spettatore) in spettatori.enumerated() {
+      spettatore.isHidden = fermo && !indice.isMultiple(of: 4)
     }
-    modelloGemma = ModelliCorsa3D.gemma(
-      colore: colori.premio, dettaglio: colori.pista)
-    modelloGemma.scale = SCNVector3(1.25, 1.25, 1.25)
-
-    let compagno = ModelliCorsa3D.personaggio(
-      colore: colori.squadra, dettaglio: colori.segno, scala: 0.72)
-    compagno.braccioSinistro.eulerAngles.z = -1.05
-    compagno.braccioDestro.eulerAngles.z = 1.05
-    modelloCompagno = compagno.nodo
-
-    for x in [-4.0, 4.0] {
-      let palo = ModelliCorsa3D.scatola(
-        larghezza: 0.42, altezza: 4.0, profondita: 0.42, raggio: 0.10,
-        colore: colori.segno)
-      palo.position = SCNVector3(x, 2.0, 0)
-      modelloTraguardo.addChildNode(palo)
-    }
-    let arco = ModelliCorsa3D.scatola(
-      larghezza: 8.4, altezza: 0.72, profondita: 0.72, raggio: 0.18,
-      colore: colori.ostacolo)
-    arco.position = SCNVector3(0, 4.0, 0)
-    modelloTraguardo.addChildNode(arco)
-  }
-
-  private func aggiungiTraguardo(progresso: Double) {
-    let z = 4.3 - (1 - progresso) * 29
-    let traguardo = modelloTraguardo.clone()
-    traguardo.position.z = z
-    dinamici.addChildNode(traguardo)
-  }
-
-  private func aggiungiOstacoli(_ stato: StatoCampoCorsa3D) {
-    for ostacolo in stato.ostacoli {
-      let distanza = ostacolo.x - stato.xEroe
-      guard distanza > -24, distanza < 230 else { continue }
-      let nodo = modelliOstacolo[min(stato.livello, modelliOstacolo.count - 1)].clone()
-      nodo.position = SCNVector3(0, 0.10, 4.0 - distanza * 0.125)
-      dinamici.addChildNode(nodo)
-    }
-  }
-
-  private func aggiungiGemme(_ stato: StatoCampoCorsa3D) {
-    for gemma in stato.gemme {
-      let distanza = gemma - stato.xEroe
-      guard distanza > -20, distanza < 230 else { continue }
-      let nodo = modelloGemma.clone()
-      nodo.position = SCNVector3(0, 2.0, 4.0 - distanza * 0.125)
-      nodo.eulerAngles.y = CGFloat(stato.fermo ? 0 : Double(stato.battiti) * 0.08)
-      dinamici.addChildNode(nodo)
-    }
-  }
-
-  private func aggiungiCompagni(_ stato: StatoCampoCorsa3D) {
-    for i in 0..<stato.squadra {
-      let compagno = modelloCompagno.clone()
-      compagno.position = stato.fase == .fine
-        ? SCNVector3(-2.2 + Double(i) * 1.45, 0.12, 3.2)
-        : SCNVector3(i.isMultiple(of: 2) ? -5.9 : 5.9,
-                     0.35, 2.5 - Double(i) * 4.0)
-      dinamici.addChildNode(compagno)
+    for (indice, bandiera) in bandiere.enumerated() {
+      bandiera.isHidden = fermo && !indice.isMultiple(of: 2)
     }
   }
 
   private func aggiornaEroe(_ stato: StatoCampoCorsa3D) {
-    let altezza = stato.salto / 26 * 2.2
-    let avanzamentoSalita = stato.fase == .salita ? stato.salita * 7.0 : 0
+    let altezza = stato.fase == .gioco
+      ? stato.salto / Corsa.altezzaMassimaSalto * 2.2
+      : 0
+    let conservaSalita = stato.fase == .salita || stato.fase == .tappaFatta
+    let avanzamentoSalita = conservaSalita ? stato.salita * 7.0 : 0
     eroe.nodo.position = SCNVector3(0, 0.12 + altezza, 4.0 - avanzamentoSalita)
     eroe.nodo.eulerAngles.y = 0
 
-    let passo = stato.fermo ? 0 : ((stato.battiti / 5).isMultiple(of: 2) ? 1.0 : -1.0)
+    let passo = stato.fermo ? 0.55
+      : ((stato.battiti / 5).isMultiple(of: 2) ? 1.0 : -1.0)
     eroe.gambaSinistra.eulerAngles.x = CGFloat(0.48 * passo)
     eroe.gambaDestra.eulerAngles.x = CGFloat(-0.48 * passo)
     eroe.braccioSinistro.eulerAngles.x = CGFloat(-0.58 * passo)
     eroe.braccioDestro.eulerAngles.x = CGFloat(0.58 * passo)
     if stato.fase == .fine {
-      eroe.braccioSinistro.eulerAngles.z = -1.05
-      eroe.braccioDestro.eulerAngles.z = 1.05
+      eroe.braccioSinistro.eulerAngles.z = -ModelliCorsa3D.angoloBracciaFesta
+      eroe.braccioDestro.eulerAngles.z = ModelliCorsa3D.angoloBracciaFesta
+    } else if stato.fermo {
+      eroe.braccioSinistro.eulerAngles.z = -0.75
+      eroe.braccioDestro.eulerAngles.z = 0.45
     } else {
-      eroe.braccioSinistro.eulerAngles.z = 0.60
-      eroe.braccioDestro.eulerAngles.z = -0.60
+      eroe.braccioSinistro.eulerAngles.z = -0.60
+      eroe.braccioDestro.eulerAngles.z = 0.60
     }
   }
 
   private func sfondoSfumato() -> NSImage {
-    let dimensione = NSSize(width: 16, height: 16)
-    let immagine = NSImage(size: dimensione)
-    immagine.lockFocus()
-    NSGradient(starting: NSColor(colori.cieloAlto),
-               ending: NSColor(colori.cieloBasso))?
-      .draw(in: NSRect(origin: .zero, size: dimensione), angle: -90)
-    immagine.unlockFocus()
-    return immagine
+    let cieloAlto = colori.cieloAlto
+    let cieloBasso = colori.cieloBasso
+    return NSImage(size: NSSize(width: 128, height: 128), flipped: false) { rect in
+      NSGradient(starting: NSColor(cieloAlto),
+                 ending: NSColor(cieloBasso))?
+        .draw(in: rect, angle: -90)
+      return true
+    }
   }
 }

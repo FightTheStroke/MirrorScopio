@@ -29,6 +29,7 @@ Sources/
     Promemoria.swift     avvisi locali giornalieri
     Navigazione.swift    quali schermate sono raggiungibili e quando
     AppVersion.swift     versione e numero di build letti dal pacchetto
+    RegoleCorsa.swift    regole deterministiche del gioco, separate dal disegno
     Log.swift            registro diagnostico locale
     Updates.swift        l'unico file che tocca la rete: chiede a GitHub qual è
                          l'ultima versione e sa installarla, dopo aver
@@ -51,6 +52,8 @@ Sources/
       CampoCorsa3D.swift ponte fra SwiftUI e SceneKit per La Corsa
       ScenaCorsa3D.swift camera, luci, arena e aggiornamento dello stato
       ModelliCorsa3D.swift personaggi e ostacoli 3D costruiti in codice
+      NodiDinamiciCorsa3D.swift riuso dei nodi che si muovono a ogni fotogramma
+      StatoCorniceSport.swift stato verificabile della cornice accessibile
 ```
 
 ## Le prove

@@ -38,7 +38,8 @@ struct CampoCorsa3D: View {
   var perFotografia: Bool
 
   var body: some View {
-    let colori = PaletteArena.resolve(theme: a11y.theme, palette: palette)
+    let colori = PaletteArena.resolve(
+      theme: a11y.theme, palette: palette, vision: a11y.colorVision)
     if perFotografia {
       Image(nsImage: ScenaCorsa3D.fotografia(
         stato: stato, colori: colori, dimensione: CGSize(width: 1600, height: 1000)))
@@ -48,6 +49,18 @@ struct CampoCorsa3D: View {
       VistaCorsaSceneKit(stato: stato, colori: colori,
                          chiaveTema: "\(a11y.theme.rawValue)-\(a11y.colorVision.rawValue)-\(palette.isDark)")
     }
+  }
+}
+
+enum PoliticaAggiornamentoScena3D {
+  static func ricostruisce(mondoPresente: Bool, chiaveAttuale: String,
+                           chiaveNuova: String) -> Bool {
+    !mondoPresente || chiaveAttuale != chiaveNuova
+  }
+
+  static func ridisegna(ultimo: StatoCampoCorsa3D?,
+                        nuovo: StatoCampoCorsa3D) -> Bool {
+    ultimo != nuovo
   }
 }
 
@@ -62,7 +75,7 @@ private struct VistaCorsaSceneKit: NSViewRepresentable {
 
   func makeNSView(context: Context) -> SCNView {
     let vista = SCNView()
-    vista.antialiasingMode = .multisampling4X
+    vista.antialiasingMode = .multisampling2X
     vista.autoenablesDefaultLighting = false
     vista.allowsCameraControl = false
     vista.preferredFramesPerSecond = 30
@@ -86,7 +99,8 @@ private struct VistaCorsaSceneKit: NSViewRepresentable {
 
     func aggiorna(_ vista: SCNView, stato: StatoCampoCorsa3D,
                   colori: PaletteArena, chiaveTema: String) {
-      if mondo == nil || chiave != chiaveTema {
+      if PoliticaAggiornamentoScena3D.ricostruisce(
+        mondoPresente: mondo != nil, chiaveAttuale: chiave, chiaveNuova: chiaveTema) {
         let nuovo = ScenaCorsa3D(colori: colori)
         mondo = nuovo
         chiave = chiaveTema
@@ -94,7 +108,7 @@ private struct VistaCorsaSceneKit: NSViewRepresentable {
         vista.scene = nuovo.scena
         vista.pointOfView = nuovo.camera
       }
-      if ultimoStato != stato {
+      if PoliticaAggiornamentoScena3D.ridisegna(ultimo: ultimoStato, nuovo: stato) {
         mondo?.aggiorna(stato)
         ultimoStato = stato
         vista.setNeedsDisplay(vista.bounds)

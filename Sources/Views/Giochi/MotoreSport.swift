@@ -26,6 +26,11 @@ struct CorniceSport<Campo: View>: View {
 
   private let battito = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
+  private var stato: StatoCorniceSport {
+    StatoCorniceSport(
+      nascondePunti: a11y.hideScore, azioneAttiva: azioneAttiva, lampo: lampo)
+  }
+
   init(a11y: EffettiveImpostazioniAccessibilita,
        titolo: String,
        sottotitolo: String,
@@ -92,13 +97,13 @@ struct CorniceSport<Campo: View>: View {
   private var contenuto: some View {
     VStack(spacing: a11y.size(Metrica.spazioMedio)) {
       ZStack {
-        Button(action: onPremi) {
+        Button(action: premiSeDisponibile) {
           ZStack {
             RoundedRectangle(cornerRadius: a11y.size(Metrica.raggioGrande))
               .fill(palette.surface)
             campo
           }
-          .aspectRatio(SchermoRetro.larghezza / SchermoRetro.altezza, contentMode: .fit)
+          .aspectRatio(MisureCampoSport.proporzione, contentMode: .fit)
           .frame(maxWidth: a11y.size(900))
           .fixedSize(horizontal: false, vertical: true)
           .layoutPriority(1)
@@ -110,7 +115,6 @@ struct CorniceSport<Campo: View>: View {
           .contentShape(RoundedRectangle(cornerRadius: a11y.size(Metrica.raggioGrande)))
         }
         .buttonStyle(.plain)
-        .disabled(!azioneAttiva)
         .accessibilityHidden(true)
 
         VStack {
@@ -121,6 +125,7 @@ struct CorniceSport<Campo: View>: View {
         .allowsHitTesting(false)
 
         scrittaLampo
+          .allowsHitTesting(false)
       }
 
       Text(frase)
@@ -130,11 +135,11 @@ struct CorniceSport<Campo: View>: View {
         .fixedSize(horizontal: false, vertical: true)
         .multilineTextAlignment(.center)
 
-      Button(action: onPremi) {
+      Button(action: premiSeDisponibile) {
         VStack(spacing: a11y.size(Metrica.filo)) {
           Text(invito)
             .font(a11y.font(.guida, .bold))
-          if azioneAttiva {
+          if stato.azioneAttiva {
             Text("Spazio o Invio")
               .font(a11y.font(.nota, .semibold))
           }
@@ -155,21 +160,26 @@ struct CorniceSport<Campo: View>: View {
             .fill(palette.accent)
         }
       }
-      .opacity(azioneAttiva ? 1 : 0.65)
-      .disabled(!azioneAttiva)
+      .opacity(stato.azioneAttiva ? 1 : 0.65)
       .keyboardShortcut(.space, modifiers: [])
+      .accessibilityIdentifier("azione-gioco")
       .accessibilityLabel(invito)
-      .accessibilityValue(lampo.map { $0.testo == "ANCORA" ? "Ancora" : $0.testo } ?? "")
-      .accessibilityHint("\(etichettaVoce) Puoi anche premere Invio o fare clic sul campo.")
+      .accessibilityValue(
+        stato.testoLampo.map { "\(etichettaVoce) \($0)" } ?? etichettaVoce)
+      .accessibilityHint("Puoi anche premere Invio o fare clic sul campo.")
 
-      Button("", action: onPremi)
+      Button("", action: premiSeDisponibile)
         .keyboardShortcut(.return, modifiers: [])
-        .disabled(!azioneAttiva)
         .frame(width: 0, height: 0)
         .opacity(0)
         .accessibilityHidden(true)
     }
     .frame(maxWidth: a11y.size(1040))
+  }
+
+  private func premiSeDisponibile() {
+    guard stato.azioneAttiva else { return }
+    onPremi()
   }
 
   private var barra: some View {
@@ -223,7 +233,7 @@ struct CorniceSport<Campo: View>: View {
 
   @ViewBuilder
   private var indicatori: some View {
-    if !a11y.hideScore {
+    if stato.mostraPunti {
       indicatore(simbolo: "sparkles", etichetta: "Punti", valore: String(punti))
     }
     indicatore(simbolo: "person.2.fill", etichetta: "Squadra", valore: statoDestra)
@@ -249,15 +259,15 @@ struct CorniceSport<Campo: View>: View {
 
   @ViewBuilder
   private var scrittaLampo: some View {
-    if let lampo, !(a11y.hideScore && lampo.soloPunteggio) {
-      let ancora = lampo.testo == "ANCORA"
+    if let lampo, let testo = stato.testoLampo {
+      let ancora = stato.simboloLampo != nil
       HStack(spacing: a11y.size(Metrica.spazioStretto)) {
-        if ancora {
-          Image(systemName: ColorVision.wrongSymbol)
+        if let simbolo = stato.simboloLampo {
+          Image(systemName: simbolo)
             .font(.system(size: a11y.size(22), weight: .bold))
             .accessibilityHidden(true)
         }
-        Text(ancora ? "Ancora" : lampo.testo)
+        Text(testo)
       }
       .font(a11y.font(lampo.grande ? .titoloGrande : .sezione, .heavy))
       .foregroundStyle(palette.foreground)
@@ -273,7 +283,7 @@ struct CorniceSport<Campo: View>: View {
                         lineWidth: a11y.theme == .altoContrasto ? 4 : 3)
       }
       .accessibilityElement(children: .combine)
-      .accessibilityLabel(ancora ? "Ancora" : lampo.testo)
+      .accessibilityLabel(testo)
     }
   }
 }

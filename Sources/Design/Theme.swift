@@ -202,25 +202,8 @@ struct Palette {
   private static let stopScuro    = Color(red: 1.00, green: 0.50, blue: 0.50)
 }
 
-extension Palette {
-  /// Il campo dei giochi resta scuro anche nei temi chiari: è una superficie
-  /// sportiva dentro la pagina, non un secondo tema dell'app.
-  var sfondoCampoSport: Color {
-    isDark ? background : foreground
-  }
-
-  var segnoCampoSport: Color {
-    isDark ? foreground : background
-  }
-
-  /// Piste, rampe e confini devono staccarsi dal campo almeno 3 a 1.
-  var secondoPianoCampoSport: Color {
-    isDark ? muted : surface
-  }
-}
-
-/// I materiali dell'arena 3D. Le tinte decorative vivono qui, non nelle viste;
-/// ciò che porta informazione continua a usare i ruoli accessibili di `Palette`.
+/// I materiali dell'arena 3D. Le tinte vivono qui, non nelle viste, e le
+/// figure importanti restano ad almeno 3:1 dalle superfici su cui compaiono.
 struct PaletteArena {
   var cieloAlto: Color
   var cieloBasso: Color
@@ -229,66 +212,93 @@ struct PaletteArena {
   var pista: Color
   var pistaLato: Color
   var ostacolo: Color
+  var dettaglioOstacolo: Color
   var eroe: Color
   var squadra: Color
   var premio: Color
+  var traguardo: Color
+  var decorazione: Color
   var segno: Color
   var ombra: Color
   var altoContrasto: Bool
 
-  static func resolve(theme: ThemeChoice, palette: Palette) -> PaletteArena {
+  static func resolve(theme: ThemeChoice, palette: Palette,
+                      vision: ColorVision) -> PaletteArena {
     let effective = theme == .auto ? (palette.isDark ? ThemeChoice.scuro : .chiaro) : theme
-    let shared = (
-      ostacolo: palette.wrong,
-      eroe: palette.premio,
-      squadra: palette.ok,
-      premio: palette.premio,
-      segno: palette.sfondoCampoSport,
-      ombra: palette.background
-    )
+    let figure = coloriFigure(vision)
 
     switch effective {
     case .chiaro, .auto:
-      return PaletteArena(
+      return colorata(
         cieloAlto: Color(red: 0.10, green: 0.18, blue: 0.58),
         cieloBasso: Color(red: 0.58, green: 0.27, blue: 0.84),
-        terra: Color(red: 0.05, green: 0.27, blue: 0.34),
-        terraLuce: Color(red: 0.12, green: 0.58, blue: 0.46),
-        pista: Color(red: 0.18, green: 0.68, blue: 1.00),
-        pistaLato: Color(red: 0.06, green: 0.22, blue: 0.58),
-        ostacolo: shared.ostacolo, eroe: shared.eroe, squadra: shared.squadra,
-        premio: shared.premio, segno: shared.segno, ombra: shared.ombra,
-        altoContrasto: false)
+        terra: Color(red: 0.02, green: 0.10, blue: 0.15),
+        terraLuce: Color(red: 0.04, green: 0.30, blue: 0.28),
+        pista: Color(red: 0.04, green: 0.14, blue: 0.32),
+        pistaLato: Color(red: 0.02, green: 0.08, blue: 0.18),
+        figure: figure)
     case .scuro:
-      return PaletteArena(
+      return colorata(
         cieloAlto: Color(red: 0.03, green: 0.05, blue: 0.17),
         cieloBasso: Color(red: 0.30, green: 0.12, blue: 0.53),
-        terra: Color(red: 0.04, green: 0.18, blue: 0.24),
-        terraLuce: Color(red: 0.08, green: 0.43, blue: 0.38),
-        pista: Color(red: 0.32, green: 0.76, blue: 1.00),
-        pistaLato: Color(red: 0.08, green: 0.27, blue: 0.55),
-        ostacolo: shared.ostacolo, eroe: shared.eroe, squadra: shared.squadra,
-        premio: shared.premio, segno: shared.segno, ombra: shared.ombra,
-        altoContrasto: false)
+        terra: Color(red: 0.01, green: 0.07, blue: 0.11),
+        terraLuce: Color(red: 0.03, green: 0.20, blue: 0.20),
+        pista: Color(red: 0.03, green: 0.10, blue: 0.24),
+        pistaLato: Color(red: 0.01, green: 0.05, blue: 0.13),
+        figure: figure)
     case .sabbia:
-      return PaletteArena(
+      return colorata(
         cieloAlto: Color(red: 0.16, green: 0.28, blue: 0.57),
         cieloBasso: Color(red: 0.78, green: 0.35, blue: 0.32),
-        terra: Color(red: 0.10, green: 0.31, blue: 0.29),
-        terraLuce: Color(red: 0.31, green: 0.57, blue: 0.35),
-        pista: Color(red: 0.20, green: 0.57, blue: 0.94),
-        pistaLato: Color(red: 0.10, green: 0.27, blue: 0.52),
-        ostacolo: shared.ostacolo, eroe: shared.eroe, squadra: shared.squadra,
-        premio: shared.premio, segno: shared.segno, ombra: shared.ombra,
-        altoContrasto: false)
+        terra: Color(red: 0.05, green: 0.11, blue: 0.13),
+        terraLuce: Color(red: 0.12, green: 0.28, blue: 0.22),
+        pista: Color(red: 0.08, green: 0.16, blue: 0.28),
+        pistaLato: Color(red: 0.04, green: 0.09, blue: 0.15),
+        figure: figure)
     case .altoContrasto:
       return PaletteArena(
         cieloAlto: palette.background, cieloBasso: palette.background,
-        terra: palette.surface, terraLuce: palette.surface,
-        pista: palette.foreground, pistaLato: palette.surface,
-        ostacolo: palette.accent, eroe: palette.ok, squadra: palette.foreground,
-        premio: palette.accent, segno: palette.background, ombra: palette.background,
+        terra: palette.background, terraLuce: palette.surface,
+        pista: palette.surface, pistaLato: palette.background,
+        ostacolo: figure.ostacolo, dettaglioOstacolo: palette.background,
+        eroe: palette.accent, squadra: figure.squadra,
+        premio: palette.foreground, traguardo: palette.foreground,
+        decorazione: Color(white: 0.35),
+        segno: palette.foreground, ombra: palette.background,
         altoContrasto: true)
+    }
+  }
+
+  private static func colorata(cieloAlto: Color, cieloBasso: Color,
+                               terra: Color, terraLuce: Color,
+                               pista: Color, pistaLato: Color,
+                               figure: (ostacolo: Color, squadra: Color)) -> PaletteArena {
+    PaletteArena(
+      cieloAlto: cieloAlto, cieloBasso: cieloBasso,
+      terra: terra, terraLuce: terraLuce,
+      pista: pista, pistaLato: pistaLato,
+      ostacolo: figure.ostacolo, dettaglioOstacolo: .black,
+      eroe: Color(red: 1.00, green: 0.88, blue: 0.20),
+      squadra: figure.squadra,
+      premio: Color(red: 0.35, green: 0.85, blue: 1.00),
+      traguardo: Color(white: 0.96),
+      decorazione: Color(red: 0.20, green: 0.48, blue: 0.55),
+      segno: .white, ombra: .black, altoContrasto: false)
+  }
+
+  private static func coloriFigure(_ vision: ColorVision) -> (ostacolo: Color, squadra: Color) {
+    switch vision {
+    case .standard:
+      (Color(red: 1.00, green: 0.84, blue: 0.88),
+       Color(red: 0.35, green: 1.00, blue: 0.62))
+    case .deuteranopia, .protanopia:
+      (Color(red: 1.00, green: 0.92, blue: 0.62),
+       Color(red: 0.55, green: 0.86, blue: 1.00))
+    case .tritanopia:
+      (Color(red: 1.00, green: 0.84, blue: 0.91),
+       Color(red: 0.48, green: 1.00, blue: 0.72))
+    case .monocromia:
+      (Color(white: 0.92), Color(white: 0.68))
     }
   }
 }

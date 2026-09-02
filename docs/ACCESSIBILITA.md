@@ -86,7 +86,8 @@ visione.
   festeggiamento come rumore, non come premio.
 - Nei giochi moderni la modalità calma non sostituisce il 3D con una versione
   povera: conserva arena, materiali, ostacoli e traguardo, ma ferma corsa,
-  rotazioni e movimento automatico. Ogni pressione compie un salto e un passo.
+  rotazioni e movimento automatico. Riduce anche pubblico e bandiere e attenua
+  i premi luminosi. Ogni pressione compie un salto e un passo.
 - I **punteggi si possono nascondere** in tutte le schermate del ragazzo: il risultato
   diventa «hai letto tutte le parole fino in fondo», e nei progressi i numeri diventano
   parole. Il *Dettaglio per l'adulto* a fine sessione continua però a mostrarli, e oggi si
