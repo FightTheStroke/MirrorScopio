@@ -65,6 +65,7 @@ mkdir -p "$DERIVED"
 # CODE_SIGNING_ALLOWED=NO: la firma la mettiamo dopo, a mano, perche' dipende da
 # quali certificati ha la macchina e perche' va messa **dopo** aver tolto i
 # simboli (togliere qualcosa da un file firmato invaliderebbe la firma).
+set +e
 xcodebuild \
   -project MirrorScopio.xcodeproj \
   -scheme MirrorScopio \
@@ -77,7 +78,13 @@ xcodebuild \
   FTS_BUILD_DATE="$BUILD_DATE" \
   build \
   | tee "$DERIVED/compilazione.log" \
-  | grep -E "^\*\*|error:|warning: .*deprecated" || true
+  | grep -E "^\*\*|error:|warning: .*deprecated"
+XCODEBUILD_STATUS="${PIPESTATUS[0]}"
+set -e
+if [ "$XCODEBUILD_STATUS" -ne 0 ]; then
+  echo "xcodebuild si è fermato con codice $XCODEBUILD_STATUS."
+  exit "$XCODEBUILD_STATUS"
+fi
 
 # Il registro completo resta accanto ai file di lavoro: a schermo si mostrano
 # pochi avvisi di proposito, ma buttarli via vorrebbe dire non poterli piu'

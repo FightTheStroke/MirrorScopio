@@ -32,6 +32,7 @@ final class ProveDaTastiera: XCTestCase {
       .appendingPathComponent("prove-\(UUID().uuidString)", isDirectory: true)
 
     app = XCUIApplication()
+    terminaEAttendi()
     // I dati veri di un bambino non si toccano nemmeno per sbaglio: l'app sotto
     // prova scrive in una cartella nuova, buttata via alla fine.
     app.launchEnvironment["MIRRORSCOPIO_CARTELLA_DATI"] = cartellaDati.path
@@ -43,10 +44,11 @@ final class ProveDaTastiera: XCTestCase {
       "-controllaAggiornamenti", "NO", // nessuna prova deve toccare la rete
     ]
     app.launch()
+    app.activate()
   }
 
   override func tearDownWithError() throws {
-    app?.terminate()
+    terminaEAttendi()
     if let cartellaDati { try? FileManager.default.removeItem(at: cartellaDati) }
   }
 
@@ -166,7 +168,52 @@ final class ProveDaTastiera: XCTestCase {
       "Esc non ha chiuso le Impostazioni: da tastiera si entra e non si esce più")
   }
 
+  /// Il gioco 3D passa dalle stesse porte accessibili dell'app: si apre senza
+  /// mouse, comincia con Spazio, nomina il comando e si chiude con Esc.
+  func testLaCorsa3DNonDiventaUnaTrappola() throws {
+    app.activate()
+    app.typeKey(",", modifierFlags: .command)
+
+    let giochi = app.buttons["I giochi"]
+    XCTAssertTrue(giochi.waitForExistence(timeout: 10))
+    giochi.click()
+
+    let apri = app.buttons["Apri La corsa"]
+    XCTAssertTrue(apri.waitForExistence(timeout: 10))
+    apri.click()
+
+    let gioca = app.buttons["azione-gioco"]
+    XCTAssertTrue(gioca.waitForExistence(timeout: 10))
+    XCTAssertTrue(app.buttons["Chiudi il gioco"].exists)
+    app.typeKey(XCUIKeyboardKey.space, modifierFlags: [])
+
+    let salta = app.buttons["azione-gioco"]
+    let invitoAggiornato = expectation(
+      for: NSPredicate(format: "label BEGINSWITH %@", "Salta"), evaluatedWith: salta)
+    wait(for: [invitoAggiornato], timeout: 10)
+    XCTAssertTrue((salta.value as? String)?.contains("Tappa 1") == true,
+      "VoiceOver non riceve la situazione della corsa nel valore del comando")
+    XCTAssertTrue(app.staticTexts["La Corsa"].exists)
+
+    app.typeKey(XCUIKeyboardKey.escape, modifierFlags: [])
+    XCTAssertFalse(salta.waitForExistence(timeout: 3),
+      "Esc non ha chiuso La Corsa: il premio è diventato una trappola")
+  }
+
   // MARK: - Attrezzi
+
+  /// `terminate()` chiede di chiudere e torna subito. Se la prova successiva
+  /// parte in quel mezzo secondo, Xcode trova la vecchia copia in sottofondo e
+  /// non riesce ad attivare la nuova. Aspettiamo lo stato vero, non un tempo
+  /// scelto a caso.
+  func terminaEAttendi() {
+    guard let app, app.state != .notRunning else { return }
+    app.terminate()
+    let scadenza = Date().addingTimeInterval(5)
+    while app.state != .notRunning, Date() < scadenza {
+      RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+    }
+  }
 
   /// Le prove con il tasto Tab hanno bisogno di due cose che non dipendono
   /// dall'applicazione. Quando mancano, la prova si ferma dichiarando perché

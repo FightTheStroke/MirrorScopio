@@ -93,6 +93,13 @@ struct Contrasto {
         )
       }
     }
+
+    let arena = PaletteArena.resolve(theme: tema, palette: p, vision: vista)
+    let righeArena = contrasto(arena.segno, arena.pista)
+    #expect(
+      righeArena >= 3.0,
+      "\(tema.label) · \(vista.label) · righe dell'arena: \(String(format: "%.2f", righeArena)) a 1, serve almeno 3,00"
+    )
   }
 
   /// Un controllo che non sa fallire non sta controllando niente.

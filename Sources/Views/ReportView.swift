@@ -93,7 +93,7 @@ struct ReportView: View {
                   symbol: "figure.run", a11y: a11y) {
         showStaffetta = true
       }
-      Explain(text: "Cinque giochi, e scegli tu. Un tasto solo, non c'è fretta e non si può perdere.",
+      Explain(text: "Tredici giochi, e scegli tu. La Corsa è in 3D. Un tasto solo, non c'è fretta e non si può perdere.",
               a11y: a11y, size: 14)
       .multilineTextAlignment(.center)
     }

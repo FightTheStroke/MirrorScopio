@@ -3,13 +3,25 @@
 # stampano quello che succede, perché due dei tre parlano con il microfono e
 # con il modello di sistema, e lì l'output va letto, non solo contato.
 #
-#   ./test.sh            gli harness veloci (staircase)
-#   ./test.sh --all      tutti, anche quelli che usano voce e modello
+#   ./test.sh              gli harness veloci e tutte le prove Xcode
+#   ./test.sh --all        tutti, anche quelli che usano voce e modello
+#   ./test.sh --senza-ui   evita solo le prove che aprono l'app vera
 set -euo pipefail
 cd "$(dirname "$0")"
 
 ALL=0
-[ "${1:-}" = "--all" ] && ALL=1
+SENZA_UI=0
+for argomento in "$@"; do
+  case "$argomento" in
+    --all) ALL=1 ;;
+    --senza-ui) SENZA_UI=1 ;;
+    *)
+      echo "Argomento sconosciuto: $argomento"
+      echo "Uso: ./test.sh [--all] [--senza-ui]"
+      exit 2
+      ;;
+  esac
+done
 
 OUT="build/tests"
 mkdir -p "$OUT" build/schermate
@@ -128,16 +140,30 @@ if [ -n "$RIMASTE" ]; then
   kill $RIMASTE 2>/dev/null || true
   sleep 2
 fi
+ARGOMENTI_PROVE_XCODE=(
+  test
+  -project MirrorScopio.xcodeproj
+  -scheme MirrorScopio
+  -destination platform=macOS
+)
+if [ "$SENZA_UI" -eq 1 ]; then
+  ARGOMENTI_PROVE_XCODE+=(-only-testing:Verifiche)
+  echo "  prove da tastiera saltate su richiesta; in GitHub restano obbligatorie"
+fi
+REGISTRO_PROVE_XCODE="$OUT/prove-xcode.log"
+rm -f "$REGISTRO_PROVE_XCODE"
 if ! command -v xcodegen >/dev/null 2>&1; then
   echo "✗ manca xcodegen (brew install xcodegen)"
   FAILED=1
-elif ./scripts/genera-progetto.sh >/dev/null && xcodebuild test \
-    -project MirrorScopio.xcodeproj -scheme MirrorScopio \
-    -destination 'platform=macOS' 2>&1 \
+elif ./scripts/genera-progetto.sh >/dev/null \
+    && xcodebuild "${ARGOMENTI_PROVE_XCODE[@]}" 2>&1 \
+    | tee "$REGISTRO_PROVE_XCODE" \
     | grep -E "Test run with|Executed [0-9]+ test|skipped -|error:|\*\* TEST"; then
   echo "✓ prove Xcode"
 else
   echo "✗ prove Xcode"
+  grep -E "Expectation failed|Issue recorded|Test .* failed|failed at|error:|✘|✗" \
+    "$REGISTRO_PROVE_XCODE" 2>/dev/null | tail -40 || true
   FAILED=1
 fi
 
@@ -190,8 +216,8 @@ fi
 
 # La scala adattiva e i suoni stanno in Verifiche/, sotto xcodebuild, dove
 # girano anche in CI: qui c'erano due copie delle stesse prove e potevano
-# dire cose diverse. «schermate» adesso disegna e basta, non boccia piu'
-# niente: contrasto e scorrimento sono in Verifiche/Contrasto.swift.
+# dire cose diverse. «schermate» controlla solo che ogni immagine venga
+# generata e salvata; contrasto e scorrimento sono in Verifiche/Contrasto.swift.
 run_harness schermate   scripts/disegna-schermate.swift  fast
 # Vuole build/MirrorScopio.app: se non c'è, la costruisce. È il banco che prova
 # l'aggiornamento dall'app su un pacchetto vero, non su un'idea di pacchetto:

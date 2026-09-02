@@ -202,6 +202,107 @@ struct Palette {
   private static let stopScuro    = Color(red: 1.00, green: 0.50, blue: 0.50)
 }
 
+/// I materiali dell'arena 3D. Le tinte vivono qui, non nelle viste, e le
+/// figure importanti restano ad almeno 3:1 dalle superfici su cui compaiono.
+struct PaletteArena {
+  var cieloAlto: Color
+  var cieloBasso: Color
+  var terra: Color
+  var terraLuce: Color
+  var pista: Color
+  var pistaLato: Color
+  var ostacolo: Color
+  var dettaglioOstacolo: Color
+  var eroe: Color
+  var squadra: Color
+  var premio: Color
+  var traguardo: Color
+  var decorazione: Color
+  var segno: Color
+  var ombra: Color
+  var altoContrasto: Bool
+
+  static func resolve(theme: ThemeChoice, palette: Palette,
+                      vision: ColorVision) -> PaletteArena {
+    let effective = theme == .auto ? (palette.isDark ? ThemeChoice.scuro : .chiaro) : theme
+    let figure = coloriFigure(vision)
+
+    switch effective {
+    case .chiaro, .auto:
+      return colorata(
+        cieloAlto: Color(red: 0.10, green: 0.18, blue: 0.58),
+        cieloBasso: Color(red: 0.58, green: 0.27, blue: 0.84),
+        terra: Color(red: 0.02, green: 0.10, blue: 0.15),
+        terraLuce: Color(red: 0.04, green: 0.30, blue: 0.28),
+        pista: Color(red: 0.04, green: 0.14, blue: 0.32),
+        pistaLato: Color(red: 0.02, green: 0.08, blue: 0.18),
+        figure: figure)
+    case .scuro:
+      return colorata(
+        cieloAlto: Color(red: 0.03, green: 0.05, blue: 0.17),
+        cieloBasso: Color(red: 0.30, green: 0.12, blue: 0.53),
+        terra: Color(red: 0.01, green: 0.07, blue: 0.11),
+        terraLuce: Color(red: 0.03, green: 0.20, blue: 0.20),
+        pista: Color(red: 0.03, green: 0.10, blue: 0.24),
+        pistaLato: Color(red: 0.01, green: 0.05, blue: 0.13),
+        figure: figure)
+    case .sabbia:
+      return colorata(
+        cieloAlto: Color(red: 0.16, green: 0.28, blue: 0.57),
+        cieloBasso: Color(red: 0.78, green: 0.35, blue: 0.32),
+        terra: Color(red: 0.05, green: 0.11, blue: 0.13),
+        terraLuce: Color(red: 0.12, green: 0.28, blue: 0.22),
+        pista: Color(red: 0.08, green: 0.16, blue: 0.28),
+        pistaLato: Color(red: 0.04, green: 0.09, blue: 0.15),
+        figure: figure)
+    case .altoContrasto:
+      return PaletteArena(
+        cieloAlto: palette.background, cieloBasso: palette.background,
+        terra: palette.background, terraLuce: palette.surface,
+        pista: palette.surface, pistaLato: palette.background,
+        ostacolo: figure.ostacolo, dettaglioOstacolo: palette.background,
+        eroe: palette.accent, squadra: figure.squadra,
+        premio: palette.foreground, traguardo: palette.foreground,
+        decorazione: Color(white: 0.35),
+        segno: palette.foreground, ombra: palette.background,
+        altoContrasto: true)
+    }
+  }
+
+  private static func colorata(cieloAlto: Color, cieloBasso: Color,
+                               terra: Color, terraLuce: Color,
+                               pista: Color, pistaLato: Color,
+                               figure: (ostacolo: Color, squadra: Color)) -> PaletteArena {
+    PaletteArena(
+      cieloAlto: cieloAlto, cieloBasso: cieloBasso,
+      terra: terra, terraLuce: terraLuce,
+      pista: pista, pistaLato: pistaLato,
+      ostacolo: figure.ostacolo, dettaglioOstacolo: .black,
+      eroe: Color(red: 1.00, green: 0.88, blue: 0.20),
+      squadra: figure.squadra,
+      premio: Color(red: 0.35, green: 0.85, blue: 1.00),
+      traguardo: Color(white: 0.96),
+      decorazione: Color(red: 0.20, green: 0.48, blue: 0.55),
+      segno: .white, ombra: .black, altoContrasto: false)
+  }
+
+  private static func coloriFigure(_ vision: ColorVision) -> (ostacolo: Color, squadra: Color) {
+    switch vision {
+    case .standard:
+      (Color(red: 1.00, green: 0.84, blue: 0.88),
+       Color(red: 0.35, green: 1.00, blue: 0.62))
+    case .deuteranopia, .protanopia:
+      (Color(red: 1.00, green: 0.92, blue: 0.62),
+       Color(red: 0.55, green: 0.86, blue: 1.00))
+    case .tritanopia:
+      (Color(red: 1.00, green: 0.84, blue: 0.91),
+       Color(red: 0.48, green: 1.00, blue: 0.72))
+    case .monocromia:
+      (Color(white: 0.92), Color(white: 0.68))
+    }
+  }
+}
+
 /// La palette viaggia nell'ambiente così ogni vista la trova senza passarsela a mano.
 private struct PaletteKey: EnvironmentKey {
   static let defaultValue = Palette.resolve(theme: .chiaro, vision: .standard, system: .light)

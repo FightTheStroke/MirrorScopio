@@ -89,6 +89,15 @@ Nessuna vista scrive un colore a mano. Si prende dall'ambiente:
 (chiaro, scuro, altissimo contrasto, carta) e al modo in cui la persona vede i
 colori.
 
+Le arene 3D prendono tutti i materiali da `PaletteArena`: cielo, terreno e
+pista possono essere saturi; ostacoli e squadra cambiano anche col modo di
+vedere i colori, mentre le decorazioni restano volutamente più spente. In
+monocromia i ruoli non collassano: il traguardo è a
+scacchi, gli ostacoli portano bande scure, il premio è un gettone e la squadra
+ha un valore diverso dal pubblico. Le figure informative mantengono almeno
+3:1 dalle superfici su cui compaiono. SceneKit disegna la scena nell'app; lo
+stesso modello viene fotografato fuori schermo dai controlli.
+
 **Ogni colore che porta informazione sta qui.** Se un colore dice qualcosa —
 questo l'hai preso, questa è la tua serie, questo comando ferma tutto — sta
 nella palette e cambia col tema. Per un po' non è stato vero: l'oro delle
@@ -96,9 +105,9 @@ medaglie, il giallo delle stelle, l'arancione della fiamma e il rosso di
 «Basta» erano scritti a mano dentro le viste, uguali su ogni tema, e sul nero
 di «Altissimo contrasto» restavano quelli del bianco.
 
-Restano fuori dalla palette solo i colori che **non** dicono niente: i
-coriandoli della festa e i compagni di corsa della staffetta. Lì nessuno deve
-distinguere un colore dall'altro, e colorare di tema una festa la spegne.
+Anche il pubblico e le bandiere stanno nella palette: sono più spenti della
+squadra e in modalità calma diventano meno numerosi, così il contorno non
+copre mai ciò che serve per giocare.
 
 E comunque, dentro o fuori dalla palette: **gli esiti non dipendono mai dal
 solo colore.** Accanto c'è sempre una forma e una parola.

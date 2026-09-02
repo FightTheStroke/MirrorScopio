@@ -12,6 +12,7 @@ build/
 learners.json
 history.json
 *.log
+*.profraw
 PIANO-LAVORI.md
 .build/
 

@@ -56,6 +56,7 @@ struct IlPremioValePerTutti {
   @Test("In «Scrivi» la sessione arriva al riepilogo con le parole contate")
   func scriviArrivaAlRiepilogo() {
     let motore = SessionEngine()
+    motore.a11y.soundsEnabled = false
     var c = motore.config
     c.mode = .scrittura
     c.trials = 5
@@ -81,6 +82,7 @@ struct IlPremioValePerTutti {
   @Test("In «Scrivi» il premio compare anche a chi sbaglia tutto")
   func scriviPremioAncheSbagliando() {
     let motore = SessionEngine()
+    motore.a11y.soundsEnabled = false
     var c = motore.config
     c.mode = .scrittura
     c.trials = 4

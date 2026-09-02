@@ -15,6 +15,8 @@
 		0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */; };
 		0FFEE8DB000BBCB1D684717C /* IlPremioValePerTutti.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690825ACE7865A55C3D64D1 /* IlPremioValePerTutti.swift */; };
 		11929E1593988C2248CAA4D8 /* Updates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33495DAEEC2D696AA2BB9FC7 /* Updates.swift */; };
+		1580F636433135EFE4E7E342 /* Arena3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB84D50FFE62FA5F5706C2A /* Arena3D.swift */; };
+		1A88CF7A7BD55A3BEEEBC891 /* ScenaCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */; };
 		1A9AD6F850F6825B840BA1BD /* TypingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ADFCA031ACADC650624A1E /* TypingView.swift */; };
 		1BC992719FF52B7A38CAE9CC /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7881F340E73C7624D53AD46 /* Exporter.swift */; };
 		2286360E3A9C58DB37B742BF /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205933038872E415019CBA59 /* AppVersion.swift */; };
@@ -30,12 +32,15 @@
 		3A00D13C3E3249FE6E7E2E91 /* Promemoria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9068F88405B9013EE54895E4 /* Promemoria.swift */; };
 		3A8F3B9449005A12C1F55EBA /* Personaggi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 274E60632B4E6B22A54EF55A /* Personaggi.swift */; };
 		3D138E61E739B9F1F62404BD /* GiocoHipHop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F46BBC2A0D9DA4820809C6 /* GiocoHipHop.swift */; };
+		3DEDB8066EB59B837E340DD8 /* MotoreSport.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED384A57DDACE8A116806F36 /* MotoreSport.swift */; };
 		3E30DE05D870317961F53BA8 /* InstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */; };
 		3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */; };
 		457E7F5797CE815907CB5F27 /* Gamification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077275B6401CB89DC6AF421 /* Gamification.swift */; };
+		4BDA35FFEA1673F7CF1CD24E /* AccessibilitaArena3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4F2BD91765DBE9B14024AB /* AccessibilitaArena3D.swift */; };
 		4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */ = {isa = PBXBuildFile; fileRef = 112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */; };
 		5325F7A19C7B6AFC23229330 /* GiocoMuro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7ED67074557403107859F6 /* GiocoMuro.swift */; };
 		5569C5E70FF898EF4D1C87CF /* RegistroSessione.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D1F199B0BB5D910CFBEBB /* RegistroSessione.swift */; };
+		5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */; };
 		5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */; };
 		5EB25C7BFA9CD4050FC5DF3A /* StageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031F620CCEB5656D46BD0DE9 /* StageView.swift */; };
 		5ED5293352158029B96B4749 /* FrameClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C0BAC75B45E720D4EC713C /* FrameClock.swift */; };
@@ -52,9 +57,12 @@
 		890E7894B5024E6EE31F4041 /* Sfondi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074C80ADA294AEE3BC2F339E /* Sfondi.swift */; };
 		8A08202C1D911C6799A1F86C /* MotoreRetro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D66031D829339253D563B89 /* MotoreRetro.swift */; };
 		8B402BB8513B9083C4DF93AB /* Readiness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5266357C1E390A61B3294EC1 /* Readiness.swift */; };
+		8E4360E751B929D352DD8BD0 /* RegoleCorsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */; };
 		91A1DA759551D1D6E1C5174F /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7A78AEC0C5BB8E5AF5A193 /* Speaker.swift */; };
 		97E630F55313984E5DC070F7 /* SportDelCamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BBF459BAE0BA62CBB65F95 /* SportDelCamp.swift */; };
 		9A883E55D64A2640F4C4943A /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6366D8DAE4BC19CFBAD19367 /* Badge.swift */; };
+		9FAE41318FCB2C2CBAC01653 /* StatoCorniceSport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A670B98B317179752D1C1CD7 /* StatoCorniceSport.swift */; };
+		A875C9515A3D55046EE76002 /* RegoleCorsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71AE2AEA50662493B30E39F /* RegoleCorsa.swift */; };
 		A8A1E4A76D3B0FCA62A87C05 /* Intelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7873929AD1C523DB5A9983D2 /* Intelligence.swift */; };
 		AAD053F52024C18ABB369359 /* Battito.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C25C5F17C318E947E1AD49 /* Battito.swift */; };
 		AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD41100535CF14951204A59 /* OnboardingView.swift */; };
@@ -65,6 +73,7 @@
 		B42E26E0BC7CF3CB0B69E17C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B323386D38EFBCCD82CF3AA8 /* HomeView.swift */; };
 		BA58097177C778699DC324AE /* Suoni.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */; };
 		C16E46641F38F78251F6BA05 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */; };
+		C675ECA4D7FEDD73FF12263C /* CampoCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */; };
 		C862730F291F298FD27D772E /* StaffettaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB98145457D8873F58DC5B95 /* StaffettaView.swift */; };
 		CB408CA458256209F6E6E631 /* ImpostazioniDiSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE218955B02B3D36D0D42915 /* ImpostazioniDiSistema.swift */; };
 		CD9CFE8A4E2CE2F588118F44 /* TrainingBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E1D80616BA24DF09FD6C /* TrainingBar.swift */; };
@@ -93,6 +102,7 @@
 		F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */; };
 		F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */; };
 		F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */; };
+		F832B4E61C798B9315AEE6A5 /* NodiDinamiciCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620617ACE8AB2E712BFD0F95 /* NodiDinamiciCorsa3D.swift */; };
 		FC1B24A65A23FC69979C350F /* AdvancedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09713107D20503A97DEDEFFB /* AdvancedControls.swift */; };
 /* End PBXBuildFile section */
 
@@ -121,6 +131,7 @@
 		07A52B5B54AB00DA15B9E1CE /* MirrorScopio.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = MirrorScopio.plist; sourceTree = "<group>"; };
 		09713107D20503A97DEDEFFB /* AdvancedControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedControls.swift; sourceTree = "<group>"; };
 		09CF05A39638296A9A050E2E /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenaCorsa3D.swift; sourceTree = "<group>"; };
 		0B3333AA93860F8602E33C45 /* GAMIFICATION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GAMIFICATION.md; sourceTree = "<group>"; };
 		0DE9DE6F0F15DC633FCD43CA /* GiocoTraversata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoTraversata.swift; sourceTree = "<group>"; };
 		0F57E1D80616BA24DF09FD6C /* TrainingBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingBar.swift; sourceTree = "<group>"; };
@@ -161,16 +172,20 @@
 		4CE5A851E0EC588426F00E4B /* Verifiche.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Verifiche.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5266357C1E390A61B3294EC1 /* Readiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Readiness.swift; sourceTree = "<group>"; };
 		53C25C5F17C318E947E1AD49 /* Battito.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battito.swift; sourceTree = "<group>"; };
+		5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampoCorsa3D.swift; sourceTree = "<group>"; };
 		55D0FA8229599D99D3E41B01 /* setup-github-secrets.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "setup-github-secrets.sh"; sourceTree = "<group>"; };
 		55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiquadroAggiornamento.swift; sourceTree = "<group>"; };
+		573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelliCorsa3D.swift; sourceTree = "<group>"; };
 		58753B38D847282FA447479E /* genera-progetto.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "genera-progetto.sh"; sourceTree = "<group>"; };
 		590A53B68AE48D7DE953F342 /* ARCHITETTURA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITETTURA.md; sourceTree = "<group>"; };
 		5B081FD5B50F9DD7D2C26B21 /* VERSION */ = {isa = PBXFileReference; path = VERSION; sourceTree = "<group>"; };
+		5B4F2BD91765DBE9B14024AB /* AccessibilitaArena3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitaArena3D.swift; sourceTree = "<group>"; };
 		5C09CB54354847F8DB5C7458 /* NOTICE */ = {isa = PBXFileReference; path = NOTICE; sourceTree = "<group>"; };
 		5EC107AFDC7487B23CBBD232 /* pull_request_template.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = pull_request_template.md; sourceTree = "<group>"; };
 		600397C551FEEE65C1F8CEB8 /* AudioCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCheckView.swift; sourceTree = "<group>"; };
 		60FA793CD47583F5383291B6 /* SECURITY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SECURITY.md; sourceTree = "<group>"; };
 		6106552289AA915241ABBDAE /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = Resources/Fonts; sourceTree = SOURCE_ROOT; };
+		620617ACE8AB2E712BFD0F95 /* NodiDinamiciCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodiDinamiciCorsa3D.swift; sourceTree = "<group>"; };
 		6366D8DAE4BC19CFBAD19367 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
 		6690825ACE7865A55C3D64D1 /* IlPremioValePerTutti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IlPremioValePerTutti.swift; sourceTree = "<group>"; };
 		67EA21338EFDE649C3B85703 /* problema.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = problema.yml; sourceTree = "<group>"; };
@@ -183,6 +198,7 @@
 		782CD46D1240E0B2B5792AD0 /* MirrorScopio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MirrorScopio.entitlements; sourceTree = "<group>"; };
 		7873929AD1C523DB5A9983D2 /* Intelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intelligence.swift; sourceTree = "<group>"; };
 		79C7DC279A994144F5E0434F /* GriglieCheCrescono.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GriglieCheCrescono.swift; sourceTree = "<group>"; };
+		7AB84D50FFE62FA5F5706C2A /* Arena3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arena3D.swift; sourceTree = "<group>"; };
 		7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiVecchi.swift; sourceTree = "<group>"; };
 		8118DA5BFB5F8F8654C02D65 /* PER-I-GENITORI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "PER-I-GENITORI.md"; sourceTree = "<group>"; };
 		83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
@@ -196,11 +212,14 @@
 		98E6EC59854AEF11A1B30F48 /* ACCESSIBILITA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ACCESSIBILITA.md; sourceTree = "<group>"; };
 		99FBDBF1768CDDE25481C4FC /* CONTRIBUTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
 		9A34ECBF54C93620D8462066 /* ReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportView.swift; sourceTree = "<group>"; };
+		9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegoleCorsa.swift; sourceTree = "<group>"; };
 		9C7ED67074557403107859F6 /* GiocoMuro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoMuro.swift; sourceTree = "<group>"; };
 		9ECE751B5B9046C21B3BF993 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
 		A077275B6401CB89DC6AF421 /* Gamification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gamification.swift; sourceTree = "<group>"; };
 		A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigazione.swift; sourceTree = "<group>"; };
 		A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetturaTollerante.swift; sourceTree = "<group>"; };
+		A670B98B317179752D1C1CD7 /* StatoCorniceSport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatoCorniceSport.swift; sourceTree = "<group>"; };
+		A71AE2AEA50662493B30E39F /* RegoleCorsa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegoleCorsa.swift; sourceTree = "<group>"; };
 		A71C981E21AF4139E466D115 /* GiocoBolle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoBolle.swift; sourceTree = "<group>"; };
 		A89756CD521917D80B648A79 /* GiocoSkate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoSkate.swift; sourceTree = "<group>"; };
 		A958020209EA93F4F0FD7F9F /* impeccable.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = impeccable.json; sourceTree = "<group>"; };
@@ -240,6 +259,7 @@
 		E8CC16AEE2F4A86D2D0A27DA /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		EA86B22B5414E8CB4D636C3B /* GiocoCorsa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoCorsa.swift; sourceTree = "<group>"; };
 		EB98145457D8873F58DC5B95 /* StaffettaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffettaView.swift; sourceTree = "<group>"; };
+		ED384A57DDACE8A116806F36 /* MotoreSport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotoreSport.swift; sourceTree = "<group>"; };
 		EEBDD8A82B2C05435B42F4FB /* GiocoGrotta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoGrotta.swift; sourceTree = "<group>"; };
 		EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiDifendibili.swift; sourceTree = "<group>"; };
 		F012376A51206B22B3394005 /* SessionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEngine.swift; sourceTree = "<group>"; };
@@ -426,6 +446,7 @@
 				9068F88405B9013EE54895E4 /* Promemoria.swift */,
 				5266357C1E390A61B3294EC1 /* Readiness.swift */,
 				B51D1F199B0BB5D910CFBEBB /* RegistroSessione.swift */,
+				A71AE2AEA50662493B30E39F /* RegoleCorsa.swift */,
 				2CF5E7FC6D16FBEF78A23B3A /* Scoring.swift */,
 				F012376A51206B22B3394005 /* SessionEngine.swift */,
 				FC7A78AEC0C5BB8E5AF5A193 /* Speaker.swift */,
@@ -440,7 +461,9 @@
 		D4B115A5BCC17280AD09063E /* Verifiche */ = {
 			isa = PBXGroup;
 			children = (
+				5B4F2BD91765DBE9B14024AB /* AccessibilitaArena3D.swift */,
 				BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */,
+				7AB84D50FFE62FA5F5706C2A /* Arena3D.swift */,
 				53C25C5F17C318E947E1AD49 /* Battito.swift */,
 				C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */,
 				F3B2A3E366EBB9ACB4FD6A8B /* ContiDelReferto.swift */,
@@ -454,6 +477,7 @@
 				4A96C5C670CCAC577809191C /* Interlinea.swift */,
 				0FE1517CC2442EDB36D67111 /* LarghezzeCheCrescono.swift */,
 				112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */,
+				9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				FF22C704874B5C8FB93EFBFA /* SessioneMessaViaUnaVolta.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
@@ -502,6 +526,7 @@
 		EB8EC32EAA49E255AD225EDA /* Giochi */ = {
 			isa = PBXGroup;
 			children = (
+				5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */,
 				E571C4DE8C82A84F711D808F /* GiocoArrampicata.swift */,
 				D7387FC1465339FD763AFA45 /* GiocoBeach.swift */,
 				A71C981E21AF4139E466D115 /* GiocoBolle.swift */,
@@ -515,10 +540,15 @@
 				0DE9DE6F0F15DC633FCD43CA /* GiocoTraversata.swift */,
 				447794A56C34069DE76C5FEB /* GiocoTriciclo.swift */,
 				18641845A5C19A468EB437E9 /* GiocoVela.swift */,
+				573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */,
 				3D66031D829339253D563B89 /* MotoreRetro.swift */,
+				ED384A57DDACE8A116806F36 /* MotoreSport.swift */,
+				620617ACE8AB2E712BFD0F95 /* NodiDinamiciCorsa3D.swift */,
 				274E60632B4E6B22A54EF55A /* Personaggi.swift */,
+				0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */,
 				074C80ADA294AEE3BC2F339E /* Sfondi.swift */,
 				F1BBF459BAE0BA62CBB65F95 /* SportDelCamp.swift */,
+				A670B98B317179752D1C1CD7 /* StatoCorniceSport.swift */,
 			);
 			path = Giochi;
 			sourceTree = "<group>";
@@ -680,6 +710,7 @@
 				04D17E6803B5EF4C37C9ADF6 /* AudioMenu.swift in Sources */,
 				D8BF6AD31E6D6DBB6281639D /* AvvisoDati.swift in Sources */,
 				9A883E55D64A2640F4C4943A /* Badge.swift in Sources */,
+				C675ECA4D7FEDD73FF12263C /* CampoCorsa3D.swift in Sources */,
 				DDDBA3BA1DF2A52EC8FED118 /* Components.swift in Sources */,
 				5F38A65C41C5ECA1975785AB /* DashboardView.swift in Sources */,
 				F06197732E8CB3C461C3CA15 /* ElencoPagine.swift in Sources */,
@@ -707,16 +738,21 @@
 				F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */,
 				30195BC95FAF28CFF5A7EED4 /* Log.swift in Sources */,
 				7AA8D0FF6EAD344E137560BF /* Model.swift in Sources */,
+				5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */,
 				8A08202C1D911C6799A1F86C /* MotoreRetro.swift in Sources */,
+				3DEDB8066EB59B837E340DD8 /* MotoreSport.swift in Sources */,
 				F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */,
+				F832B4E61C798B9315AEE6A5 /* NodiDinamiciCorsa3D.swift in Sources */,
 				AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */,
 				3A8F3B9449005A12C1F55EBA /* Personaggi.swift in Sources */,
 				3A00D13C3E3249FE6E7E2E91 /* Promemoria.swift in Sources */,
 				8B402BB8513B9083C4DF93AB /* Readiness.swift in Sources */,
 				5F7543BCCB6E28B524340AAF /* ReadinessView.swift in Sources */,
 				5569C5E70FF898EF4D1C87CF /* RegistroSessione.swift in Sources */,
+				A875C9515A3D55046EE76002 /* RegoleCorsa.swift in Sources */,
 				709984EA43D1F94ED972E00D /* ReportView.swift in Sources */,
 				AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */,
+				1A88CF7A7BD55A3BEEEBC891 /* ScenaCorsa3D.swift in Sources */,
 				7F0EFDABB5A66C0BC064C505 /* Scoring.swift in Sources */,
 				07870146BFCBD4A99BC77E3D /* SessionEngine.swift in Sources */,
 				F36FF08907A415E74FF6B574 /* SettingsView.swift in Sources */,
@@ -726,6 +762,7 @@
 				97E630F55313984E5DC070F7 /* SportDelCamp.swift in Sources */,
 				C862730F291F298FD27D772E /* StaffettaView.swift in Sources */,
 				5EB25C7BFA9CD4050FC5DF3A /* StageView.swift in Sources */,
+				9FAE41318FCB2C2CBAC01653 /* StatoCorniceSport.swift in Sources */,
 				2877E0784151A22FCF97DE74 /* Stimuli.swift in Sources */,
 				EF9B4058C661CFFBC14CC765 /* Store.swift in Sources */,
 				BA58097177C778699DC324AE /* Suoni.swift in Sources */,
@@ -741,7 +778,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BDA35FFEA1673F7CF1CD24E /* AccessibilitaArena3D.swift in Sources */,
 				0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */,
+				1580F636433135EFE4E7E342 /* Arena3D.swift in Sources */,
 				AAD053F52024C18ABB369359 /* Battito.swift in Sources */,
 				2DDA465011CA5F7593C02E1E /* Bersagli.swift in Sources */,
 				D17C1929D1877FB10FB8D259 /* ContiDelReferto.swift in Sources */,
@@ -755,6 +794,7 @@
 				61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */,
 				E919D1D0A761B8079487F90A /* LarghezzeCheCrescono.swift in Sources */,
 				4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */,
+				8E4360E751B929D352DD8BD0 /* RegoleCorsa.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				314493E66D5DD6D995DD7B81 /* SessioneMessaViaUnaVolta.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,

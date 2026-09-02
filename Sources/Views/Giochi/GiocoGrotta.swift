@@ -121,7 +121,7 @@ struct GiocoGrotta: View {
     p.rettangolo(porta + 23, 82, 5, altezza + 8, C64.giallo)
 
     for g in gemme where !g.presa {
-      p.sprite(OggettiCorsa.gemma, x: g.x, y: Self.suolo - 6,
+      p.sprite(OggettiRetro.gemma, x: g.x, y: Self.suolo - 6,
                colori: ["G": C64.ciano, "L": C64.bianco])
     }
 

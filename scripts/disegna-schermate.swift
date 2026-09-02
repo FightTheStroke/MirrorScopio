@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import SwiftUI
 
 // Disegna l'interfaccia in PNG, per guardarla.
@@ -18,6 +19,9 @@ import SwiftUI
 // finestre e senza permessi.
 
 @MainActor
+var disegniFalliti = 0
+
+@MainActor
 func disegna<V: View>(_ vista: V, nome: String, larghezza: CGFloat = 900, altezza: CGFloat = 620) {
   let r = ImageRenderer(content: vista.frame(width: larghezza, height: altezza))
   r.scale = 2
@@ -26,11 +30,17 @@ func disegna<V: View>(_ vista: V, nome: String, larghezza: CGFloat = 900, altezz
         let rep = NSBitmapImageRep(data: tiff),
         let png = rep.representation(using: .png, properties: [:]) else {
     print("✗ \(nome) — non si e' riusciti a disegnarla")
+    disegniFalliti += 1
     return
   }
   let url = URL(fileURLWithPath: "build/schermate/\(nome).png")
-  try? png.write(to: url)
-  print("· \(nome).png  \(Int(img.size.width))×\(Int(img.size.height))")
+  do {
+    try png.write(to: url)
+    print("· \(nome).png  \(Int(img.size.width))×\(Int(img.size.height))")
+  } catch {
+    disegniFalliti += 1
+    print("✗ \(nome) — non si e' riusciti a salvarla: \(error.localizedDescription)")
+  }
 }
 
 /// L'altezza che la vista prende davvero, alla larghezza data.
@@ -171,10 +181,59 @@ struct DisegnaSchermate {
       // l'app: ognuno si fotografa a metà partita, con il campo pieno.
       let manopoleGioco = A11ySettings()
       let perGiocare = EffettiveImpostazioniAccessibilita(manopoleGioco)
+      let paletteGioco = Palette.resolve(theme: perGiocare.theme,
+                                         vision: perGiocare.colorVision,
+                                         system: .light)
       disegna(StaffettaView(a11y: perGiocare, onClose: {}, perFotografia: true),
               nome: "gioco-sala", larghezza: 900, altezza: 1900)
-      disegna(GiocoCorsa(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
-              nome: "gioco-corsa", larghezza: 900, altezza: 660)
+      disegna(
+        GiocoCorsa(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteGioco),
+        nome: "gioco-corsa", larghezza: 900, altezza: 900)
+
+      var manopoleCorsaScura = A11ySettings()
+      manopoleCorsaScura.theme = .scuro
+      let corsaScura = EffettiveImpostazioniAccessibilita(manopoleCorsaScura)
+      let paletteCorsaScura = Palette.resolve(theme: .scuro, vision: .standard, system: .dark)
+      disegna(
+        GiocoCorsa(a11y: corsaScura, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteCorsaScura),
+        nome: "gioco-corsa-scuro", larghezza: 900, altezza: 900)
+
+      var manopoleCorsaCalma = A11ySettings()
+      manopoleCorsaCalma.theme = .scuro
+      manopoleCorsaCalma.calmMode = true
+      manopoleCorsaCalma.reducedMotion = true
+      manopoleCorsaCalma.hideScore = true
+      let corsaCalma = EffettiveImpostazioniAccessibilita(manopoleCorsaCalma)
+      let paletteCorsaCalma = Palette.resolve(theme: .scuro, vision: .standard, system: .dark)
+      disegna(
+        GiocoCorsa(a11y: corsaCalma, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteCorsaCalma),
+        nome: "gioco-corsa-calma", larghezza: 900, altezza: 900)
+
+      var manopoleCorsaContrasto = A11ySettings()
+      manopoleCorsaContrasto.theme = .altoContrasto
+      manopoleCorsaContrasto.colorVision = .monocromia
+      let corsaContrasto = EffettiveImpostazioniAccessibilita(manopoleCorsaContrasto)
+      let paletteCorsaContrasto = Palette.resolve(
+        theme: .altoContrasto, vision: .monocromia, system: .dark)
+      disegna(
+        GiocoCorsa(a11y: corsaContrasto, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteCorsaContrasto),
+        nome: "gioco-corsa-alto-contrasto", larghezza: 900, altezza: 900)
+
+      var manopoleCorsaMonocromia = A11ySettings()
+      manopoleCorsaMonocromia.theme = .scuro
+      manopoleCorsaMonocromia.colorVision = .monocromia
+      let corsaMonocromia = EffettiveImpostazioniAccessibilita(manopoleCorsaMonocromia)
+      let paletteCorsaMonocromia = Palette.resolve(
+        theme: .scuro, vision: .monocromia, system: .dark)
+      disegna(
+        GiocoCorsa(a11y: corsaMonocromia, difficolta: .media, onClose: {}, perFotografia: true)
+          .environment(\.palette, paletteCorsaMonocromia),
+        nome: "gioco-corsa-monocromia", larghezza: 900, altezza: 900)
+
       disegna(GiocoTraversata(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
               nome: "gioco-traversata", larghezza: 900, altezza: 660)
       disegna(GiocoBolle(a11y: perGiocare, difficolta: .media, onClose: {}, perFotografia: true),
@@ -210,6 +269,10 @@ struct DisegnaSchermate {
 
       print("")
       print("Le immagini sono in build/schermate/.")
+      if disegniFalliti > 0 {
+        print("✗ \(disegniFalliti) schermate non sono state disegnate")
+        exit(1)
+      }
     }
   }
 }

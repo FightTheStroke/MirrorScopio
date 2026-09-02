@@ -29,6 +29,7 @@ Sources/
     Promemoria.swift     avvisi locali giornalieri
     Navigazione.swift    quali schermate sono raggiungibili e quando
     AppVersion.swift     versione e numero di build letti dal pacchetto
+    RegoleCorsa.swift    regole deterministiche del gioco, separate dal disegno
     Log.swift            registro diagnostico locale
     Updates.swift        l'unico file che tocca la rete: chiede a GitHub qual è
                          l'ultima versione e sa installarla, dopo aver
@@ -44,7 +45,15 @@ Sources/
     Store.swift          profili e storico, JSON su disco
     Gamification.swift   punti, serie, obiettivi, proposta di livello
     Exporter.swift       referto PDF e CSV
-  Views/                 una schermata per file (18)
+  Views/                 una schermata per file
+    Giochi/
+      MotoreRetro.swift  motore Canvas dei dodici giochi essenziali
+      MotoreSport.swift  cornice SwiftUI accessibile dei giochi moderni
+      CampoCorsa3D.swift ponte fra SwiftUI e SceneKit per La Corsa
+      ScenaCorsa3D.swift camera, luci, arena e aggiornamento dello stato
+      ModelliCorsa3D.swift personaggi e ostacoli 3D costruiti in codice
+      NodiDinamiciCorsa3D.swift riuso dei nodi che si muovono a ogni fotogramma
+      StatoCorniceSport.swift stato verificabile della cornice accessibile
 ```
 
 ## Le prove
@@ -65,6 +74,11 @@ Tests/              banchi di prova eseguibili a mano (`@main`), non XCTest:
 Le prime due girano da `./test.sh` e dentro la verifica automatica su GitHub. La terza si
 lancia a mano, perché ha bisogno di hardware e modelli che una macchina di compilazione non
 ha.
+
+Le schermate dei giochi 3D non hanno una copia finta per le prove:
+`SCNRenderer` fotografa la stessa `SCNScene` usata dal `SCNView` nell'app. La
+scena resta decorativa per VoiceOver; titolo, stato, comando e «Ancora» sono
+testo SwiftUI vero sopra il campo.
 
 ## Il progetto Xcode
 

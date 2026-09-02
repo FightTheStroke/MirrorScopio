@@ -708,7 +708,7 @@ struct ElencoGiochi: View {
     VStack(alignment: .leading, spacing: Metrica.spazioMedio) {
       VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
         SectionTitle(text: "Il premio di fine sessione", a11y: a11y)
-        Explain(text: "A sessione finita — sia leggendo sia scrivendo — si apre la sala giochi e sceglie lui fra tredici giochi: cinque in stile Commodore 64 e otto che sono gli sport veri del Fight Camp, uno per edizione. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere: quando qualcosa non riesce compare «Ancora», e si continua.\n\nQui sotto ci sono tutti: «Apri» fa partire quello che vuoi guardare, e chiudendolo si torna qui.",
+        Explain(text: "A sessione finita — sia leggendo sia scrivendo — si apre la sala giochi e sceglie lui fra tredici giochi. La Corsa è un'arena 3D moderna; gli altri comprendono quattro avventure essenziali e otto sport veri del Fight Camp, uno per edizione. Valgono per tutti un tasto solo, nessun tempo che scade e l'impossibilità di perdere: quando qualcosa non riesce compare «Ancora», e si continua.\n\nQui sotto ci sono tutti: «Apri» fa partire quello che vuoi guardare, e chiudendolo si torna qui.",
                 a11y: a11y, size: 15)
         SmallButton(title: "Guarda la schermata che vede lui",
                     symbol: "gamecontroller.fill", a11y: a11y) {

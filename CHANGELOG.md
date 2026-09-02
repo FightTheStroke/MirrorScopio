@@ -15,6 +15,38 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.10.0] — 2026-09-02
+
+### Aggiunto
+- **La Corsa è diventata una vera arena 3D moderna.** Camera prospettica, luci,
+  ombre, tribune, pubblico, traguardo, personaggi e ostacoli sono disegnati da
+  SceneKit dentro l'app, senza file o servizi esterni. Restano le quattro tappe
+  del Fight Camp e le regole che contano: un tasto solo, nessun tempo che
+  scade, non si può perdere e quando qualcosa non riesce compare «Ancora».
+- **L'arena 3D segue le impostazioni della persona.** Cambia con tema e modo di
+  vedere i colori, usa il carattere e l'ingrandimento scelti, nasconde i punti
+  quando richiesto e in modalità calma diventa un gioco a passi senza perdere
+  profondità, ostacoli o traguardo. Pubblico, bandiere e premi luminosi diventano
+  più quieti senza far sparire ciò che serve per giocare.
+
+### Corretto
+- **La sala giochi e il riepilogo dicevano ancora che i giochi erano cinque e
+  tutti in stile Commodore 64.** Sono tredici; La Corsa ora è 3D e le parole
+  dell'app lo dicono senza nasconderlo.
+- **VoiceOver non annunciava in tempo l'ostacolo che stava arrivando.** Ora il
+  comando resta stabile sotto il dito e dice anche tappa, strada e «Ancora».
+- **Cambiare “Riduci movimento” durante una tappa poteva trasformare ostacoli
+  fermi in collisioni non meritate.** La strada davanti viene ricostruita senza
+  togliere punti, abbassare la difficoltà o mostrare «Ancora».
+- **All'arrivo un salto poteva restare congelato e la salita finiva con uno
+  scatto in avanti.** L'eroe torna a terra e resta dove è arrivato fino a
+  «Continua».
+- **Aprire e chiudere più volte La Corsa lasciava l'arena 3D in memoria.** Ora
+  ogni scena viene liberata quando il gioco si chiude.
+- **Una compilazione fallita poteva lasciare sembrare valida una copia costruita
+  prima.** Il controllo ora riporta l'errore vero e conserva il dettaglio delle
+  prove che non passano.
+
 ## [0.9.1] — 2026-08-30
 
 ### Corretto
