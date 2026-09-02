@@ -116,6 +116,10 @@ perso alla rigenerazione: si cambia `project.yml`.**
 ./build.sh && ./test.sh --all
 ```
 
+Se lavori senza poter aprire l'app vera (per esempio in una sessione senza
+schermo), `./test.sh --senza-ui` salta solo le prove che la aprono davvero; in
+GitHub restano comunque obbligatorie.
+
 Devono passare. Se tocchi il riconoscimento vocale, `Tests/StreamHarness.swift`
 è la verifica che conta: esercita la catena completa con voce sintetizzata,
 senza microfono, e avrebbe intercettato il guasto più grave che questo progetto
