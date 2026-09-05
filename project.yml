@@ -119,6 +119,64 @@ fileGroups:
 
 targets:
 
+  MirrorScopioMobile:
+    type: application
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Mobile
+      - path: Sources/Studio
+      - path: Sources/StudioHelp
+      - path: Sources/Core/Speaker.swift
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.fightthestroke.mirrorscopio.mobile
+        PRODUCT_NAME: MirrorScopioMobile
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: MirrorScopio
+        INFOPLIST_KEY_NSCameraUsageDescription: "Fotografa una pagina per leggerla sul dispositivo. Le immagini non vengono inviate a servizi esterni."
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        CODE_SIGN_IDENTITY: "Apple Development"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  VerificheStudioMobile:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Verifiche
+        includes: ["Studio*Tests.swift"]
+    dependencies:
+      - target: MirrorScopioMobile
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: org.fightthestroke.mirrorscopio.mobile.verifiche
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MirrorScopioMobile.app/MirrorScopioMobile"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        CODE_SIGN_IDENTITY: "Apple Development"
+
+  ProveStudioMobile:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources: [ProveStudio]
+    dependencies:
+      - target: MirrorScopioMobile
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: org.fightthestroke.mirrorscopio.mobile.prove
+        TEST_TARGET_NAME: MirrorScopioMobile
+        CODE_SIGN_IDENTITY: "Apple Development"
+
   MirrorScopio:
     type: application
     platform: macOS
@@ -175,7 +233,7 @@ targets:
   ProveDaTastiera:
     type: bundle.ui-testing
     platform: macOS
-    sources: [ProveDaTastiera]
+    sources: [ProveDaTastiera, ProveStudio]
     dependencies:
       - target: MirrorScopio
     settings:
@@ -185,6 +243,19 @@ targets:
         TEST_TARGET_NAME: MirrorScopio
 
 schemes:
+  MirrorScopioMobile:
+    build:
+      targets:
+        MirrorScopioMobile: all
+        VerificheStudioMobile: [test]
+        ProveStudioMobile: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - VerificheStudioMobile
+        - ProveStudioMobile
   MirrorScopio:
     build:
       targets:

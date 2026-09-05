@@ -2,25 +2,52 @@ import SwiftUI
 
 @main
 struct MirrorScopioApp: App {
-  @StateObject private var store = Store()
-  @StateObject private var engine = SessionEngine()
-  @StateObject private var readiness = Readiness()
-  @StateObject private var nav = Navigazione()
+  @State private var legacy: LegacyWorkspace?
 
   init() {
     FontLoader.registerBundledFonts()
+    _legacy = State(initialValue: CommandLine.arguments.contains("--tachistoscopio")
+      ? LegacyWorkspace() : nil)
   }
 
   var body: some Scene {
     WindowGroup("MirrorScopio") {
-      RootView(store: store, engine: engine, readiness: readiness, nav: nav)
-        .frame(minWidth: 900, minHeight: 700)
+      Group {
+        if let legacy {
+          RootView(store: legacy.store, engine: legacy.engine,
+                   readiness: legacy.readiness, nav: legacy.nav)
+            .toolbar {
+              Button("Torna allo studio") {
+                legacy.engine.abort()
+                self.legacy = nil
+              }
+              .accessibilityIdentifier("studio.return")
+            }
+        } else {
+          StudioRootView(onLegacy: { legacy = LegacyWorkspace() })
+        }
+      }
+      .frame(minWidth: 900, minHeight: 700)
     }
     .defaultSize(width: 1100, height: 850)
     .commands {
-      ComandiMenu(nav: nav, engine: engine)
+      if let legacy {
+        ComandiMenu(nav: legacy.nav, engine: legacy.engine)
+      } else {
+        CommandGroup(replacing: .newItem) {}
+      }
     }
   }
+}
+
+/// Il percorso precedente si carica soltanto su richiesta: studiare non richiede
+/// microfono, modelli di riconoscimento o accesso allo storico degli esercizi.
+@MainActor
+private final class LegacyWorkspace {
+  let store = Store()
+  let engine = SessionEngine()
+  let readiness = Readiness()
+  let nav = Navigazione()
 }
 
 /// Decide che cosa mostrare. Una schermata alla volta, mai due finestre:

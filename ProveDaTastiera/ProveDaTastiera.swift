@@ -17,6 +17,7 @@ import XCTest
 ///
 /// Queste prove girano a ogni push, per sempre. È la differenza fra aver
 /// sistemato l'accessibilità una volta e non lasciarla più rompere.
+@MainActor
 final class ProveDaTastiera: XCTestCase {
 
   static let bundleID = "org.fightthestroke.mirrorscopio"
@@ -25,7 +26,9 @@ final class ProveDaTastiera: XCTestCase {
   /// La cartella usa-e-getta dove l'app sotto prova scrive i suoi dati.
   var cartellaDati: URL!
 
-  override func setUpWithError() throws {
+  override func setUp() async throws {
+    try await super.setUp()
+    await MainActor.run {
     continueAfterFailure = false
 
     cartellaDati = FileManager.default.temporaryDirectory
@@ -40,16 +43,21 @@ final class ProveDaTastiera: XCTestCase {
     // UserDefaults: l'app le legge senza sapere di essere sotto esame, e il
     // Mac di chi lancia le prove resta com'era.
     app.launchArguments += [
+      "--tachistoscopio",             // queste prove coprono il percorso precedente
       "-onboardingFatto", "YES",       // il primo avvio ha una prova sua
       "-controllaAggiornamenti", "NO", // nessuna prova deve toccare la rete
     ]
     app.launch()
     app.activate()
+    }
   }
 
-  override func tearDownWithError() throws {
+  override func tearDown() async throws {
+    await MainActor.run {
     terminaEAttendi()
     if let cartellaDati { try? FileManager.default.removeItem(at: cartellaDati) }
+    }
+    try await super.tearDown()
   }
 
   // MARK: - Quello che VoiceOver direbbe

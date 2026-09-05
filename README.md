@@ -4,15 +4,16 @@
 
 # MirrorScopio
 
-**Una parola compare per un lampo. Chi legge la dice ad alta voce. Il Mac ascolta e capisce da sé se è giusta.**
+**Un testo alla volta, ascolto a piccoli passi e strumenti per ritrovare il filo.**
 
-Un tachistoscopio per logopedia che non ha bisogno di un adulto che segni le risposte.
+Studio locale su Mac e iPhone: testo, voce, mappa, formulario e ripasso assistito.
+Il percorso precedente di esercizi resta disponibile su Mac, separato dallo studio.
 
 [![Verifica](https://github.com/FightTheStroke/MirrorScopio/actions/workflows/verifica.yml/badge.svg)](https://github.com/FightTheStroke/MirrorScopio/actions/workflows/verifica.yml)
 [![Ultima versione](https://img.shields.io/github/v/release/FightTheStroke/MirrorScopio?label=versione&color=blue)](https://github.com/FightTheStroke/MirrorScopio/releases/latest)
 [![Licenza Apache 2.0](https://img.shields.io/badge/licenza-Apache%202.0-blue)](LICENSE)
 
-[![Solo per Mac](https://img.shields.io/badge/solo%20per-Mac-000000?logo=apple&logoColor=white)](#requisiti)
+[![Mac e iPhone](https://img.shields.io/badge/per-Mac%20e%20iPhone-000000?logo=apple&logoColor=white)](#studio-su-mac-e-iphone)
 [![macOS 26+](https://img.shields.io/badge/macOS-26%2B-lightgrey)](#requisiti)
 [![Firmata e notarizzata da Apple](https://img.shields.io/badge/firmata%20e%20notarizzata-da%20Apple-success)](#scaricare-e-usare)
 
@@ -32,15 +33,40 @@ sorella di **[MirrorBuddy](https://github.com/FightTheStroke/MirrorBuddy)**.
 </div>
 
 > [!WARNING]
-> **Epilessia fotosensibile.** La presentazione rapida comporta rapidi cambi di luminanza.
+> **Epilessia fotosensibile — percorso precedente.** La presentazione rapida comporta rapidi cambi di luminanza.
 > Non usare con persone con epilessia fotosensibile senza parere medico.
 >
-> MirrorScopio è uno strumento di **esercizio e osservazione**, non un dispositivo medico:
-> non produce diagnosi e non sostituisce il lavoro di un logopedista.
+> Il nuovo percorso Studio non presenta parole lampeggianti. MirrorScopio è uno strumento
+> di **studio, esercizio e osservazione**, non un dispositivo medico: non produce diagnosi,
+> non misura il QI e non sostituisce il lavoro dei professionisti.
 
 ---
 
-## Il problema
+## Studio su Mac e iPhone
+
+Il nuovo avvio propone il materiale da studiare, non una prova di velocità. Si può
+leggere oppure ascoltare un segmento per volta, mantenere visibili le idee principali
+e le procedure, e ripassare con domande preparate da un adulto. Le risposte aperte
+si confrontano con una risposta di riferimento: nessuna intelligenza artificiale
+decide se il significato è corretto.
+
+Pause e strumenti restano disponibili. Non ci sono serie di giorni da difendere,
+classifiche o un calendario che ritiri automaticamente gli aiuti. Le osservazioni
+su tempo, fatica e ripasso descrivono l'uso: non dimostrano un miglioramento clinico.
+
+Le due app conservano i dati sul rispettivo dispositivo. Il passaggio di una copia
+fra Mac e iPhone è **manuale**, attraverso l'esportazione e l'importazione di un
+archivio: non c'è sincronizzazione automatica né un account.
+
+La versione iPhone si costruisce da Xcode con lo schema `MirrorScopioMobile`;
+richiede iOS 26. Il pacchetto Mac si costruisce ancora con `./build.sh`.
+Questo ramo non costituisce una pubblicazione su App Store o TestFlight.
+
+## Percorso precedente: il tachistoscopio su Mac
+
+Le sezioni seguenti descrivono il percorso di esercizi, accessibile da **Per l'adulto**
+nel nuovo Studio. I suoi profili e il suo storico non vengono convertiti in misure
+di comprensione e non vengono cancellati.
 
 Il tachistoscopio è un esercizio classico nella riabilitazione della dislessia: mostri una
 parola per pochi centesimi di secondo, poi la copri. Serve ad allenare la **lettura
@@ -224,8 +250,17 @@ brew install xcodegen               # serve a build.sh
 ./build.sh                          # rigenera il progetto, compila e firma
 open build/MirrorScopio.app
 ./test.sh                           # le verifiche
+./scripts/test-studio-mobile.sh ID_SIMULATORE_IPHONE
 ./scripts/genera-progetto.sh        # se preferisci lavorare dentro Xcode
 ```
+
+Le prove iPhone usano una firma locale anche nel simulatore, perché la copia
+installata deve cambiare insieme al codice. Gli identificatori dei simulatori
+si leggono con `xcrun simctl list devices available`.
+Per isolare una compilazione delle prove Mac si può impostare
+`MIRRORSCOPIO_TEST_DERIVED_DATA`; `MIRRORSCOPIO_TEST_IDENTITY` permette di scegliere
+un certificato già presente nel portachiavi. Queste opzioni non saltano prove
+e non modificano le protezioni di macOS.
 
 Il progetto Xcode **sta nel repository**, ma non è la sorgente: è un risultato. La sorgente
 è `project.yml`, un file di testo che si legge e si confronta, mentre un `.xcodeproj` si

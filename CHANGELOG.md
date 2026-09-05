@@ -15,6 +15,21 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+### Aggiunto
+- **Studio su Mac e iPhone**, con testo e ascolto a segmenti, mappa, formulario
+  e domande di ripasso preparate dall'adulto. Gli strumenti restano disponibili
+  e le pause non fanno perdere punti.
+- **Archivi locali separati per lo studio**, con esportazione e importazione
+  manuale fra dispositivi, senza account e senza sincronizzazione automatica.
+- **Un target iOS dedicato** e prove condivise del nuovo percorso. La compilazione
+  per iPhone non equivale alla pubblicazione su App Store.
+
+### Cambiato
+- **Sul Mac si entra nello studio.** Il percorso precedente resta accessibile
+  da «Per l'adulto» e conserva profili e storico senza convertirli.
+- Nel nuovo percorso il ripasso è un **autoconfronto dichiarato**, non una misura
+  del QI o un giudizio automatico sulla comprensione.
+
 ## [0.10.0] — 2026-09-02
 
 ### Aggiunto
