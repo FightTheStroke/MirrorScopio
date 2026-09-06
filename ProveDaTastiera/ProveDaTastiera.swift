@@ -49,6 +49,8 @@ final class ProveDaTastiera: XCTestCase {
     ]
     app.launch()
     app.activate()
+    XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 30),
+                  "Nessuna finestra. Stato dell'app: \(app.state.rawValue)\n\(app.debugDescription)")
     }
   }
 

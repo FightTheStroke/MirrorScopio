@@ -307,6 +307,11 @@ final class StudioUITests: XCTestCase {
   private func premi(_ element: XCUIElement) {
     XCTAssertTrue(element.waitForExistence(timeout: 10))
     #if os(macOS)
+    let scroll = app.scrollViews.firstMatch
+    for _ in 0..<8 where !element.isHittable && scroll.exists {
+      scroll.scroll(byDeltaX: 0, deltaY: element.frame.midY < scroll.frame.minY ? 300 : -300)
+    }
+    XCTAssertTrue(element.isHittable, "Il controllo non è raggiungibile: \(element)")
     element.click()
     #else
     let scroll = app.scrollViews.firstMatch
