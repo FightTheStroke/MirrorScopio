@@ -20,6 +20,14 @@ La sezione di rilascio pubblico resta assente per non attivare la pubblicazione
 automatica del ramo principale.
 
 ### Aggiunto
+- **Scrivi dà il tempo di correggersi:** indica le parole da rivedere, quelle
+  mancanti e quelle in più, conserva il testo e concede tre riprove dopo la
+  prima risposta. Se la correzione riesce si prosegue; altrimenti compare il
+  modello e si continua solo premendo il pulsante. Il riepilogo distingue
+  esplicitamente il risultato della prima risposta dall'esercizio con aiuti.
+- **Indietro è visibile:** dagli esercizi si torna alla schermata iniziale,
+  e da Leggi o Scrivi si ritrova Studio. Prima di lasciare risposte non salvate
+  l'app chiede conferma.
 - **I primi passi spiegati mentre si fanno:** la home distingue la prova già pronta
   dalle lezioni del genitore; lettura, risposta a voce e confronto hanno istruzioni
   aperte nei primi tre utilizzi conclusi, poi sempre riapribili e ascoltabili.
@@ -50,6 +58,11 @@ automatica del ramo principale.
   all'elenco originale. I profili e lo storico degli esercizi restano invariati.
 - Nel nuovo percorso il ripasso è un **autoconfronto dichiarato**, non una misura
   del QI o un giudizio automatico sulla comprensione.
+
+### Corretto
+- **La prova del microfono aggiorna il livello prima della partenza:**
+  nella schermata «Pronti?» la barra poteva restare ferma anche con il microfono
+  acceso. Il controllo ora continua ad aggiornarsi; Scrivi non accende il microfono.
 
 ## [0.10.0] — 2026-09-02
 

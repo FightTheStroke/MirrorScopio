@@ -152,9 +152,21 @@ struct ReportView: View {
           .multilineTextAlignment(.center)
           .frame(maxWidth: a11y.size(560))
       } else {
-        Text("Hai preso **\(record.correct)** parole su **\(record.total)**.")
-          .font(a11y.font(.sezione))
-          .foregroundStyle(palette.muted)
+        Group {
+          if engine.config.mode == .scrittura {
+            Text("Al primo tentativo: **\(record.correct)** su **\(record.total)**.")
+          } else {
+            Text("Hai preso **\(record.correct)** parole su **\(record.total)**.")
+          }
+        }
+        .font(a11y.font(.sezione))
+        .foregroundStyle(palette.muted)
+
+        if engine.config.mode == .scrittura {
+          Explain(text: "Le riprove servono per esercitarti. Qui contiamo solo la prima risposta.",
+                  a11y: a11y, size: 16)
+            .multilineTextAlignment(.center)
+        }
 
         if record.correct < record.total {
           Text(frasePerLeRimaste)
@@ -177,7 +189,9 @@ struct ReportView: View {
 
       if !record.missedWords.isEmpty {
         VStack(spacing: Metrica.spazioMinimo) {
-          Explain(text: "Queste ti sono scappate:", a11y: a11y, size: 16)
+          Explain(text: engine.config.mode == .scrittura
+                  ? "Da rivedere nella prima risposta:" : "Queste ti sono scappate:",
+                  a11y: a11y, size: 16)
             .multilineTextAlignment(.center)
           Text(record.missedWords.prefix(10).joined(separator: "   "))
             .font(a11y.font(.guida, .medium))

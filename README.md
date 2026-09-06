@@ -124,6 +124,13 @@ settimana, mentre l'esercizio darebbe il meglio se fatto pochi minuti al giorno.
 | **Leggi** | Lampeggia una parola, la si legge ad alta voce | Lettura globale, ampiezza dello sguardo, velocità di riconoscimento |
 | **Scrivi** | Il Mac detta una parola, la si scrive | Conversione suono → lettera, ortografia |
 
+In **Scrivi**, dopo **Fatto**, l'app indica le parole da rivedere, mancanti o in più.
+Il testo resta modificabile: ci sono **tre riprove dopo la prima risposta** e si può
+riascoltare quando serve. Una correzione riuscita fa proseguire; dopo le tre riprove
+compare il modello e **Continua** lascia scegliere quando passare oltre.
+Il riepilogo conta la **prima risposta**, senza trasformare le correzioni con aiuto
+in risultati ottenuti al primo tentativo.
+
 ### Una sessione, dall'inizio alla fine
 
 1. **Prepara il Mac** — al primo avvio l'app controlla da sola di avere quel che le serve
