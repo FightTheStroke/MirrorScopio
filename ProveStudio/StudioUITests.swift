@@ -62,6 +62,13 @@ final class StudioUITests: XCTestCase {
   }
 
   #if os(macOS)
+  func testRitornoDaLeggiAStudio() {
+    premi(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Leggi")).firstMatch)
+    premi(app.buttons["navigation.back"])
+    XCTAssertTrue(app.buttons["studio.start"].waitForExistence(timeout: 5))
+    XCTAssertFalse(app.buttons["navigation.back"].exists)
+  }
+
   func testImpostazioniOriginaliConStudioNelloStessoElenco() {
     premi(app.buttons["studio.shell.settings"])
     XCTAssertTrue(app.buttons["Colori e luce"].waitForExistence(timeout: 5))

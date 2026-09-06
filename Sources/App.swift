@@ -38,6 +38,7 @@ struct RootView: View {
   @Environment(\.colorScheme) private var systemScheme
   @Environment(\.scenePhase) private var scenePhase
   @State private var studioDestination: StudioDestination = .home
+  @State private var confermaRitorno = false
 
   private var a11y: EffettiveImpostazioniAccessibilita {
     EffettiveImpostazioniAccessibilita(store.current.a11y, mac: mac.stato)
@@ -60,6 +61,26 @@ struct RootView: View {
           .background(palette.background)
       }
     }
+    .safeAreaInset(edge: .top, alignment: .leading) {
+      if mostraRitorno {
+        HStack {
+          SmallButton(title: engine.phase == .idle ? "Torna a Studio" : "Indietro",
+                      symbol: "chevron.left", a11y: a11y) {
+            if engine.phase == .idle {
+              nav.studioSelected = true
+            } else if !engine.trials.isEmpty || !engine.typedAnswer.isEmpty {
+              confermaRitorno = true
+            } else {
+              engine.reset()
+            }
+          }
+          .accessibilityIdentifier("navigation.back")
+          Spacer()
+        }
+        .padding(Metrica.spazioMedio)
+        .background(palette.background)
+      }
+    }
     // L'orologio dei frame vive qui e non nella schermata di presentazione, così
     // il livello del microfono si vede già durante la prova iniziale.
     .background(FrameClock(attivo: engine.serveIlBattito) { engine.tick($0, durataFrame: $1) }
@@ -75,6 +96,12 @@ struct RootView: View {
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))
     .avvisoDati(store)
+    .alert("Vuoi tornare indietro?", isPresented: $confermaRitorno) {
+      Button("Resta qui", role: .cancel) {}
+      Button("Esci dall'esercizio", role: .destructive) { engine.reset() }
+    } message: {
+      Text("Questa sessione non verrà salvata. Le sessioni già salvate restano.")
+    }
     .onChange(of: nav.servizioStudio) { _, destinazione in
       guard destinazione != nil else { return }
       _ = StudioRuntime.shared.store.flushStaged()
@@ -94,6 +121,14 @@ struct RootView: View {
     .onChange(of: scenePhase) { _, nuova in
       guard nuova == .background else { return }
       engine.interrompi(motivo: "L'app è passata in secondo piano: questa parola non conta. Quando torni, si riprende da qui.")
+    }
+  }
+
+  private var mostraRitorno: Bool {
+    switch engine.phase {
+    case .idle: nav.schermata == .casa && !nav.studioSelected
+    case .finished: false
+    default: true
     }
   }
 
