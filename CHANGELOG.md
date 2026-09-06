@@ -15,6 +15,10 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+Anteprima privata 0.11.0 in preparazione: pacchetto Mac firmato e TestFlight.
+La sezione di rilascio pubblico resta assente per non attivare la pubblicazione
+automatica del ramo principale.
+
 ### Aggiunto
 - **Studio su Mac e iPhone**, con testo e ascolto a segmenti, mappa, formulario
   e domande di ripasso preparate dall'adulto. Gli strumenti restano disponibili
@@ -23,6 +27,8 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
   manuale fra dispositivi, senza account e senza sincronizzazione automatica.
 - **Un target iOS dedicato** e prove condivise del nuovo percorso. La compilazione
   per iPhone non equivale alla pubblicazione su App Store.
+- **Una guida leggibile e ascoltabile** spiega come usare ogni strumento,
+  perché è stato scelto, i limiti e il trasferimento manuale fra dispositivi.
 
 ### Cambiato
 - **Sul Mac si entra nello studio.** Il percorso precedente resta accessibile

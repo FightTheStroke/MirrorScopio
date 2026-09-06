@@ -139,7 +139,7 @@ final class StudioUITests: XCTestCase {
     XCTAssertTrue(title.waitForExistence(timeout: 5))
     premi(title)
     title.typeText("Costo e ricavo")
-    XCTAssertEqual(title.value as? String, "Costo e ricavo")
+    attendiTesto("Costo e ricavo", in: title)
     let subject = app.textFields["studio.subject"]
     premi(subject)
     subject.typeText("Economia aziendale")
@@ -156,10 +156,17 @@ final class StudioUITests: XCTestCase {
   private func scrivi(_ editor: XCUIElement, _ text: String) {
     premi(editor)
     editor.typeText(text)
-    XCTAssertEqual(editor.value as? String, text)
+    attendiTesto(text, in: editor)
     #if os(iOS)
     premi(app.buttons["studio.keyboard.done"])
     #endif
+  }
+
+  private func attendiTesto(_ text: String, in element: XCUIElement) {
+    let written = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "value == %@", text), object: element)
+    XCTAssertEqual(XCTWaiter.wait(for: [written], timeout: 3), .completed)
+    XCTAssertEqual(element.value as? String, text)
   }
 
   private func premi(_ element: XCUIElement) {

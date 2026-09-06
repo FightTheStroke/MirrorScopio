@@ -156,3 +156,19 @@ jobs:
         # Girano qui perche' l'accessibilita' controllata a occhio non e' una
         # promessa: per settimane ho scritto che l'app era usabile da tastiera
         # senza che nessuno l'avesse mai attraversata premendo solo Tab.
+
+      - name: Eseguo le prove Studio su iPhone
+        run: |
+          set -euo pipefail
+          SIMULATORE="$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries | sort_by(.key) | reverse | .[]
+              | select(.key | contains(".iOS-"))
+              | .value[]
+              | select(.isAvailable and (.name | startswith("iPhone")))]
+            | first | .udid // empty')"
+          if [ -z "$SIMULATORE" ]; then
+            echo "::error::Nessun simulatore iPhone disponibile: le prove iOS non possono essere saltate."
+            exit 1
+          fi
+          xcrun simctl bootstatus "$SIMULATORE" -b
+          ./scripts/test-studio-mobile.sh "$SIMULATORE"
