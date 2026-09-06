@@ -43,6 +43,11 @@ final class SessionEngine: ObservableObject {
   }
   /// Testo digitato in modalità Scrivi.
   @Published var typedAnswer = ""
+  @Published private(set) var revisioneScrittura: RevisioneScrittura?
+
+  var modelloScrittura: String? {
+    revisioneScrittura?.esaurite == true ? current?.stimulus : nil
+  }
   /// Vero durante il test iniziale che misura la velocità di partenza.
   @Published private(set) var isCalibration = false
   /// Obiettivi sbloccati alla fine della sessione, da mostrare una volta sola.
@@ -217,9 +222,12 @@ final class SessionEngine: ObservableObject {
     trialIndex = 0
     totalTrials = items.count
     summary = nil
+    summarizing = false
     justUnlocked = []
     difficultySuggestion = .resta
     typedAnswer = ""
+    revisioneScrittura = nil
+    current = nil
     wordsSincePause = 0
     isCalibration = calibration
     staircase = StaircaseState(config: config)
@@ -276,6 +284,13 @@ final class SessionEngine: ObservableObject {
   func interrompi(motivo: String) {
     guard isRunning else { return }
     guard !phaseÈFerma else { return }
+
+    // La prima risposta è già nel registro: interrompere una riprova non
+    // deve cancellarla né aggiungere una seconda prova per la stessa frase.
+    if revisioneScrittura != nil { current = nil }
+    revisioneScrittura = nil
+    typedAnswer = ""
+    if config.mode == .scrittura { speaker.stop() }
 
     if var trial = current {
       trial.interrotto = true
@@ -619,6 +634,7 @@ final class SessionEngine: ObservableObject {
     current = t
     liveTranscript = ""
     typedAnswer = ""
+    revisioneScrittura = nil
 
     if config.mode == .scrittura {
       phase = .typing
@@ -660,14 +676,43 @@ final class SessionEngine: ObservableObject {
   /// Modalità Scrivi: si consegna quello che si è digitato.
   func submitTyped() {
     guard case .typing = phase, var trial = current else { return }
+    guard revisioneScrittura?.esaurite != true else { return }
+    let primaConsegna = revisioneScrittura == nil
+    let consegne = (revisioneScrittura?.consegne ?? 0) + 1
     trial.response = typedAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
     let verdict = Scoring.classify(target: trial.stimulus, response: trial.response)
     trial.correct = verdict.correct
     trial.errorKind = trial.response.isEmpty ? .omissioneTotale : verdict.kind
     trial.editDistance = verdict.distance
     trial.actualExposureMs = 0
-    phase = .scoring
-    commit(trial)
+
+    if verdict.correct {
+      revisioneScrittura = nil
+      if primaConsegna {
+        commit(trial)
+      } else {
+        // Si festeggia la correzione, ma nel registro resta il risultato
+        // precedente agli aiuti, senza gonfiare percentuale o soglia.
+        current = nil
+        mostraRiscontro(trial)
+      }
+      return
+    }
+
+    revisioneScrittura = RevisioneScrittura(
+      consegne: consegne, risposta: typedAnswer,
+      parole: Scoring.revisioneParole(target: trial.stimulus, response: trial.response))
+    if primaConsegna { commit(trial, continuaScrittura: true) }
+    suoni.suona(.ancora, a11y: a11y)
+  }
+
+  /// Dopo le tre riprove si prosegue solo scegliendolo, mai per un timer.
+  func continuaDopoRiproveScrittura() {
+    guard case .typing = phase, revisioneScrittura?.esaurite == true,
+          let trial = current else { return }
+    current = nil
+    revisioneScrittura = nil
+    mostraRiscontro(trial)
   }
 
   /// Modalità Scrivi: ripete la parola, quante volte serve.
@@ -803,7 +848,7 @@ final class SessionEngine: ObservableObject {
     }
   }
 
-  private func commit(_ trial: Trial) {
+  private func commit(_ trial: Trial, continuaScrittura: Bool = false) {
     trials.append(trial)
     // Le parole di riscaldamento non spostano la soglia: servono solo a prendere la mano.
     // E nemmeno le prove interrotte: un turno che si è fermato perché il Mac
@@ -813,15 +858,23 @@ final class SessionEngine: ObservableObject {
     if trial.id > config.warmupTrials, !trial.interrotto {
       staircase?.update(correct: trial.correct)
     }
+    wordsSincePause += 1
+    if continuaScrittura {
+      current = trial
+      return
+    }
     current = nil
+    mostraRiscontro(trial)
+  }
 
+  private func mostraRiscontro(_ trial: Trial) {
+    if config.mode == .scrittura { typedAnswer = "" }
     // Rileggere la parola giusta serve a chi vede poco e a chi ha sbagliato:
     // chiude il cerchio invece di lasciare il dubbio.
     if a11y.speakCorrectWord || (config.mode == .scrittura && !trial.correct) {
       speaker.say(trial.stimulus)
     }
 
-    wordsSincePause += 1
     let now = CACurrentMediaTime()
     // Un riscontro anche per le orecchie: serve a chi lo schermo fatica a
     // guardarlo. «Ancora» non suona mai come un errore, sono due tocchi alla
@@ -880,7 +933,11 @@ final class SessionEngine: ObservableObject {
 
   private func riparti() {
     if config.mode == .scrittura {
-      startTrial(at: CACurrentMediaTime())
+      if trialIndex < items.count {
+        startTrial(at: CACurrentMediaTime())
+      } else {
+        finish(interrupted: false)
+      }
     } else {
       phase = .interTrial
       deadline = CACurrentMediaTime() + 0.3
@@ -896,6 +953,9 @@ final class SessionEngine: ObservableObject {
     sorveglianzaMicrofono.fermati()
     displayText = ""
     liveTranscript = ""
+    typedAnswer = ""
+    revisioneScrittura = nil
+    current = nil
     speaker.stop()
     phase = .finished
     statusMessage = interrupted ? "Sessione interrotta." : ""
@@ -913,8 +973,11 @@ final class SessionEngine: ObservableObject {
     }
     guard !trials.isEmpty, config.useAppleIntelligence, Intelligence.isAvailable else { return }
     summarizing = true
+    let mia = sessionID
     Task { [config, trials, thresholdMs] in
-      summary = await Intelligence.summarize(trials: trials, thresholdMs: thresholdMs, config: config)
+      let risultato = await Intelligence.summarize(trials: trials, thresholdMs: thresholdMs, config: config)
+      guard èAncoraMia(mia) else { return }
+      summary = risultato
       summarizing = false
     }
   }
@@ -941,6 +1004,14 @@ final class SessionEngine: ObservableObject {
 
   /// Torna alla schermata iniziale buttando via la sessione appena chiusa.
   func reset() {
+    scoringTask?.cancel()
+    scoringTask = nil
+    sessionID = UUID()
+    current = nil
+    typedAnswer = ""
+    revisioneScrittura = nil
+    speaker.stop()
+    summarizing = false
     trials = []
     trialIndex = 0
     totalTrials = 0
