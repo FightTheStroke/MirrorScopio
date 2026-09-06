@@ -38,8 +38,9 @@ final class StudioUITests: XCTestCase {
   }
 
   func testAvvioStudioSenzaMicrofono() {
-    XCTAssertTrue(app.buttons["studio.add"].waitForExistence(timeout: 20))
-    XCTAssertTrue(app.buttons["studio.adult"].exists)
+    XCTAssertTrue(app.buttons["studio.start"].waitForExistence(timeout: 20))
+    XCTAssertTrue(app.buttons["studio.parent"].exists)
+    XCTAssertFalse(app.buttons["studio.add"].exists)
     XCTAssertFalse(app.buttons["Inizia la calibrazione"].exists)
     fotografia("Studio — primo avvio")
   }
@@ -50,13 +51,14 @@ final class StudioUITests: XCTestCase {
     XCTAssertTrue(app.staticTexts["Perché questa scelta"].firstMatch.exists)
     fotografia("Studio — guida con motivazioni")
     premi(app.buttons["studio.help.close"])
-    XCTAssertTrue(app.buttons["studio.add"].waitForExistence(timeout: 5))
+    XCTAssertTrue(app.buttons["studio.start"].waitForExistence(timeout: 5))
   }
 
   func testLezioneSiSalvaERestaDopoIlRilancio() {
     creaLezione()
     app.terminate()
     app.launch()
+    premi(app.buttons["studio.library"])
     let savedLesson = app.buttons["studio.openLesson"].firstMatch
     XCTAssertTrue(savedLesson.waitForExistence(timeout: 15))
     XCTAssertEqual(savedLesson.label, "Costo e ricavo")
@@ -81,6 +83,7 @@ final class StudioUITests: XCTestCase {
     XCTAssertTrue(app.staticTexts["Sessione salvata. I tuoi appunti restano qui."].exists)
     app.terminate()
     app.launch()
+    premi(app.buttons["studio.library"])
     premi(app.buttons["studio.openLesson"].firstMatch)
     premi(app.buttons["studio.map"])
     XCTAssertEqual(app.textViews.firstMatch.value as? String, "Il costo riguarda le risorse.")
@@ -94,6 +97,7 @@ final class StudioUITests: XCTestCase {
   func testDomandaApprovataSiRipassaConAiuto() {
     creaLezione()
     premi(app.buttons["studio.home"])
+    premi(app.buttons["studio.parent"])
     premi(app.buttons["studio.adult"])
     scegli("Area", attuale: "Voce e testo", opzione: "Domande e fonti")
     scegli("Lezione", attuale: "Scegli una lezione", opzione: "Costo e ricavo")
@@ -102,6 +106,7 @@ final class StudioUITests: XCTestCase {
     premi(app.buttons["studio.card.save"])
     XCTAssertTrue(app.staticTexts["Domanda approvata e disponibile per il ripasso."].exists)
     premi(app.buttons["studio.home"])
+    premi(app.buttons["studio.library"])
     premi(app.buttons["studio.openLesson"].firstMatch)
     premi(app.buttons["studio.review"])
     premi(app.buttons["studio.review.start"])
@@ -130,10 +135,15 @@ final class StudioUITests: XCTestCase {
 
   private func testo(_ element: XCUIElement) -> String {
     XCTAssertTrue(element.waitForExistence(timeout: 5))
+    #if os(macOS)
     return element.value as? String ?? element.label
+    #else
+    return element.label
+    #endif
   }
 
   private func creaLezione() {
+    premi(app.buttons["studio.parent"])
     premi(app.buttons["studio.add"])
     let title = app.textFields["studio.title"]
     XCTAssertTrue(title.waitForExistence(timeout: 5))
@@ -151,6 +161,49 @@ final class StudioUITests: XCTestCase {
     let heading = app.descendants(matching: .any).matching(identifier: "studio.lesson.title").firstMatch
     XCTAssertTrue(heading.waitForExistence(timeout: 10))
     XCTAssertEqual(heading.label, "Costo e ricavo")
+  }
+
+  func testUnSoloToccoAvviaERiprendeDalloStessoPunto() {
+    premi(app.buttons["studio.start"])
+    XCTAssertEqual(testo(app.staticTexts["studio.guided.text"]),
+      "Quando un compito sembra lungo, puoi dividerlo in piccoli passi.")
+    premi(app.buttons["studio.guided.next"])
+    let second = "Scegli un passo e tieni vicino ciò che ti serve."
+    XCTAssertEqual(testo(app.staticTexts["studio.guided.text"]), second)
+    premi(app.buttons["studio.guided.pause"])
+    app.terminate()
+    app.launch()
+    XCTAssertEqual(app.buttons["studio.start"].label, "Continua")
+    premi(app.buttons["studio.start"])
+    XCTAssertEqual(testo(app.staticTexts["studio.guided.text"]), second)
+    fotografia("Percorso — riprende senza cercare la lezione")
+  }
+
+  func testEsempioCompletoSenzaPreparareMateriali() {
+    premi(app.buttons["studio.start"])
+    for _ in 0..<3 { premi(app.buttons["studio.guided.next"]) }
+    for _ in 0..<2 {
+      XCTAssertTrue(app.staticTexts["studio.guided.question"].waitForExistence(timeout: 5))
+      premi(app.buttons["studio.guided.reveal"])
+      XCTAssertTrue(app.staticTexts["studio.guided.answer"].exists)
+      premi(app.buttons["studio.guided.helped"])
+    }
+    XCTAssertTrue(app.descendants(matching: .any)["studio.guided.finished"].exists)
+    fotografia("Percorso — un passo fatto senza voti")
+    premi(app.buttons["studio.guided.finish"])
+    XCTAssertEqual(app.buttons["studio.start"].label, "Rivedi")
+  }
+
+  func testGenitoreTrovaPreparazioneAIENonLaMostraAlRagazzo() {
+    XCTAssertFalse(app.buttons["studio.ai.open"].exists)
+    premi(app.buttons["studio.parent"])
+    XCTAssertTrue(app.buttons["studio.ai.open"].exists)
+    premi(app.buttons["studio.ai.open"])
+    fotografia("Percorso — preparazione locale per il genitore")
+    XCTAssertFalse(app.buttons["studio.start"].exists)
+    premi(app.buttons["studio.home"])
+    premi(app.buttons["studio.start"])
+    XCTAssertTrue(app.staticTexts["studio.guided.text"].waitForExistence(timeout: 5))
   }
 
   private func scrivi(_ editor: XCUIElement, _ text: String) {

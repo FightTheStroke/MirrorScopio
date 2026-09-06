@@ -20,6 +20,12 @@ La sezione di rilascio pubblico resta assente per non attivare la pubblicazione
 automatica del ramo principale.
 
 ### Aggiunto
+- **Apri e parti**: un unico pulsante propone il prossimo passo, con un esempio
+  già pronto al primo avvio e ripresa del punto lasciato dopo una pausa.
+- **Percorso del genitore**: lezioni in ordine, preparazione da testo o argomento
+  con Apple Intelligence sul dispositivo, bozze da correggere e approvare prima dell'uso.
+- **Guida una parte alla volta**, con ascolto facoltativo, strumenti sempre disponibili
+  e fino a tre domande per tappa, senza voti automatici né giorni da recuperare.
 - **Studio su Mac e iPhone**, con testo e ascolto a segmenti, mappa, formulario
   e domande di ripasso preparate dall'adulto. Gli strumenti restano disponibili
   e le pause non fanno perdere punti.
@@ -31,8 +37,8 @@ automatica del ramo principale.
   perché è stato scelto, i limiti e il trasferimento manuale fra dispositivi.
 
 ### Cambiato
-- **Sul Mac si entra nello studio.** Il percorso precedente resta accessibile
-  da «Per l'adulto» e conserva profili e storico senza convertirli.
+- **Sul Mac si entra nello studio.** «Giochi ed esercizi» riapre il percorso precedente
+  direttamente dalla schermata iniziale e conserva profili e storico senza convertirli.
 - Nel nuovo percorso il ripasso è un **autoconfronto dichiarato**, non una misura
   del QI o un giudizio automatico sulla comprensione.
 

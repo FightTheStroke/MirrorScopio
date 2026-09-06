@@ -226,6 +226,8 @@ struct StudioArchive: Codable, Equatable {
   var draft = StudioLessonDraft()
   var cardDraft = StudioCardDraft()
   var reviewRun: StudioReviewRun?
+  var path: StudioPath?
+  var guidedRun: StudioGuidedRun?
 
   mutating func deleteLesson(_ id: UUID) {
     lessons.removeAll { $0.id == id }
@@ -235,5 +237,8 @@ struct StudioArchive: Codable, Equatable {
     if currentSession?.lessonID == id { currentSession = nil }
     if cardDraft.lessonID == id { cardDraft = StudioCardDraft() }
     if reviewRun?.lessonID == id { reviewRun = nil }
+    path?.lessonIDs.removeAll { $0 == id }
+    path?.completedIDs.removeAll { $0 == id }
+    if guidedRun?.lessonID == id { guidedRun = nil }
   }
 }

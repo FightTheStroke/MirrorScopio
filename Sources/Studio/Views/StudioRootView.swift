@@ -33,7 +33,7 @@ private final class StudioRuntime {
 }
 
 struct StudioRootView: View {
-  private enum Panel { case home, add, lesson(UUID), adult }
+  private enum Panel { case home, add, lesson(UUID), adult, path, library, guided, generation }
   @StateObject private var store: StudioStore
   @StateObject private var tracker: StudioSessionTracker
   @StateObject private var audio: StudioAudio
@@ -58,10 +58,10 @@ struct StudioRootView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 20) {
-        if case .home = panel {
-          Text("Il mio studio").font(.largeTitle.bold()).accessibilityAddTraits(.isHeader)
-        } else {
-          StudioButton("Le mie lezioni", icon: "house", id: "studio.home") { navigate(.home) }
+        switch panel {
+        case .home, .guided: EmptyView()
+        default:
+          StudioButton("Torna a casa", icon: "house", id: "studio.home") { navigate(.home) }
         }
         if let error = store.error {
           VStack(alignment: .leading, spacing: 8) {
@@ -76,13 +76,26 @@ struct StudioRootView: View {
         switch panel {
         case .home: home
         case .add:
-          StudioAddView(store: store, importer: importer) { id in openLesson(id) }
+          StudioAddView(store: store, importer: importer) { id in
+            openLesson(id)
+          }
         case .lesson(let id):
           if let lesson = store.displayArchive.lessons.first(where: { $0.id == id }) {
             StudioLessonView(store: store, tracker: tracker, audio: audio, lesson: lesson)
           } else { Text("La lezione non è disponibile. Torna alle tue lezioni.") }
         case .adult:
           StudioAdultView(store: store, tracker: tracker, audio: audio, onLegacy: onLegacy)
+        case .path:
+          StudioPathEditor(store: store, add: { navigate(.add) }, generate: { navigate(.generation) },
+                           settings: { navigate(.adult) }, open: openLesson)
+        case .library:
+          library
+        case .guided:
+          StudioGuidedView(store: store, tracker: tracker, audio: audio) { navigate(.home) }
+        case .generation:
+          StudioGenerationView(store: store) { _ in
+            navigate(.path)
+          }
         }
       }
       .padding()
@@ -110,21 +123,31 @@ struct StudioRootView: View {
   }
 
   private var home: some View {
+    StudioHomeView(archive: store.displayArchive, start: {
+      guard store.flushStaged(), store.startGuided(),
+            let id = store.archive.guidedRun?.lessonID,
+            tracker.start(lessonID: id) else { return }
+      audio.stop()
+      panel = .guided
+    }, library: { navigate(.library) }, parent: { navigate(.path) }, help: {
+      audio.stop(); tracker.pause(); showHelp = true
+    }, games: onLegacy.map { legacy in {
+      guard store.flushStaged() else { return }
+      audio.stop(); tracker.pause(); legacy()
+    } })
+    .disabled(store.recovery || store.hasPendingSave)
+    .overlay(alignment: .bottom) {
+      if store.recovery {
+        StudioButton("Recupera una copia", icon: "externaldrive") { navigate(.adult) }
+      }
+    }
+  }
+
+  private var library: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Un testo alla volta: puoi leggere, ascoltare o spiegare con parole tue.")
-      Text("Studio salva qui, senza invii automatici. Se esporti una copia, scegli tu dove va.")
-      Text("È uno strumento di aiuto allo studio, non una terapia o una valutazione. Non promette risultati: puoi scegliere ciò che ti aiuta.")
-      StudioButton("Aggiungi una lezione", icon: "plus", id: "studio.add") { navigate(.add) }
-        .disabled(store.recovery || store.hasPendingSave)
-      StudioButton("Come funziona", icon: "questionmark.circle", id: "studio.help") {
-        audio.stop(); tracker.pause(); showHelp = true
-      }
-      if let session = store.displayArchive.currentSession,
-         let lesson = store.displayArchive.lessons.first(where: { $0.id == session.lessonID }) {
-        Text("Puoi riprendere «\(lesson.title)». La pausa non è un problema.")
-        StudioButton("Riprendi lo studio", icon: "play") { openLesson(lesson.id) }
-      }
-      if store.displayArchive.lessons.isEmpty { Text("Incolla un testo, importa un file o fotografa una pagina per cominciare.") }
+      Text("Le mie lezioni").font(.title.bold()).accessibilityAddTraits(.isHeader)
+      Text("Qui ritrovi sempre testi, ascolto, mappe, formulari e domande. Per farti accompagnare, torna a casa e premi Inizia.")
+      if store.displayArchive.lessons.isEmpty { Text("Il primo esempio è già pronto: torna a casa e premi Inizia.") }
       ForEach(store.displayArchive.lessons) { lesson in
         VStack(alignment: .leading, spacing: 4) {
           StudioButton(lesson.title, icon: "book", id: "studio.openLesson") { openLesson(lesson.id) }
@@ -132,7 +155,7 @@ struct StudioRootView: View {
           Text("Parte \(lesson.position + 1) di \(lesson.segments.count)").font(.callout)
         }
       }
-      StudioButton("Per l'adulto", icon: "person.crop.circle", id: "studio.adult") { navigate(.adult) }
+      StudioButton("Prepara il percorso", icon: "person.crop.circle", id: "studio.parent") { navigate(.path) }
     }
   }
 

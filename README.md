@@ -44,11 +44,26 @@ sorella di **[MirrorBuddy](https://github.com/FightTheStroke/MirrorBuddy)**.
 
 ## Studio su Mac e iPhone
 
-Il nuovo avvio propone il materiale da studiare, non una prova di velocità. Si può
-leggere oppure ascoltare un segmento per volta, mantenere visibili le idee principali
-e le procedure, e ripassare con domande preparate da un adulto. Le risposte aperte
+**Apri e premi Inizia.** Un esempio già pronto permette di provare senza inserire
+materiali. Il genitore prepara un percorso ordinato; la schermata iniziale propone
+la prossima lezione o riprende il passo lasciato. Dopo il percorso, propone le domande
+da riprendere quando disponibili, oppure una rilettura facoltativa.
+Si legge o ascolta una parte alla volta, poi si incontrano fino a tre domande approvate.
+Testo, mappa e procedure restano disponibili nel pulsante «Un aiuto».
+Le risposte aperte
 si confrontano con una risposta di riferimento: nessuna intelligenza artificiale
 decide se il significato è corretto.
+
+In **Per il genitore → Prepara con Apple Intelligence** si può proporre un argomento
+o fornire un testo. Il modello di sistema **sul dispositivo** prepara una bozza da
+controllare, correggere e approvare; non pubblica automaticamente materiale al ragazzo.
+Una bozza da solo argomento non è una fonte verificata. Disponibilità del modello
+e supporto dell'italiano vengono controllati sul dispositivo: senza AI resta
+possibile importare o incollare materiale, senza ricorrere a servizi esterni.
+Le lezioni precedenti restano in **Le mie lezioni**; su Mac **Giochi ed esercizi**
+riapre il percorso precedente. Gli archivi di studio precedenti vengono letti
+senza migrazioni distruttive; ordine e punto del nuovo percorso vengono aggiunti
+come campi facoltativi al formato locale.
 
 Pause e strumenti restano disponibili. Non ci sono serie di giorni da difendere,
 classifiche o un calendario che ritiri automaticamente gli aiuti. Le osservazioni
@@ -60,6 +75,11 @@ archivio: non c'è sincronizzazione automatica né un account.
 
 La versione iPhone si costruisce da Xcode con lo schema `MirrorScopioMobile`;
 richiede iOS 26. Il pacchetto Mac si costruisce ancora con `./build.sh`.
+
+Le prove ordinarie non richiedono il modello AI. Per eseguire anche la generazione
+reale nelle prove Xcode, anteporre `TEST_RUNNER_MIRRORSCOPIO_TEST_AI=1` al comando
+`xcodebuild test`: il dispositivo deve avere Apple Intelligence pronta in italiano.
+Questa prova usa solo argomenti scolastici di esempio, senza dati personali.
 Questo ramo non costituisce una pubblicazione su App Store o TestFlight.
 
 ## Percorso precedente: il tachistoscopio su Mac

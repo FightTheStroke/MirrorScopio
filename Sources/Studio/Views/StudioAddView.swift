@@ -10,6 +10,7 @@ struct StudioAddView: View {
   @State private var camera = false
   @State private var message: String?
   @State private var acceptExtraction = false
+  @State private var pendingLessonID: UUID?
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -43,14 +44,27 @@ struct StudioAddView: View {
         do {
           let draft = store.displayArchive.draft
           let lesson = try StudioLesson(title: draft.title, subject: draft.subject, source: draft.source)
-          if store.change({ $0.lessons.append(lesson); $0.draft = StudioLessonDraft() }) {
+          if store.change({
+            $0.lessons.append(lesson)
+            try $0.enrollLesson(lesson.id)
+            $0.draft = StudioLessonDraft()
+          }) {
             importer.extracted = nil
             onSave(lesson.id)
+          } else if store.hasPendingSave {
+            pendingLessonID = lesson.id
           }
         } catch { message = error.localizedDescription }
       }.disabled(importer.busy || importer.extracted != nil || store.hasPendingSave || store.recovery)
     }
     .disabled(store.recovery || store.hasPendingSave)
+    .onChange(of: store.hasPendingSave) { _, pending in
+      if !pending, let id = pendingLessonID, store.archive.lessons.contains(where: { $0.id == id }) {
+        pendingLessonID = nil
+        importer.extracted = nil
+        onSave(id)
+      }
+    }
     .fileImporter(isPresented: $filePicker, allowedContentTypes: [.plainText, .pdf, .png, .jpeg, .heic]) { result in
       switch result {
       case .success(let url): importer.start(url: url)

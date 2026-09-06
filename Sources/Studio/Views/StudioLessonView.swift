@@ -171,7 +171,7 @@ struct StudioLessonView: View {
           }
         } else { Text("Il ripasso aperto è in un'altra lezione. Ritrovi tutto tornando alle tue lezioni.") }
         StudioButton("Termina questo giro di ripasso", icon: "stop") {
-          _ = store.change { $0.reviewRun = nil }
+          _ = store.endReview()
         }
       } else {
         let due = StudioSchedule.due(in: store.displayArchive, lessonID: lesson.id, now: Date())

@@ -8,19 +8,19 @@ struct StudioHelpTopic: Identifiable {
 
   static let all: [StudioHelpTopic] = [
     .init(
-      id: "iniziare", title: "1. Il primo testo",
+      id: "iniziare", title: "1. Apri e parti",
       how: """
-      Aggiungi una lezione: scrivi il titolo e la materia, poi incolla il testo oppure \
-      importa un documento. Controlla il testo estratto prima di salvarlo. Parti da un \
-      paragrafo che devi già studiare: non serve aggiungere esercizi ai compiti. \
-      I limiti sono 20 MB per file, 30 pagine per PDF (al massimo 10 pagine \
-      da riconoscere come immagine) e 120.000 caratteri per lezione. \
-      L'archivio contiene al massimo 100 lezioni e occupa al massimo 20 MB.
+      Premi Inizia: trovi già un esempio per provare, senza scrivere nulla. \
+      Il genitore prepara le lezioni e il loro ordine in «Per il genitore». \
+      Poi l'app propone il prossimo passo: una piccola parte da leggere o ascoltare \
+      e fino a tre domande approvate da riprendere. Con «Mi fermo qui» torni a casa; \
+      «Continua» riparte dallo stesso punto. In «Le mie lezioni» ritrovi tutti gli strumenti.
       """,
       why: """
-      Studiare un contenuto utile permette di capire se lo strumento ti aiuta davvero. \
-      Il riconoscimento dei caratteri può confondere parole, numeri e colonne: vedere \
-      un testo sullo schermo non significa che sia stato estratto correttamente.
+      Preparare i materiali non deve essere il primo compito di chi deve studiare. \
+      Il percorso toglie scelte superflue, ma non decide se hai imparato: una tappa \
+      conclusa indica solo che l'hai attraversata. Il primo esempio serve a conoscere \
+      l'app; le lezioni del genitore possono riguardare ciò che studi a scuola.
       """),
     .init(
       id: "ascoltare", title: "2. Leggere oppure ascoltare",
@@ -54,8 +54,8 @@ struct StudioHelpTopic: Identifiable {
       how: """
       Nel formulario scrivi i passi, le formule o un esempio svolto legato alla lezione. \
       Controllali sul libro o con un adulto. Consulta un passaggio per volta e torna \
-      indietro quando vuoi. L'app non inventa formule né verifica automaticamente \
-      la correttezza matematica di ciò che scrivi.
+      indietro quando vuoi. Controlla ogni formula proposta dall'AI: l'app non \
+      verifica automaticamente la correttezza matematica di ciò che scrivi.
       """,
       why: """
       Tenere visibile una procedura permette di concentrarsi su come applicarla. \
@@ -94,12 +94,18 @@ struct StudioHelpTopic: Identifiable {
     .init(
       id: "adulto", title: "7. Che cosa osserva l'adulto",
       how: """
-      Nell'area adulto si consultano le osservazioni disponibili e si preparano \
+      In «Per il genitore» scegli e riordini le lezioni, oppure prepari una bozza \
+      con Apple Intelligence da un argomento o da un testo. Il modello gira sul \
+      dispositivo, quando disponibile: non c'è un servizio remoto alternativo. \
+      Controlla e correggi la bozza prima di approvarla, soprattutto se parte solo \
+      da un argomento e non da una fonte. Senza AI puoi importare o incollare il libro. \
+      Da «Domande, voce e dati» si consultano le osservazioni e si preparano \
       i contenuti del ripasso. Il tempo attivo, la modalità di studio, gli aiuti \
       e la fatica indicata descrivono una sessione. Per confrontare due sessioni \
       considera anche il materiale e l'obiettivo: una pagina facile non equivale \
       a una pagina nuova e complessa. Gli intervalli del ripasso sono \
-      promemoria di studio, non prescrizioni: un giro propone al massimo 20 carte.
+      promemoria di studio, non prescrizioni: il percorso guidato propone fino a \
+      tre domande per tappa; nel ripasso libero, fino a venti.
       """,
       why: """
       Meno minuti non significano automaticamente più comprensione. Un risultato \
@@ -140,7 +146,7 @@ struct StudioHelpTopic: Identifiable {
     .init(
       id: "precedente", title: "10. Il percorso precedente e i limiti",
       how: """
-      Sul Mac l'area adulto permette di aprire il percorso precedente di esercizi. \
+      Sul Mac «Giochi ed esercizi», nella schermata iniziale, apre il percorso precedente. \
       I suoi profili e risultati restano separati dallo studio. Su iPhone trovi \
       il nuovo percorso di studio, non i giochi e il tachistoscopio del Mac.
       """,

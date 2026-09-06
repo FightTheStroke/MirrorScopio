@@ -26,6 +26,7 @@ enum StudioCodec {
   }
 
   static func validate(_ archive: StudioArchive) throws {
+    try StudioPathEngine.validate(archive)
     func require(_ condition: Bool, _ message: String) throws {
       if !condition { throw StudioFailure(message) }
     }
