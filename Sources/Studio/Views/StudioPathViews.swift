@@ -1,35 +1,47 @@
 import SwiftUI
 
 struct StudioHomeView: View {
+  @Environment(\.palette) private var palette
   let archive: StudioArchive
   let start: () -> Void
   let library: () -> Void
   let parent: () -> Void
   let help: () -> Void
   let games: (() -> Void)?
+  var settings: (() -> Void)?
 
   private var next: StudioNextStep? { StudioPathEngine.next(in: archive, now: Date()) }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
-      Text("Un passo alla volta").font(.largeTitle.bold()).accessibilityAddTraits(.isHeader)
+      ViewThatFits(in: .horizontal) {
+        HStack {
+          heading
+          Spacer()
+          settingsButton
+        }.fixedSize(horizontal: true, vertical: false)
+        VStack(alignment: .leading, spacing: 12) {
+          heading
+          settingsButton
+        }
+      }
       VStack(alignment: .leading, spacing: 18) {
         Label(next?.reason ?? (archive.lessons.isEmpty
           ? "C'è già un primo passo per provare." : "Il tuo percorso si prepara insieme a un adulto."),
-          systemImage: "sun.max").foregroundStyle(.secondary)
+          systemImage: "sun.max").studioMuted()
         Text(next?.title ?? (archive.lessons.isEmpty ? "Una pausa che aiuta" : "Scegliamo da dove partire"))
-          .font(.title.bold())
+          .studioFont(.title, weight: .bold)
           .accessibilityIdentifier("studio.suggestion")
         if next != nil || archive.lessons.isEmpty {
           StudioButton(next?.action ?? "Inizia", icon: "play.fill", id: "studio.start", action: start)
-            .buttonStyle(.borderedProminent)
+            .studioPrimary()
             .controlSize(.large)
         }
         Text("Ti accompagno io. Puoi leggere o ascoltare e fermarti quando vuoi.")
       }
       .padding(24)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .background(.tint.opacity(0.07), in: RoundedRectangle(cornerRadius: 24))
+      .background(palette.surface, in: RoundedRectangle(cornerRadius: Metrica.raggio))
       let completed = StudioPathEngine.path(in: archive).completedIDs.count
       if completed > 0 {
         Label("\(completed) \(completed == 1 ? "tappa conclusa" : "tappe concluse"). Restano tue anche se fai una pausa.",
@@ -47,6 +59,16 @@ struct StudioHomeView: View {
     }
   }
 
+  private var heading: some View {
+    Text("MirrorScopio").studioFont(.largeTitle, weight: .bold).accessibilityAddTraits(.isHeader)
+  }
+
+  @ViewBuilder private var settingsButton: some View {
+    if let settings {
+      StudioButton("Impostazioni", icon: "gearshape.fill", id: "studio.shell.settings", action: settings)
+    }
+  }
+
   @ViewBuilder private var secondaryActions: some View {
     StudioButton("Le mie lezioni", icon: "books.vertical", id: "studio.library", action: library)
     if let games {
@@ -61,6 +83,7 @@ struct StudioHomeView: View {
 }
 
 struct StudioPathEditor: View {
+  @Environment(\.palette) private var palette
   @ObservedObject var store: StudioStore
   let add: () -> Void
   let generate: () -> Void
@@ -71,38 +94,38 @@ struct StudioPathEditor: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
-      Text("Prepara il suo percorso").font(.title.bold()).accessibilityAddTraits(.isHeader)
+      Text("Prepara il suo percorso").studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
       Text("Scegli le lezioni e il loro ordine. Quando apre l'app, trova un solo pulsante e il prossimo passo già pronto.")
       StudioButton("Prepara con Apple Intelligence", icon: "sparkles", id: "studio.ai.open", action: generate)
-        .buttonStyle(.borderedProminent)
+        .studioPrimary()
       StudioButton("Aggiungi dal libro o da un testo", icon: "doc.badge.plus", id: "studio.add", action: add)
       Text("L'AI propone; tu controlli e approvi. Puoi sempre preparare il materiale senza AI.")
-        .foregroundStyle(.secondary)
+        .studioMuted()
       Divider()
-      Text("Il percorso, in ordine").font(.title2.bold())
+      Text("Il percorso, in ordine").studioFont(.title2, weight: .bold)
       if path.lessonIDs.isEmpty {
         Text("Nessuna lezione scelta. Aggiungine una oppure scegli dalla biblioteca qui sotto.")
       }
       if path.lessonIDs.count == 1 {
         Text("Per sostituire l'ultima lezione, aggiungi prima quella nuova: resta sempre un passo pronto.")
-          .foregroundStyle(.secondary)
+          .studioMuted()
       }
       ForEach(Array(path.lessonIDs.enumerated()), id: \.element) { index, id in
         if let lesson = store.displayArchive.lessons.first(where: { $0.id == id }) {
           VStack(alignment: .leading, spacing: 10) {
             Label("\(index + 1). \(lesson.title)",
                   systemImage: path.completedIDs.contains(id) ? "checkmark.circle" : "circle")
-              .font(.headline)
+              .studioFont(.headline)
             ViewThatFits(in: .horizontal) {
               HStack { controls(id, index: index) }.fixedSize(horizontal: true, vertical: false)
               VStack(alignment: .leading) { controls(id, index: index) }
             }
-          }.padding().background(.quaternary, in: RoundedRectangle(cornerRadius: 16))
+          }.padding().background(palette.surface, in: RoundedRectangle(cornerRadius: Metrica.raggio))
         }
       }
       let excluded = store.displayArchive.lessons.filter { !path.lessonIDs.contains($0.id) }
       if !excluded.isEmpty {
-        Text("Altre lezioni disponibili").font(.headline)
+        Text("Altre lezioni disponibili").studioFont(.headline)
         ForEach(excluded) { lesson in
           StudioButton("Aggiungi «\(lesson.title)» al percorso", icon: "plus") {
             _ = store.includeInPath(lesson.id)
@@ -110,9 +133,9 @@ struct StudioPathEditor: View {
         }
       }
       Divider()
-      StudioButton("Domande, voce e dati", icon: "slider.horizontal.3", id: "studio.adult", action: settings)
+      StudioButton("Domande e dati", icon: "slider.horizontal.3", id: "studio.adult", action: settings)
       Text("Nessuna durata obbligatoria, classifica o serie di giorni da mantenere. «Conclusa» significa che ha attraversato la tappa, non che l'ha imparata.")
-        .foregroundStyle(.secondary)
+        .studioMuted()
     }
     .disabled(store.recovery || store.hasPendingSave)
   }

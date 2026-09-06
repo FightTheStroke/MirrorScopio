@@ -30,7 +30,7 @@ mkdir -p "$OUT" build/schermate
 # Le viste no: tirerebbero dentro SwiftUI senza alcun bisogno.
 CORE=$(find Sources/Core Sources/Data Sources/Design -name "*.swift")
 # Il banco delle schermate disegna l'interfaccia vera: a lui servono anche le viste.
-VISTE=$(find Sources/Views -name "*.swift")
+VISTE=$(find Sources/Views Sources/Studio Sources/StudioHelp -name "*.swift")
 
 FRAMEWORKS="-framework AppKit -framework SwiftUI -framework AVFoundation \
   -framework Speech -framework FoundationModels -framework QuartzCore \

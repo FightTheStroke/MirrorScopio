@@ -7,7 +7,7 @@
 **Un testo alla volta, ascolto a piccoli passi e strumenti per ritrovare il filo.**
 
 Studio locale su Mac e iPhone: testo, voce, mappa, formulario e ripasso assistito.
-Il percorso precedente di esercizi resta disponibile su Mac, separato dallo studio.
+Su Mac Studio si affianca a Leggi e Scrivi nella schermata iniziale originale.
 
 [![Verifica](https://github.com/FightTheStroke/MirrorScopio/actions/workflows/verifica.yml/badge.svg)](https://github.com/FightTheStroke/MirrorScopio/actions/workflows/verifica.yml)
 [![Ultima versione](https://img.shields.io/github/v/release/FightTheStroke/MirrorScopio?label=versione&color=blue)](https://github.com/FightTheStroke/MirrorScopio/releases/latest)
@@ -60,8 +60,13 @@ controllare, correggere e approvare; non pubblica automaticamente materiale al r
 Una bozza da solo argomento non è una fonte verificata. Disponibilità del modello
 e supporto dell'italiano vengono controllati sul dispositivo: senza AI resta
 possibile importare o incollare materiale, senza ricorrere a servizi esterni.
-Le lezioni precedenti restano in **Le mie lezioni**; su Mac **Giochi ed esercizi**
-riapre il percorso precedente. Gli archivi di studio precedenti vengono letti
+Le lezioni precedenti restano in **Le mie lezioni**. Su Mac la schermata iniziale
+mantiene **Studio, Leggi e Scrivi**, con la navigazione e le impostazioni originali.
+**Impostazioni → Studio e percorso** apre la preparazione delle lezioni;
+**Impostazioni → I giochi** conserva la sala giochi. Colori, caratteri, dimensioni
+del testo e voce si regolano nelle impostazioni comuni, anche per Studio.
+Aprire le impostazioni durante lo studio mantiene la pagina e la bozza in corso.
+Gli archivi di studio precedenti vengono letti
 senza migrazioni distruttive; ordine e punto del nuovo percorso vengono aggiunti
 come campi facoltativi al formato locale.
 
@@ -84,8 +89,9 @@ Questo ramo non costituisce una pubblicazione su App Store o TestFlight.
 
 ## Percorso precedente: il tachistoscopio su Mac
 
-Le sezioni seguenti descrivono il percorso di esercizi, accessibile da **Per l'adulto**
-nel nuovo Studio. I suoi profili e il suo storico non vengono convertiti in misure
+Le sezioni seguenti descrivono il percorso di esercizi, accessibile scegliendo
+**Leggi** o **Scrivi** nella schermata iniziale del Mac.
+I suoi profili e il suo storico non vengono convertiti in misure
 di comprensione e non vengono cancellati.
 
 Il tachistoscopio è un esercizio classico nella riabilitazione della dislessia: mostri una

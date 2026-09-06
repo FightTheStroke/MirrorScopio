@@ -15,9 +15,9 @@ struct StudioLessonView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text(lesson.title).font(.title.bold()).accessibilityAddTraits(.isHeader)
+      Text(lesson.title).studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier("studio.lesson.title")
-      if !lesson.subject.isEmpty { Text(lesson.subject).foregroundStyle(.secondary) }
+      if !lesson.subject.isEmpty { Text(lesson.subject).studioMuted() }
       if let notice { Text(notice) }
       sessionControls
       if panel == .reading {
@@ -64,11 +64,11 @@ struct StudioLessonView: View {
 
   private var reading: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Parte \(lesson.position + 1) di \(lesson.segments.count)").font(.headline)
+      Text("Parte \(lesson.position + 1) di \(lesson.segments.count)").studioFont(.headline)
       Text("Leggi, ascolta o spiega a voce con parole tue. La tua voce non viene registrata.")
       Text(segment.text).textSelection(.enabled).accessibilityIdentifier("studio.segment")
       Text("Ogni parte segue le frasi del testo, fino a 600 caratteri. Non ha una durata fissa.")
-        .font(.callout).foregroundStyle(.secondary)
+        .studioFont(.callout).studioMuted()
       StudioButton("Ascolta questa parte", icon: "speaker.wave.2", id: "studio.listen") {
         audio.speak(segment.text, settings: store.displayArchive.settings)
       }
@@ -91,7 +91,7 @@ struct StudioLessonView: View {
 
   private var map: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("La mia mappa").font(.title2.bold())
+      Text("La mia mappa").studioFont(.title2, weight: .bold)
       Text("Tre idee e un collegamento. Puoi cambiare tutto: sono appunti tuoi, non una prova.")
       Picker("Che tipo di testo?", selection: lessonBinding(\.map.schema)) {
         ForEach(StudioSchema.allCases, id: \.self) { Text($0.rawValue).tag($0) }
@@ -109,7 +109,7 @@ struct StudioLessonView: View {
 
   private var procedures: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Il mio formulario").font(.title2.bold())
+      Text("Il mio formulario").studioFont(.title2, weight: .bold)
       Text("Scrivi una regola, una formula con il suo significato o i passi che ti aiutano.")
       ForEach(Array(lesson.procedures.enumerated()), id: \.element.id) { index, step in
         StudioTextEditor(title: "Passo \(index + 1)", text: Binding(get: {
@@ -133,13 +133,13 @@ struct StudioLessonView: View {
 
   private var review: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Ripasso con calma").font(.title2.bold())
+      Text("Ripasso con calma").studioFont(.title2, weight: .bold)
       Text("Prova prima con parole tue, anche a voce. Poi confronta con una risposta controllata da un adulto. Solo tu scegli come è andata.")
       if let run = store.displayArchive.reviewRun, !run.remaining.isEmpty {
         if run.lessonID == lesson.id,
            let card = store.displayArchive.cards.first(where: { $0.id == run.remaining.first }) {
           Text("\(run.remaining.count) domande ancora in questo giro. Puoi fermarti quando vuoi.")
-          Text(card.question).font(.headline).accessibilityIdentifier("studio.review.question")
+          Text(card.question).studioFont(.headline).accessibilityIdentifier("studio.review.question")
           StudioTextEditor(title: "Il mio tentativo (puoi lasciarlo vuoto e parlare)", text: reviewBinding(\.text, default: ""))
             .disabled(run.revealed)
           Picker("Quale aiuto ho usato?", selection: reviewBinding(\.help, default: .none)) {
@@ -148,9 +148,9 @@ struct StudioLessonView: View {
           StudioButton("Consulta la mappa", icon: "point.3.connected.trianglepath.dotted", id: "studio.map") { show(.map) }
           StudioButton("Consulta il formulario", icon: "list.number", id: "studio.procedures") { show(.procedures) }
           if run.revealed {
-            Text("Risposta modello dell'adulto").font(.headline)
+            Text("Risposta modello dell'adulto").studioFont(.headline)
             Text(card.answer).textSelection(.enabled).accessibilityIdentifier("studio.review.model")
-            Text("Fonte nel testo").font(.headline)
+            Text("Fonte nel testo").studioFont(.headline)
             Text(lesson.segments.first { $0.id == card.segmentID }?.text ?? "")
             ForEach(StudioRecall.allCases, id: \.self) { recall in
               StudioButton(recall.rawValue, icon: recall == .again ? "arrow.counterclockwise" : "hand.raised",
@@ -188,7 +188,7 @@ struct StudioLessonView: View {
 
   private var ending: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Per oggi può bastare").font(.title2.bold())
+      Text("Per oggi può bastare").studioFont(.title2, weight: .bold)
       if isCurrent {
         Picker("Come hai studiato?", selection: sessionBinding(\.mode, default: .reading)) {
           ForEach(StudioMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }

@@ -14,6 +14,7 @@
 		04D17E6803B5EF4C37C9ADF6 /* AudioMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93DC0542C94A3519F81BBEDA /* AudioMenu.swift */; };
 		07870146BFCBD4A99BC77E3D /* SessionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012376A51206B22B3394005 /* SessionEngine.swift */; };
 		0DA4E365B77E7679A091535B /* GiocoCorsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86B22B5414E8CB4D636C3B /* GiocoCorsa.swift */; };
+		0EC6C6D04A1AC8E3FA659962 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6106552289AA915241ABBDAE /* Fonts */; };
 		0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC15C6CCA60C061748E42475 /* Suoni.swift */; };
 		0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */; };
 		0FFEE8DB000BBCB1D684717C /* IlPremioValePerTutti.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690825ACE7865A55C3D64D1 /* IlPremioValePerTutti.swift */; };
@@ -24,6 +25,7 @@
 		1A88CF7A7BD55A3BEEEBC891 /* ScenaCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0A39E2A5B30836F69B21EE /* ScenaCorsa3D.swift */; };
 		1A9AD6F850F6825B840BA1BD /* TypingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ADFCA031ACADC650624A1E /* TypingView.swift */; };
 		1BC992719FF52B7A38CAE9CC /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7881F340E73C7624D53AD46 /* Exporter.swift */; };
+		1E9245E80FC7B84C7B91AEDF /* StudioControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF51A49E1E4DBB71C2852339 /* StudioControls.swift */; };
 		21E2E274E24C5D9198D4F578 /* StudioLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */; };
 		2286360E3A9C58DB37B742BF /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205933038872E415019CBA59 /* AppVersion.swift */; };
 		24EEF094B0C2B72319A09659 /* StudioPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA3306CAF36A812F742BE5A /* StudioPath.swift */; };
@@ -31,6 +33,7 @@
 		2832DC450C429B45F0482FD9 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AA6D3030117F939C0678D9 /* App.swift */; };
 		2877E0784151A22FCF97DE74 /* Stimuli.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2E31DB5E360461371F5524 /* Stimuli.swift */; };
 		29540B78AED929C17C66D221 /* GiocoTraversata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE9DE6F0F15DC633FCD43CA /* GiocoTraversata.swift */; };
+		29CD9703306F006E5E2EEDEB /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0A57B030C674CC7521A8C /* Theme.swift */; };
 		2B0CF653F065E8DA9E92ED38 /* StudioPathViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CA9036004DAE176CF1AC14 /* StudioPathViews.swift */; };
 		2DDA465011CA5F7593C02E1E /* Bersagli.swift in Sources */ = {isa = PBXBuildFile; fileRef = C07C3A1508046EFA8B1EC2F8 /* Bersagli.swift */; };
 		2F41E13250A0EB9AEE1777DE /* DatiAlSicuro.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */; };
@@ -47,6 +50,7 @@
 		3DEDB8066EB59B837E340DD8 /* MotoreSport.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED384A57DDACE8A116806F36 /* MotoreSport.swift */; };
 		3E30DE05D870317961F53BA8 /* InstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */; };
 		3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */; };
+		3FE18491026A29460C1E9E40 /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AA1E26779A757F2BA6651E /* Accessibility.swift */; };
 		418E6437485EF7957D9A0A4F /* StudioRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAD15951BE8DD3F672351A3 /* StudioRootView.swift */; };
 		4519618956580A6CEF499F1D /* StudioPathViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CA9036004DAE176CF1AC14 /* StudioPathViews.swift */; };
 		457E7F5797CE815907CB5F27 /* Gamification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077275B6401CB89DC6AF421 /* Gamification.swift */; };
@@ -58,6 +62,8 @@
 		53AE5CA3FF67E69AC93994C0 /* StudioAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3940C97ED6E086B2BFC111 /* StudioAddView.swift */; };
 		5569C5E70FF898EF4D1C87CF /* RegistroSessione.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D1F199B0BB5D910CFBEBB /* RegistroSessione.swift */; };
 		5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */; };
+		5BE9853F370AF0A31D2818D3 /* StudioControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF51A49E1E4DBB71C2852339 /* StudioControls.swift */; };
+		5C2AF73581359BBAA134ADF5 /* MirrorScopioNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7ADDD87190E25475D4C995E /* MirrorScopioNavigationBar.swift */; };
 		5D5EFAF971B6544BB2B00A5A /* DatiDifendibili.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7858A711FB5C28721BDC8B /* DatiDifendibili.swift */; };
 		5EB25C7BFA9CD4050FC5DF3A /* StageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031F620CCEB5656D46BD0DE9 /* StageView.swift */; };
 		5ED5293352158029B96B4749 /* FrameClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C0BAC75B45E720D4EC713C /* FrameClock.swift */; };
@@ -65,7 +71,9 @@
 		5F7543BCCB6E28B524340AAF /* ReadinessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */; };
 		61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C5C670CCAC577809191C /* Interlinea.swift */; };
 		65441BF32D78452AA9A06949 /* GiocoBoxe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33629E00BD749690B8295229 /* GiocoBoxe.swift */; };
+		6791DC9859E817F912A1B2AF /* AccessibilitaDelMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */; };
 		67C6453B5C822AB3019B504D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 695418790BBC47445C0C129B /* Assets.xcassets */; };
+		6B24DD35C646EBA4D958F5AE /* StudioLaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */; };
 		6D5A56D3FE59D3804B4AA375 /* StudioExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031AD255BC90A1F85C04F857 /* StudioExtractionTests.swift */; };
 		6E519530D16C2239A064E801 /* AudioDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E70FB4BD5DEF09320F20B /* AudioDevices.swift */; };
 		6EA38235B4FC0BF96B087DAA /* GriglieCheCrescono.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79C7DC279A994144F5E0434F /* GriglieCheCrescono.swift */; };
@@ -76,6 +84,7 @@
 		7B35D45631EA7BDBF964F6B1 /* StudioFileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE85D76440095318E9922E9F /* StudioFileStorage.swift */; };
 		7E893C521B7F1B7B0121483D /* StudioExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031AD255BC90A1F85C04F857 /* StudioExtractionTests.swift */; };
 		7F0EFDABB5A66C0BC064C505 /* Scoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF5E7FC6D16FBEF78A23B3A /* Scoring.swift */; };
+		802C9F258666F5DE9DAEC3B7 /* LetturaTollerante.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */; };
 		8407A43B322872F83D1A5B09 /* StudioPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA3306CAF36A812F742BE5A /* StudioPath.swift */; };
 		86FEAA3F924ED8A30446B637 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0A57B030C674CC7521A8C /* Theme.swift */; };
 		890E7894B5024E6EE31F4041 /* Sfondi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074C80ADA294AEE3BC2F339E /* Sfondi.swift */; };
@@ -94,9 +103,11 @@
 		A7B5319D7E16F8F1A80EF81B /* StudioAdultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44B90FB5646B7A1261DFE12 /* StudioAdultView.swift */; };
 		A875C9515A3D55046EE76002 /* RegoleCorsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71AE2AEA50662493B30E39F /* RegoleCorsa.swift */; };
 		A8A1E4A76D3B0FCA62A87C05 /* Intelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7873929AD1C523DB5A9983D2 /* Intelligence.swift */; };
+		A988A909A765B715504265D1 /* StudioLaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */; };
 		AAD053F52024C18ABB369359 /* Battito.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C25C5F17C318E947E1AD49 /* Battito.swift */; };
 		AAF0520608C32DEA83A00F6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD41100535CF14951204A59 /* OnboardingView.swift */; };
 		ABA58014213F1EE37E0E1960 /* AccessibilitaDelMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */; };
+		AC364601FE341DE1C287C00E /* StudioPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */; };
 		AC3ED5625C2EA131C0521BC4 /* RiquadroAggiornamento.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EB6620429BC7AA93FF158C /* RiquadroAggiornamento.swift */; };
 		B1C1E5F94CEB1BDA887D54F2 /* GiocoBeach.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7387FC1465339FD763AFA45 /* GiocoBeach.swift */; };
 		B1E65D0399D81E3FFCC124C3 /* Contrasto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E94B8AD368179CF019AEB21 /* Contrasto.swift */; };
@@ -107,7 +118,9 @@
 		BB6775993A78788294DDA5D3 /* StudioHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D19F288C9A931A349BD9EFB /* StudioHelpView.swift */; };
 		BE9C6DD8207B8A5FA9358F79 /* MirrorScopioMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95A27EB80726EBD0FF61045B /* MirrorScopioMobileApp.swift */; };
 		C16E46641F38F78251F6BA05 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */; };
+		C190716A68C881577CF8F2CA /* StudioPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */; };
 		C2A7155E5ABA711C00CBA255 /* StudioSessionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5726E7A1918A54875262FF3A /* StudioSessionTracker.swift */; };
+		C2FBC8FA541B80D3D65D0B08 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1D82CDDB33807E954331DD /* Fonts.swift */; };
 		C4A956F64A6B9A29E70B3522 /* StudioExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BA704F4A69CCEF1CC326334 /* StudioExtraction.swift */; };
 		C513296C4066E3B8037D236B /* StudioStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664C52E27CFA821D17570016 /* StudioStorageTests.swift */; };
 		C57FD27BFDF2BA5EA1193A67 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */; };
@@ -134,7 +147,9 @@
 		DDE274A613E9E615FB2E8A26 /* AudioCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600397C551FEEE65C1F8CEB8 /* AudioCheckView.swift */; };
 		DFC32CD4FE026A3DB63BB8D3 /* StudioGeneratedLesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89DD7778D6EB3EB8A4F2E18 /* StudioGeneratedLesson.swift */; };
 		E000DA6C6B2877FF222905DA /* SpeechListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9D89E1FD067483757EC83DF /* SpeechListener.swift */; };
+		E059FF5B7F192DF8759DA740 /* NavigazioneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F6EBFF9398D288C8FC9650 /* NavigazioneTests.swift */; };
 		E208E4D28BE0FC584C9E1BD8 /* GiocoGrotta.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDD8A82B2C05435B42F4FB /* GiocoGrotta.swift */; };
+		E46F6584F2F410A0A14EA21B /* SharedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94876675BBB9A6CEF58498AF /* SharedControls.swift */; };
 		E5224519CAFA889A389F9D95 /* StudioGeneratedLesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89DD7778D6EB3EB8A4F2E18 /* StudioGeneratedLesson.swift */; };
 		E7D9A59773DA2C44C2C4939F /* StudioGuidedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9396309AE337476F5D66A2 /* StudioGuidedView.swift */; };
 		E8A2ECF8251B0736FE692AF2 /* StudioLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */; };
@@ -152,9 +167,11 @@
 		F378FEE4D123DE1C5130FB95 /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AA1E26779A757F2BA6651E /* Accessibility.swift */; };
 		F41CFFAE2C348B27CEBAC2DC /* GiocoBolle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71C981E21AF4139E466D115 /* GiocoBolle.swift */; };
 		F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */; };
+		F4FF324A70CE57E93C7C2A79 /* SharedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94876675BBB9A6CEF58498AF /* SharedControls.swift */; };
 		F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */; };
 		F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */; };
 		F832B4E61C798B9315AEE6A5 /* NodiDinamiciCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620617ACE8AB2E712BFD0F95 /* NodiDinamiciCorsa3D.swift */; };
+		FA61A1EA8425A79D76FF71C0 /* StudioMobileSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD81CE64F6756AE738FF7A78 /* StudioMobileSettings.swift */; };
 		FC1B24A65A23FC69979C350F /* AdvancedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09713107D20503A97DEDEFFB /* AdvancedControls.swift */; };
 		FD9DE3548486B17AAFB1D966 /* StudioStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12ED506F8970C1F620204ACE /* StudioStore.swift */; };
 		FF5D64075C9A528289731E18 /* StudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CD03FD75DF5B61E288807 /* StudioModels.swift */; };
@@ -295,6 +312,7 @@
 		93761FDE34B2D231E306F19C /* logo-256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-256.png"; sourceTree = "<group>"; };
 		93762CFD9EA471D918221BA0 /* LICENSE */ = {isa = PBXFileReference; path = LICENSE; sourceTree = "<group>"; };
 		93DC0542C94A3519F81BBEDA /* AudioMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMenu.swift; sourceTree = "<group>"; };
+		94876675BBB9A6CEF58498AF /* SharedControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedControls.swift; sourceTree = "<group>"; };
 		95A27EB80726EBD0FF61045B /* MirrorScopioMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorScopioMobileApp.swift; sourceTree = "<group>"; };
 		98E6EC59854AEF11A1B30F48 /* ACCESSIBILITA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ACCESSIBILITA.md; sourceTree = "<group>"; };
 		99FBDBF1768CDDE25481C4FC /* CONTRIBUTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
@@ -313,7 +331,10 @@
 		A958020209EA93F4F0FD7F9F /* impeccable.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = impeccable.json; sourceTree = "<group>"; };
 		AA0591D0D9F9413B2552345C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiAlSicuro.swift; sourceTree = "<group>"; };
+		AD81CE64F6756AE738FF7A78 /* StudioMobileSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMobileSettings.swift; sourceTree = "<group>"; };
 		AF2E31DB5E360461371F5524 /* Stimuli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stimuli.swift; sourceTree = "<group>"; };
+		AF51A49E1E4DBB71C2852339 /* StudioControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioControls.swift; sourceTree = "<group>"; };
+		AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioLaunchView.swift; sourceTree = "<group>"; };
 		AFE70137AA171B11379D4157 /* PER-I-LOGOPEDISTI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "PER-I-LOGOPEDISTI.md"; sourceTree = "<group>"; };
 		B138E17EF7A234EFD43A06DC /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		B1B7797EB4E90A0D13E401A3 /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
@@ -332,6 +353,7 @@
 		C12EAFA46FD1E80178DBE206 /* StudioPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPathTests.swift; sourceTree = "<group>"; };
 		C35E182095769B06776CC6F7 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		C793A93553EE9A8C467E0168 /* StudioUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioUITests.swift; sourceTree = "<group>"; };
+		C7ADDD87190E25475D4C995E /* MirrorScopioNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorScopioNavigationBar.swift; sourceTree = "<group>"; };
 		CBA3306CAF36A812F742BE5A /* StudioPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPath.swift; sourceTree = "<group>"; };
 		CBD41100535CF14951204A59 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CC15C6CCA60C061748E42475 /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
@@ -345,6 +367,7 @@
 		D9D89E1FD067483757EC83DF /* SpeechListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechListener.swift; sourceTree = "<group>"; };
 		DB8F73F157C256378466F009 /* ProveDaTastiera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProveDaTastiera.swift; sourceTree = "<group>"; };
 		E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadinessView.swift; sourceTree = "<group>"; };
+		E0F6EBFF9398D288C8FC9650 /* NavigazioneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigazioneTests.swift; sourceTree = "<group>"; };
 		E1BA41DA44CA7DE025C0991A /* StudioCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioCoreTests.swift; sourceTree = "<group>"; };
 		E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioLessonView.swift; sourceTree = "<group>"; };
 		E571C4DE8C82A84F711D808F /* GiocoArrampicata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoArrampicata.swift; sourceTree = "<group>"; };
@@ -352,6 +375,7 @@
 		E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitaDelMac.swift; sourceTree = "<group>"; };
 		E8BCAA8C25A78EAA0828A3FF /* VoiceChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChooser.swift; sourceTree = "<group>"; };
 		E8CC16AEE2F4A86D2D0A27DA /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPreferencesTests.swift; sourceTree = "<group>"; };
 		EA86B22B5414E8CB4D636C3B /* GiocoCorsa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoCorsa.swift; sourceTree = "<group>"; };
 		EB98145457D8873F58DC5B95 /* StaffettaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffettaView.swift; sourceTree = "<group>"; };
 		ED384A57DDACE8A116806F36 /* MotoreSport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotoreSport.swift; sourceTree = "<group>"; };
@@ -455,8 +479,10 @@
 			children = (
 				2F3940C97ED6E086B2BFC111 /* StudioAddView.swift */,
 				F44B90FB5646B7A1261DFE12 /* StudioAdultView.swift */,
+				AF51A49E1E4DBB71C2852339 /* StudioControls.swift */,
 				6B889D7AC1923B55AF66C634 /* StudioGenerationView.swift */,
 				2B9396309AE337476F5D66A2 /* StudioGuidedView.swift */,
+				AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */,
 				E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */,
 				79CA9036004DAE176CF1AC14 /* StudioPathViews.swift */,
 				0AAD15951BE8DD3F672351A3 /* StudioRootView.swift */,
@@ -509,6 +535,7 @@
 				C35E182095769B06776CC6F7 /* DashboardView.swift */,
 				B323386D38EFBCCD82CF3AA8 /* HomeView.swift */,
 				3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */,
+				C7ADDD87190E25475D4C995E /* MirrorScopioNavigationBar.swift */,
 				CBD41100535CF14951204A59 /* OnboardingView.swift */,
 				E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */,
 				9A34ECBF54C93620D8462066 /* ReportView.swift */,
@@ -538,6 +565,7 @@
 			children = (
 				695418790BBC47445C0C129B /* Assets.xcassets */,
 				95A27EB80726EBD0FF61045B /* MirrorScopioMobileApp.swift */,
+				AD81CE64F6756AE738FF7A78 /* StudioMobileSettings.swift */,
 			);
 			path = Mobile;
 			sourceTree = "<group>";
@@ -597,6 +625,7 @@
 				B66873BF49E2DAAF966A291A /* Components.swift */,
 				B653EC0DBB7E114828180F50 /* ElencoPagine.swift */,
 				2D1D82CDDB33807E954331DD /* Fonts.swift */,
+				94876675BBB9A6CEF58498AF /* SharedControls.swift */,
 				2BE0A57B030C674CC7521A8C /* Theme.swift */,
 			);
 			path = Design;
@@ -647,6 +676,7 @@
 				4A96C5C670CCAC577809191C /* Interlinea.swift */,
 				0FE1517CC2442EDB36D67111 /* LarghezzeCheCrescono.swift */,
 				112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */,
+				E0F6EBFF9398D288C8FC9650 /* NavigazioneTests.swift */,
 				9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */,
 				4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */,
 				FF22C704874B5C8FB93EFBFA /* SessioneMessaViaUnaVolta.swift */,
@@ -654,6 +684,7 @@
 				031AD255BC90A1F85C04F857 /* StudioExtractionTests.swift */,
 				BEB0CE4A11D404E2EFC61FA9 /* StudioGenerationTests.swift */,
 				C12EAFA46FD1E80178DBE206 /* StudioPathTests.swift */,
+				EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */,
 				664C52E27CFA821D17570016 /* StudioStorageTests.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
 			);
@@ -926,6 +957,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				67C6453B5C822AB3019B504D /* Assets.xcassets in Resources */,
+				0EC6C6D04A1AC8E3FA659962 /* Fonts in Resources */,
 				C57FD27BFDF2BA5EA1193A67 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -995,6 +1027,7 @@
 				D28CA7DF39B385E1A6449D37 /* ItalianVoices.swift in Sources */,
 				F47E2FD834D3D3057E73ED9D /* LetturaTollerante.swift in Sources */,
 				30195BC95FAF28CFF5A7EED4 /* Log.swift in Sources */,
+				5C2AF73581359BBAA134ADF5 /* MirrorScopioNavigationBar.swift in Sources */,
 				7AA8D0FF6EAD344E137560BF /* Model.swift in Sources */,
 				5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */,
 				8A08202C1D911C6799A1F86C /* MotoreRetro.swift in Sources */,
@@ -1015,6 +1048,7 @@
 				07870146BFCBD4A99BC77E3D /* SessionEngine.swift in Sources */,
 				F36FF08907A415E74FF6B574 /* SettingsView.swift in Sources */,
 				890E7894B5024E6EE31F4041 /* Sfondi.swift in Sources */,
+				E46F6584F2F410A0A14EA21B /* SharedControls.swift in Sources */,
 				91A1DA759551D1D6E1C5174F /* Speaker.swift in Sources */,
 				E000DA6C6B2877FF222905DA /* SpeechListener.swift in Sources */,
 				97E630F55313984E5DC070F7 /* SportDelCamp.swift in Sources */,
@@ -1027,6 +1061,7 @@
 				4C84F3E1A2D682D6548C1810 /* StudioAdultView.swift in Sources */,
 				33CAE792776D3853BBFF5C9F /* StudioAudio.swift in Sources */,
 				B30BE0F48A570345C67B4D3C /* StudioCodec.swift in Sources */,
+				1E9245E80FC7B84C7B91AEDF /* StudioControls.swift in Sources */,
 				71296BD33E6E7A1691524C82 /* StudioExtraction.swift in Sources */,
 				CB8266CC9C4506CCD601D7B7 /* StudioFileStorage.swift in Sources */,
 				DFC32CD4FE026A3DB63BB8D3 /* StudioGeneratedLesson.swift in Sources */,
@@ -1035,6 +1070,7 @@
 				E7D9A59773DA2C44C2C4939F /* StudioGuidedView.swift in Sources */,
 				CF4B702B646CAB0C966EE75E /* StudioHelpContent.swift in Sources */,
 				4F6659242C43539117BA4EB6 /* StudioHelpView.swift in Sources */,
+				6B24DD35C646EBA4D958F5AE /* StudioLaunchView.swift in Sources */,
 				21E2E274E24C5D9198D4F578 /* StudioLessonView.swift in Sources */,
 				FF5D64075C9A528289731E18 /* StudioModels.swift in Sources */,
 				8407A43B322872F83D1A5B09 /* StudioPath.swift in Sources */,
@@ -1071,6 +1107,7 @@
 				61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */,
 				E919D1D0A761B8079487F90A /* LarghezzeCheCrescono.swift in Sources */,
 				4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */,
+				E059FF5B7F192DF8759DA740 /* NavigazioneTests.swift in Sources */,
 				8E4360E751B929D352DD8BD0 /* RegoleCorsa.swift in Sources */,
 				3E5A6EE64B00A382EDCDF43B /* ScalaAdattiva.swift in Sources */,
 				314493E66D5DD6D995DD7B81 /* SessioneMessaViaUnaVolta.swift in Sources */,
@@ -1078,6 +1115,7 @@
 				6D5A56D3FE59D3804B4AA375 /* StudioExtractionTests.swift in Sources */,
 				EF9E6FEF12C4FA0A152E2987 /* StudioGenerationTests.swift in Sources */,
 				EEC8E5BC42ABDFEFB9277F25 /* StudioPathTests.swift in Sources */,
+				C190716A68C881577CF8F2CA /* StudioPreferencesTests.swift in Sources */,
 				25E861048DF0C130943CF3DA /* StudioStorageTests.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,
 			);
@@ -1091,6 +1129,7 @@
 				7E893C521B7F1B7B0121483D /* StudioExtractionTests.swift in Sources */,
 				01637FF22D65F14080D6D0B0 /* StudioGenerationTests.swift in Sources */,
 				DACDDDAC44CACA42E3F077F7 /* StudioPathTests.swift in Sources */,
+				AC364601FE341DE1C287C00E /* StudioPreferencesTests.swift in Sources */,
 				C513296C4066E3B8037D236B /* StudioStorageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1099,12 +1138,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6791DC9859E817F912A1B2AF /* AccessibilitaDelMac.swift in Sources */,
+				3FE18491026A29460C1E9E40 /* Accessibility.swift in Sources */,
+				C2FBC8FA541B80D3D65D0B08 /* Fonts.swift in Sources */,
+				802C9F258666F5DE9DAEC3B7 /* LetturaTollerante.swift in Sources */,
 				BE9C6DD8207B8A5FA9358F79 /* MirrorScopioMobileApp.swift in Sources */,
+				F4FF324A70CE57E93C7C2A79 /* SharedControls.swift in Sources */,
 				72FCA015E71E44DE04B7C1A9 /* Speaker.swift in Sources */,
 				53AE5CA3FF67E69AC93994C0 /* StudioAddView.swift in Sources */,
 				A7B5319D7E16F8F1A80EF81B /* StudioAdultView.swift in Sources */,
 				9F4CCA83F2F5378D700A4AFE /* StudioAudio.swift in Sources */,
 				BA296E57C42A5C16AEB2CC99 /* StudioCodec.swift in Sources */,
+				5BE9853F370AF0A31D2818D3 /* StudioControls.swift in Sources */,
 				C4A956F64A6B9A29E70B3522 /* StudioExtraction.swift in Sources */,
 				7B35D45631EA7BDBF964F6B1 /* StudioFileStorage.swift in Sources */,
 				E5224519CAFA889A389F9D95 /* StudioGeneratedLesson.swift in Sources */,
@@ -1113,13 +1158,16 @@
 				1271C5C380514CF2A155139A /* StudioGuidedView.swift in Sources */,
 				8B982CBA340A821AF8958BE7 /* StudioHelpContent.swift in Sources */,
 				BB6775993A78788294DDA5D3 /* StudioHelpView.swift in Sources */,
+				A988A909A765B715504265D1 /* StudioLaunchView.swift in Sources */,
 				E8A2ECF8251B0736FE692AF2 /* StudioLessonView.swift in Sources */,
+				FA61A1EA8425A79D76FF71C0 /* StudioMobileSettings.swift in Sources */,
 				CB5B3054283B92066D5C3545 /* StudioModels.swift in Sources */,
 				24EEF094B0C2B72319A09659 /* StudioPath.swift in Sources */,
 				2B0CF653F065E8DA9E92ED38 /* StudioPathViews.swift in Sources */,
 				14C8D362AEE259690412C234 /* StudioRootView.swift in Sources */,
 				C2A7155E5ABA711C00CBA255 /* StudioSessionTracker.swift in Sources */,
 				FD9DE3548486B17AAFB1D966 /* StudioStore.swift in Sources */,
+				29CD9703306F006E5E2EEDEB /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

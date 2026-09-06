@@ -2,52 +2,25 @@ import SwiftUI
 
 @main
 struct MirrorScopioApp: App {
-  @State private var legacy: LegacyWorkspace?
+  @StateObject private var store = Store()
+  @StateObject private var engine = SessionEngine()
+  @StateObject private var readiness = Readiness()
+  @StateObject private var nav = Navigazione()
 
   init() {
     FontLoader.registerBundledFonts()
-    _legacy = State(initialValue: CommandLine.arguments.contains("--tachistoscopio")
-      ? LegacyWorkspace() : nil)
   }
 
   var body: some Scene {
     WindowGroup("MirrorScopio") {
-      Group {
-        if let legacy {
-          RootView(store: legacy.store, engine: legacy.engine,
-                   readiness: legacy.readiness, nav: legacy.nav)
-            .toolbar {
-              Button("Torna allo studio") {
-                legacy.engine.abort()
-                self.legacy = nil
-              }
-              .accessibilityIdentifier("studio.return")
-            }
-        } else {
-          StudioRootView(onLegacy: { legacy = LegacyWorkspace() })
-        }
-      }
+      RootView(store: store, engine: engine, readiness: readiness, nav: nav)
       .frame(minWidth: 900, minHeight: 700)
     }
     .defaultSize(width: 1100, height: 850)
     .commands {
-      if let legacy {
-        ComandiMenu(nav: legacy.nav, engine: legacy.engine)
-      } else {
-        CommandGroup(replacing: .newItem) {}
-      }
+      ComandiMenu(nav: nav, engine: engine)
     }
   }
-}
-
-/// Il percorso precedente si carica soltanto su richiesta: studiare non richiede
-/// microfono, modelli di riconoscimento o accesso allo storico degli esercizi.
-@MainActor
-private final class LegacyWorkspace {
-  let store = Store()
-  let engine = SessionEngine()
-  let readiness = Readiness()
-  let nav = Navigazione()
 }
 
 /// Decide che cosa mostrare. Una schermata alla volta, mai due finestre:
@@ -64,6 +37,7 @@ struct RootView: View {
   @StateObject private var mac = AccessibilitaDelMac()
   @Environment(\.colorScheme) private var systemScheme
   @Environment(\.scenePhase) private var scenePhase
+  @State private var studioDestination: StudioDestination = .home
 
   private var a11y: EffettiveImpostazioniAccessibilita {
     EffettiveImpostazioniAccessibilita(store.current.a11y, mac: mac.stato)
@@ -77,6 +51,14 @@ struct RootView: View {
     ZStack {
       palette.background.ignoresSafeArea()
       content
+        .disabled(nav.servizioStudio != nil)
+        .opacity(nav.servizioStudio == nil ? 1 : 0)
+        .accessibilityHidden(nav.servizioStudio != nil)
+      if nav.servizioStudio != nil {
+        servizioStudio
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(palette.background)
+      }
     }
     // L'orologio dei frame vive qui e non nella schermata di presentazione, così
     // il livello del microfono si vede già durante la prova iniziale.
@@ -93,8 +75,29 @@ struct RootView: View {
     .tint(palette.accent)
     .preferredColorScheme(a11y.theme == .auto ? nil : (palette.isDark ? .dark : .light))
     .avvisoDati(store)
+    .onChange(of: nav.servizioStudio) { _, destinazione in
+      guard destinazione != nil else { return }
+      _ = StudioRuntime.shared.store.flushStaged()
+      StudioRuntime.shared.audio.stop()
+      StudioRuntime.shared.tracker.pause()
+    }
     .onAppear {
       syncEngine()
+      if !nav.studioSelected { prepareExercises() }
+    }
+    .onChange(of: nav.studioSelected) { _, selected in
+      if !selected { prepareExercises() }
+    }
+    .onChange(of: store.currentID) { _, _ in syncEngine() }
+    .onChange(of: store.current.a11y) { _, _ in syncEngine() }
+    .onChange(of: mac.stato) { _, _ in syncEngine() }
+    .onChange(of: scenePhase) { _, nuova in
+      guard nuova == .background else { return }
+      engine.interrompi(motivo: "L'app è passata in secondo piano: questa parola non conta. Quando torni, si riprende da qui.")
+    }
+  }
+
+  private func prepareExercises() {
       // Al primo avvio si controlla da soli che il Mac abbia microfono, modello
       // vocale italiano e voce: meglio scoprirlo ora che a metà lettura.
       readiness.voceScelta = store.current.a11y.voiceIdentifier
@@ -102,7 +105,8 @@ struct RootView: View {
         await readiness.controlla()
         // Il primo avvio è una guida passo passo; dopo, si interviene solo se
         // manca qualcosa di necessario.
-        if !UserDefaults.standard.bool(forKey: "onboardingFatto") {
+        guard !nav.studioSelected else { return }
+        if !UserDefaults.standard.bool(forKey: "onboardingFatto"), nav.schermata == .casa {
           nav.schermata = .benvenuto
         } else if !readiness.puoIniziare, nav.schermata == .casa {
           nav.schermata = .preparazione
@@ -126,25 +130,6 @@ struct RootView: View {
                                    serieGiorni: store.current.streakCurrent)
         }
       }
-    }
-    .onChange(of: store.currentID) { _, _ in syncEngine() }
-    .onChange(of: store.current.a11y) { _, _ in syncEngine() }
-    // Il Mac può cambiare idea mentre l'app è aperta — «Riduci movimento» si
-    // accende dalle Impostazioni di Sistema senza chiudere niente. Anche i
-    // suoni devono accorgersene, non solo lo schermo.
-    .onChange(of: mac.stato) { _, _ in syncEngine() }
-    // La finestra è passata dietro a un'altra mentre una parola era sullo
-    // schermo: quello che succede da qui in poi non lo sta guardando nessuno.
-    // Il turno si ferma e viene marcato interrotto, invece di finire nei dati
-    // come una parola non letta.
-    .onChange(of: scenePhase) { _, nuova in
-      // Solo `.background`, non `.inactive`. Su macOS la scena diventa
-      // `.inactive` anche solo perdendo il fuoco — un clic sul Finder, una
-      // finestra di sistema che compare — e fermarsi lì bruciava una parola
-      // della lista a ogni distrazione, senza restituirla.
-      guard nuova == .background else { return }
-      engine.interrompi(motivo: "L'app è passata in secondo piano: questa parola non conta. Quando torni, si riprende da qui.")
-    }
   }
 
   @ViewBuilder
@@ -164,11 +149,25 @@ struct RootView: View {
                    openSettings: { nav.schermata = .impostazioni },
                    openProgress: { nav.schermata = .progressi },
                    openAudioCheck: { nav.schermata = .audio },
-                   openReadiness: { nav.schermata = .preparazione })
+                   openReadiness: { nav.schermata = .preparazione },
+                   studioSelected: $nav.studioSelected,
+                   onStudio: openStudio)
+        case .studio:
+          VStack(spacing: 0) {
+            MirrorScopioNavigationBar(name: store.current.name,
+              openSettings: { nav.apri(.impostazioni) },
+              openProgress: { nav.apri(.progressi) },
+              openAudioCheck: { nav.apri(.audio) })
+            StudioRootView(destination: $studioDestination,
+              onLegacy: { nav.studioSelected = false; nav.schermata = .casa },
+              onSettings: { nav.apri(.impostazioni) },
+              onHome: { nav.schermata = .casa })
+          }
         case .impostazioni:
           SettingsView(store: store, engine: engine, onClose: { nav.schermata = .casa },
                        onCalibrate: { engine.startCalibration() },
-                       onReadiness: { nav.schermata = .preparazione })
+                       onReadiness: { nav.schermata = .preparazione },
+                       onStudio: { openStudio(.path) })
         case .progressi, .obiettivi:
           DashboardView(store: store, onClose: { nav.schermata = .casa })
         case .audio:
@@ -210,5 +209,36 @@ struct RootView: View {
     engine.a11y = a11y.perIlMotore
     engine.config = store.current.config
     readiness.voceScelta = a11y.voiceIdentifier
+  }
+
+  @ViewBuilder
+  private var servizioStudio: some View {
+    switch nav.servizioStudio {
+    case .impostazioni:
+      SettingsView(store: store, engine: engine, onClose: { nav.servizioStudio = nil },
+        onCalibrate: {
+          nav.apri(.casa)
+          nav.studioSelected = false
+          engine.startCalibration()
+        },
+        onReadiness: { nav.servizioStudio = .preparazione },
+        onStudio: { openStudio(.path) })
+    case .progressi, .obiettivi:
+      DashboardView(store: store, onClose: { nav.servizioStudio = nil })
+    case .audio:
+      AudioCheckView(store: store, onClose: { nav.servizioStudio = nil })
+    case .preparazione:
+      ReadinessView(readiness: readiness, a11y: a11y,
+        onClose: { nav.servizioStudio = nil }, onContinue: { nav.servizioStudio = nil })
+    default:
+      EmptyView()
+    }
+  }
+
+  private func openStudio(_ destination: StudioDestination) {
+    nav.servizioStudio = nil
+    nav.studioSelected = true
+    studioDestination = destination
+    nav.schermata = .studio
   }
 }

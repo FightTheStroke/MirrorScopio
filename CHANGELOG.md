@@ -37,8 +37,12 @@ automatica del ramo principale.
   perché è stato scelto, i limiti e il trasferimento manuale fra dispositivi.
 
 ### Cambiato
-- **Sul Mac si entra nello studio.** «Giochi ed esercizi» riapre il percorso precedente
-  direttamente dalla schermata iniziale e conserva profili e storico senza convertirli.
+- **Studio dentro MirrorScopio, non al suo posto.** La schermata iniziale originale
+  propone Studio, Leggi e Scrivi. Restano navigazione, impostazioni, stili e sala giochi;
+  Studio usa gli stessi colori, caratteri, dimensioni e voce.
+- **Impostazioni senza perdere il filo:** aprirle da Studio conserva la pagina
+  e la bozza in corso; «Studio e percorso» aggiunge la preparazione delle lezioni
+  all'elenco originale. I profili e lo storico degli esercizi restano invariati.
 - Nel nuovo percorso il ripasso è un **autoconfronto dichiarato**, non una misura
   del QI o un giudizio automatico sulla comprensione.
 

@@ -27,7 +27,7 @@ struct StudioHelpTopic: Identifiable {
       how: """
       Apri una lezione. Il testo viene diviso in segmenti: puoi leggere quello visibile \
       oppure ascoltarlo. Usa pausa, riprendi, ripeti e i comandi per cambiare segmento. \
-      La lettura non passa da sola al segmento successivo. Le preferenze della voce \
+      La lettura non passa da sola al segmento successivo. Le impostazioni comuni della voce \
       permettono di scegliere fra le voci italiane installate e cambiare la velocità.
       """,
       why: """
@@ -99,7 +99,7 @@ struct StudioHelpTopic: Identifiable {
       dispositivo, quando disponibile: non c'è un servizio remoto alternativo. \
       Controlla e correggi la bozza prima di approvarla, soprattutto se parte solo \
       da un argomento e non da una fonte. Senza AI puoi importare o incollare il libro. \
-      Da «Domande, voce e dati» si consultano le osservazioni e si preparano \
+      Da «Domande e dati» si consultano le osservazioni e si preparano \
       i contenuti del ripasso. Il tempo attivo, la modalità di studio, gli aiuti \
       e la fatica indicata descrivono una sessione. Per confrontare due sessioni \
       considera anche il materiale e l'obiettivo: una pagina facile non equivale \
@@ -146,7 +146,9 @@ struct StudioHelpTopic: Identifiable {
     .init(
       id: "precedente", title: "10. Il percorso precedente e i limiti",
       how: """
-      Sul Mac «Giochi ed esercizi», nella schermata iniziale, apre il percorso precedente. \
+      Sul Mac la schermata iniziale conserva «Leggi» e «Scrivi» accanto a «Studio». \
+      I giochi restano in «Impostazioni → I giochi». Colori, caratteri, dimensioni \
+      e voce si scelgono nelle impostazioni comuni e valgono anche per lo studio. \
       I suoi profili e risultati restano separati dallo studio. Su iPhone trovi \
       il nuovo percorso di studio, non i giochi e il tachistoscopio del Mac.
       """,

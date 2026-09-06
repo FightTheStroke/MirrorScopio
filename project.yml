@@ -128,6 +128,15 @@ targets:
       - path: Sources/Studio
       - path: Sources/StudioHelp
       - path: Sources/Core/Speaker.swift
+      - path: Sources/Design/Theme.swift
+      - path: Sources/Design/Fonts.swift
+      - path: Sources/Design/Accessibility.swift
+      - path: Sources/Design/AccessibilitaDelMac.swift
+      - path: Sources/Design/SharedControls.swift
+      - path: Sources/Data/LetturaTollerante.swift
+      - path: Resources/Fonts
+        type: folder
+        buildPhase: resources
       - path: Resources/PrivacyInfo.xcprivacy
         buildPhase: resources
     settings:

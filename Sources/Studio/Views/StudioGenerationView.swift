@@ -19,10 +19,10 @@ struct StudioGenerationView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Prepara con Apple Intelligence").font(.title.bold()).accessibilityAddTraits(.isHeader)
+      Text("Prepara con Apple Intelligence").studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
       Text("Scrivi un argomento. Preparo una proposta sul dispositivo; tu rileggi e approvi.")
       Text("Finché non confermi, il ragazzo non la vede. Uscendo, la proposta non confermata viene persa.")
-        .font(.callout).foregroundStyle(.secondary)
+        .studioFont(.callout).studioMuted()
       if let unavailable { Text(unavailable).accessibilityIdentifier("studio.ai.availability") }
       if let message = generation.message { Text(message).accessibilityIdentifier("studio.ai.status") }
       if let error = store.error { Text(error) }
@@ -63,7 +63,7 @@ struct StudioGenerationView: View {
 
   private var preparation: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("1. Scegli da dove partire").font(.title2.bold())
+      Text("1. Scegli da dove partire").studioFont(.title2, weight: .bold)
       TextField("Argomento", text: $input.topic)
         .frame(minHeight: 44).accessibilityLabel("Argomento").accessibilityIdentifier("studio.ai.topic")
       DisclosureGroup("Usa il testo del libro (facoltativo)", isExpanded: $showSource) {
@@ -79,15 +79,15 @@ struct StudioGenerationView: View {
         Text("Puoi incollare il testo, oppure importare un documento da «Aggiungi dal libro o da un testo» e ritrovare qui la bozza.")
       }.frame(minHeight: 44)
       Text(input.hasSource ? StudioGenerationValidation.sourceLabel : StudioGenerationValidation.syntheticLabel)
-        .font(.callout).foregroundStyle(.secondary)
+        .studioFont(.callout).studioMuted()
       StudioButton("Prepara la proposta", icon: "sparkles", id: "studio.ai.generate") {
         editing = false
         unavailable = StudioGeneration.unavailableMessage
         generation.start(input)
-      }.buttonStyle(.borderedProminent).controlSize(.large)
+      }.studioPrimary()
         .disabled(unavailable != nil || store.recovery || store.hasPendingSave)
       DisclosureGroup("Limiti e dati sul dispositivo") {
-        Text(StudioGenerationInput.limitMessage).font(.callout)
+        Text(StudioGenerationInput.limitMessage).studioFont(.callout)
         Text("MirrorScopio non scarica modelli e non usa servizi remoti. L'AI prepara materiale, non valuta apprendimento o QI.")
       }.frame(minHeight: 44)
       if unavailable != nil {
@@ -100,7 +100,7 @@ struct StudioGenerationView: View {
 
   private var review: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("2. Rileggi e modifica").font(.title2.bold())
+      Text("2. Rileggi e modifica").studioFont(.title2, weight: .bold)
       Text(generation.draft?.provenance ?? "")
       Text("Controlla spiegazione, idee, risposte e citazioni. Il controllo automatico verifica soltanto la struttura e che le citazioni esistano, non che le risposte siano accurate.")
       if let draft = generation.draft, draft.input.hasSource {
@@ -118,11 +118,11 @@ struct StudioGenerationView: View {
         editors
       }
       StudioButton("Cambia argomento o fonte", icon: "arrow.uturn.backward") { generation.reviseInput() }
-      Text("3. Conferma solo dopo aver riletto").font(.title2.bold())
+      Text("3. Conferma solo dopo aver riletto").studioFont(.title2, weight: .bold)
       Text("La conferma aggiunge tutta la lezione e le sue domande insieme.")
       StudioButton("Ho controllato: aggiungi al percorso", icon: "checkmark", id: "studio.ai.approve") {
         if generation.approve(in: store) { finishApproval() }
-      }.buttonStyle(.borderedProminent).controlSize(.large)
+      }.studioPrimary()
         .disabled(store.recovery || store.hasPendingSave)
     }
     .disabled(generation.approval != nil)
@@ -132,19 +132,19 @@ struct StudioGenerationView: View {
     VStack(alignment: .leading, spacing: 16) {
       Text(draft.content.explanation).textSelection(.enabled)
         .accessibilityIdentifier("studio.ai.preview")
-      Text("Le tre idee").font(.headline)
+      Text("Le tre idee").studioFont(.headline)
       ForEach(Array(draft.content.ideas.enumerated()), id: \.offset) { _, idea in Text(idea) }
       Text(draft.content.connection)
       ForEach(Array(draft.content.procedures.enumerated()), id: \.offset) { index, step in
         Text("\(index + 1). \(step)")
       }
-      Text("Le domande da riprendere").font(.headline)
+      Text("Le domande da riprendere").studioFont(.headline)
       ForEach(Array(draft.cards.enumerated()), id: \.offset) { index, card in
         VStack(alignment: .leading, spacing: 8) {
-          Text("\(index + 1). \(card.question)").font(.headline)
+          Text("\(index + 1). \(card.question)").studioFont(.headline)
           Text(card.answer)
           if !card.hint.isEmpty { Text("Spunto: \(card.hint)") }
-          Text("Riferimento: «\(card.quote)»").font(.callout).foregroundStyle(.secondary)
+          Text("Riferimento: «\(card.quote)»").studioFont(.callout).studioMuted()
         }
       }
     }
@@ -176,7 +176,7 @@ struct StudioGenerationView: View {
 
   private func cardReview(_ index: Int) -> some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text("Domanda \(index + 1)").font(.headline)
+      Text("Domanda \(index + 1)").studioFont(.headline)
       StudioTextEditor(title: "Domanda", text: cardBinding(index, \.question))
       StudioTextEditor(title: "Risposta da controllare", text: cardBinding(index, \.answer))
       StudioTextEditor(title: "Spunto (facoltativo)", text: cardBinding(index, \.hint))

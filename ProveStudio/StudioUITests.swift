@@ -12,6 +12,9 @@ final class StudioUITests: XCTestCase {
     testID = UUID().uuidString
     app = XCUIApplication()
     app.launchEnvironment["MIRRORSCOPIO_STUDIO_TEST_ID"] = testID
+    #if os(macOS)
+    app.launchEnvironment["MIRRORSCOPIO_CARTELLA_DATI"] = legacyFolder.path
+    #endif
     app.launchArguments = ["-controllaAggiornamenti", "NO"]
     app.launch()
     }
@@ -34,7 +37,14 @@ final class StudioUITests: XCTestCase {
     if FileManager.default.fileExists(atPath: folder.path) {
       try FileManager.default.removeItem(at: folder)
     }
+    if FileManager.default.fileExists(atPath: legacyFolder.path) {
+      try FileManager.default.removeItem(at: legacyFolder)
+    }
     #endif
+  }
+
+  private var legacyFolder: URL {
+    FileManager.default.temporaryDirectory.appendingPathComponent("studio-interfaccia-\(testID!)")
   }
 
   func testAvvioStudioSenzaMicrofono() {
@@ -42,8 +52,50 @@ final class StudioUITests: XCTestCase {
     XCTAssertTrue(app.buttons["studio.parent"].exists)
     XCTAssertFalse(app.buttons["studio.add"].exists)
     XCTAssertFalse(app.buttons["Inizia la calibrazione"].exists)
+    XCTAssertTrue(app.buttons["studio.shell.settings"].exists)
+    #if os(macOS)
+    XCTAssertTrue(app.buttons["studio.mode"].exists)
+    XCTAssertTrue(app.buttons["I tuoi progressi"].exists)
+    #endif
     fotografia("Studio — primo avvio")
   }
+
+  #if os(macOS)
+  func testImpostazioniOriginaliConStudioNelloStessoElenco() {
+    premi(app.buttons["studio.shell.settings"])
+    XCTAssertTrue(app.buttons["Colori e luce"].waitForExistence(timeout: 5))
+    XCTAssertTrue(app.buttons["Come si legge"].exists)
+    XCTAssertTrue(app.buttons["Ritmo e calma"].exists)
+    XCTAssertTrue(app.buttons["I giochi"].exists)
+    premi(app.buttons["Studio e percorso"])
+    premi(app.buttons["studio.settings.path"])
+    XCTAssertTrue(app.buttons["studio.ai.open"].exists)
+    fotografia("Studio — dentro le impostazioni originali")
+  }
+
+  func testImpostazioniNonPerdonoLaBozza() {
+    premi(app.buttons["studio.parent"])
+    premi(app.buttons["studio.ai.open"])
+    let argomento = app.textFields["studio.ai.topic"]
+    scrivi(argomento, "Le frazioni")
+    premi(app.buttons["studio.shell.settings"])
+    premi(app.buttons["Chiudi impostazioni"])
+    XCTAssertTrue(argomento.waitForExistence(timeout: 5))
+    XCTAssertEqual(argomento.value as? String, "Le frazioni")
+  }
+  #endif
+
+  #if os(iOS)
+  func testImpostazioniConCaratteriOriginali() {
+    premi(app.buttons["studio.shell.settings"])
+    XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Atkinson")).firstMatch
+      .waitForExistence(timeout: 5))
+    XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "OpenDyslexic")).firstMatch.exists)
+    fotografia("Studio — impostazioni e caratteri condivisi")
+    premi(app.buttons["studio.settings.close"])
+    XCTAssertTrue(app.buttons["studio.start"].waitForExistence(timeout: 5))
+  }
+  #endif
 
   func testGuidaSpiegaUsoEScelte() {
     premi(app.buttons["studio.help"])
@@ -99,7 +151,7 @@ final class StudioUITests: XCTestCase {
     premi(app.buttons["studio.home"])
     premi(app.buttons["studio.parent"])
     premi(app.buttons["studio.adult"])
-    scegli("Area", attuale: "Voce e testo", opzione: "Domande e fonti")
+    scegli("Area", attuale: "Ripasso", opzione: "Domande e fonti")
     scegli("Lezione", attuale: "Scegli una lezione", opzione: "Costo e ricavo")
     scrivi(app.textViews["studio.card.question"], "Quando nasce un costo?")
     scrivi(app.textViews["studio.card.answer"], "Quando compriamo una risorsa.")

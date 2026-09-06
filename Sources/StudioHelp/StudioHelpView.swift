@@ -3,27 +3,20 @@ import SwiftUI
 struct StudioHelpView: View {
   let onClose: () -> Void
   @State private var expanded: Set<String> = ["iniziare"]
-  @AppStorage("studioGuidaTestoGrande") private var largeText = false
   @StateObject private var speaker = Speaker()
   @Environment(\.scenePhase) private var scenePhase
-  @ScaledMetric(relativeTo: .body) private var baseSize = 17
+  @Environment(\.palette) private var palette
+  @Environment(\.impostazioni) private var a11y
 
   var body: some View {
     NavigationStack {
       ScrollView {
         VStack(alignment: .leading, spacing: 20) {
           Text("Studia con gli strumenti che ti aiutano, senza correre.")
-            .font(.system(size: fontSize, weight: .semibold))
+            .font(a11y.font(.guida, .semibold))
           Text("Ogni parte spiega cosa fare e perché l'app è fatta così. Puoi leggerla o ascoltarla.")
-          Toggle(isOn: $largeText) {
-            Text("Testo doppio").frame(minHeight: 44)
-          }
-            .toggleStyle(.button)
-            .accessibilityIdentifier("studio.help.largeText")
           if speaker.isSpeaking {
-            Button { speaker.stop() } label: {
-              Label("Ferma la lettura", systemImage: "stop.fill").frame(minHeight: 44)
-            }
+            StudioButton("Ferma la lettura", icon: "stop.fill") { speaker.stop() }
           }
           ForEach(StudioHelpTopic.all) { topic in
             Button {
@@ -38,7 +31,9 @@ struct StudioHelpView: View {
               }
               .frame(minHeight: 44)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+            .padding(Metrica.spazioPiccolo)
+            .background(palette.surface, in: RoundedRectangle(cornerRadius: Metrica.raggioPiccolo))
             .accessibilityValue(expanded.contains(topic.id) ? "Aperto" : "Chiuso")
             .accessibilityIdentifier("studio.help.\(topic.id)")
             if expanded.contains(topic.id) {
@@ -48,12 +43,11 @@ struct StudioHelpView: View {
                 Text("Perché questa scelta").bold()
                 Text(topic.why)
                 if Speaker.bestItalianVoice != nil {
-                  Button {
-                    speaker.say("\(topic.title). Come si usa. \(topic.how) Perché questa scelta. \(topic.why)")
-                  } label: {
-                    Label("Ascolta questa parte", systemImage: "speaker.wave.2").frame(minHeight: 44)
+                  StudioButton("Ascolta questa parte", icon: "speaker.wave.2") {
+                    speaker.voiceIdentifier = a11y.voiceIdentifier
+                    speaker.say("\(topic.title). Come si usa. \(topic.how) Perché questa scelta. \(topic.why)",
+                                rate: Float(a11y.voiceRate))
                   }
-                  .buttonStyle(.bordered)
                   .accessibilityLabel("Ascolta: \(topic.title)")
                 } else {
                   Text("Per ascoltare questa guida serve una voce italiana installata sul dispositivo.")
@@ -65,11 +59,13 @@ struct StudioHelpView: View {
             Divider()
           }
         }
-        .font(.system(size: fontSize))
+        .font(a11y.font(.corpo))
+        .foregroundStyle(palette.foreground)
         .padding(24)
-        .frame(maxWidth: fontSize / 17 * 800, alignment: .leading)
+        .frame(maxWidth: a11y.size(800), alignment: .leading)
         .frame(maxWidth: .infinity)
       }
+      .background(palette.background)
       .navigationTitle("Come funziona")
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
@@ -89,7 +85,5 @@ struct StudioHelpView: View {
       if phase != .active { speaker.stop() }
     }
   }
-
-  private var fontSize: CGFloat { baseSize * (largeText ? 2 : 1) }
 
 }

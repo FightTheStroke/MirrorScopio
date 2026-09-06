@@ -16,12 +16,12 @@ struct StudioGuidedView: View {
   var body: some View {
     if let run, let lesson {
       VStack(alignment: .leading, spacing: 20) {
-        Text(lesson.title).font(.title.bold()).accessibilityAddTraits(.isHeader)
+        Text(lesson.title).studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
         if !tracker.active, run.phase != .finished {
           Text("Sei in pausa. Il tuo punto è qui.")
           StudioButton("Riprendi", icon: "play.fill", id: "studio.guided.resume") {
             _ = tracker.start(lessonID: lesson.id)
-          }.buttonStyle(.borderedProminent)
+          }.studioPrimary()
         } else {
           switch run.phase {
           case .reading: reading(lesson)
@@ -37,16 +37,16 @@ struct StudioGuidedView: View {
           }
 
         }
-        if let message = audio.message { Text(message).foregroundStyle(.secondary) }
+        if let message = audio.message { Text(message).studioMuted() }
       }
       .disabled(store.recovery || store.hasPendingSave)
       .sheet(isPresented: $showSupport) {
         NavigationStack {
           ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-              Text("Il testo").font(.headline)
+              Text("Il testo").studioFont(.headline)
               Text(lesson.source)
-              Text("La mappa").font(.headline)
+              Text("La mappa").studioFont(.headline)
               ForEach(Array(lesson.map.ideas.enumerated()), id: \.offset) { _, idea in
                 if !idea.isEmpty { Text(idea) }
               }
@@ -99,16 +99,16 @@ struct StudioGuidedView: View {
     let ordinal = positions.firstIndex(of: position) ?? 0
     return VStack(alignment: .leading, spacing: 20) {
       Text("Una parte alla volta · \(ordinal + 1) di \(positions.count)")
-        .font(.headline).foregroundStyle(.secondary)
+        .studioFont(.headline).studioMuted()
       Text(lesson.segments[position].text.trimmingCharacters(in: .whitespacesAndNewlines))
-        .font(.title2).fixedSize(horizontal: false, vertical: true)
+        .studioFont(.title2).fixedSize(horizontal: false, vertical: true)
         .accessibilityIdentifier("studio.guided.text")
       listen(lesson.segments[position].text)
       StudioButton(ordinal + 1 < positions.count ? "Avanti" : "Continua",
                    icon: "arrow.right", id: "studio.guided.next") {
         audio.stop()
         _ = store.advanceGuided()
-      }.buttonStyle(.borderedProminent).controlSize(.large)
+      }.studioPrimary()
       if ordinal > 0 {
         StudioButton("Rivedi la parte prima", icon: "arrow.left") {
           audio.stop(); _ = store.previousGuidedPart()
@@ -120,16 +120,16 @@ struct StudioGuidedView: View {
   @ViewBuilder private func recall(_ lesson: StudioLesson) -> some View {
     if let review, let id = review.remaining.first,
        let card = store.displayArchive.cards.first(where: { $0.id == id && $0.approved }) {
-      Text("Ora prova con parole tue").font(.headline).foregroundStyle(.secondary)
-      Text(card.question).font(.title2).accessibilityIdentifier("studio.guided.question")
+      Text("Ora prova con parole tue").studioFont(.headline).studioMuted()
+      Text(card.question).studioFont(.title2).accessibilityIdentifier("studio.guided.question")
       if !review.revealed {
         Text("Puoi rispondere a voce, senza scrivere. Non ti registro.")
         listen(card.question)
         StudioButton("Confronta la risposta", icon: "text.bubble", id: "studio.guided.reveal") {
           audio.stop(); _ = store.change { $0.reviewRun?.revealed = true }
-        }.buttonStyle(.borderedProminent).controlSize(.large)
+        }.studioPrimary()
       } else {
-        Text(card.answer).font(.title3).accessibilityIdentifier("studio.guided.answer")
+        Text(card.answer).studioFont(.title3).accessibilityIdentifier("studio.guided.answer")
         listen(card.answer)
         Text("Com'è andata per te? Non è un voto.")
         ForEach(StudioRecall.allCases, id: \.self) { choice in
@@ -147,20 +147,20 @@ struct StudioGuidedView: View {
       Text("Hai attraversato questo ripasso.")
       StudioButton("Continua", icon: "arrow.right", id: "studio.guided.next") {
         _ = store.advanceGuided()
-      }.buttonStyle(.borderedProminent)
+      }.studioPrimary()
     }
   }
 
   private var finished: some View {
     VStack(alignment: .leading, spacing: 20) {
-      Label("Un passo fatto", systemImage: "checkmark.circle").font(.largeTitle.bold())
+      Label("Un passo fatto", systemImage: "checkmark.circle").studioFont(.largeTitle, weight: .bold)
         .accessibilityIdentifier("studio.guided.finished")
       Text("Per oggi può bastare. Quello che hai fatto resta qui.")
       StudioButton("Torna a casa", icon: "house.fill", id: "studio.guided.finish") {
         audio.stop()
         if store.displayArchive.currentSession != nil, !tracker.finish(.completed) { return }
         if store.finishGuided() { goHome() }
-      }.buttonStyle(.borderedProminent).controlSize(.large)
+      }.studioPrimary()
     }
   }
 

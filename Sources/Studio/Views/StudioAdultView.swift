@@ -8,6 +8,7 @@ struct StudioAdultView: View {
   @ObservedObject var tracker: StudioSessionTracker
   @ObservedObject var audio: StudioAudio
   let onLegacy: (() -> Void)?
+  var onSettings: (() -> Void)? = nil
   @State private var panel: Panel = .settings
   @State private var selectedCard: UUID?
   @State private var deleteID: UUID?
@@ -23,10 +24,10 @@ struct StudioAdultView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Per l'adulto").font(.title.bold())
+      Text("Studio: domande e dati").studioFont(.title, weight: .bold)
       Text(StudioReport.disclaimer)
       Picker("Area", selection: $panel) {
-        Text("Voce e testo").tag(Panel.settings)
+        Text("Ripasso").tag(Panel.settings)
         Text("Domande e fonti").tag(Panel.cards)
         Text("Dati e copie").tag(Panel.data)
       }.frame(minHeight: 44)
@@ -91,6 +92,10 @@ struct StudioAdultView: View {
 
   private var settings: some View {
     VStack(alignment: .leading, spacing: 16) {
+      if let onSettings {
+        Text("Voce, caratteri, dimensioni e colori si scelgono nelle impostazioni di MirrorScopio. Valgono anche qui.")
+        StudioButton("Apri le impostazioni", icon: "gearshape.fill", action: onSettings)
+      } else {
       Toggle("Testo doppio", isOn: store.binding(\.settings.largeText)).frame(minHeight: 44)
         .accessibilityIdentifier("studio.textSize")
       Text("Il testo segue anche la dimensione scelta nelle impostazioni del dispositivo.")
@@ -114,7 +119,8 @@ struct StudioAdultView: View {
       }
       StudioButton("Ferma la voce", icon: "stop") { audio.stop() }
       if let audioMessage = audio.message { Text(audioMessage) }
-      Text("Quando proporre di nuovo le domande").font(.headline)
+      }
+      Text("Quando proporre di nuovo le domande").studioFont(.headline)
       Text("Cinque intervalli crescenti in giorni. La proposta iniziale è 1, 3, 7, 14, 30: puoi cambiarla. Non è una prescrizione.")
       TextField("Giorni separati da virgole", text: store.binding(\.settings.intervalDraft)).frame(minHeight: 44)
       StudioButton("Salva gli intervalli", icon: "checkmark") {
@@ -134,7 +140,7 @@ struct StudioAdultView: View {
 
   private var cards: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Domande scritte e controllate da una persona").font(.headline)
+      Text("Domande scritte e controllate da una persona").studioFont(.headline)
       Text("La risposta deve essere sostenuta dal segmento indicato. L'app non ne giudica il significato e non inventa domande.")
       Picker("Lezione", selection: Binding(get: { store.displayArchive.cardDraft.lessonID }, set: { id in
         selectedCard = nil
@@ -169,7 +175,7 @@ struct StudioAdultView: View {
           }
         }
         Divider()
-        Text("Domande della lezione").font(.headline)
+        Text("Domande della lezione").studioFont(.headline)
         ForEach(store.displayArchive.cards.filter { $0.lessonID == lesson.id }) { card in
           StudioButton(card.question, icon: card.approved ? "checkmark.circle" : "pencil") {
             selectedCard = selectedCard == card.id ? nil : card.id
@@ -231,7 +237,7 @@ struct StudioAdultView: View {
       ForEach(store.displayArchive.attempts.reversed()) { attempt in
         DisclosureGroup("\(attempt.date.formatted(date: .abbreviated, time: .shortened)) — \(attempt.recall.rawValue)") {
           VStack(alignment: .leading, spacing: 8) {
-            Text(attempt.question).font(.headline)
+            Text(attempt.question).studioFont(.headline)
             Text(attempt.text.isEmpty ? "Tentativo a voce o senza testo: contenuto non registrato." : attempt.text)
             Text("Aiuto dichiarato: \(attempt.help.rawValue)")
             Text("Modello consultato: \(attempt.answer)")
@@ -239,7 +245,7 @@ struct StudioAdultView: View {
         }.frame(minHeight: 44)
       }
       Divider()
-      Text("Gestisci le lezioni").font(.headline)
+      Text("Gestisci le lezioni").studioFont(.headline)
       ForEach(store.displayArchive.lessons) { lesson in
         StudioButton("Elimina «\(lesson.title)» e i dati collegati", icon: "trash") {
           deleteID = lesson.id; showDelete = true

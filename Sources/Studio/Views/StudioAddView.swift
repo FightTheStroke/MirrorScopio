@@ -14,9 +14,9 @@ struct StudioAddView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("La nuova lezione").font(.title.bold())
+      Text("La nuova lezione").studioFont(.title, weight: .bold)
       Text("Incolla il testo oppure scegli un file. Il testo estratto si rilegge e si corregge prima di salvare.")
-      Text(StudioLimits.description).font(.callout)
+      Text(StudioLimits.description).studioFont(.callout)
       TextField("Titolo", text: store.binding(\.draft.title))
         .frame(minHeight: 44).accessibilityIdentifier("studio.title")
       TextField("Materia (facoltativa)", text: store.binding(\.draft.subject))
@@ -34,7 +34,7 @@ struct StudioAddView: View {
         StudioButton("Annulla importazione", icon: "xmark") { importer.cancel() }
       }
       if let extracted = importer.extracted {
-        Text("Anteprima del testo estratto").font(.headline)
+        Text("Anteprima del testo estratto").studioFont(.headline)
         Text(extracted).textSelection(.enabled)
         StudioButton("Usa questo testo nella bozza", icon: "doc.on.clipboard") { acceptExtraction = true }
         StudioButton("Scarta l'estrazione e tieni la bozza", icon: "arrow.uturn.backward") { importer.extracted = nil }

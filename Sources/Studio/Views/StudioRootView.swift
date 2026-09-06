@@ -8,13 +8,21 @@ import UIKit
 #endif
 
 @MainActor
-private final class StudioRuntime {
+final class StudioRuntime {
   static let shared = StudioRuntime()
   let store: StudioStore
   let tracker: StudioSessionTracker
   let audio = StudioAudio()
   let importer = StudioImporter()
   private var terminationObserver: AnyCancellable?
+  @discardableResult
+  func startGuided() -> Bool {
+    guard store.flushStaged(), store.startGuided(),
+          let id = store.archive.guidedRun?.lessonID,
+          tracker.start(lessonID: id) else { return false }
+    audio.stop()
+    return true
+  }
   private init() {
     store = StudioStore()
     tracker = StudioSessionTracker(store: store)
@@ -32,27 +40,52 @@ private final class StudioRuntime {
   }
 }
 
+enum StudioDestination: Equatable {
+  case home, add, lesson(UUID), adult, path, library, guided, generation, help
+}
+
 struct StudioRootView: View {
-  private enum Panel { case home, add, lesson(UUID), adult, path, library, guided, generation }
+  private typealias Panel = StudioDestination
   @StateObject private var store: StudioStore
   @StateObject private var tracker: StudioSessionTracker
   @StateObject private var audio: StudioAudio
   @StateObject private var importer: StudioImporter
-  @State private var panel: Panel = .home
+  @State private var localPanel: Panel = .home
+  private let destination: Binding<StudioDestination>?
+  private var panel: Panel {
+    get { destination?.wrappedValue ?? localPanel }
+    nonmutating set {
+      if let destination { destination.wrappedValue = newValue }
+      else { localPanel = newValue }
+    }
+  }
   @State private var showHelp = false
   @Environment(\.scenePhase) private var scenePhase
-  @ScaledMetric(relativeTo: .body) private var textSize = 17
-  @ScaledMetric(relativeTo: .body) private var columnWidth = 760
+  @Environment(\.palette) private var palette
+  @Environment(\.impostazioni) private var a11y
   private let onLegacy: (() -> Void)?
+  private let onSettings: (() -> Void)?
+  private let onProgress: (() -> Void)?
+  private let onAudioCheck: (() -> Void)?
+  private let onHome: (() -> Void)?
+  private let greeting: String
   private let heartbeat = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
 
-  init(onLegacy: (() -> Void)? = nil) {
+  init(destination: Binding<StudioDestination>? = nil, onLegacy: (() -> Void)? = nil,
+       onSettings: (() -> Void)? = nil, onProgress: (() -> Void)? = nil,
+       onAudioCheck: (() -> Void)? = nil, greeting: String = "", onHome: (() -> Void)? = nil) {
     let runtime = StudioRuntime.shared
     _store = StateObject(wrappedValue: runtime.store)
     _tracker = StateObject(wrappedValue: runtime.tracker)
     _audio = StateObject(wrappedValue: runtime.audio)
     _importer = StateObject(wrappedValue: runtime.importer)
     self.onLegacy = onLegacy
+    self.onSettings = onSettings
+    self.onProgress = onProgress
+    self.onAudioCheck = onAudioCheck
+    self.onHome = onHome
+    self.greeting = greeting
+    self.destination = destination
   }
 
   var body: some View {
@@ -61,17 +94,17 @@ struct StudioRootView: View {
         switch panel {
         case .home, .guided: EmptyView()
         default:
-          StudioButton("Torna a casa", icon: "house", id: "studio.home") { navigate(.home) }
+          StudioButton("Casa", icon: "house", id: "studio.home") { goHome() }
         }
         if let error = store.error {
           VStack(alignment: .leading, spacing: 8) {
-            Label("Dati da controllare", systemImage: "exclamationmark.triangle").font(.headline)
+            Label("Dati da controllare", systemImage: "exclamationmark.triangle").studioFont(.headline)
             Text(error).textSelection(.enabled)
             StudioButton("Riprova", icon: "arrow.clockwise") { store.retry() }
             if store.recovery {
               Text("Puoi recuperare una copia da Per l'adulto. Non verrà cancellato l'originale.")
             }
-          }.padding().background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
+          }.padding().background(palette.surface, in: RoundedRectangle(cornerRadius: Metrica.raggio))
         }
         switch panel {
         case .home: home
@@ -84,27 +117,34 @@ struct StudioRootView: View {
             StudioLessonView(store: store, tracker: tracker, audio: audio, lesson: lesson)
           } else { Text("La lezione non è disponibile. Torna alle tue lezioni.") }
         case .adult:
-          StudioAdultView(store: store, tracker: tracker, audio: audio, onLegacy: onLegacy)
+          StudioAdultView(store: store, tracker: tracker, audio: audio, onLegacy: onLegacy,
+                          onSettings: onSettings)
         case .path:
           StudioPathEditor(store: store, add: { navigate(.add) }, generate: { navigate(.generation) },
                            settings: { navigate(.adult) }, open: openLesson)
         case .library:
           library
         case .guided:
-          StudioGuidedView(store: store, tracker: tracker, audio: audio) { navigate(.home) }
+          StudioGuidedView(store: store, tracker: tracker, audio: audio) { goHome() }
         case .generation:
           StudioGenerationView(store: store) { _ in
             navigate(.path)
           }
+        case .help:
+          StudioHelpView(onClose: goHome)
         }
       }
       .padding()
-      .frame(maxWidth: columnWidth * (store.displayArchive.settings.largeText ? 2 : 1), alignment: .leading)
+      .frame(maxWidth: a11y.size(860), alignment: .leading)
       .frame(maxWidth: .infinity)
     }
     .scrollDismissesKeyboard(.interactively)
-    .font(.system(size: textSize * (store.displayArchive.settings.largeText ? 2 : 1)))
-    .buttonStyle(.bordered)
+    .font(a11y.font(.corpo))
+    .foregroundStyle(palette.foreground)
+    .background(palette.background)
+    .interlinea(a11y)
+    .onAppear { syncPresentation() }
+    .onChange(of: a11y) { _, _ in syncPresentation() }
     .textFieldStyle(.roundedBorder)
     .onReceive(heartbeat) { _ in tracker.checkpoint() }
     .onChange(of: scenePhase) { _, phase in
@@ -124,17 +164,13 @@ struct StudioRootView: View {
 
   private var home: some View {
     StudioHomeView(archive: store.displayArchive, start: {
-      guard store.flushStaged(), store.startGuided(),
-            let id = store.archive.guidedRun?.lessonID,
-            tracker.start(lessonID: id) else { return }
-      audio.stop()
-      panel = .guided
+      if StudioRuntime.shared.startGuided() { panel = .guided }
     }, library: { navigate(.library) }, parent: { navigate(.path) }, help: {
       audio.stop(); tracker.pause(); showHelp = true
     }, games: onLegacy.map { legacy in {
       guard store.flushStaged() else { return }
       audio.stop(); tracker.pause(); legacy()
-    } })
+    } }, settings: onSettings)
     .disabled(store.recovery || store.hasPendingSave)
     .overlay(alignment: .bottom) {
       if store.recovery {
@@ -145,14 +181,14 @@ struct StudioRootView: View {
 
   private var library: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Le mie lezioni").font(.title.bold()).accessibilityAddTraits(.isHeader)
+      Text("Le mie lezioni").studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
       Text("Qui ritrovi sempre testi, ascolto, mappe, formulari e domande. Per farti accompagnare, torna a casa e premi Inizia.")
       if store.displayArchive.lessons.isEmpty { Text("Il primo esempio è già pronto: torna a casa e premi Inizia.") }
       ForEach(store.displayArchive.lessons) { lesson in
         VStack(alignment: .leading, spacing: 4) {
           StudioButton(lesson.title, icon: "book", id: "studio.openLesson") { openLesson(lesson.id) }
-          if !lesson.subject.isEmpty { Text(lesson.subject).foregroundStyle(.secondary) }
-          Text("Parte \(lesson.position + 1) di \(lesson.segments.count)").font(.callout)
+          if !lesson.subject.isEmpty { Text(lesson.subject).studioMuted() }
+          Text("Parte \(lesson.position + 1) di \(lesson.segments.count)").studioFont(.callout)
         }
       }
       StudioButton("Prepara il percorso", icon: "person.crop.circle", id: "studio.parent") { navigate(.path) }
@@ -169,51 +205,19 @@ struct StudioRootView: View {
   private func openLesson(_ id: UUID) {
     navigate(.lesson(id))
   }
-}
 
-struct StudioButton: View {
-  @ScaledMetric(relativeTo: .body) private var tapSize = 44
-  let title: String
-  let icon: String
-  let id: String
-  let action: () -> Void
-  init(_ title: String, icon: String, id: String = "", action: @escaping () -> Void) {
-    self.title = title
-    self.icon = icon
-    self.id = id
-    self.action = action
+  private func goHome() {
+    navigate(.home)
+    onHome?()
   }
-  var body: some View {
-    Button(action: action) {
-      Label(title, systemImage: icon)
-        .frame(minWidth: max(44, tapSize), minHeight: max(44, tapSize), alignment: .leading)
-        .fixedSize(horizontal: false, vertical: true)
-    }.accessibilityIdentifier(id)
-  }
-}
 
-struct StudioTextEditor: View {
-  @FocusState private var editing: Bool
-  let title: String
-  @Binding var text: String
-  var id = ""
-  var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      Text(title).font(.headline)
-      #if os(iOS)
-      if editing {
-        StudioButton("Fine scrittura", icon: "keyboard.chevron.compact.down", id: "studio.keyboard.done") {
-          editing = false
-        }
-      }
-      #endif
-      TextEditor(text: $text)
-        .focused($editing)
-        .frame(minHeight: 140)
-        .padding(4)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary))
-        .accessibilityLabel(title)
-        .accessibilityIdentifier(id)
+  private func syncPresentation() {
+    guard onSettings != nil else { return }
+    let voice = a11y.voiceIdentifier ?? ""
+    guard store.displayArchive.settings.voiceID != voice || store.displayArchive.settings.rate != a11y.voiceRate else { return }
+    _ = store.change {
+      $0.settings.voiceID = voice
+      $0.settings.rate = a11y.voiceRate
     }
   }
 }

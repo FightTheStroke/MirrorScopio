@@ -11,6 +11,8 @@ struct HomeView: View {
   var openProgress: () -> Void
   var openAudioCheck: () -> Void
   var openReadiness: () -> Void
+  var studioSelected: Binding<Bool> = .constant(false)
+  var onStudio: ((StudioDestination) -> Void)?
 
   @State private var showCalibrationIntro = false
   @State private var aggiornamento: Updates.Release?
@@ -32,11 +34,15 @@ struct HomeView: View {
         VStack(spacing: a11y.size(Metrica.spazioLargo)) {
           title
           bannerAggiornamento
-          strisciaProgressi
+          if !studioSelected.wrappedValue { strisciaProgressi }
           modePicker
-          levels
-          startArea
-          warning
+          if studioSelected.wrappedValue, let onStudio {
+            StudioLaunchView(store: StudioRuntime.shared.store, open: onStudio)
+          } else {
+            levels
+            startArea
+            warning
+          }
         }
         .padding(.horizontal, Metrica.spazioEnorme)
         .padding(.bottom, Metrica.spazioEnorme)
@@ -45,7 +51,8 @@ struct HomeView: View {
       }
     }
     .defaultFocus($fuoco, .via)
-    .task {
+    .task(id: studioSelected.wrappedValue) {
+      guard !studioSelected.wrappedValue else { aggiornamento = nil; return }
       // In silenzio e senza fretta: se non c'è niente di nuovo, o il controllo
       // è spento, non se ne accorge nessuno.
       aggiornamento = try? await Updates.check()
@@ -55,34 +62,8 @@ struct HomeView: View {
   // MARK: - Barra in alto
 
   private var topBar: some View {
-    HStack(spacing: Metrica.spazioPiccolo) {
-      if !store.current.name.isEmpty {
-        Text("Ciao, \(store.current.name)")
-          .font(a11y.font(.corpo, .semibold))
-          .foregroundStyle(palette.foreground)
-      }
-      Spacer()
-      AudioMenu(a11y: a11y, palette: palette, openAudioCheck: openAudioCheck)
-      iconButton("chart.line.uptrend.xyaxis", "I tuoi progressi", action: openProgress)
-      iconButton("gearshape.fill", "Impostazioni", action: openSettings)
-    }
-    .padding(.horizontal, Metrica.spazio)
-    .padding(.vertical, Metrica.spazioPiccolo)
-  }
-
-  private func iconButton(_ symbol: String, _ label: String, action: @escaping () -> Void) -> some View {
-    Button(action: action) {
-      HStack(spacing: Metrica.spazioMinimo) {
-        Image(systemName: symbol)
-        Text(label).font(a11y.font(.etichetta))
-      }
-      .padding(.horizontal, Metrica.spazioPiccolo)
-      .frame(minHeight: 44)
-      .contentShape(Rectangle())
-    }
-    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
-    .foregroundStyle(palette.muted)
-    .accessibilityLabel(label)
+    MirrorScopioNavigationBar(name: store.current.name, openSettings: openSettings,
+      openProgress: openProgress, openAudioCheck: openAudioCheck)
   }
 
   // MARK: - Che cos'è
@@ -93,7 +74,7 @@ struct HomeView: View {
         .font(a11y.font(.titoloGrande, .bold))
         .foregroundStyle(palette.foreground)
 
-      Text(engine.config.mode.childHint)
+      Text(studioSelected.wrappedValue ? "Il tuo percorso di studio, un passo alla volta." : engine.config.mode.childHint)
         .font(a11y.font(.guida))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)
@@ -106,11 +87,18 @@ struct HomeView: View {
 
   private var modePicker: some View {
     VStack(spacing: Metrica.spazioStretto) {
-      SectionTitle(text: "Che cosa vuoi allenare?", a11y: a11y)
+      SectionTitle(text: onStudio == nil ? "Che cosa vuoi allenare?" : "Che cosa vuoi fare?", a11y: a11y)
       HStack(spacing: Metrica.spazioPiccolo) {
+        if onStudio != nil {
+          ChoiceCard(title: "Studio", subtitle: "Il tuo percorso già pronto", symbol: "book.closed.fill",
+                     selected: studioSelected.wrappedValue, a11y: a11y) {
+            studioSelected.wrappedValue = true
+          }.accessibilityIdentifier("studio.mode")
+        }
         ForEach(SessionMode.allCases) { mode in
           ChoiceCard(title: mode.label, subtitle: mode.childHint, symbol: mode.symbol,
-                     selected: engine.config.mode == mode, a11y: a11y) {
+                     selected: !studioSelected.wrappedValue && engine.config.mode == mode, a11y: a11y) {
+            studioSelected.wrappedValue = false
             engine.config.mode = mode
             persist()
           }
