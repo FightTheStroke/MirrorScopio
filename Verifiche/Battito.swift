@@ -20,18 +20,15 @@ import Testing
 @MainActor
 struct Battito {
 
-  /// Le fasi in cui `tick` esce subito senza toccare niente.
-  ///
-  /// Sono copiate dallo `switch` in cima a `SessionEngine.tick`. Se qualcuno
-  /// ne aggiunge una là e la dimentica qui, la prova qui sotto se ne accorge.
+  /// Le fasi senza tempi da seguire o indicatore del microfono da aggiornare.
   static let fasiFerme: [Phase] = [
-    .idle, .preparing, .instructions, .typing, .pausa, .scoring,
+    .idle, .preparing, .typing, .pausa, .scoring,
     .finished, .failed("una ragione qualsiasi"),
   ]
 
-  /// Le fasi in cui il tempo conta e lo schermo cambia davvero.
+  /// Anche «Pronti» mostra un segnale vivo: il livello del microfono.
   static let fasiVive: [Phase] = [
-    .countdown(3), .fixation, .preMask, .stimulus, .postMask,
+    .instructions, .countdown(3), .fixation, .preMask, .stimulus, .postMask,
     .listening, .flushing, .interTrial, .feedback(true), .feedback(false),
   ]
 
@@ -44,6 +41,12 @@ struct Battito {
         si sente come ventola accesa e batteria che scende.
         """)
     }
+  }
+
+  @Test("La prova del microfono prima di iniziare mantiene acceso il battito")
+  func microfonoNelleIstruzioni() {
+    #expect(SessionEngine.serveIlBattito(in: .instructions))
+    #expect(!SessionEngine.serveIlBattito(in: .instructions, microfono: false))
   }
 
   @Test("Quando il tempo conta l'orologio gira")
