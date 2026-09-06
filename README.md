@@ -50,6 +50,12 @@ la prossima lezione o riprende il passo lasciato. Dopo il percorso, propone le d
 da riprendere quando disponibili, oppure una rilettura facoltativa.
 Si legge o ascolta una parte alla volta, poi si incontrano fino a tre domande approvate.
 Testo, mappa e procedure restano disponibili nel pulsante «Un aiuto».
+Nei primi tre utilizzi conclusi, ogni fase spiega che cosa fare: leggere o ascoltare,
+rispondere a voce, poi confrontare la risposta senza voti. Le istruzioni si possono
+ascoltare con «Spiegami a voce», richiudere e riaprire; in seguito partono chiuse,
+ma non spariscono. Ogni nuovo passo riporta le indicazioni in vista, anche con il
+testo ingrandito. Le tre scelte finali spiegano anche che cosa indicano.
+L'area del genitore spiega anche come preparare e ordinare il primo percorso.
 Le risposte aperte
 si confrontano con una risposta di riferimento: nessuna intelligenza artificiale
 decide se il significato è corretto.

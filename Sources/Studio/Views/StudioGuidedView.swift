@@ -98,6 +98,9 @@ struct StudioGuidedView: View {
     let positions = lesson.readablePositions
     let ordinal = positions.firstIndex(of: position) ?? 0
     return VStack(alignment: .leading, spacing: 20) {
+      StudioInstructionsView(.reading,
+        automaticallyExpanded: StudioOrientation.showsInstructions(in: store.displayArchive),
+        listen: { speak(StudioInstruction.reading.explanation) })
       Text("Una parte alla volta · \(ordinal + 1) di \(positions.count)")
         .studioFont(.headline).studioMuted()
       Text(lesson.segments[position].text.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -120,12 +123,14 @@ struct StudioGuidedView: View {
   @ViewBuilder private func recall(_ lesson: StudioLesson) -> some View {
     if let review, let id = review.remaining.first,
        let card = store.displayArchive.cards.first(where: { $0.id == id && $0.approved }) {
-      Text("Ora prova con parole tue").studioFont(.headline).studioMuted()
+      StudioInstructionsView(review.revealed ? .comparison : .recall,
+        automaticallyExpanded: StudioOrientation.showsInstructions(in: store.displayArchive),
+        listen: { speak((review.revealed ? StudioInstruction.comparison : .recall).explanation) })
       Text(card.question).studioFont(.title2).accessibilityIdentifier("studio.guided.question")
       if !review.revealed {
-        Text("Puoi rispondere a voce, senza scrivere. Non ti registro.")
+        Text("Rispondi a voce. Il microfono resta spento.")
         listen(card.question)
-        StudioButton("Confronta la risposta", icon: "text.bubble", id: "studio.guided.reveal") {
+        StudioButton("Vedi la risposta", icon: "text.bubble", id: "studio.guided.reveal") {
           audio.stop(); _ = store.change { $0.reviewRun?.revealed = true }
         }.studioPrimary()
       } else {
@@ -133,7 +138,8 @@ struct StudioGuidedView: View {
         listen(card.answer)
         Text("Com'è andata per te? Non è un voto.")
         ForEach(StudioRecall.allCases, id: \.self) { choice in
-          StudioButton(choice.rawValue, icon: choice == .again ? "arrow.counterclockwise" : "hand.raised",
+          StudioButton(StudioOrientation.label(for: choice),
+                       icon: choice == .again ? "arrow.counterclockwise" : "hand.raised",
                        id: "studio.guided.\(choice)") {
             audio.stop()
             if store.record(cardID: card.id, text: review.text, help: review.help, recall: choice, now: Date()),
@@ -156,6 +162,8 @@ struct StudioGuidedView: View {
       Label("Un passo fatto", systemImage: "checkmark.circle").studioFont(.largeTitle, weight: .bold)
         .accessibilityIdentifier("studio.guided.finished")
       Text("Per oggi può bastare. Quello che hai fatto resta qui.")
+      Text("Premi Torna a casa. La prossima volta troverai già indicato da dove ripartire.")
+        .studioMuted()
       StudioButton("Torna a casa", icon: "house.fill", id: "studio.guided.finish") {
         audio.stop()
         if store.displayArchive.currentSession != nil, !tracker.finish(.completed) { return }

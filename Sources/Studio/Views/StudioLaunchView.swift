@@ -12,12 +12,12 @@ struct StudioLaunchView: View {
   var body: some View {
     VStack(spacing: a11y.size(Metrica.spazio)) {
       VStack(spacing: a11y.size(Metrica.spazioPiccolo)) {
-        Text(next?.title ?? "Il primo passo è già pronto")
+        Text(next?.title ?? StudioOrientation.trialTitle)
           .font(a11y.font(.titolo, .bold))
           .foregroundStyle(palette.foreground)
           .multilineTextAlignment(.center)
           .accessibilityIdentifier("studio.suggestion")
-        Text(next?.reason ?? "Prova il percorso senza preparare nulla. Poi un adulto può aggiungere le tue lezioni.")
+        Text(next?.reason ?? StudioOrientation.trialExplanation)
           .font(a11y.font(.guida))
           .foregroundStyle(palette.muted)
           .multilineTextAlignment(.center)
@@ -33,7 +33,9 @@ struct StudioLaunchView: View {
         Text(error).foregroundStyle(palette.wrong)
         StudioButton("Riprova a salvare", icon: "arrow.clockwise") { store.retry() }
       }
-      Text("Leggi o ascolta. Gli aiuti restano con te e puoi fermarti quando vuoi.")
+      Text(StudioOrientation.showsInstructions(in: store.displayArchive)
+           ? StudioOrientation.parentExplanation
+           : "Leggi o ascolta. Gli aiuti restano con te e puoi fermarti quando vuoi.")
         .font(a11y.font(.etichetta))
         .foregroundStyle(palette.muted)
         .multilineTextAlignment(.center)

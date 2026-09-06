@@ -18,6 +18,7 @@
 		0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC15C6CCA60C061748E42475 /* Suoni.swift */; };
 		0F35D247C1DDD1EE4A030C3D /* Aggiornamenti.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD81FE3935A5BBB35CA76A0 /* Aggiornamenti.swift */; };
 		0FFEE8DB000BBCB1D684717C /* IlPremioValePerTutti.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690825ACE7865A55C3D64D1 /* IlPremioValePerTutti.swift */; };
+		10FAABFF3F76965BEB953209 /* StudioInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADFF2024504F74AB10CE089 /* StudioInstructionsView.swift */; };
 		11929E1593988C2248CAA4D8 /* Updates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33495DAEEC2D696AA2BB9FC7 /* Updates.swift */; };
 		1271C5C380514CF2A155139A /* StudioGuidedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9396309AE337476F5D66A2 /* StudioGuidedView.swift */; };
 		14C8D362AEE259690412C234 /* StudioRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAD15951BE8DD3F672351A3 /* StudioRootView.swift */; };
@@ -92,10 +93,12 @@
 		8B402BB8513B9083C4DF93AB /* Readiness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5266357C1E390A61B3294EC1 /* Readiness.swift */; };
 		8B982CBA340A821AF8958BE7 /* StudioHelpContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B711B0430516E1ACEF90961 /* StudioHelpContent.swift */; };
 		8E4360E751B929D352DD8BD0 /* RegoleCorsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */; };
+		910DCC89A3EBD0222AA454D0 /* StudioOrientationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE42C8E1BF50BEE27DE07813 /* StudioOrientationTests.swift */; };
 		91A1DA759551D1D6E1C5174F /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7A78AEC0C5BB8E5AF5A193 /* Speaker.swift */; };
 		9742D669F8D536BEFEB9A363 /* StudioUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C793A93553EE9A8C467E0168 /* StudioUITests.swift */; };
 		97E630F55313984E5DC070F7 /* SportDelCamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BBF459BAE0BA62CBB65F95 /* SportDelCamp.swift */; };
 		9A31872896A2D08E8D6AB5F3 /* StudioGeneration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EA80C69B90A67957F8CF79 /* StudioGeneration.swift */; };
+		9A7965E20ED6ACE9E3E963DC /* StudioOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E3B05D5BAFD5D1FA501493 /* StudioOrientation.swift */; };
 		9A883E55D64A2640F4C4943A /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6366D8DAE4BC19CFBAD19367 /* Badge.swift */; };
 		9F4CCA83F2F5378D700A4AFE /* StudioAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396047A2F29EB1162490B2B7 /* StudioAudio.swift */; };
 		9FAE41318FCB2C2CBAC01653 /* StatoCorniceSport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A670B98B317179752D1C1CD7 /* StatoCorniceSport.swift */; };
@@ -117,6 +120,7 @@
 		BA58097177C778699DC324AE /* Suoni.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */; };
 		BB6775993A78788294DDA5D3 /* StudioHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D19F288C9A931A349BD9EFB /* StudioHelpView.swift */; };
 		BE9C6DD8207B8A5FA9358F79 /* MirrorScopioMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95A27EB80726EBD0FF61045B /* MirrorScopioMobileApp.swift */; };
+		C0AC90B0CC6AB895ADE948FA /* StudioOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E3B05D5BAFD5D1FA501493 /* StudioOrientation.swift */; };
 		C16E46641F38F78251F6BA05 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */; };
 		C190716A68C881577CF8F2CA /* StudioPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */; };
 		C2A7155E5ABA711C00CBA255 /* StudioSessionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5726E7A1918A54875262FF3A /* StudioSessionTracker.swift */; };
@@ -125,6 +129,7 @@
 		C513296C4066E3B8037D236B /* StudioStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664C52E27CFA821D17570016 /* StudioStorageTests.swift */; };
 		C57FD27BFDF2BA5EA1193A67 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */; };
 		C675ECA4D7FEDD73FF12263C /* CampoCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */; };
+		C82C4D1C566DB504F68F5415 /* StudioInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADFF2024504F74AB10CE089 /* StudioInstructionsView.swift */; };
 		C862730F291F298FD27D772E /* StaffettaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB98145457D8873F58DC5B95 /* StaffettaView.swift */; };
 		CB408CA458256209F6E6E631 /* ImpostazioniDiSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE218955B02B3D36D0D42915 /* ImpostazioniDiSistema.swift */; };
 		CB5B3054283B92066D5C3545 /* StudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CD03FD75DF5B61E288807 /* StudioModels.swift */; };
@@ -170,6 +175,7 @@
 		F4FF324A70CE57E93C7C2A79 /* SharedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94876675BBB9A6CEF58498AF /* SharedControls.swift */; };
 		F555B5E788DD1ED2B000F0A9 /* DatiVecchi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */; };
 		F7678910B7C4545D760F7327 /* Navigazione.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */; };
+		F7FC8C59EDFEAAA129F6A402 /* StudioOrientationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE42C8E1BF50BEE27DE07813 /* StudioOrientationTests.swift */; };
 		F832B4E61C798B9315AEE6A5 /* NodiDinamiciCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620617ACE8AB2E712BFD0F95 /* NodiDinamiciCorsa3D.swift */; };
 		FA61A1EA8425A79D76FF71C0 /* StudioMobileSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD81CE64F6756AE738FF7A78 /* StudioMobileSettings.swift */; };
 		FC1B24A65A23FC69979C350F /* AdvancedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09713107D20503A97DEDEFFB /* AdvancedControls.swift */; };
@@ -254,6 +260,7 @@
 		33629E00BD749690B8295229 /* GiocoBoxe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoBoxe.swift; sourceTree = "<group>"; };
 		36F46BBC2A0D9DA4820809C6 /* GiocoHipHop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoHipHop.swift; sourceTree = "<group>"; };
 		396047A2F29EB1162490B2B7 /* StudioAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioAudio.swift; sourceTree = "<group>"; };
+		39E3B05D5BAFD5D1FA501493 /* StudioOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioOrientation.swift; sourceTree = "<group>"; };
 		3A30696AD04D3E6478C3AE37 /* CLINICA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLINICA.md; sourceTree = "<group>"; };
 		3C6A6F68D759338B34D71D1A /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		3D01CF9EFB09B2F4A4FFB9F6 /* InstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionsView.swift; sourceTree = "<group>"; };
@@ -275,6 +282,7 @@
 		573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelliCorsa3D.swift; sourceTree = "<group>"; };
 		58753B38D847282FA447479E /* genera-progetto.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "genera-progetto.sh"; sourceTree = "<group>"; };
 		590A53B68AE48D7DE953F342 /* ARCHITETTURA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITETTURA.md; sourceTree = "<group>"; };
+		5ADFF2024504F74AB10CE089 /* StudioInstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioInstructionsView.swift; sourceTree = "<group>"; };
 		5B081FD5B50F9DD7D2C26B21 /* VERSION */ = {isa = PBXFileReference; path = VERSION; sourceTree = "<group>"; };
 		5B4F2BD91765DBE9B14024AB /* AccessibilitaArena3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitaArena3D.swift; sourceTree = "<group>"; };
 		5C09CB54354847F8DB5C7458 /* NOTICE */ = {isa = PBXFileReference; path = NOTICE; sourceTree = "<group>"; };
@@ -332,6 +340,7 @@
 		AA0591D0D9F9413B2552345C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AB7707695150E13DDDCF0D26 /* DatiAlSicuro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiAlSicuro.swift; sourceTree = "<group>"; };
 		AD81CE64F6756AE738FF7A78 /* StudioMobileSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMobileSettings.swift; sourceTree = "<group>"; };
+		AE42C8E1BF50BEE27DE07813 /* StudioOrientationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioOrientationTests.swift; sourceTree = "<group>"; };
 		AF2E31DB5E360461371F5524 /* Stimuli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stimuli.swift; sourceTree = "<group>"; };
 		AF51A49E1E4DBB71C2852339 /* StudioControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioControls.swift; sourceTree = "<group>"; };
 		AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioLaunchView.swift; sourceTree = "<group>"; };
@@ -482,6 +491,7 @@
 				AF51A49E1E4DBB71C2852339 /* StudioControls.swift */,
 				6B889D7AC1923B55AF66C634 /* StudioGenerationView.swift */,
 				2B9396309AE337476F5D66A2 /* StudioGuidedView.swift */,
+				5ADFF2024504F74AB10CE089 /* StudioInstructionsView.swift */,
 				AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */,
 				E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */,
 				79CA9036004DAE176CF1AC14 /* StudioPathViews.swift */,
@@ -509,6 +519,7 @@
 				A89DD7778D6EB3EB8A4F2E18 /* StudioGeneratedLesson.swift */,
 				F6EA80C69B90A67957F8CF79 /* StudioGeneration.swift */,
 				696CD03FD75DF5B61E288807 /* StudioModels.swift */,
+				39E3B05D5BAFD5D1FA501493 /* StudioOrientation.swift */,
 				CBA3306CAF36A812F742BE5A /* StudioPath.swift */,
 				5726E7A1918A54875262FF3A /* StudioSessionTracker.swift */,
 				12ED506F8970C1F620204ACE /* StudioStore.swift */,
@@ -683,6 +694,7 @@
 				E1BA41DA44CA7DE025C0991A /* StudioCoreTests.swift */,
 				031AD255BC90A1F85C04F857 /* StudioExtractionTests.swift */,
 				BEB0CE4A11D404E2EFC61FA9 /* StudioGenerationTests.swift */,
+				AE42C8E1BF50BEE27DE07813 /* StudioOrientationTests.swift */,
 				C12EAFA46FD1E80178DBE206 /* StudioPathTests.swift */,
 				EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */,
 				664C52E27CFA821D17570016 /* StudioStorageTests.swift */,
@@ -1070,9 +1082,11 @@
 				E7D9A59773DA2C44C2C4939F /* StudioGuidedView.swift in Sources */,
 				CF4B702B646CAB0C966EE75E /* StudioHelpContent.swift in Sources */,
 				4F6659242C43539117BA4EB6 /* StudioHelpView.swift in Sources */,
+				10FAABFF3F76965BEB953209 /* StudioInstructionsView.swift in Sources */,
 				6B24DD35C646EBA4D958F5AE /* StudioLaunchView.swift in Sources */,
 				21E2E274E24C5D9198D4F578 /* StudioLessonView.swift in Sources */,
 				FF5D64075C9A528289731E18 /* StudioModels.swift in Sources */,
+				9A7965E20ED6ACE9E3E963DC /* StudioOrientation.swift in Sources */,
 				8407A43B322872F83D1A5B09 /* StudioPath.swift in Sources */,
 				4519618956580A6CEF499F1D /* StudioPathViews.swift in Sources */,
 				418E6437485EF7957D9A0A4F /* StudioRootView.swift in Sources */,
@@ -1114,6 +1128,7 @@
 				04B3915E25D8D91B56B01513 /* StudioCoreTests.swift in Sources */,
 				6D5A56D3FE59D3804B4AA375 /* StudioExtractionTests.swift in Sources */,
 				EF9E6FEF12C4FA0A152E2987 /* StudioGenerationTests.swift in Sources */,
+				F7FC8C59EDFEAAA129F6A402 /* StudioOrientationTests.swift in Sources */,
 				EEC8E5BC42ABDFEFB9277F25 /* StudioPathTests.swift in Sources */,
 				C190716A68C881577CF8F2CA /* StudioPreferencesTests.swift in Sources */,
 				25E861048DF0C130943CF3DA /* StudioStorageTests.swift in Sources */,
@@ -1128,6 +1143,7 @@
 				EA64DEEF5AEF1357F4C0A634 /* StudioCoreTests.swift in Sources */,
 				7E893C521B7F1B7B0121483D /* StudioExtractionTests.swift in Sources */,
 				01637FF22D65F14080D6D0B0 /* StudioGenerationTests.swift in Sources */,
+				910DCC89A3EBD0222AA454D0 /* StudioOrientationTests.swift in Sources */,
 				DACDDDAC44CACA42E3F077F7 /* StudioPathTests.swift in Sources */,
 				AC364601FE341DE1C287C00E /* StudioPreferencesTests.swift in Sources */,
 				C513296C4066E3B8037D236B /* StudioStorageTests.swift in Sources */,
@@ -1158,10 +1174,12 @@
 				1271C5C380514CF2A155139A /* StudioGuidedView.swift in Sources */,
 				8B982CBA340A821AF8958BE7 /* StudioHelpContent.swift in Sources */,
 				BB6775993A78788294DDA5D3 /* StudioHelpView.swift in Sources */,
+				C82C4D1C566DB504F68F5415 /* StudioInstructionsView.swift in Sources */,
 				A988A909A765B715504265D1 /* StudioLaunchView.swift in Sources */,
 				E8A2ECF8251B0736FE692AF2 /* StudioLessonView.swift in Sources */,
 				FA61A1EA8425A79D76FF71C0 /* StudioMobileSettings.swift in Sources */,
 				CB5B3054283B92066D5C3545 /* StudioModels.swift in Sources */,
+				C0AC90B0CC6AB895ADE948FA /* StudioOrientation.swift in Sources */,
 				24EEF094B0C2B72319A09659 /* StudioPath.swift in Sources */,
 				2B0CF653F065E8DA9E92ED38 /* StudioPathViews.swift in Sources */,
 				14C8D362AEE259690412C234 /* StudioRootView.swift in Sources */,

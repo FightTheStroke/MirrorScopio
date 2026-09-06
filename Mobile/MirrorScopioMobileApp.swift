@@ -87,6 +87,15 @@ final class StudioMobilePreferences: ObservableObject {
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
+    #if DEBUG
+    // La prova a testo doppio non modifica le preferenze salvate.
+    let ambiente = ProcessInfo.processInfo.environment
+    if ambiente["MIRRORSCOPIO_STUDIO_TEST_ID"] != nil,
+       ambiente["MIRRORSCOPIO_STUDIO_TEST_SCALA"] == "2" {
+      scelte.textScale = 2
+      return
+    }
+    #endif
     guard let valore = defaults.object(forKey: Self.chiave) else { return }
     do {
       guard let dati = valore as? Data else { throw CocoaError(.coderReadCorrupt) }

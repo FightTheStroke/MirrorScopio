@@ -49,6 +49,7 @@ final class StudioUITests: XCTestCase {
 
   func testAvvioStudioSenzaMicrofono() {
     XCTAssertTrue(app.buttons["studio.start"].waitForExistence(timeout: 20))
+    XCTAssertTrue(app.buttons["studio.start"].isHittable)
     XCTAssertTrue(app.buttons["studio.parent"].exists)
     XCTAssertFalse(app.buttons["studio.add"].exists)
     XCTAssertFalse(app.buttons["Inizia la calibrazione"].exists)
@@ -86,6 +87,16 @@ final class StudioUITests: XCTestCase {
   #endif
 
   #if os(iOS)
+  func testIstruzioniConTestoDoppio() {
+    app.terminate()
+    app.launchEnvironment["MIRRORSCOPIO_STUDIO_TEST_SCALA"] = "2"
+    app.launch()
+    premi(app.buttons["studio.shell.settings"])
+    XCTAssertTrue(app.staticTexts["×2.00"].exists)
+    premi(app.buttons["studio.settings.close"])
+    testEsempioCompletoSenzaPreparareMateriali()
+  }
+
   func testImpostazioniConCaratteriOriginali() {
     premi(app.buttons["studio.shell.settings"])
     XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Atkinson")).firstMatch
@@ -233,11 +244,22 @@ final class StudioUITests: XCTestCase {
 
   func testEsempioCompletoSenzaPreparareMateriali() {
     premi(app.buttons["studio.start"])
+    XCTAssertTrue(app.staticTexts["studio.instructions.reading"].waitForExistence(timeout: 5))
+    XCTAssertTrue(app.staticTexts["studio.instructions.reading"].isHittable)
+    XCTAssertTrue(app.buttons["studio.instructions.listen"].exists)
+    fotografia("Primi passi — leggi o ascolta")
     for _ in 0..<3 { premi(app.buttons["studio.guided.next"]) }
-    for _ in 0..<2 {
+    for index in 0..<2 {
       XCTAssertTrue(app.staticTexts["studio.guided.question"].waitForExistence(timeout: 5))
+      XCTAssertTrue(app.staticTexts["studio.instructions.recall"].exists)
+      XCTAssertTrue(app.staticTexts["studio.instructions.recall"].isHittable)
+      if index == 0 { fotografia("Primi passi — rispondi a voce") }
       premi(app.buttons["studio.guided.reveal"])
       XCTAssertTrue(app.staticTexts["studio.guided.answer"].exists)
+      XCTAssertTrue(app.staticTexts["studio.instructions.comparison"].waitForExistence(timeout: 5))
+      XCTAssertTrue(app.staticTexts["studio.instructions.comparison"].isHittable)
+      XCTAssertEqual(app.buttons["studio.guided.helped"].label, "Con aiuto: ho usato un aiuto")
+      if index == 0 { fotografia("Primi passi — scegli come è andata") }
       premi(app.buttons["studio.guided.helped"])
     }
     XCTAssertTrue(app.descendants(matching: .any)["studio.guided.finished"].exists)
@@ -249,6 +271,7 @@ final class StudioUITests: XCTestCase {
   func testGenitoreTrovaPreparazioneAIENonLaMostraAlRagazzo() {
     XCTAssertFalse(app.buttons["studio.ai.open"].exists)
     premi(app.buttons["studio.parent"])
+    XCTAssertTrue(app.staticTexts["studio.instructions.parent"].waitForExistence(timeout: 5))
     XCTAssertTrue(app.buttons["studio.ai.open"].exists)
     premi(app.buttons["studio.ai.open"])
     fotografia("Percorso — preparazione locale per il genitore")

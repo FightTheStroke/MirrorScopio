@@ -20,6 +20,11 @@ La sezione di rilascio pubblico resta assente per non attivare la pubblicazione
 automatica del ramo principale.
 
 ### Aggiunto
+- **I primi passi spiegati mentre si fanno:** la home distingue la prova già pronta
+  dalle lezioni del genitore; lettura, risposta a voce e confronto hanno istruzioni
+  aperte nei primi tre utilizzi conclusi, poi sempre riapribili e ascoltabili.
+  Le pause non le fanno sparire; ogni nuovo passo le riporta in vista anche con
+  testo grande. Le scelte finali spiegano il proprio significato.
 - **Apri e parti**: un unico pulsante propone il prossimo passo, con un esempio
   già pronto al primo avvio e ripresa del punto lasciato dopo una pausa.
 - **Percorso del genitore**: lezioni in ordine, preparazione da testo o argomento

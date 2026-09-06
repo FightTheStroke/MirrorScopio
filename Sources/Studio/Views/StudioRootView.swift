@@ -60,6 +60,7 @@ struct StudioRootView: View {
     }
   }
   @State private var showHelp = false
+  @State private var scrollPosition = ScrollPosition(edge: .top)
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.palette) private var palette
   @Environment(\.impostazioni) private var a11y
@@ -138,6 +139,10 @@ struct StudioRootView: View {
       .frame(maxWidth: a11y.size(860), alignment: .leading)
       .frame(maxWidth: .infinity)
     }
+    .scrollPosition($scrollPosition)
+    .onChange(of: store.displayArchive.guidedRun) { _, _ in showGuidedTop() }
+    .onChange(of: store.displayArchive.reviewRun?.remaining.first) { _, _ in showGuidedTop() }
+    .onChange(of: store.displayArchive.reviewRun?.revealed) { _, _ in showGuidedTop() }
     .scrollDismissesKeyboard(.interactively)
     .font(a11y.font(.corpo))
     .foregroundStyle(palette.foreground)
@@ -160,6 +165,10 @@ struct StudioRootView: View {
     } message: {
       Text(store.rejectedEdit ?? "")
     }
+  }
+
+  private func showGuidedTop() {
+    if panel == .guided { scrollPosition.scrollTo(edge: .top) }
   }
 
   private var home: some View {

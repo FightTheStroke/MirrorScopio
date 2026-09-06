@@ -27,9 +27,9 @@ struct StudioHomeView: View {
       }
       VStack(alignment: .leading, spacing: 18) {
         Label(next?.reason ?? (archive.lessons.isEmpty
-          ? "C'è già un primo passo per provare." : "Il tuo percorso si prepara insieme a un adulto."),
+          ? StudioOrientation.trialExplanation : "Il tuo percorso si prepara insieme a un adulto."),
           systemImage: "sun.max").studioMuted()
-        Text(next?.title ?? (archive.lessons.isEmpty ? "Una pausa che aiuta" : "Scegliamo da dove partire"))
+        Text(next?.title ?? (archive.lessons.isEmpty ? StudioOrientation.trialTitle : "Scegliamo da dove partire"))
           .studioFont(.title, weight: .bold)
           .accessibilityIdentifier("studio.suggestion")
         if next != nil || archive.lessons.isEmpty {
@@ -37,7 +37,9 @@ struct StudioHomeView: View {
             .studioPrimary()
             .controlSize(.large)
         }
-        Text("Ti accompagno io. Puoi leggere o ascoltare e fermarti quando vuoi.")
+        Text(StudioOrientation.showsInstructions(in: archive)
+             ? StudioOrientation.parentExplanation
+             : "Ti accompagno io. Puoi leggere o ascoltare e fermarti quando vuoi.")
       }
       .padding(24)
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -95,7 +97,8 @@ struct StudioPathEditor: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
       Text("Prepara il suo percorso").studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
-      Text("Scegli le lezioni e il loro ordine. Quando apre l'app, trova un solo pulsante e il prossimo passo già pronto.")
+      StudioInstructionsView(.parent,
+        automaticallyExpanded: store.displayArchive.lessons.isEmpty)
       StudioButton("Prepara con Apple Intelligence", icon: "sparkles", id: "studio.ai.open", action: generate)
         .studioPrimary()
       StudioButton("Aggiungi dal libro o da un testo", icon: "doc.badge.plus", id: "studio.add", action: add)
