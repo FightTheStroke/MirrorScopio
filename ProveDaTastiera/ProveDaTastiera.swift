@@ -1,4 +1,5 @@
 import XCTest
+import AppKit
 
 /// Le prove che aprono MirrorScopio davvero e lo usano **senza mouse**.
 ///
@@ -28,7 +29,7 @@ final class ProveDaTastiera: XCTestCase {
 
   override func setUp() async throws {
     try await super.setUp()
-    await MainActor.run {
+    try await MainActor.run {
     continueAfterFailure = false
 
     cartellaDati = FileManager.default.temporaryDirectory
@@ -49,7 +50,9 @@ final class ProveDaTastiera: XCTestCase {
     ]
     app.launch()
     app.activate()
-    XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 30),
+    let finestraPresente = app.windows.firstMatch.waitForExistence(timeout: 30)
+    if !finestraPresente { try allegaCampioneAvvio() }
+    XCTAssertTrue(finestraPresente,
                   "Nessuna finestra. Stato dell'app: \(app.state.rawValue)\n\(app.debugDescription)")
     }
   }
@@ -60,6 +63,25 @@ final class ProveDaTastiera: XCTestCase {
     if let cartellaDati { try? FileManager.default.removeItem(at: cartellaDati) }
     }
     try await super.tearDown()
+  }
+
+  /// Distingue un avvio bloccato da un processo a riposo senza finestre.
+  private func allegaCampioneAvvio() throws {
+    let processoApp = try XCTUnwrap(
+      NSRunningApplication.runningApplications(withBundleIdentifier: Self.bundleID).first,
+      "Il processo da campionare non è più in esecuzione.")
+    try FileManager.default.createDirectory(at: cartellaDati, withIntermediateDirectories: true)
+    let destinazione = cartellaDati.appendingPathComponent("campione-avvio.txt")
+    let campionamento = Process()
+    campionamento.executableURL = URL(fileURLWithPath: "/usr/bin/sample")
+    campionamento.arguments = [String(processoApp.processIdentifier), "3", "-file", destinazione.path]
+    try campionamento.run()
+    campionamento.waitUntilExit()
+    XCTAssertEqual(campionamento.terminationStatus, 0, "Non è riuscito il campionamento dell'avvio.")
+    let allegato = XCTAttachment(string: try String(contentsOf: destinazione, encoding: .utf8))
+    allegato.name = "Thread del processo senza finestra"
+    allegato.lifetime = .keepAlways
+    add(allegato)
   }
 
   // MARK: - Quello che VoiceOver direbbe
