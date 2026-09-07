@@ -21,13 +21,20 @@ struct StudioGuidedView: View {
           Text("Sei in pausa. Il tuo punto è qui.")
           StudioButton("Riprendi", icon: "play.fill", id: "studio.guided.resume") {
             _ = tracker.start(lessonID: lesson.id)
-          }.studioPrimary()
+          }.studioPrimary().disabled(store.recovery || store.hasPendingSave)
         } else {
+          Group {
           switch run.phase {
           case .reading: reading(lesson)
           case .recall: recall(lesson)
+          case .program:
+            if let program = lesson.program {
+              StudioProgramView(store: store, tracker: tracker, audio: audio,
+                                lesson: lesson, program: program)
+            }
           case .finished: finished
           }
+          }.disabled(store.recovery || store.hasPendingSave)
         }
         if run.phase != .finished {
           Divider()
@@ -39,7 +46,6 @@ struct StudioGuidedView: View {
         }
         if let message = audio.message { Text(message).studioMuted() }
       }
-      .disabled(store.recovery || store.hasPendingSave)
       .sheet(isPresented: $showSupport) {
         NavigationStack {
           ScrollView {
@@ -87,6 +93,12 @@ struct StudioGuidedView: View {
         guard store.change({
           let help = ($0.reviewRun?.help ?? .none).adding(.source)
           $0.reviewRun?.help = help
+        }) else { return }
+      }
+      if run?.phase == .program {
+        guard store.change({
+          let help = ($0.guidedRun?.programStep?.help ?? .none).adding(.source)
+          $0.guidedRun?.programStep?.help = help
         }) else { return }
       }
       showSupport = true

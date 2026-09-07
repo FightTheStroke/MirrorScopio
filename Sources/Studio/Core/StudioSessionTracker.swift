@@ -114,6 +114,18 @@ enum StudioReport {
       rows.append(["sessione", archive.lessons.first { $0.id == session.lessonID }?.title ?? "",
         iso.string(from: session.startedAt), String(Int(session.activeSeconds)), session.mode.rawValue,
         session.outcome.rawValue, session.fatigue.map(String.init) ?? "", session.adultHelp, "", "", "", ""])
+      for response in session.programResponses ?? [] {
+        let result = response.matched.map { $0 ? "Coincide (confronto deterministico)" : "Ancora (confronto deterministico)" }
+          ?? response.selfAssessment.map { "Autovalutazione: \($0.rawValue)" }
+          ?? "Parte letta, comprensione non valutata"
+        let assistance = response.help.rawValue + (response.usedReference ? "; riprova dopo il riferimento" : "")
+        let reply = response.text.isEmpty && response.kind == .open
+          ? "Risposta a voce, non registrata" : response.text
+        rows.append(["attività", archive.lessons.first { $0.id == session.lessonID }?.title ?? "",
+          iso.string(from: response.date), "", "", result, "", assistance,
+          response.instruction, reply,
+          response.reference, response.activityID])
+      }
     }
     for attempt in archive.attempts {
       rows.append(["ripasso", archive.lessons.first { $0.id == attempt.lessonID }?.title ?? "",

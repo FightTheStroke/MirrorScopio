@@ -46,7 +46,7 @@ struct StudioHomeView: View {
       .background(palette.surface, in: RoundedRectangle(cornerRadius: Metrica.raggio))
       let completed = StudioPathEngine.path(in: archive).completedIDs.count
       if completed > 0 {
-        Label("\(completed) \(completed == 1 ? "tappa conclusa" : "tappe concluse"). Restano tue anche se fai una pausa.",
+        Label("\(completed) \(completed == 1 ? "incontro concluso" : "incontri conclusi"). Restano tuoi anche se fai una pausa.",
               systemImage: "checkmark.circle")
       }
       ViewThatFits(in: .horizontal) {
@@ -99,6 +99,7 @@ struct StudioPathEditor: View {
       Text("Prepara il suo percorso").studioFont(.title, weight: .bold).accessibilityAddTraits(.isHeader)
       StudioInstructionsView(.parent,
         automaticallyExpanded: store.displayArchive.lessons.isEmpty)
+      StudioProgramPreparation(store: store)
       StudioButton("Prepara con Apple Intelligence", icon: "sparkles", id: "studio.ai.open", action: generate)
         .studioPrimary()
       StudioButton("Aggiungi dal libro o da un testo", icon: "doc.badge.plus", id: "studio.add", action: add)
@@ -137,7 +138,7 @@ struct StudioPathEditor: View {
       }
       Divider()
       StudioButton("Domande e dati", icon: "slider.horizontal.3", id: "studio.adult", action: settings)
-      Text("Nessuna durata obbligatoria, classifica o serie di giorni da mantenere. «Conclusa» significa che ha attraversato la tappa, non che l'ha imparata.")
+      Text("Nessuna durata obbligatoria, classifica o serie di giorni da mantenere. «Concluso» significa che ha attraversato l'incontro, non che l'ha imparato.")
         .studioMuted()
     }
     .disabled(store.recovery || store.hasPendingSave)

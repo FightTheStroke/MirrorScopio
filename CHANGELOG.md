@@ -20,6 +20,12 @@ La sezione di rilascio pubblico resta assente per non attivare la pubblicazione
 automatica del ramo principale.
 
 ### Aggiunto
+- **Un percorso già preparato di otto tappe e quaranta incontri:** sequenze,
+  consegne, comprensione, indizi, riassunti e recupero. L'adulto lo esplora e
+  lo attiva una volta; Inizia e Continua aprono poi il passo successivo.
+  Il carico si sceglie senza aumenti automatici, gli aiuti restano disponibili
+  e le pause conservano il punto. Ogni due tappe un riepilogo distingue
+  confronti delle scelte, autovalutazioni e aiuti dichiarati: non misura il QI.
 - **Scrivi dà il tempo di correggersi:** indica le parole da rivedere, quelle
   mancanti e quelle in più, conserva il testo e concede tre riprove dopo la
   prima risposta. Se la correzione riesce si prosegue; altrimenti compare il

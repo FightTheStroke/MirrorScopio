@@ -6,13 +6,14 @@ struct StudioPath: Codable, Equatable {
 }
 
 enum StudioGuidedPhase: String, Codable {
-  case reading, recall, finished
+  case reading, recall, program, finished
 }
 
 struct StudioGuidedRun: Codable, Equatable {
   var lessonID: UUID
   var phase: StudioGuidedPhase = .reading
   var position = 0
+  var programStep: StudioProgramStep?
 }
 
 struct StudioNextStep {
@@ -100,6 +101,11 @@ enum StudioPathEngine {
         guard archive.reviewRun?.lessonID == run.lessonID else {
           throw StudioFailure("Il ripasso non corrisponde al percorso aperto.")
         }
+      } else if run.phase == .program {
+        guard let program = lesson.program, let step = run.programStep,
+              program.activities.indices.contains(step.position) else {
+          throw StudioFailure("Il segnalibro dell'attività non è valido.")
+        }
       }
     }
   }
@@ -147,6 +153,11 @@ extension StudioStore {
       }
       guard let next = StudioPathEngine.next(in: archive, now: now) else {
         throw StudioFailure("Non c'è ancora una lezione nel percorso.")
+      }
+      if archive.lessons.first(where: { $0.id == next.lessonID })?.program != nil {
+        archive.guidedRun = StudioGuidedRun(lessonID: next.lessonID, phase: .program,
+                                            programStep: StudioProgramStep())
+        return
       }
       if StudioPathEngine.path(in: archive).lessonIDs.isEmpty {
         archive.path = StudioPath(lessonIDs: [next.lessonID],
@@ -203,6 +214,8 @@ extension StudioStore {
           throw StudioFailure("Confronta la risposta oppure scegli una pausa.")
         }
         run.phase = .finished
+      case .program:
+        throw StudioFailure("Confronta la risposta di questa attività prima di continuare.")
       case .finished: break
       }
       archive.guidedRun = run

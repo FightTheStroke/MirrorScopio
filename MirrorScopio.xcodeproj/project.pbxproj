@@ -27,6 +27,7 @@
 		1A9AD6F850F6825B840BA1BD /* TypingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ADFCA031ACADC650624A1E /* TypingView.swift */; };
 		1BC992719FF52B7A38CAE9CC /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7881F340E73C7624D53AD46 /* Exporter.swift */; };
 		1E9245E80FC7B84C7B91AEDF /* StudioControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF51A49E1E4DBB71C2852339 /* StudioControls.swift */; };
+		21288D4BE90411060D58A1F6 /* StudioProgramCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451B175E400DDA0C53EF1BCA /* StudioProgramCatalog.swift */; };
 		21E2E274E24C5D9198D4F578 /* StudioLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */; };
 		2286360E3A9C58DB37B742BF /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205933038872E415019CBA59 /* AppVersion.swift */; };
 		24EEF094B0C2B72319A09659 /* StudioPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA3306CAF36A812F742BE5A /* StudioPath.swift */; };
@@ -61,6 +62,7 @@
 		4F78166D47E4637DE51BFD92 /* MicrofonoARaffica.swift in Sources */ = {isa = PBXBuildFile; fileRef = 112BD3590806E82E416163A7 /* MicrofonoARaffica.swift */; };
 		5325F7A19C7B6AFC23229330 /* GiocoMuro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7ED67074557403107859F6 /* GiocoMuro.swift */; };
 		53AE5CA3FF67E69AC93994C0 /* StudioAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3940C97ED6E086B2BFC111 /* StudioAddView.swift */; };
+		5504DD6281CBE5699B45E788 /* StudioProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5CFE1F1AE5D3F91843FC9E /* StudioProgramView.swift */; };
 		5569C5E70FF898EF4D1C87CF /* RegistroSessione.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D1F199B0BB5D910CFBEBB /* RegistroSessione.swift */; };
 		5B158CC9232E68A9CD71BCDB /* ModelliCorsa3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 573F897F77618868A95DD1B7 /* ModelliCorsa3D.swift */; };
 		5BE9853F370AF0A31D2818D3 /* StudioControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF51A49E1E4DBB71C2852339 /* StudioControls.swift */; };
@@ -72,8 +74,10 @@
 		5F7543BCCB6E28B524340AAF /* ReadinessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0ADFA6585B48FF67E2570AB /* ReadinessView.swift */; };
 		61AC810690B4CFAE17A11AD3 /* Interlinea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C5C670CCAC577809191C /* Interlinea.swift */; };
 		65441BF32D78452AA9A06949 /* GiocoBoxe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33629E00BD749690B8295229 /* GiocoBoxe.swift */; };
+		657CBC1FCAC438B2CD68FD4A /* StudioProgramTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA355D4B4DE251FA602DA24 /* StudioProgramTests.swift */; };
 		6791DC9859E817F912A1B2AF /* AccessibilitaDelMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = E868D5B3FD111F795AB5A584 /* AccessibilitaDelMac.swift */; };
 		67C6453B5C822AB3019B504D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 695418790BBC47445C0C129B /* Assets.xcassets */; };
+		690BED93307C224E51DEB3F6 /* StudioProgramCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451B175E400DDA0C53EF1BCA /* StudioProgramCatalog.swift */; };
 		6B24DD35C646EBA4D958F5AE /* StudioLaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */; };
 		6D5A56D3FE59D3804B4AA375 /* StudioExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031AD255BC90A1F85C04F857 /* StudioExtractionTests.swift */; };
 		6E519530D16C2239A064E801 /* AudioDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E70FB4BD5DEF09320F20B /* AudioDevices.swift */; };
@@ -84,19 +88,24 @@
 		7AA8D0FF6EAD344E137560BF /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CF05A39638296A9A050E2E /* Model.swift */; };
 		7B35D45631EA7BDBF964F6B1 /* StudioFileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE85D76440095318E9922E9F /* StudioFileStorage.swift */; };
 		7E893C521B7F1B7B0121483D /* StudioExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031AD255BC90A1F85C04F857 /* StudioExtractionTests.swift */; };
+		7ED9822545A48F0CAA78CF2E /* StudioProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E63CA2759E837DE487F6CEC /* StudioProgram.swift */; };
 		7F0EFDABB5A66C0BC064C505 /* Scoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF5E7FC6D16FBEF78A23B3A /* Scoring.swift */; };
 		802C9F258666F5DE9DAEC3B7 /* LetturaTollerante.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62FC6E2531512C5D60BDD93 /* LetturaTollerante.swift */; };
+		832C4DF764F2FA5268E58129 /* StudioProgramTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA355D4B4DE251FA602DA24 /* StudioProgramTests.swift */; };
 		8407A43B322872F83D1A5B09 /* StudioPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA3306CAF36A812F742BE5A /* StudioPath.swift */; };
 		86FEAA3F924ED8A30446B637 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0A57B030C674CC7521A8C /* Theme.swift */; };
 		890E7894B5024E6EE31F4041 /* Sfondi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074C80ADA294AEE3BC2F339E /* Sfondi.swift */; };
+		89797AC57AE91510AA9ADC0C /* StudioProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E63CA2759E837DE487F6CEC /* StudioProgram.swift */; };
 		8A08202C1D911C6799A1F86C /* MotoreRetro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D66031D829339253D563B89 /* MotoreRetro.swift */; };
 		8B402BB8513B9083C4DF93AB /* Readiness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5266357C1E390A61B3294EC1 /* Readiness.swift */; };
 		8B982CBA340A821AF8958BE7 /* StudioHelpContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B711B0430516E1ACEF90961 /* StudioHelpContent.swift */; };
 		8E4360E751B929D352DD8BD0 /* RegoleCorsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */; };
 		910DCC89A3EBD0222AA454D0 /* StudioOrientationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE42C8E1BF50BEE27DE07813 /* StudioOrientationTests.swift */; };
 		91A1DA759551D1D6E1C5174F /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7A78AEC0C5BB8E5AF5A193 /* Speaker.swift */; };
+		941378E72C381B8C9777ECF6 /* StudioProgramUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D82E53B381EA03CCD7D1334 /* StudioProgramUITests.swift */; };
 		9742D669F8D536BEFEB9A363 /* StudioUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C793A93553EE9A8C467E0168 /* StudioUITests.swift */; };
 		97E630F55313984E5DC070F7 /* SportDelCamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BBF459BAE0BA62CBB65F95 /* SportDelCamp.swift */; };
+		99064C43317A36CE6BEA3B84 /* StudioProgramUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D82E53B381EA03CCD7D1334 /* StudioProgramUITests.swift */; };
 		9A31872896A2D08E8D6AB5F3 /* StudioGeneration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EA80C69B90A67957F8CF79 /* StudioGeneration.swift */; };
 		9A7965E20ED6ACE9E3E963DC /* StudioOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E3B05D5BAFD5D1FA501493 /* StudioOrientation.swift */; };
 		9A883E55D64A2640F4C4943A /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6366D8DAE4BC19CFBAD19367 /* Badge.swift */; };
@@ -155,6 +164,7 @@
 		E059FF5B7F192DF8759DA740 /* NavigazioneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F6EBFF9398D288C8FC9650 /* NavigazioneTests.swift */; };
 		E208E4D28BE0FC584C9E1BD8 /* GiocoGrotta.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDD8A82B2C05435B42F4FB /* GiocoGrotta.swift */; };
 		E46F6584F2F410A0A14EA21B /* SharedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94876675BBB9A6CEF58498AF /* SharedControls.swift */; };
+		E4E38A6B3FEEE55A04F130F8 /* StudioProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5CFE1F1AE5D3F91843FC9E /* StudioProgramView.swift */; };
 		E5224519CAFA889A389F9D95 /* StudioGeneratedLesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89DD7778D6EB3EB8A4F2E18 /* StudioGeneratedLesson.swift */; };
 		E7D9A59773DA2C44C2C4939F /* StudioGuidedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9396309AE337476F5D66A2 /* StudioGuidedView.swift */; };
 		E8A2ECF8251B0736FE692AF2 /* StudioLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */; };
@@ -269,10 +279,12 @@
 		3EE66A11CF2993242603C80C /* CODEOWNERS */ = {isa = PBXFileReference; path = CODEOWNERS; sourceTree = "<group>"; };
 		3FE6F239472A53F627C76B21 /* estrai-identita.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "estrai-identita.py"; sourceTree = "<group>"; };
 		447794A56C34069DE76C5FEB /* GiocoTriciclo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoTriciclo.swift; sourceTree = "<group>"; };
+		451B175E400DDA0C53EF1BCA /* StudioProgramCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioProgramCatalog.swift; sourceTree = "<group>"; };
 		46F7164C770CBFFAEA3F3478 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4A1E7FB5060625867825E91F /* ScalaAdattiva.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScalaAdattiva.swift; sourceTree = "<group>"; };
 		4A96C5C670CCAC577809191C /* Interlinea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interlinea.swift; sourceTree = "<group>"; };
 		4CE5A851E0EC588426F00E4B /* Verifiche.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Verifiche.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D82E53B381EA03CCD7D1334 /* StudioProgramUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioProgramUITests.swift; sourceTree = "<group>"; };
 		5266357C1E390A61B3294EC1 /* Readiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Readiness.swift; sourceTree = "<group>"; };
 		53C25C5F17C318E947E1AD49 /* Battito.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battito.swift; sourceTree = "<group>"; };
 		5582FEF0FCBAE925413CF0D9 /* CampoCorsa3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampoCorsa3D.swift; sourceTree = "<group>"; };
@@ -287,6 +299,7 @@
 		5B4F2BD91765DBE9B14024AB /* AccessibilitaArena3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitaArena3D.swift; sourceTree = "<group>"; };
 		5C09CB54354847F8DB5C7458 /* NOTICE */ = {isa = PBXFileReference; path = NOTICE; sourceTree = "<group>"; };
 		5EC107AFDC7487B23CBBD232 /* pull_request_template.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = pull_request_template.md; sourceTree = "<group>"; };
+		5F5CFE1F1AE5D3F91843FC9E /* StudioProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioProgramView.swift; sourceTree = "<group>"; };
 		600397C551FEEE65C1F8CEB8 /* AudioCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCheckView.swift; sourceTree = "<group>"; };
 		60FA793CD47583F5383291B6 /* SECURITY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SECURITY.md; sourceTree = "<group>"; };
 		6106552289AA915241ABBDAE /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = Resources/Fonts; sourceTree = SOURCE_ROOT; };
@@ -310,6 +323,7 @@
 		79CA9036004DAE176CF1AC14 /* StudioPathViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPathViews.swift; sourceTree = "<group>"; };
 		7AB84D50FFE62FA5F5706C2A /* Arena3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arena3D.swift; sourceTree = "<group>"; };
 		7B569CE37B4233DEC899CC43 /* DatiVecchi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatiVecchi.swift; sourceTree = "<group>"; };
+		7EA355D4B4DE251FA602DA24 /* StudioProgramTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioProgramTests.swift; sourceTree = "<group>"; };
 		8118DA5BFB5F8F8654C02D65 /* PER-I-GENITORI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "PER-I-GENITORI.md"; sourceTree = "<group>"; };
 		83FBDCDBB03CA7C3AFC0AFFC /* Suoni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suoni.swift; sourceTree = "<group>"; };
 		88143617BDBF3A3CCBD54AAE /* numero-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "numero-build.sh"; sourceTree = "<group>"; };
@@ -327,6 +341,7 @@
 		9A34ECBF54C93620D8462066 /* ReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportView.swift; sourceTree = "<group>"; };
 		9C4A612F60475DBA01AD6677 /* RegoleCorsa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegoleCorsa.swift; sourceTree = "<group>"; };
 		9C7ED67074557403107859F6 /* GiocoMuro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiocoMuro.swift; sourceTree = "<group>"; };
+		9E63CA2759E837DE487F6CEC /* StudioProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioProgram.swift; sourceTree = "<group>"; };
 		9ECE751B5B9046C21B3BF993 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
 		A077275B6401CB89DC6AF421 /* Gamification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gamification.swift; sourceTree = "<group>"; };
 		A3BD10B9E2B6DFC536FD590C /* Navigazione.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigazione.swift; sourceTree = "<group>"; };
@@ -495,6 +510,7 @@
 				AF8D29B7A587E285D8A02675 /* StudioLaunchView.swift */,
 				E42E545CADEA7E9CD3A3D7DE /* StudioLessonView.swift */,
 				79CA9036004DAE176CF1AC14 /* StudioPathViews.swift */,
+				5F5CFE1F1AE5D3F91843FC9E /* StudioProgramView.swift */,
 				0AAD15951BE8DD3F672351A3 /* StudioRootView.swift */,
 			);
 			path = Views;
@@ -521,6 +537,8 @@
 				696CD03FD75DF5B61E288807 /* StudioModels.swift */,
 				39E3B05D5BAFD5D1FA501493 /* StudioOrientation.swift */,
 				CBA3306CAF36A812F742BE5A /* StudioPath.swift */,
+				9E63CA2759E837DE487F6CEC /* StudioProgram.swift */,
+				451B175E400DDA0C53EF1BCA /* StudioProgramCatalog.swift */,
 				5726E7A1918A54875262FF3A /* StudioSessionTracker.swift */,
 				12ED506F8970C1F620204ACE /* StudioStore.swift */,
 			);
@@ -530,6 +548,7 @@
 		7A0E53436418781CF678ABD1 /* ProveStudio */ = {
 			isa = PBXGroup;
 			children = (
+				4D82E53B381EA03CCD7D1334 /* StudioProgramUITests.swift */,
 				C793A93553EE9A8C467E0168 /* StudioUITests.swift */,
 			);
 			path = ProveStudio;
@@ -697,6 +716,7 @@
 				AE42C8E1BF50BEE27DE07813 /* StudioOrientationTests.swift */,
 				C12EAFA46FD1E80178DBE206 /* StudioPathTests.swift */,
 				EA4850883214D4EA0CB8C56D /* StudioPreferencesTests.swift */,
+				7EA355D4B4DE251FA602DA24 /* StudioProgramTests.swift */,
 				664C52E27CFA821D17570016 /* StudioStorageTests.swift */,
 				CC15C6CCA60C061748E42475 /* Suoni.swift */,
 			);
@@ -993,6 +1013,7 @@
 			files = (
 				CB408CA458256209F6E6E631 /* ImpostazioniDiSistema.swift in Sources */,
 				D00D78EA3A7AA0362F73CB98 /* ProveDaTastiera.swift in Sources */,
+				941378E72C381B8C9777ECF6 /* StudioProgramUITests.swift in Sources */,
 				9742D669F8D536BEFEB9A363 /* StudioUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1089,6 +1110,9 @@
 				9A7965E20ED6ACE9E3E963DC /* StudioOrientation.swift in Sources */,
 				8407A43B322872F83D1A5B09 /* StudioPath.swift in Sources */,
 				4519618956580A6CEF499F1D /* StudioPathViews.swift in Sources */,
+				89797AC57AE91510AA9ADC0C /* StudioProgram.swift in Sources */,
+				690BED93307C224E51DEB3F6 /* StudioProgramCatalog.swift in Sources */,
+				5504DD6281CBE5699B45E788 /* StudioProgramView.swift in Sources */,
 				418E6437485EF7957D9A0A4F /* StudioRootView.swift in Sources */,
 				00B98B78FED12CEDE7BF2D40 /* StudioSessionTracker.swift in Sources */,
 				A0CA9B6DD1C53DD64D22DE0C /* StudioStore.swift in Sources */,
@@ -1131,6 +1155,7 @@
 				F7FC8C59EDFEAAA129F6A402 /* StudioOrientationTests.swift in Sources */,
 				EEC8E5BC42ABDFEFB9277F25 /* StudioPathTests.swift in Sources */,
 				C190716A68C881577CF8F2CA /* StudioPreferencesTests.swift in Sources */,
+				832C4DF764F2FA5268E58129 /* StudioProgramTests.swift in Sources */,
 				25E861048DF0C130943CF3DA /* StudioStorageTests.swift in Sources */,
 				0EF77934D40E0CDD87A4D7A5 /* Suoni.swift in Sources */,
 			);
@@ -1146,6 +1171,7 @@
 				910DCC89A3EBD0222AA454D0 /* StudioOrientationTests.swift in Sources */,
 				DACDDDAC44CACA42E3F077F7 /* StudioPathTests.swift in Sources */,
 				AC364601FE341DE1C287C00E /* StudioPreferencesTests.swift in Sources */,
+				657CBC1FCAC438B2CD68FD4A /* StudioProgramTests.swift in Sources */,
 				C513296C4066E3B8037D236B /* StudioStorageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1182,6 +1208,9 @@
 				C0AC90B0CC6AB895ADE948FA /* StudioOrientation.swift in Sources */,
 				24EEF094B0C2B72319A09659 /* StudioPath.swift in Sources */,
 				2B0CF653F065E8DA9E92ED38 /* StudioPathViews.swift in Sources */,
+				7ED9822545A48F0CAA78CF2E /* StudioProgram.swift in Sources */,
+				21288D4BE90411060D58A1F6 /* StudioProgramCatalog.swift in Sources */,
+				E4E38A6B3FEEE55A04F130F8 /* StudioProgramView.swift in Sources */,
 				14C8D362AEE259690412C234 /* StudioRootView.swift in Sources */,
 				C2A7155E5ABA711C00CBA255 /* StudioSessionTracker.swift in Sources */,
 				FD9DE3548486B17AAFB1D966 /* StudioStore.swift in Sources */,
@@ -1193,6 +1222,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99064C43317A36CE6BEA3B84 /* StudioProgramUITests.swift in Sources */,
 				EC14F852584068D9C4CE3269 /* StudioUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

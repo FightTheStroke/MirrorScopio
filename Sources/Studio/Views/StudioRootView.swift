@@ -140,7 +140,11 @@ struct StudioRootView: View {
       .frame(maxWidth: .infinity)
     }
     .scrollPosition($scrollPosition)
-    .onChange(of: store.displayArchive.guidedRun) { _, _ in showGuidedTop() }
+    .onChange(of: panel) { _, _ in scrollPosition.scrollTo(edge: .top) }
+    .onChange(of: store.displayArchive.guidedRun?.phase) { _, _ in showGuidedTop() }
+    .onChange(of: store.displayArchive.guidedRun?.position) { _, _ in showGuidedTop() }
+    .onChange(of: store.displayArchive.guidedRun?.programStep?.position) { _, _ in showGuidedTop() }
+    .onChange(of: store.displayArchive.guidedRun?.programStep?.revealed) { _, _ in showGuidedTop() }
     .onChange(of: store.displayArchive.reviewRun?.remaining.first) { _, _ in showGuidedTop() }
     .onChange(of: store.displayArchive.reviewRun?.revealed) { _, _ in showGuidedTop() }
     .scrollDismissesKeyboard(.interactively)

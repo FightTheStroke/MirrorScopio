@@ -77,6 +77,7 @@ struct StudioLesson: Codable, Equatable, Identifiable {
   var map = StudioMap()
   var procedures: [StudioProcedure] = []
   var createdAt = Date()
+  var program: StudioProgramLesson?
 
   init(title: String, subject: String, source: String) throws {
     self.title = title
@@ -184,6 +185,7 @@ struct StudioSession: Codable, Equatable, Identifiable {
   var adultHelp: String = ""
   var outcome: StudioSessionOutcome = .ongoing
   var events: [StudioSessionEvent] = []
+  var programResponses: [StudioProgramResponse]?
 }
 
 struct StudioSettings: Codable, Equatable {

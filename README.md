@@ -119,6 +119,15 @@ settimana, mentre l'esercizio darebbe il meglio se fatto pochi minuti al giorno.
 
 ### Due modalità
 
+Accanto a Leggi e Scrivi, **Studio** offre anche un **percorso di otto tappe,
+quaranta incontri già preparati**. In «Prepara il suo percorso» l'adulto apre
+«Percorso di 8 settimane», esplora le attività e sceglie «Attiva come prossimo
+percorso». Da quel momento il ragazzo usa **Inizia / Continua**.
+Gli incontri alternano memoria, consegne, comprensione, strategie e recupero;
+durata e calendario sono proposte, non obblighi. Il carico lo regola l'adulto,
+gli aiuti restano disponibili e le pause conservano il punto. I riepiloghi
+descrivono le attività, **non misurano il QI**.
+
 | | Che cosa succede | Che cosa allena |
 |---|---|---|
 | **Leggi** | Lampeggia una parola, la si legge ad alta voce | Lettura globale, ampiezza dello sguardo, velocità di riconoscimento |
