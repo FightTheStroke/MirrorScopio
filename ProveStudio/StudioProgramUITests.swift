@@ -71,7 +71,7 @@ final class StudioProgramUITests: XCTestCase {
     press("studio.shell.settings")
     XCTAssertTrue(app.staticTexts["×2.00"].exists)
     press("studio.settings.close")
-    testAttivazioneSceltaEPausaConSegnalibro()
+    testIncontroInteroAvviaIlSuccessivoSenzaSceltaManuale()
   }
   #endif
 
@@ -106,11 +106,8 @@ final class StudioProgramUITests: XCTestCase {
   }
 
   private func testo(_ element: XCUIElement) -> String {
-    #if os(macOS)
-    return element.value as? String ?? element.label
-    #else
-    return element.label
-    #endif
+    let label = element.label
+    return label.isEmpty ? (element.value as? String ?? "") : label
   }
 
   private func activate() {

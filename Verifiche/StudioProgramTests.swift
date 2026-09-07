@@ -84,6 +84,23 @@ struct StudioProgramTests {
     }
   }
 
+  @Test("Le scelte dello stesso incontro non suggeriscono una posizione fissa")
+  func choicePositions() throws {
+    for lesson in try StudioProgramCatalog.lessons() {
+      let program = try #require(lesson.program)
+      let choices = program.activities.filter { $0.kind == .choice }
+      var positions: [Int] = []
+      for activity in choices {
+        let answer = try #require(activity.answer.first)
+        positions.append(try #require(activity.options.firstIndex { $0.id == answer }))
+        #expect(StudioProgramEngine.matches(activity, selection: [answer]) == true)
+      }
+      if choices.count > 1 {
+        #expect(Set(positions.prefix(3)).count == min(3, choices.count))
+      }
+    }
+  }
+
   @Test("Gli indizi proposti sono frasi del testo e non dettagli alternativi")
   func evidenceInSource() throws {
     #expect(StudioProgramCatalog.passages.count == 40)

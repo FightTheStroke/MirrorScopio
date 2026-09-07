@@ -59,6 +59,7 @@ enum StudioProgramCatalog {
   private static func activities(_ p: Passage, stage: Int, session: Int, id: String,
                                  load: StudioProgramLoad) -> [StudioProgramActivity] {
     var result: [StudioProgramActivity] = []
+    var remainingRotations: [Int: [Int]] = [:]
     func add(_ key: String, _ block: StudioProgramBlock, _ kind: StudioProgramKind,
              _ instruction: String, material: String = "", reference: String,
              support: String? = nil, options: [StudioProgramOption] = [], answer: [Int] = []) {
@@ -70,7 +71,7 @@ enum StudioProgramCatalog {
                  tokens: [String], expected: [Int], material: String? = nil) {
       let options = tokens.enumerated().map { StudioProgramOption(id: $0.offset, text: $0.element) }
       // Le etichette non vengono valutate: si confrontano gli identificatori delle scelte.
-      let shuffled = Array(options.dropFirst()) + Array(options.prefix(1))
+      let shuffled = options.shuffled()
       add(key, block, .sequence, instruction, material: material ?? tokens.joined(separator: " · "),
         reference: expected.map { tokens[$0] }.joined(separator: " → "),
         support: (material ?? tokens.joined(separator: " · ")) + "\nPuoi tenere la consegna visibile.",
@@ -80,7 +81,12 @@ enum StudioProgramCatalog {
                 correct: String, alternatives: [String], reference: String? = nil) {
       let texts = [correct] + alternatives
       let options = texts.enumerated().map { StudioProgramOption(id: $0.offset, text: $0.element) }
-      let shift = session % options.count
+      // La posizione non deve suggerire la risposta: si varia anche dentro
+      // lo stesso incontro. L'ordine scelto viene salvato con la lezione.
+      var rotations = remainingRotations[options.count] ?? []
+      if rotations.isEmpty { rotations = Array(options.indices).shuffled() }
+      let shift = rotations.removeLast()
+      remainingRotations[options.count] = rotations
       add(key, block, .choice, instruction, material: p.text, reference: reference ?? correct,
         options: Array(options.dropFirst(shift)) + Array(options.prefix(shift)), answer: [0])
     }
