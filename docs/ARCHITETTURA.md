@@ -8,6 +8,31 @@ Una sola parte del codice tocca la rete — `Core/Updates.swift`, che chiede a G
 l'ultima versione (spento finché non lo si accende) e ne scarica il pacchetto solo se lo si
 chiede — e un controllo automatico impedisce che ne compaia altra altrove.
 
+## Studio condiviso, distinto dagli esercizi
+
+`Sources/Studio/` contiene il nuovo percorso di studio per macOS e iOS, con
+modelli, persistenza e viste condivisi. `Sources/App.swift` lo apre sul Mac;
+`Mobile/MirrorScopioMobileApp.swift` lo apre su iPhone e iPad.
+Il target iOS compila soltanto questo percorso e la selezione delle voci di
+`Core/Speaker.swift`: non importa il motore tachistoscopico, AppKit, i giochi,
+il riconoscitore vocale o il sistema di aggiornamento Mac.
+
+Testo e supporti persistenti, lettura di un segmento per volta e ripasso con
+autovalutazione sono strumenti, non prove cliniche. Una risposta aperta non viene
+giudicata con distanza fra stringhe o con un modello linguistico.
+Le durate dei segmenti e gli intervalli di ripasso non sono dosi terapeutiche.
+
+I dati Studio sono versionati e separati da `learners.json` e `history.json`.
+Un errore di lettura non autorizza la sovrascrittura dell'archivio.
+L'importazione di un archivio richiede conferma; non è sincronizzazione.
+Il target mobile non ha servizi cloud o nuove eccezioni alla regola della rete.
+
+Il percorso precedente si istanzia sul Mac solo su richiesta dell'adulto.
+L'argomento `--tachistoscopio` permette alle prove del percorso precedente di
+continuare a esercitarlo, mentre `ProveStudio/` copre il nuovo avvio su entrambe
+le piattaforme. Le prove pure `Verifiche/Studio*Tests.swift` sono condivise fra
+gli schemi `MirrorScopio` e `MirrorScopioMobile`.
+
 ## Mappa
 
 ```

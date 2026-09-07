@@ -1,10 +1,12 @@
 import AVFoundation
+import Combine
 
 /// Voce di sistema, usata per dettare le parole in modalità "Scrivi" e per
 /// rileggere la parola giusta a chi vede poco. Tutto locale: nessuna rete.
 @MainActor
 final class Speaker: NSObject, ObservableObject {
   private let synth = AVSpeechSynthesizer()
+  private var currentUtterance: AVSpeechUtterance?
   @Published private(set) var isSpeaking = false
 
   /// Velocità di lettura più bassa del normale: le parole vanno capite, non ascoltate di corsa.
@@ -25,11 +27,13 @@ final class Speaker: NSObject, ObservableObject {
     u.voice = chosenVoice
     u.rate = customRate ?? rate
     u.postUtteranceDelay = 0.1
+    currentUtterance = u
     isSpeaking = true
     synth.speak(u)
   }
 
   func stop() {
+    currentUtterance = nil
     if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
     isSpeaking = false
   }
@@ -70,9 +74,17 @@ final class Speaker: NSObject, ObservableObject {
 
 extension Speaker: AVSpeechSynthesizerDelegate {
   nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didFinish u: AVSpeechUtterance) {
-    Task { @MainActor in self.isSpeaking = false }
+    let identifier = ObjectIdentifier(u)
+    Task { @MainActor in self.finish(identifier) }
   }
   nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didCancel u: AVSpeechUtterance) {
-    Task { @MainActor in self.isSpeaking = false }
+    let identifier = ObjectIdentifier(u)
+    Task { @MainActor in self.finish(identifier) }
+  }
+
+  private func finish(_ identifier: ObjectIdentifier) {
+    guard let currentUtterance, ObjectIdentifier(currentUtterance) == identifier else { return }
+    self.currentUtterance = nil
+    isSpeaking = false
   }
 }

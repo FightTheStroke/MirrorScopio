@@ -3,7 +3,7 @@ import SwiftUI
 /// Le schermate dell'app. Una sola alla volta, mai due finestre: l'app deve
 /// essere comprensibile da un bambino senza spiegazioni.
 enum Schermata: Equatable {
-  case casa, impostazioni, progressi, obiettivi, audio, preparazione, benvenuto
+  case casa, studio, impostazioni, progressi, obiettivi, audio, preparazione, benvenuto
 }
 
 /// Dove si trova l'app in questo momento.
@@ -18,6 +18,28 @@ enum Schermata: Equatable {
 @MainActor
 final class Navigazione: ObservableObject {
   @Published var schermata: Schermata = .casa
+  @Published var studioSelected = !CommandLine.arguments.contains("--tachistoscopio")
+  @Published var servizioStudio: Schermata?
+
+  var offreRitornoAStudio: Bool {
+    !studioSelected && [.casa, .benvenuto, .preparazione].contains(schermata)
+  }
+
+  func tornaAStudio() {
+    studioSelected = true
+    mostraAiuto = false
+    apri(.casa)
+  }
+
+  func apri(_ destinazione: Schermata) {
+    if schermata == .studio,
+       [.impostazioni, .progressi, .obiettivi, .audio, .preparazione].contains(destinazione) {
+      servizioStudio = destinazione
+    } else {
+      servizioStudio = nil
+      schermata = destinazione
+    }
+  }
   /// L'aiuto in-app: si apre sopra la schermata di casa, non è una finestra a
   /// parte. Sta qui, e non fra le `Schermata`, perché è una cosa che si può
   /// aprire da qualunque punto e chiudere per tornare esattamente dov'eri.
@@ -45,7 +67,7 @@ struct ComandiMenu: Commands {
 
   private func vaiA(_ schermata: Schermata) {
     nav.mostraAiuto = false
-    nav.schermata = schermata
+    nav.apri(schermata)
   }
 
   var body: some Commands {
@@ -60,6 +82,15 @@ struct ComandiMenu: Commands {
     }
 
     CommandMenu("Vista") {
+      Button("Il mio studio") {
+        nav.tornaAStudio()
+      }.disabled(inAllenamento)
+
+      Button("Lettura e scrittura") {
+        nav.studioSelected = false
+        vaiA(.casa)
+      }.disabled(inAllenamento)
+
       Button("I tuoi progressi") { vaiA(.progressi) }
         .keyboardShortcut("p", modifiers: .command)
         .disabled(inAllenamento)
@@ -73,7 +104,7 @@ struct ComandiMenu: Commands {
 
     CommandGroup(replacing: .help) {
       Button("Aiuto di MirrorScopio") {
-        nav.schermata = .casa
+        nav.apri(.casa)
         nav.mostraAiuto = true
       }
       .keyboardShortcut("?", modifiers: .command)

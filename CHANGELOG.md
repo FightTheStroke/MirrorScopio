@@ -15,6 +15,64 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
+## [0.11.1] — 2026-09-07
+
+Versione ufficiale per Mac: include le novità dell'anteprima 0.11.0 e viene
+proposta anche ai client che hanno già installato quell'anteprima.
+
+### Aggiunto
+- **Un percorso già preparato di otto tappe e quaranta incontri:** sequenze,
+  consegne, comprensione, indizi, riassunti e recupero. L'adulto lo esplora e
+  lo attiva una volta; Inizia e Continua aprono poi il passo successivo.
+  Il carico si sceglie senza aumenti automatici, gli aiuti restano disponibili
+  e le pause conservano il punto. Ogni due tappe un riepilogo distingue
+  confronti delle scelte, autovalutazioni e aiuti dichiarati: non misura il QI.
+  Le opzioni variano di posizione, senza suggerire la risposta con un ordine fisso;
+  una volta preparata la lezione, il loro ordine resta salvato.
+- **Scrivi dà il tempo di correggersi:** indica le parole da rivedere, quelle
+  mancanti e quelle in più, conserva il testo e concede tre riprove dopo la
+  prima risposta. Se la correzione riesce si prosegue; altrimenti compare il
+  modello e si continua solo premendo il pulsante. Il riepilogo distingue
+  esplicitamente il risultato della prima risposta dall'esercizio con aiuti.
+- **Indietro è visibile:** dagli esercizi si torna alla schermata iniziale,
+  e da Leggi o Scrivi si ritrova Studio. Prima di lasciare risposte non salvate
+  l'app chiede conferma.
+- **I primi passi spiegati mentre si fanno:** la home distingue la prova già pronta
+  dalle lezioni del genitore; lettura, risposta a voce e confronto hanno istruzioni
+  aperte nei primi tre utilizzi conclusi, poi sempre riapribili e ascoltabili.
+  Le pause non le fanno sparire; ogni nuovo passo le riporta in vista anche con
+  testo grande. Le scelte finali spiegano il proprio significato.
+- **Apri e parti**: un unico pulsante propone il prossimo passo, con un esempio
+  già pronto al primo avvio e ripresa del punto lasciato dopo una pausa.
+- **Percorso del genitore**: lezioni in ordine, preparazione da testo o argomento
+  con Apple Intelligence sul dispositivo, bozze da correggere e approvare prima dell'uso.
+- **Guida una parte alla volta**, con ascolto facoltativo, strumenti sempre disponibili
+  e fino a tre domande per tappa, senza voti automatici né giorni da recuperare.
+- **Studio su Mac e iPhone**, con testo e ascolto a segmenti, mappa, formulario
+  e domande di ripasso preparate dall'adulto. Gli strumenti restano disponibili
+  e le pause non fanno perdere punti.
+- **Archivi locali separati per lo studio**, con esportazione e importazione
+  manuale fra dispositivi, senza account e senza sincronizzazione automatica.
+- **Un target iOS dedicato** e prove condivise del nuovo percorso. La compilazione
+  per iPhone non equivale alla pubblicazione su App Store.
+- **Una guida leggibile e ascoltabile** spiega come usare ogni strumento,
+  perché è stato scelto, i limiti e il trasferimento manuale fra dispositivi.
+
+### Cambiato
+- **Studio dentro MirrorScopio, non al suo posto.** La schermata iniziale originale
+  propone Studio, Leggi e Scrivi. Restano navigazione, impostazioni, stili e sala giochi;
+  Studio usa gli stessi colori, caratteri, dimensioni e voce.
+- **Impostazioni senza perdere il filo:** aprirle da Studio conserva la pagina
+  e la bozza in corso; «Studio e percorso» aggiunge la preparazione delle lezioni
+  all'elenco originale. I profili e lo storico degli esercizi restano invariati.
+- Nel nuovo percorso il ripasso è un **autoconfronto dichiarato**, non una misura
+  del QI o un giudizio automatico sulla comprensione.
+
+### Corretto
+- **La prova del microfono aggiorna il livello prima della partenza:**
+  nella schermata «Pronti?» la barra poteva restare ferma anche con il microfono
+  acceso. Il controllo ora continua ad aggiornarsi; Scrivi non accende il microfono.
+
 ## [0.10.0] — 2026-09-02
 
 ### Aggiunto
@@ -842,7 +900,8 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.9.1...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.10.0...v0.11.1
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0

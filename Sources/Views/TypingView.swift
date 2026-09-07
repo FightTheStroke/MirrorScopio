@@ -3,7 +3,7 @@ import SwiftUI
 /// Modalità "Scrivi": il Mac detta, si scrive.
 ///
 /// È il rovescio del tachistoscopio e allena la conversione suono → lettera,
-/// che è il punto debole tipico nella disortografia.
+/// con il tempo e le riprove che servono.
 ///
 /// La schermata ricalca il palcoscenico di `StageView` — stesso pulsante rosso
 /// per smettere in alto a sinistra, stesso riquadro centrale che non si muove,
@@ -68,11 +68,24 @@ struct TypingView: View {
         .opacity(mostraRevisione ? 1 : 0)
         .accessibilityHidden(!mostraRevisione)
 
+      if let modello = engine.modelloScrittura {
+        VStack(spacing: a11y.size(Metrica.spazioStretto)) {
+          Label("Modello", systemImage: "text.book.closed")
+            .font(a11y.font(.etichetta, .semibold))
+          Text(modello)
+            .font(a11y.font(.titolo, .semibold))
+            .multilineTextAlignment(.center)
+            .textSelection(.enabled)
+        }
+        .foregroundStyle(palette.foreground)
+        .padding(Metrica.spazioPiccolo)
+        .frame(maxWidth: a11y.size(620))
+        .background(RoundedRectangle(cornerRadius: Metrica.raggio).fill(palette.surface))
+      }
+
       pulsanti
 
-      Explain(text: engine.config.writingLevel.isSentences
-              ? "Puoi farla ripetere quante volte vuoi, e toccare una parola qui sopra per risentire solo quella."
-              : "Puoi farla ripetere quante volte vuoi. Se proprio non la sai, lascia vuoto e premi Fatto.",
+      Explain(text: "Puoi usare Ripeti quante volte vuoi, e toccare una parola qui sopra per risentirla. Dopo Fatto, se serve, ci sono tre riprove: il testo resta qui.",
               a11y: a11y, size: 16)
       .multilineTextAlignment(.center)
       .frame(maxWidth: a11y.size(560))
@@ -109,9 +122,8 @@ struct TypingView: View {
 
   // MARK: - La revisione parola per parola
 
-  /// Ha senso solo sulle frasi, e solo quando qualcosa è già stato scritto.
   private var mostraRevisione: Bool {
-    engine.config.writingLevel.isSentences && !paroleScritte.isEmpty
+    engine.revisioneScrittura != nil || !paroleScritte.isEmpty
   }
 
   private var paroleScritte: [String] {
@@ -128,34 +140,81 @@ struct TypingView: View {
   /// proprio sentire con le proprie orecchie la differenza fra le due cose.
   private var revisione: some View {
     VStack(spacing: a11y.size(Metrica.spazioStretto)) {
-      Text("Risentiti: tocca una parola")
-        .font(a11y.font(.etichetta, .semibold))
-        .foregroundStyle(palette.muted)
+      if let riscontro = engine.revisioneScrittura {
+        Label(riscontro.invito, systemImage: "arrow.uturn.backward")
+          .font(a11y.font(.guida, .semibold))
+          .foregroundStyle(palette.foreground)
+          .fixedSize(horizontal: false, vertical: true)
 
-      FlowLayout(spacing: a11y.size(Metrica.spazioStretto)) {
-        ForEach(Array(paroleScritte.enumerated()), id: \.offset) { _, parola in
-          Button {
-            inAscolto = parola
-            engine.sayWord(parola)
-          } label: {
-            Text(parola)
-              .font(a11y.font(.guida, .medium))
-              .foregroundStyle(palette.foreground)
-              .padding(.horizontal, a11y.size(Metrica.spazioPiccolo))
-              .padding(.vertical, a11y.size(Metrica.spazioStretto))
-              .background(
-                Capsule().fill(inAscolto == parola
-                               ? palette.accent.opacity(0.22) : palette.surface))
-              .overlay(Capsule().stroke(palette.muted.opacity(0.35), lineWidth: 1.5))
-              .frame(minHeight: 44)
-              .contentShape(Capsule())
+        Text(riscontro.risposta == engine.typedAnswer
+             ? "La tua consegna: tocca una parola per risentirla"
+             : "Queste indicazioni riguardano l'ultima consegna, prima delle modifiche.")
+          .font(a11y.font(.etichetta, .medium))
+          .foregroundStyle(palette.muted)
+          .multilineTextAlignment(.center)
+
+        FlowLayout(spacing: a11y.size(Metrica.spazioStretto)) {
+          ForEach(Array(riscontro.parole.enumerated()), id: \.offset) { _, parola in
+            if parola.esito == .mancante {
+              etichetta(parola)
+                .accessibilityLabel(parola.indicazione)
+            } else {
+              Button {
+                inAscolto = parola.testo
+                engine.sayWord(parola.testo)
+              } label: {
+                etichetta(parola)
+              }
+              .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
+              .accessibilityLabel("\(parola.indicazione). Risenti la parola")
+            }
           }
-          .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
-          .accessibilityLabel("risenti la parola \(parola)")
+        }
+      } else {
+        Text("Risentiti: tocca una parola")
+          .font(a11y.font(.etichetta, .semibold))
+          .foregroundStyle(palette.muted)
+
+        FlowLayout(spacing: a11y.size(Metrica.spazioStretto)) {
+          ForEach(Array(paroleScritte.enumerated()), id: \.offset) { _, parola in
+            Button {
+              inAscolto = parola
+              engine.sayWord(parola)
+            } label: {
+              Text(parola)
+                .font(a11y.font(.guida, .medium))
+                .foregroundStyle(palette.foreground)
+                .padding(.horizontal, a11y.size(Metrica.spazioPiccolo))
+                .padding(.vertical, a11y.size(Metrica.spazioStretto))
+                .background(
+                  Capsule().fill(inAscolto == parola
+                                 ? palette.accent.opacity(0.22) : palette.surface))
+                .overlay(Capsule().stroke(palette.muted.opacity(0.35), lineWidth: 1.5))
+                .frame(minWidth: max(44, a11y.size(44)), minHeight: 44)
+                .contentShape(Capsule())
+            }
+            .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
+            .accessibilityLabel("risenti la parola \(parola)")
+          }
         }
       }
-      .frame(maxWidth: a11y.size(620))
     }
+    .frame(maxWidth: a11y.size(620))
+  }
+
+  private func etichetta(_ parola: ParolaScritta) -> some View {
+    Label(parola.indicazione,
+          systemImage: parola.esito == .confermata ? "checkmark" : "arrow.uturn.backward")
+      .font(a11y.font(.guida, .medium))
+      .foregroundStyle(parola.esito == .confermata ? palette.ok : palette.wrong)
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.horizontal, a11y.size(Metrica.spazioPiccolo))
+      .padding(.vertical, a11y.size(Metrica.spazioStretto))
+      .frame(minWidth: max(44, a11y.size(44)), minHeight: 44)
+      .background(Capsule().fill(inAscolto == parola.testo
+                                ? palette.accent.opacity(0.22) : palette.surface))
+      .overlay(Capsule().stroke(parola.esito == .confermata ? palette.ok : palette.wrong,
+                                lineWidth: 1.5))
   }
 
   // MARK: - I pulsanti
@@ -166,12 +225,18 @@ struct TypingView: View {
         BigButton(title: "Ripeti", symbol: "arrow.clockwise", a11y: a11y, prominent: false) {
           engine.repeatWord()
         }
-        BigButton(title: "Fatto", symbol: "checkmark", a11y: a11y) {
-          engine.submitTyped()
+        if engine.revisioneScrittura?.esaurite == true {
+          BigButton(title: "Continua", symbol: "arrow.right", a11y: a11y) {
+            engine.continuaDopoRiproveScrittura()
+          }
+        } else {
+          BigButton(title: "Fatto", symbol: "checkmark", a11y: a11y) {
+            engine.submitTyped()
+          }
         }
       }
-      if mostraRevisione {
-        SmallButton(title: "Rileggimi tutta la frase che ho scritto",
+      if !paroleScritte.isEmpty {
+        SmallButton(title: "Rileggimi quello che ho scritto",
                     symbol: "text.bubble.fill", a11y: a11y) {
           inAscolto = nil
           engine.sayWord(engine.typedAnswer)
@@ -233,7 +298,8 @@ struct FlowLayout: Layout {
     let larghezza = proposal.width ?? .infinity
     var x: CGFloat = 0, y: CGFloat = 0, altezzaRiga: CGFloat = 0
     for v in subviews {
-      let d = v.sizeThatFits(.unspecified)
+      let d = v.sizeThatFits(ProposedViewSize(
+        width: larghezza.isFinite ? larghezza : nil, height: nil))
       if x + d.width > larghezza, x > 0 {
         x = 0
         y += altezzaRiga + spacing
@@ -249,7 +315,7 @@ struct FlowLayout: Layout {
                      subviews: Subviews, cache: inout ()) {
     var x = bounds.minX, y = bounds.minY, altezzaRiga: CGFloat = 0
     for v in subviews {
-      let d = v.sizeThatFits(.unspecified)
+      let d = v.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil))
       if x + d.width > bounds.maxX, x > bounds.minX {
         x = bounds.minX
         y += altezzaRiga + spacing

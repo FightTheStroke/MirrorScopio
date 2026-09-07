@@ -149,6 +149,8 @@ jobs:
       # lancia Roberto con `./test.sh --all`, ed e' scritto qui perche' si sappia
       # che cosa questo cancello non controlla.
       - name: Eseguo le prove
+        env:
+          MIRRORSCOPIO_TEST_DERIVED_DATA: .build/prove-mac
         run: ./test.sh
         # `./test.sh` lancia anche `xcodebuild test`: le 21 prove unitarie e le
         # 5 che aprono l'applicazione vera e la usano **senza mouse**, leggendo
@@ -156,3 +158,31 @@ jobs:
         # Girano qui perche' l'accessibilita' controllata a occhio non e' una
         # promessa: per settimane ho scritto che l'app era usabile da tastiera
         # senza che nessuno l'avesse mai attraversata premendo solo Tab.
+
+      - name: Eseguo le prove Studio su iPhone
+        run: |
+          set -euo pipefail
+          SIMULATORE="$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries | sort_by(.key) | reverse | .[]
+              | select(.key | contains(".iOS-"))
+              | .value[]
+              | select(.isAvailable and (.name | startswith("iPhone")))]
+            | first | .udid // empty')"
+          if [ -z "$SIMULATORE" ]; then
+            echo "::error::Nessun simulatore iPhone disponibile: le prove iOS non possono essere saltate."
+            exit 1
+          fi
+          xcrun simctl bootstatus "$SIMULATORE" -b
+          ./scripts/test-studio-mobile.sh "$SIMULATORE"
+
+      - name: Conservo i risultati delle prove anche quando falliscono
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: risultati-prove
+          path: |
+            build/tests/prove-xcode.log
+            .build/prove-mac/Logs/Test/
+            .build/studio-mobile/Logs/Test/
+          if-no-files-found: warn
+          retention-days: 7

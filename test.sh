@@ -30,7 +30,7 @@ mkdir -p "$OUT" build/schermate
 # Le viste no: tirerebbero dentro SwiftUI senza alcun bisogno.
 CORE=$(find Sources/Core Sources/Data Sources/Design -name "*.swift")
 # Il banco delle schermate disegna l'interfaccia vera: a lui servono anche le viste.
-VISTE=$(find Sources/Views -name "*.swift")
+VISTE=$(find Sources/Views Sources/Studio Sources/StudioHelp -name "*.swift")
 
 FRAMEWORKS="-framework AppKit -framework SwiftUI -framework AVFoundation \
   -framework Speech -framework FoundationModels -framework QuartzCore \
@@ -146,6 +146,12 @@ ARGOMENTI_PROVE_XCODE=(
   -scheme MirrorScopio
   -destination platform=macOS
 )
+if [ -n "${MIRRORSCOPIO_TEST_DERIVED_DATA:-}" ]; then
+  ARGOMENTI_PROVE_XCODE+=(-derivedDataPath "$MIRRORSCOPIO_TEST_DERIVED_DATA")
+fi
+if [ -n "${MIRRORSCOPIO_TEST_IDENTITY:-}" ]; then
+  ARGOMENTI_PROVE_XCODE+=("CODE_SIGN_IDENTITY=$MIRRORSCOPIO_TEST_IDENTITY" CODE_SIGN_STYLE=Manual)
+fi
 if [ "$SENZA_UI" -eq 1 ]; then
   ARGOMENTI_PROVE_XCODE+=(-only-testing:Verifiche)
   echo "  prove da tastiera saltate su richiesta; in GitHub restano obbligatorie"

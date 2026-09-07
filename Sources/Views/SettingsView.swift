@@ -9,6 +9,7 @@ struct SettingsView: View {
   var onClose: () -> Void
   var onCalibrate: () -> Void = {}
   var onReadiness: () -> Void = {}
+  var onStudio: (() -> Void)?
 
   @StateObject private var promemoria = Promemoria()
   @State private var pagina: Pagina = .inizio
@@ -111,7 +112,7 @@ struct SettingsView: View {
   // MARK: - L'elenco delle pagine
 
   private enum Pagina: String, PaginaLaterale {
-    case inizio, lettura, colori, ritmo, voce, risposte, giochi, dati, clinico, suoni
+    case inizio, lettura, colori, ritmo, voce, risposte, giochi, dati, clinico, suoni, studio
 
     var id: String { rawValue }
 
@@ -127,6 +128,7 @@ struct SettingsView: View {
       case .dati: "I dati e l'app"
       case .clinico: "Parametri clinici"
       case .suoni: "I suoni"
+      case .studio: "Studio e percorso"
       }
     }
 
@@ -142,6 +144,7 @@ struct SettingsView: View {
       case .dati: "lock.fill"
       case .clinico: "slider.horizontal.3"
       case .suoni: "bell.fill"
+      case .studio: "book.closed.fill"
       }
     }
   }
@@ -170,6 +173,15 @@ struct SettingsView: View {
         privacy
       case .suoni:
         suoniPagina
+      case .studio:
+        SectionTitle(text: "Il percorso di studio", a11y: a11y)
+        Explain(text: "Prepara le lezioni, scegli l'ordine e controlla le proposte dell'AI. Il ragazzo apre MirrorScopio e trova il prossimo passo.", a11y: a11y)
+        if let onStudio {
+          SmallButton(title: "Prepara il percorso", symbol: "books.vertical", a11y: a11y,
+                      prominente: true, action: onStudio)
+            .accessibilityIdentifier("studio.settings.path")
+        }
+        Explain(text: "Colori, caratteri, dimensioni e voce sono quelli scelti nelle altre pagine di queste impostazioni: valgono anche per Studio.", a11y: a11y)
       case .clinico:
         VStack(alignment: .leading, spacing: Metrica.spazioStretto) {
           Text("Millesimi di secondo, maschera, scala adattiva. Servono a chi\nimposta la riabilitazione; per leggere non serve toccare niente.")

@@ -426,6 +426,84 @@ extension View {
   }
 }
 
+// MARK: - Controlli accessibili condivisi, senza dipendenze dalle sessioni
+
+/// Un interruttore che si accende premendo la riga intera.
+struct InterruttoreAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var acceso: Bool
+  var a11y: EffettiveImpostazioniAccessibilita
+
+  var body: some View {
+    Button { acceso.toggle() } label: {
+      HStack(spacing: Metrica.spazioPiccolo) {
+        Text(titolo)
+          .font(a11y.font(.corpo))
+          .interlinea(a11y)
+          .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
+        Spacer(minLength: Metrica.spazioPiccolo)
+        // Si preme tutta la riga; l'interruttore di sistema mostra solo lo stato.
+        Toggle("", isOn: $acceso)
+          .labelsHidden()
+          .allowsHitTesting(false)
+      }
+      .padding(.horizontal, Metrica.spazioStretto)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .frame(minHeight: a11y.bersaglio)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .foregroundStyle(palette.foreground)
+    .accessibilityRepresentation { Toggle(titolo, isOn: $acceso) }
+  }
+}
+
+/// Un numero che si alza e si abbassa con due pulsanti grandi.
+struct PassoAccessibile: View {
+  @Environment(\.palette) private var palette
+  let titolo: String
+  @Binding var valore: Double
+  var intervallo: ClosedRange<Double>
+  var passo: Double = 1
+  var a11y: EffettiveImpostazioniAccessibilita
+  var descrizione: (Double) -> String
+
+  var body: some View {
+    HStack(spacing: Metrica.spazioPiccolo) {
+      Text(descrizione(valore))
+        .font(a11y.font(.corpo))
+        .interlinea(a11y)
+        .foregroundStyle(palette.foreground)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Metrica.spazioPiccolo)
+      pulsante("minus", "meno", -passo)
+      pulsante("plus", "più", passo)
+    }
+    .frame(minHeight: a11y.bersaglio)
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(titolo)
+    .accessibilityValue(descrizione(valore))
+  }
+
+  private func pulsante(_ simbolo: String, _ nome: String, _ delta: Double) -> some View {
+    Button {
+      valore = min(max(valore + delta, intervallo.lowerBound), intervallo.upperBound)
+    } label: {
+      Image(systemName: simbolo)
+        .font(a11y.font(.corpo, .bold))
+        .frame(width: a11y.bersaglio, height: a11y.bersaglio)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(StilePulsante(forma: .arrotondata(Metrica.raggioPiccolo), a11y: a11y))
+    .foregroundStyle(palette.foreground)
+    .background(RoundedRectangle(cornerRadius: Metrica.raggioPiccolo).fill(palette.surface))
+    .disabled(delta < 0 ? valore <= intervallo.lowerBound : valore >= intervallo.upperBound)
+    .accessibilityLabel("\(nome): \(titolo)")
+  }
+}
+
 extension A11ySettings {
   /// Legge tollerando i campi che non c'erano ancora quando questi dati sono
   /// stati salvati. Vedi `Sources/Data/LetturaTollerante.swift`.
@@ -457,4 +535,3 @@ extension A11ySettings {
     righeDistanziate = try c.valore(.righeDistanziate, righeDistanziate)
   }
 }
-

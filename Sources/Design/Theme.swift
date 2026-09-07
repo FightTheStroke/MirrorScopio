@@ -10,7 +10,12 @@ enum ThemeChoice: String, CaseIterable, Identifiable, Codable {
 
   var label: String {
     switch self {
-    case .auto: "Come il Mac"
+    case .auto:
+      #if os(macOS)
+      "Come il Mac"
+      #else
+      "Come il dispositivo"
+      #endif
     case .chiaro: "Chiaro"
     case .scuro: "Scuro"
     case .altoContrasto: "Altissimo contrasto"
@@ -21,7 +26,12 @@ enum ThemeChoice: String, CaseIterable, Identifiable, Codable {
   /// Perché uno sceglierebbe questo tema, detto senza gergo.
   var hint: String {
     switch self {
-    case .auto: "Segue l'impostazione del Mac."
+    case .auto:
+      #if os(macOS)
+      "Segue l'impostazione del Mac."
+      #else
+      "Segue l'impostazione del dispositivo."
+      #endif
     case .chiaro: "Sfondo bianco, lettere nere."
     case .scuro: "Sfondo scuro: stanca meno gli occhi la sera."
     case .altoContrasto: "Nero pieno e bianco pieno: per chi vede poco."
