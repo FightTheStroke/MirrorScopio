@@ -1,5 +1,4 @@
 import XCTest
-import AppKit
 
 /// Le prove che aprono MirrorScopio davvero e lo usano **senza mouse**.
 ///
@@ -29,7 +28,7 @@ final class ProveDaTastiera: XCTestCase {
 
   override func setUp() async throws {
     try await super.setUp()
-    try await MainActor.run {
+    await MainActor.run {
     continueAfterFailure = false
 
     cartellaDati = FileManager.default.temporaryDirectory
@@ -44,15 +43,15 @@ final class ProveDaTastiera: XCTestCase {
     // UserDefaults: l'app le legge senza sapere di essere sotto esame, e il
     // Mac di chi lancia le prove resta com'era.
     app.launchArguments += [
+      // Il parametro della modalità non è un file da aprire con AppKit.
+      "-NSTreatUnknownArgumentsAsOpen", "NO",
       "--tachistoscopio",             // queste prove coprono il percorso precedente
       "-onboardingFatto", "YES",       // il primo avvio ha una prova sua
       "-controllaAggiornamenti", "NO", // nessuna prova deve toccare la rete
     ]
     app.launch()
     app.activate()
-    let finestraPresente = app.windows.firstMatch.waitForExistence(timeout: 30)
-    if !finestraPresente { try allegaCampioneAvvio() }
-    XCTAssertTrue(finestraPresente,
+    XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 30),
                   "Nessuna finestra. Stato dell'app: \(app.state.rawValue)\n\(app.debugDescription)")
     }
   }
@@ -63,25 +62,6 @@ final class ProveDaTastiera: XCTestCase {
     if let cartellaDati { try? FileManager.default.removeItem(at: cartellaDati) }
     }
     try await super.tearDown()
-  }
-
-  /// Distingue un avvio bloccato da un processo a riposo senza finestre.
-  private func allegaCampioneAvvio() throws {
-    let processoApp = try XCTUnwrap(
-      NSRunningApplication.runningApplications(withBundleIdentifier: Self.bundleID).first,
-      "Il processo da campionare non è più in esecuzione.")
-    try FileManager.default.createDirectory(at: cartellaDati, withIntermediateDirectories: true)
-    let destinazione = cartellaDati.appendingPathComponent("campione-avvio.txt")
-    let campionamento = Process()
-    campionamento.executableURL = URL(fileURLWithPath: "/usr/bin/sample")
-    campionamento.arguments = [String(processoApp.processIdentifier), "3", "-file", destinazione.path]
-    try campionamento.run()
-    campionamento.waitUntilExit()
-    XCTAssertEqual(campionamento.terminationStatus, 0, "Non è riuscito il campionamento dell'avvio.")
-    let allegato = XCTAttachment(string: try String(contentsOf: destinazione, encoding: .utf8))
-    allegato.name = "Thread del processo senza finestra"
-    allegato.lifetime = .keepAlways
-    add(allegato)
   }
 
   // MARK: - Quello che VoiceOver direbbe
