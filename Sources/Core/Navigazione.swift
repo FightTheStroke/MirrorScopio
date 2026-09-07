@@ -21,6 +21,16 @@ final class Navigazione: ObservableObject {
   @Published var studioSelected = !CommandLine.arguments.contains("--tachistoscopio")
   @Published var servizioStudio: Schermata?
 
+  var offreRitornoAStudio: Bool {
+    !studioSelected && [.casa, .benvenuto, .preparazione].contains(schermata)
+  }
+
+  func tornaAStudio() {
+    studioSelected = true
+    mostraAiuto = false
+    apri(.casa)
+  }
+
   func apri(_ destinazione: Schermata) {
     if schermata == .studio,
        [.impostazioni, .progressi, .obiettivi, .audio, .preparazione].contains(destinazione) {
@@ -73,8 +83,7 @@ struct ComandiMenu: Commands {
 
     CommandMenu("Vista") {
       Button("Il mio studio") {
-        nav.studioSelected = true
-        vaiA(.casa)
+        nav.tornaAStudio()
       }.disabled(inAllenamento)
 
       Button("Lettura e scrittura") {

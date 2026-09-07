@@ -4,6 +4,29 @@ import Testing
 @Suite("Studio e navigazione originale")
 @MainActor
 struct NavigazioneTests {
+  @Test("Si torna a Studio anche dal primo avvio e dalla preparazione",
+        arguments: [Schermata.casa, .benvenuto, .preparazione])
+  func ritornoDurantePreparazione(_ schermata: Schermata) {
+    let nav = Navigazione()
+    nav.studioSelected = false
+    nav.schermata = schermata
+    #expect(nav.offreRitornoAStudio)
+    nav.tornaAStudio()
+    #expect(nav.studioSelected)
+    #expect(nav.schermata == .casa)
+    #expect(nav.servizioStudio == nil)
+    #expect(!nav.offreRitornoAStudio)
+  }
+
+  @Test("Le pagine di servizio conservano il proprio ritorno",
+        arguments: [Schermata.impostazioni, .progressi, .obiettivi, .audio, .studio])
+  func ritornoDeiServizi(_ schermata: Schermata) {
+    let nav = Navigazione()
+    nav.studioSelected = false
+    nav.schermata = schermata
+    #expect(!nav.offreRitornoAStudio)
+  }
+
   @Test("I servizi mantengono la schermata di studio")
   func serviziNonAbbandonanoStudio() {
     let nav = Navigazione()

@@ -49,25 +49,13 @@ struct RootView: View {
   }
 
   var body: some View {
-    ZStack {
-      palette.background.ignoresSafeArea()
-      content
-        .disabled(nav.servizioStudio != nil)
-        .opacity(nav.servizioStudio == nil ? 1 : 0)
-        .accessibilityHidden(nav.servizioStudio != nil)
-      if nav.servizioStudio != nil {
-        servizioStudio
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .background(palette.background)
-      }
-    }
-    .safeAreaInset(edge: .top, alignment: .leading) {
+    VStack(spacing: 0) {
       if mostraRitorno {
         HStack {
           SmallButton(title: engine.phase == .idle ? "Torna a Studio" : "Indietro",
                       symbol: "chevron.left", a11y: a11y) {
             if engine.phase == .idle {
-              nav.studioSelected = true
+              nav.tornaAStudio()
             } else if !engine.trials.isEmpty || !engine.typedAnswer.isEmpty {
               confermaRitorno = true
             } else {
@@ -79,6 +67,18 @@ struct RootView: View {
         }
         .padding(Metrica.spazioMedio)
         .background(palette.background)
+      }
+      ZStack {
+        palette.background.ignoresSafeArea()
+        content
+          .disabled(nav.servizioStudio != nil)
+          .opacity(nav.servizioStudio == nil ? 1 : 0)
+          .accessibilityHidden(nav.servizioStudio != nil)
+        if nav.servizioStudio != nil {
+          servizioStudio
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(palette.background)
+        }
       }
     }
     // L'orologio dei frame vive qui e non nella schermata di presentazione, così
@@ -126,7 +126,7 @@ struct RootView: View {
 
   private var mostraRitorno: Bool {
     switch engine.phase {
-    case .idle: nav.schermata == .casa && !nav.studioSelected
+    case .idle: nav.offreRitornoAStudio
     case .finished: false
     default: true
     }
