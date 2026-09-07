@@ -16,5 +16,6 @@ xcodebuild test \
   -destination "platform=iOS Simulator,id=$1" \
   -derivedDataPath .build/studio-mobile \
   -parallel-testing-enabled NO \
+  -collect-test-diagnostics never \
   CODE_SIGN_IDENTITY=- \
   CODE_SIGNING_ALLOWED=YES
