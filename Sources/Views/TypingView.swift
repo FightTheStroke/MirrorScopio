@@ -190,7 +190,7 @@ struct TypingView: View {
                   Capsule().fill(inAscolto == parola
                                  ? palette.accent.opacity(0.22) : palette.surface))
                 .overlay(Capsule().stroke(palette.muted.opacity(0.35), lineWidth: 1.5))
-                .frame(minWidth: 44, minHeight: 44)
+                .frame(minWidth: max(44, a11y.size(44)), minHeight: 44)
                 .contentShape(Capsule())
             }
             .buttonStyle(StilePulsante(forma: .capsula, a11y: a11y))
@@ -210,7 +210,7 @@ struct TypingView: View {
       .fixedSize(horizontal: false, vertical: true)
       .padding(.horizontal, a11y.size(Metrica.spazioPiccolo))
       .padding(.vertical, a11y.size(Metrica.spazioStretto))
-      .frame(minWidth: 44, minHeight: 44)
+      .frame(minWidth: max(44, a11y.size(44)), minHeight: 44)
       .background(Capsule().fill(inAscolto == parola.testo
                                 ? palette.accent.opacity(0.22) : palette.surface))
       .overlay(Capsule().stroke(parola.esito == .confermata ? palette.ok : palette.wrong,
