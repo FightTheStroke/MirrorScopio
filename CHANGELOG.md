@@ -15,9 +15,10 @@ Le voci sono scritte per chi usa l'app, non per chi scrive il codice.
 
 ## [Non ancora rilasciato]
 
-Anteprima privata 0.11.0 in preparazione: pacchetto Mac firmato e TestFlight.
-La sezione di rilascio pubblico resta assente per non attivare la pubblicazione
-automatica del ramo principale.
+## [0.11.1] — 2026-09-07
+
+Versione ufficiale per Mac: include le novità dell'anteprima 0.11.0 e viene
+proposta anche ai client che hanno già installato quell'anteprima.
 
 ### Aggiunto
 - **Un percorso già preparato di otto tappe e quaranta incontri:** sequenze,
@@ -26,6 +27,8 @@ automatica del ramo principale.
   Il carico si sceglie senza aumenti automatici, gli aiuti restano disponibili
   e le pause conservano il punto. Ogni due tappe un riepilogo distingue
   confronti delle scelte, autovalutazioni e aiuti dichiarati: non misura il QI.
+  Le opzioni variano di posizione, senza suggerire la risposta con un ordine fisso;
+  una volta preparata la lezione, il loro ordine resta salvato.
 - **Scrivi dà il tempo di correggersi:** indica le parole da rivedere, quelle
   mancanti e quelle in più, conserva il testo e concede tre riprove dopo la
   prima risposta. Se la correzione riesce si prosegue; altrimenti compare il
@@ -897,7 +900,8 @@ della Fight The Stroke Foundation.
 - **Nessuna dipendenza esterna**, nessun progetto Xcode: solo `swiftc` e i framework di
   sistema.
 
-[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.9.1...HEAD
+[Non ancora rilasciato]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/FightTheStroke/MirrorScopio/compare/v0.10.0...v0.11.1
 [0.1.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.1.0
 [0.2.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.2.0
 [0.4.0]: https://github.com/FightTheStroke/MirrorScopio/releases/tag/v0.4.0
